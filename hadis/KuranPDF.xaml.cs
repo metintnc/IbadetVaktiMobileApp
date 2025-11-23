@@ -1,66 +1,62 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
+﻿using System.ComponentModel;
+using Syncfusion.Maui.PdfViewer;
 namespace hadis
 {
     public partial class KuranPDF : ContentPage
     {
+        private int Sayfa;
+        private bool _yukleniyor = true;
         private readonly string _localPdfPath;
         private FileStream _pdfStream;
         public KuranPDF()
         {
             InitializeComponent();
             _localPdfPath = Path.Combine(FileSystem.AppDataDirectory, "kuran.pdf");
+            pdfViewer.DocumentLoaded += PdfViewer_DocumentLoaded;
+            pdfViewer.PropertyChanged += PdfViewer_PropertyChanged;
         }
-
+        private void PdfViewer_DocumentLoaded(object sender, EventArgs e)
+        {
+            _yukleniyor = true;
+        }
+        private void PdfViewer_PropertyChanged(object sender, PropertyChangedEventArgs e)
+        {
+            if (_yukleniyor) return;
+            if (e.PropertyName == nameof(Syncfusion.Maui.PdfViewer.SfPdfViewer.PageNumber))
+            {
+                Preferences.Default.Set("KuranSonSayfa", pdfViewer.PageNumber);
+            }
+            
+        }
         protected override async void OnAppearing()
         {
             base.OnAppearing();
-            await Task.Yield(); // UI önce çizilsin
             await KuranPDFYukleAsync();
+            Sayfa = Preferences.Default.Get("KuranSonSayfa", 1);
+            pdfViewer.GoToPage(Sayfa);
         }
 
         private async Task KuranPDFYukleAsync()
         {
-            SetLoadingState(true);
-
             try
             {
                 await İlkAcılıstaKopyala();
+                _pdfStream = new FileStream(_localPdfPath, FileMode.Open, FileAccess.Read);
+                pdfViewer.LoadDocument(_pdfStream);
 
-                // PDF'i sınıf seviyesinde aç
-                _pdfStream = new FileStream(_localPdfPath, FileMode.Open, FileAccess.Read, FileShare.Read);
-
-                // Stream ile PDF'i yükle
-                pdfViewer.LoadDocument(_pdfStream); // async yerine sync kullanıyoruz, lazy ile performans kaybolmaz
             }
             catch (Exception ex)
             {
                 await DisplayAlert("Hata", $"PDF yüklenirken bir sorun oluştu: {ex.Message}", "Tamam");
             }
-            finally
-            {
-                SetLoadingState(false);
-            }
         }
 
-        // Sayfa kapatıldığında Stream'i kapat
         protected override void OnDisappearing()
         {
             base.OnDisappearing();
-
-            // Stream'i kapat
             _pdfStream?.Dispose();
             _pdfStream = null;
-        }
-
-
-        private void SetLoadingState(bool isLoading)
-        {
-            pdfViewer.IsVisible = !isLoading;
+            Preferences.Default.Set("KuranSonSayfa", pdfViewer.PageNumber);
         }
 
         private async Task İlkAcılıstaKopyala()

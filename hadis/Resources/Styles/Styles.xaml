@@ -26,9 +26,7 @@
 
     <Style TargetType="Label" x:Key="AnaLabel">
         <Setter Property="TextColor" Value="{AppThemeBinding Light=#00796B, Dark={StaticResource White}}" />
-        <Setter Property="Shadow">
-            
-        </Setter>
+        
     </Style>
 
     <Style TargetType="TabbedPage" x:Key="sekme">
