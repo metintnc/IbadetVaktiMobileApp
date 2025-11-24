@@ -9,6 +9,7 @@
                                PageLayoutMode="Single"
                                ShowToolbars="False"  
                                ShowScrollHead="True"
-                               EnableTextSelection="False"/>
+                               EnableTextSelection="False"
+                               FlowDirection="RightToLeft"/>
     </Grid>
 </ContentPage>
