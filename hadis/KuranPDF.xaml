@@ -4,7 +4,6 @@
              xmlns:pdfViewer="clr-namespace:Syncfusion.Maui.PdfViewer;assembly=Syncfusion.Maui.PdfViewer"
              x:Class="hadis.KuranPDF">
     <Grid>
-
         <pdfViewer:SfPdfViewer x:Name="pdfViewer"
                                PageLayoutMode="Single"
                                ShowToolbars="False"  

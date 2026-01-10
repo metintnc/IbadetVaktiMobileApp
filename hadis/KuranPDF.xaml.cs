@@ -8,6 +8,8 @@ namespace hadis
         private bool _yukleniyor = true;
         private readonly string _localPdfPath;
         private FileStream _pdfStream;
+        private bool _sayfaYuklendi = false;
+        
         public KuranPDF()
         {
             InitializeComponent();
@@ -15,10 +17,18 @@ namespace hadis
             pdfViewer.DocumentLoaded += PdfViewer_DocumentLoaded;
             pdfViewer.PropertyChanged += PdfViewer_PropertyChanged;
         }
+        
         private void PdfViewer_DocumentLoaded(object sender, EventArgs e)
         {
-            _yukleniyor = true;
+            if (!_sayfaYuklendi)
+            {
+                Sayfa = Preferences.Default.Get("KuranSonSayfa", 1);
+                pdfViewer.GoToPage(Sayfa);
+                _sayfaYuklendi = true;
+            }
+            _yukleniyor = false;
         }
+        
         private void PdfViewer_PropertyChanged(object sender, PropertyChangedEventArgs e)
         {
             if (_yukleniyor) return;
@@ -26,24 +36,28 @@ namespace hadis
             {
                 Preferences.Default.Set("KuranSonSayfa", pdfViewer.PageNumber);
             }
-            
         }
+        
         protected override async void OnAppearing()
         {
             base.OnAppearing();
-            await KuranPDFYukleAsync();
-            Sayfa = Preferences.Default.Get("KuranSonSayfa", 1);
-            pdfViewer.GoToPage(Sayfa);
+            
+            if (_pdfStream == null)
+            {
+                await KuranPDFYukleAsync();
+            }
         }
 
         private async Task KuranPDFYukleAsync()
         {
             try
             {
+                // İlk açılışta PDF'i kopyala
                 await İlkAcılıstaKopyala();
-                _pdfStream = new FileStream(_localPdfPath, FileMode.Open, FileAccess.Read);
+                
+                // FileStream'i aç ve yükle
+                _pdfStream = new FileStream(_localPdfPath, FileMode.Open, FileAccess.Read, FileShare.Read);
                 pdfViewer.LoadDocument(_pdfStream);
-
             }
             catch (Exception ex)
             {
@@ -54,21 +68,25 @@ namespace hadis
         protected override void OnDisappearing()
         {
             base.OnDisappearing();
-            _pdfStream?.Dispose();
-            _pdfStream = null;
-            Preferences.Default.Set("KuranSonSayfa", pdfViewer.PageNumber);
+            
+            // Son sayfayı kaydet
+            if (!_yukleniyor && _sayfaYuklendi)
+            {
+                Preferences.Default.Set("KuranSonSayfa", pdfViewer.PageNumber);
+            }
         }
 
         private async Task İlkAcılıstaKopyala()
         {
+            // Dosya zaten varsa kopyalamayı atla
             if (File.Exists(_localPdfPath))
                 return;
 
             using (Stream assetStream = await FileSystem.OpenAppPackageFileAsync("kuran.pdf"))
             {
-                using (FileStream fileStream = File.Create(_localPdfPath))
+                using (FileStream fileStream = new FileStream(_localPdfPath, FileMode.Create, FileAccess.Write, FileShare.None, 8192, useAsync: true))
                 {
-                    await assetStream.CopyToAsync(fileStream);
+                    await assetStream.CopyToAsync(fileStream, 81920);
                 }
             }
         }

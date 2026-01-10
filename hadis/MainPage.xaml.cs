@@ -199,6 +199,7 @@ namespace hadis
 
                 if (konum != null)
                 {
+
                     return (konum.Latitude, konum.Longitude);
                 }
                 else
