@@ -47,6 +47,23 @@ namespace hadis
                 await KuranPDFYukleAsync();
             }
         }
+        
+        protected override async void OnNavigatedTo(NavigatedToEventArgs args)
+        {
+            base.OnNavigatedTo(args);
+            
+            // Tab ile gelince fade animasyon
+            pdfViewer.Opacity = 0;
+            await pdfViewer.FadeTo(1, 400, Easing.CubicOut);
+        }
+        
+        protected override async void OnNavigatedFrom(NavigatedFromEventArgs args)
+        {
+            base.OnNavigatedFrom(args);
+            
+            // Tab değişirken fade out
+            await pdfViewer.FadeTo(0, 250, Easing.CubicIn);
+        }
 
         private async Task KuranPDFYukleAsync()
         {
@@ -78,7 +95,7 @@ namespace hadis
 
         private async Task İlkAcılıstaKopyala()
         {
-            // Dosya zaten varsa kopyalamayı atla
+            // Dosya zaten varsaysa kopyalamayı atla
             if (File.Exists(_localPdfPath))
                 return;
 

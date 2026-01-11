@@ -88,7 +88,11 @@
 	</ItemGroup>
 
 	<ItemGroup>
+	  <AndroidResource Remove="Platforms\Android\Resources\drawable\widget_background.xml" />
+	  <AndroidResource Remove="Platforms\Android\Resources\layout\widget_layout.xml" />
+	  <AndroidResource Remove="Platforms\Android\Resources\values\strings.xml" />
 	  <AndroidResource Remove="Platforms\Android\Resources\values\styles.xml" />
+	  <AndroidResource Remove="Platforms\Android\Resources\xml\widget_provider.xml" />
 	</ItemGroup>
 
 	<ItemGroup>
@@ -109,10 +113,16 @@
 	</ItemGroup>
 
 	<ItemGroup>
+	  <MauiXaml Update="Ayarlar.xaml">
+	    <Generator>MSBuild:Compile</Generator>
+	  </MauiXaml>
 	  <MauiXaml Update="kible.xaml">
 	    <Generator>MSBuild:Compile</Generator>
 	  </MauiXaml>
 	  <MauiXaml Update="KuranPDF.xaml">
+	    <Generator>MSBuild:Compile</Generator>
+	  </MauiXaml>
+	  <MauiXaml Update="SehirSecim.xaml">
 	    <Generator>MSBuild:Compile</Generator>
 	  </MauiXaml>
 	  <MauiXaml Update="zikirmatik.xaml">
@@ -121,7 +131,7 @@
 	</ItemGroup>
 
 	<ItemGroup>
-	  <Folder Include="Models\" />
+	  <Folder Include="Platforms\Android\Handlers\" />
 	</ItemGroup>
 
 </Project>

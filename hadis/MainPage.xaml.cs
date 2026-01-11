@@ -4,8 +4,9 @@ namespace hadis
 {
     public partial class MainPage : ContentPage
     {
-        Dictionary<string,DateTime> _namazvakitleri;
+        Dictionary<string, DateTime> _namazvakitleri;
         private System.Timers.Timer _timer;
+        
         public MainPage()
         {
             InitializeComponent();
@@ -13,13 +14,175 @@ namespace hadis
             _timer = new System.Timers.Timer(500);
             _timer.Elapsed += async (s, e) => await MainThread.InvokeOnMainThreadAsync(GeriSayımıGüncelle);
             _timer.Start();
-            _ =ayetgoster();
-          
-          
-            
+            _ = ayetgoster();
+            _ = KonumBilgisiniGoster();
         }
-  
-       
+        
+        protected override async void OnAppearing()
+        {
+            base.OnAppearing();
+            
+            // Status bar rengini güncelle
+            UpdateStatusBarColor();
+            
+            // Sayfa her gösterildiğinde konum bilgisini ve namaz vakitlerini güncelle
+            await KonumBilgisiniGoster();
+            await NamazVakitleriniÇek();
+        }
+        
+        protected override async void OnNavigatedTo(NavigatedToEventArgs args)
+        {
+            base.OnNavigatedTo(args);
+            
+            // Tab ile gelince frame animasyonları
+            await AnimateFrames();
+        }
+        
+        private async Task AnimateFrames()
+        {
+            // Ana geri sayım frame'ini başlangıçta görünmez ve küçük yap
+            MainCountdownFrame.Opacity = 0;
+            MainCountdownFrame.Scale = 0.7;
+            
+            // İlk satır frame'leri
+            ImsakFrame.Opacity = 0;
+            ImsakFrame.Scale = 0.7;
+            GunesFrame.Opacity = 0;
+            GunesFrame.Scale = 0.7;
+            OgleFrame.Opacity = 0;
+            OgleFrame.Scale = 0.7;
+            
+            // İkinci satır frame'leri
+            IkindiFrame.Opacity = 0;
+            IkindiFrame.Scale = 0.7;
+            AksamFrame.Opacity = 0;
+            AksamFrame.Scale = 0.7;
+            YatsiFrame.Opacity = 0;
+            YatsiFrame.Scale = 0.7;
+            
+            // Ayet frame'i
+            AyetFrame.Opacity = 0;
+            AyetFrame.Scale = 0.7;
+            
+            // 1. Ana geri sayım frame'i büyüsün
+            await Task.WhenAll(
+                MainCountdownFrame.FadeTo(1, 500, Easing.CubicOut),
+                MainCountdownFrame.ScaleTo(1.0, 600, Easing.SpringOut)
+            );
+            
+            await Task.Delay(100);
+            
+            // 2. İlk satır frame'leri kademeli olarak büyüsün
+            var imsakTask = Task.WhenAll(
+                ImsakFrame.FadeTo(1, 400, Easing.CubicOut),
+                ImsakFrame.ScaleTo(1.0, 500, Easing.SpringOut)
+            );
+            
+            await Task.Delay(80);
+            
+            var gunesTask = Task.WhenAll(
+                GunesFrame.FadeTo(1, 400, Easing.CubicOut),
+                GunesFrame.ScaleTo(1.0, 500, Easing.SpringOut)
+            );
+            
+            await Task.Delay(80);
+            
+            var ogleTask = Task.WhenAll(
+                OgleFrame.FadeTo(1, 400, Easing.CubicOut),
+                OgleFrame.ScaleTo(1.0, 500, Easing.SpringOut)
+            );
+            
+            await Task.Delay(100);
+            
+            // 3. İkinci satır frame'leri kademeli olarak büyüsün
+            var ikindiTask = Task.WhenAll(
+                IkindiFrame.FadeTo(1, 400, Easing.CubicOut),
+                IkindiFrame.ScaleTo(1.0, 500, Easing.SpringOut)
+            );
+            
+            await Task.Delay(80);
+            
+            var aksamTask = Task.WhenAll(
+                AksamFrame.FadeTo(1, 400, Easing.CubicOut),
+                AksamFrame.ScaleTo(1.0, 500, Easing.SpringOut)
+            );
+            
+            await Task.Delay(80);
+            
+            var yatsiTask = Task.WhenAll(
+                YatsiFrame.FadeTo(1, 400, Easing.CubicOut),
+                YatsiFrame.ScaleTo(1.0, 500, Easing.SpringOut)
+            );
+            
+            await Task.Delay(150);
+            
+            // 4. Son olarak ayet frame'i büyüsün
+            await Task.WhenAll(
+                AyetFrame.FadeTo(1, 500, Easing.CubicOut),
+                AyetFrame.ScaleTo(1.0, 600, Easing.SpringOut)
+            );
+        }
+        
+        protected override async void OnNavigatedFrom(NavigatedFromEventArgs args)
+        {
+            base.OnNavigatedFrom(args);
+            
+            // Tab değişirken hızlı küçülme
+            await Task.WhenAll(
+                MainCountdownFrame.ScaleTo(0.7, 250, Easing.CubicIn),
+                ImsakFrame.ScaleTo(0.7, 250, Easing.CubicIn),
+                GunesFrame.ScaleTo(0.7, 250, Easing.CubicIn),
+                OgleFrame.ScaleTo(0.7, 250, Easing.CubicIn),
+                IkindiFrame.ScaleTo(0.7, 250, Easing.CubicIn),
+                AksamFrame.ScaleTo(0.7, 250, Easing.CubicIn),
+                YatsiFrame.ScaleTo(0.7, 250, Easing.CubicIn),
+                AyetFrame.ScaleTo(0.7, 250, Easing.CubicIn)
+            );
+        }
+        
+        private void UpdateStatusBarColor()
+        {
+            // Aktif temayı al
+            var currentTheme = Application.Current?.UserAppTheme == AppTheme.Unspecified 
+                ? Application.Current?.RequestedTheme ?? AppTheme.Light 
+                : Application.Current?.UserAppTheme ?? AppTheme.Light;
+
+#if ANDROID
+            Microsoft.Maui.ApplicationModel.Platform.CurrentActivity?.RunOnUiThread(() =>
+            {
+                var window = Microsoft.Maui.ApplicationModel.Platform.CurrentActivity?.Window;
+                if (window != null)
+                {
+                    if (currentTheme == AppTheme.Dark)
+                    {
+                        // Koyu tema - siyah status bar
+                        window.SetStatusBarColor(Android.Graphics.Color.Black);
+                        
+                        // Android 6.0 ve üzeri için metin rengini ayarla
+                        if (Android.OS.Build.VERSION.SdkInt >= Android.OS.BuildVersionCodes.M)
+                        {
+                            // Koyu tema için açık renkli iconlar
+                            window.DecorView.SystemUiVisibility = (Android.Views.StatusBarVisibility)
+                                Android.Views.SystemUiFlags.Visible;
+                        }
+                    }
+                    else
+                    {
+                        // Açık tema - beyaz status bar
+                        window.SetStatusBarColor(Android.Graphics.Color.White);
+                        
+                        // Android 6.0 ve üzeri için metin rengini ayarla
+                        if (Android.OS.Build.VERSION.SdkInt >= Android.OS.BuildVersionCodes.M)
+                        {
+                            // Açık tema için koyu renkli iconlar
+                            window.DecorView.SystemUiVisibility = (Android.Views.StatusBarVisibility)
+                                (Android.Views.SystemUiFlags.LightStatusBar);
+                        }
+                    }
+                }
+            });
+#endif
+        }
         public async Task ayetgoster()
         {
             string[] ayetler = new string[]
@@ -52,12 +215,12 @@ namespace hadis
             "En hayırlınız, ahlakı en güzel olandır. (Tirmizî, Birr 61)"
             };
             string bugununhadisi = hadisler[gunIndex];
-            
+
         }
         public void GeriSayımıGüncelle()
         {
-          
-            if(_namazvakitleri == null || _namazvakitleri.Count == 0)
+
+            if (_namazvakitleri == null || _namazvakitleri.Count == 0)
             {
                 return;
             }
@@ -111,7 +274,7 @@ namespace hadis
                 _namazvakitleri["İmsak"] = _namazvakitleri["İmsak"].AddDays(1);
                 kalansure = _namazvakitleri["İmsak"] - simdi;
                 sonraki = "İmsak Vaktine";
-                aksamvakit.TextColor  = Colors.Silver;
+                aksamvakit.TextColor = Colors.Silver;
                 yatsıvakit.TextColor = Colors.White;
             }
             namazismi.Text = sonraki;
@@ -127,7 +290,7 @@ namespace hadis
         {
             try
             {
-                
+
                 var (latitude, longitude) = await GetKonum();
                 if (latitude == 0 && longitude == 0)
                 {
@@ -162,18 +325,18 @@ namespace hadis
                 DateTime ikindivakti = DateTime.Today + TimeSpan.Parse(ikindi);
                 DateTime aksamvakti = DateTime.Today + TimeSpan.Parse(aksam);
                 DateTime yatsivakti = DateTime.Today + TimeSpan.Parse(yatsi);
-                
+
                 _namazvakitleri = new Dictionary<string, DateTime>();
-                _namazvakitleri.Add("İmsak",imsakvakti);
+                _namazvakitleri.Add("İmsak", imsakvakti);
                 _namazvakitleri.Add("gunes", gunesvakti);
                 _namazvakitleri.Add("Ogle", oglevakti);
                 _namazvakitleri.Add("İkindi", ikindivakti);
                 _namazvakitleri.Add("Aksam", aksamvakti);
                 _namazvakitleri.Add("Yatsi", yatsivakti);
-               
+
 
             }
-            catch(Exception e)
+            catch (Exception e)
             {
                 kalan.Text = "- -";
                 yatsıvakit.Text = "- -";
@@ -190,22 +353,63 @@ namespace hadis
         {
             try
             {
+                // Önce manuel konum ayarı var mı kontrol et
+                bool otomatikKonum = Preferences.Default.Get("OtomatikKonum", true);
+                
+                if (!otomatikKonum)
+                {
+                    // Manuel konum kullan
+                    double manuelLat = Preferences.Default.Get("ManuelLatitude", 0.0);
+                    double manuelLon = Preferences.Default.Get("ManuelLongitude", 0.0);
+                    
+                    if (manuelLat != 0 && manuelLon != 0)
+                    {
+                        return (manuelLat, manuelLon);
+                    }
+                }
+                
+                // Otomatik konum kullan
+                // İlk olarak konum izinlerini kontrol et
+                var status = await Permissions.CheckStatusAsync<Permissions.LocationWhenInUse>();
+                
+                if (status != PermissionStatus.Granted)
+                {
+                    status = await Permissions.RequestAsync<Permissions.LocationWhenInUse>();
+                }
+
+                if (status != PermissionStatus.Granted)
+                {
+                    Console.WriteLine("Konum izni verilmedi");
+                    return (0, 0);
+                }
+
                 var konum = await Geolocation.GetLastKnownLocationAsync();
 
                 if (konum == null)
                 {
-                    konum = await Geolocation.GetLocationAsync(new GeolocationRequest(GeolocationAccuracy.Medium, TimeSpan.FromSeconds(10)));
+                    var request = new GeolocationRequest(GeolocationAccuracy.Medium, TimeSpan.FromSeconds(10));
+                    konum = await Geolocation.GetLocationAsync(request);
                 }
 
                 if (konum != null)
                 {
-
                     return (konum.Latitude, konum.Longitude);
                 }
                 else
                 {
-                    throw new Exception("- -");
+                    Console.WriteLine("Konum null döndü");
+                    return (0, 0);
                 }
+            }
+            catch (FeatureNotSupportedException fnsEx)
+            {
+                Console.WriteLine($"Konum özelliği desteklenmiyor: {fnsEx.Message}");
+                return (0, 0);
+            }
+            catch (PermissionException pEx)
+            {
+                Console.WriteLine($"Konum izni hatası: {pEx.Message}");
+                return (0, 0);
             }
             catch (Exception ex)
             {
@@ -214,9 +418,104 @@ namespace hadis
             }
         }
 
-        private void Buton_Clicked(object sender, EventArgs e)
+        public async Task KonumBilgisiniGoster()
         {
+            try
+            {
+                // Önce manuel konum ayarı var mı kontrol et
+                bool otomatikKonum = Preferences.Default.Get("OtomatikKonum", true);
+                
+                if (!otomatikKonum)
+                {
+                    // Manuel konum göster
+                    string manuelSehir = Preferences.Default.Get("ManuelSehir", "");
+                    if (!string.IsNullOrEmpty(manuelSehir))
+                    {
+                        Konum.Text = manuelSehir;
+                        return;
+                    }
+                }
+                
+                // Otomatik konum göster
+                // İlk olarak konum izinlerini kontrol et
+                var status = await Permissions.CheckStatusAsync<Permissions.LocationWhenInUse>();
+                
+                if (status != PermissionStatus.Granted)
+                {
+                    status = await Permissions.RequestAsync<Permissions.LocationWhenInUse>();
+                }
 
+                if (status != PermissionStatus.Granted)
+                {
+                    Konum.Text = "Konum İzni Verilmedi";
+                    return;
+                }
+
+                var konum = await Geolocation.GetLastKnownLocationAsync();
+
+                if (konum == null)
+                {
+                    var request = new GeolocationRequest(GeolocationAccuracy.Medium, TimeSpan.FromSeconds(10));
+                    konum = await Geolocation.GetLocationAsync(request);
+                }
+
+                if (konum != null)
+                {
+                    try
+                    {
+                        var placemarks = await Geocoding.Default.GetPlacemarksAsync(konum.Latitude, konum.Longitude);
+                        var placemark = placemarks?.FirstOrDefault();
+
+                        if (placemark != null)
+                        {
+                            string il = placemark.AdminArea ?? "";
+                            string ilce = placemark.SubAdminArea ?? placemark.Locality ?? "";
+
+                            if (!string.IsNullOrEmpty(il) && !string.IsNullOrEmpty(ilce))
+                            {
+                                Konum.Text = $"{ilce} / {il}";
+                            }
+                            else if (!string.IsNullOrEmpty(il))
+                            {
+                                Konum.Text = il;
+                            }
+                            else
+                            {
+                                Konum.Text = $"Lat: {konum.Latitude:F2}, Lon: {konum.Longitude:F2}";
+                            }
+                        }
+                        else
+                        {
+                            Konum.Text = $"Lat: {konum.Latitude:F2}, Lon: {konum.Longitude:F2}";
+                        }
+                    }
+                    catch (Exception geocodingEx)
+                    {
+                        Console.WriteLine($"Geocoding Hatası: {geocodingEx.Message}");
+                        Konum.Text = $"Lat: {konum.Latitude:F2}, Lon: {konum.Longitude:F2}";
+                    }
+                }
+                else
+                {
+                    Konum.Text = "Konum Alınamadı";
+                }
+            }
+            catch (FeatureNotSupportedException fnsEx)
+            {
+                Console.WriteLine($"Konum özelliği desteklenmiyor: {fnsEx.Message}");
+                Konum.Text = "Konum Desteklenmiyor";
+            }
+            catch (PermissionException pEx)
+            {
+                Console.WriteLine($"Konum izni hatası: {pEx.Message}");
+                Konum.Text = "Konum İzni Gerekli";
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Konum Bilgisi Hatası: {ex.Message}");
+                Konum.Text = "Konum Hatası";
+            }
         }
+       
     }
 }

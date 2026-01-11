@@ -1,0 +1,87 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             x:Class="hadis.SehirSecim"
+             Title="Konum Sec">
+    
+    <Grid>
+        <Image Aspect="AspectFill"
+               HorizontalOptions="FillAndExpand"
+               VerticalOptions="FillAndExpand">
+            <Image.Source>
+                <AppThemeBinding Light="bg_light.jpg" Dark="bg_dark.jpg" />
+            </Image.Source>
+        </Image>
+        
+        <BoxView HorizontalOptions="FillAndExpand"
+                 VerticalOptions="FillAndExpand">
+            <BoxView.Color>
+                <AppThemeBinding Light="White" Dark="Black" />
+            </BoxView.Color>
+            <BoxView.Opacity>
+                <AppThemeBinding Light="0.85" Dark="0.55" />
+            </BoxView.Opacity>
+        </BoxView>
+        
+        <Grid RowDefinitions="Auto,*" Padding="20,10">
+            
+            <!-- Arama Kutusu -->
+            <Frame Grid.Row="0" 
+                   Style="{StaticResource BorderFrame}" 
+                   Padding="0" 
+                   BackgroundColor="Transparent"
+                   CornerRadius="15"
+                   Margin="0,10">
+                <SearchBar x:Name="SearchBar"
+                          Placeholder="Sehir ara..."
+                          TextChanged="SearchBar_TextChanged"
+                          BackgroundColor="Transparent"
+                          PlaceholderColor="{AppThemeBinding Light=#9E9E9E, Dark=#757575}"
+                          TextColor="{AppThemeBinding Light=#212121, Dark=#E0E0E0}"
+                          CancelButtonColor="{AppThemeBinding Light=#00796B, Dark=#81C784}"/>
+            </Frame>
+            
+            <!-- Sehir Listesi -->
+            <Frame Grid.Row="1" 
+                   Style="{StaticResource BorderFrame}" 
+                   Padding="0" 
+                   BackgroundColor="Transparent"
+                   CornerRadius="15"
+                   Margin="0,10,0,0">
+                <CollectionView x:Name="CitiesCollectionView"
+                               SelectionMode="Single"
+                               SelectionChanged="CitiesCollectionView_SelectionChanged"
+                               VerticalScrollBarVisibility="Never">
+                    <CollectionView.ItemTemplate>
+                        <DataTemplate>
+                            <Frame Padding="0" 
+                                   Margin="5,2"
+                                   BorderColor="Transparent"
+                                   BackgroundColor="Transparent"
+                                   HasShadow="False">
+                                <Grid Padding="15,12" 
+                                      ColumnDefinitions="*,Auto"
+                                      BackgroundColor="Transparent">
+                                    <Grid.GestureRecognizers>
+                                        <TapGestureRecognizer Tapped="OnCityTapped"/>
+                                    </Grid.GestureRecognizers>
+                                    <Label Grid.Column="0"
+                                           Text="{Binding Name}"
+                                           FontSize="16"
+                                           VerticalOptions="Center"
+                                           TextColor="{AppThemeBinding Light=#212121, Dark=#E0E0E0}"/>
+                                    <Label Grid.Column="1"
+                                           Text=">"
+                                           FontSize="24"
+                                           VerticalOptions="Center"
+                                           TextColor="{AppThemeBinding Light=#00796B, Dark=#81C784}"/>
+                                </Grid>
+                            </Frame>
+                        </DataTemplate>
+                    </CollectionView.ItemTemplate>
+                </CollectionView>
+            </Frame>
+            
+        </Grid>
+    </Grid>
+</ContentPage>

@@ -1,5 +1,4 @@
-﻿
-using Syncfusion.Maui.Themes;
+﻿using Syncfusion.Maui.Themes;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -12,6 +11,7 @@ namespace hadis
     {
         private int sayı = 0;
         private int toplam = 0;
+        
         public zikirmatik()
         {
             InitializeComponent();
@@ -19,6 +19,37 @@ namespace hadis
             zikirsayisi.Text = sayı.ToString();
             toplam = Preferences.Default.Get("Toplam",0);
             ToplamZikir.Text = toplam.ToString();
+        }
+
+        protected override async void OnNavigatedTo(NavigatedToEventArgs args)
+        {
+            base.OnNavigatedTo(args);
+            
+            // Tab ile gelince scale animasyon
+            await AnimateZikirEntry();
+        }
+        
+        private async Task AnimateZikirEntry()
+        {
+            // Zikir butonu
+            zikirbutton.Opacity = 0;
+            zikirbutton.Scale = 0.5;
+            
+            await Task.WhenAll(
+                zikirbutton.FadeTo(1, 500, Easing.CubicOut),
+                zikirbutton.ScaleTo(1.0, 600, Easing.SpringOut)
+            );
+        }
+        
+        protected override async void OnNavigatedFrom(NavigatedFromEventArgs args)
+        {
+            base.OnNavigatedFrom(args);
+            
+            // Tab değişirken scale out
+            await Task.WhenAll(
+                zikirbutton.FadeTo(0, 300, Easing.CubicIn),
+                zikirbutton.ScaleTo(0.5, 400, Easing.CubicIn)
+            );
         }
 
         private async void zikirbutton_Clicked(object sender, EventArgs e)
@@ -29,6 +60,7 @@ namespace hadis
             zikirsayisi.Text = sayı.ToString();
             Preferences.Default.Set("sonSayi", sayı);
             Preferences.Default.Set("Toplam", toplam);
+            
             if(sayı ==33|| sayı == 66 || sayı == 99)
             {
                 try
