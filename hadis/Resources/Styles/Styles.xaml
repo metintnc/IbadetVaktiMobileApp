@@ -10,14 +10,6 @@
     <Style TargetType="Frame" x:Key="BorderFrame">
         <Setter Property="BorderColor" Value="{AppThemeBinding Light=#009688, Dark=#26A69A}" />
         <Setter Property="BackgroundColor" Value="{AppThemeBinding Light=#FAFFFFFF, Dark=Transparent}"/>
-        <Setter Property="Shadow">
-            <Setter.Value>
-                <Shadow Brush="{AppThemeBinding Light=#009688, Dark=#26A69A}" 
-                    Offset="0,0" 
-                    Radius="10" 
-                    Opacity="{AppThemeBinding Light=0.6, Dark=0.8}" />
-            </Setter.Value>
-            </Setter>
     </Style>
 
     <Style TargetType="Grid" x:Key="Background">

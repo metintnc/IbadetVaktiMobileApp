@@ -25,6 +25,9 @@
         <Tab Title="" Icon="kiblesekme.png"> 
             <ShellContent ContentTemplate="{DataTemplate local:kible}" />
         </Tab>
+        <Tab Title="" Icon="dotnet_bot.png"> 
+            <ShellContent ContentTemplate="{DataTemplate local:Ayarlar}" />
+        </Tab>
 
     </TabBar>
 </Shell>
