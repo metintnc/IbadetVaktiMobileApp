@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             x:Class="hadis.WidgetAyarlari"
+             Title="Widget Ayarlari">
+    
+    <Grid>
+        <Image Aspect="AspectFill"
+               HorizontalOptions="FillAndExpand"
+               VerticalOptions="FillAndExpand">
+            <Image.Source>
+                <AppThemeBinding Light="bg_light.jpg" Dark="bg_dark.jpg" />
+            </Image.Source>
+        </Image>
+        
+        <BoxView HorizontalOptions="FillAndExpand"
+                 VerticalOptions="FillAndExpand">
+            <BoxView.Color>
+                <AppThemeBinding Light="White" Dark="Black" />
+            </BoxView.Color>
+            <BoxView.Opacity>
+                <AppThemeBinding Light="0.85" Dark="0.55" />
+            </BoxView.Opacity>
+        </BoxView>
+        
+        <ScrollView Padding="20,10">
+            <VerticalStackLayout Spacing="15">
+                
+                <Label Text="Widget Ayarlari"
+                       FontSize="24"
+                       FontAttributes="Bold"
+                       Margin="0,10,0,10"
+                       TextColor="{AppThemeBinding Light=#00796B, Dark=#81C784}"/>
+
+                <Frame Style="{StaticResource BorderFrame}" Padding="15" BackgroundColor="Transparent">
+                    <VerticalStackLayout Spacing="10">
+                        <Label Text="Widget Durumu" FontSize="18" FontAttributes="Bold"
+                               TextColor="{AppThemeBinding Light=#00796B, Dark=#81C784}"/>
+                        
+                        <Grid ColumnDefinitions="*,Auto">
+                            <Label Text="Widget Etkin" VerticalOptions="Center"
+                                   TextColor="{AppThemeBinding Light=#212121, Dark=#E0E0E0}"/>
+                            <Switch Grid.Column="1" IsToggled="True"/>
+                        </Grid>
+                    </VerticalStackLayout>
+                </Frame>
+
+                <Frame Style="{StaticResource BorderFrame}" Padding="15" BackgroundColor="Transparent">
+                    <VerticalStackLayout Spacing="10">
+                        <Label Text="Widget Boyutu" FontSize="18" FontAttributes="Bold"
+                               TextColor="{AppThemeBinding Light=#00796B, Dark=#81C784}"/>
+                        
+                        <RadioButton Content="Kucuk (2x2)" IsChecked="True"
+                                     TextColor="{AppThemeBinding Light=#212121, Dark=#E0E0E0}"/>
+                        <RadioButton Content="Orta (4x2)"
+                                     TextColor="{AppThemeBinding Light=#212121, Dark=#E0E0E0}"/>
+                        <RadioButton Content="Buyuk (4x4)"
+                                     TextColor="{AppThemeBinding Light=#212121, Dark=#E0E0E0}"/>
+                    </VerticalStackLayout>
+                </Frame>
+
+            </VerticalStackLayout>
+        </ScrollView>
+    </Grid>
+</ContentPage>

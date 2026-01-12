@@ -1,0 +1,318 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             x:Class="hadis.OzelTemaOlustur"
+             Title="Ozel Tema Olustur">
+    
+    <Grid>
+        <Image Aspect="AspectFill"
+               HorizontalOptions="FillAndExpand"
+               VerticalOptions="FillAndExpand">
+            <Image.Source>
+                <AppThemeBinding Light="bg_light.jpg" Dark="bg_dark.jpg" />
+            </Image.Source>
+        </Image>
+        
+        <BoxView HorizontalOptions="FillAndExpand"
+                 VerticalOptions="FillAndExpand">
+            <BoxView.Color>
+                <AppThemeBinding Light="White" Dark="Black" />
+            </BoxView.Color>
+            <BoxView.Opacity>
+                <AppThemeBinding Light="0.85" Dark="0.55" />
+            </BoxView.Opacity>
+        </BoxView>
+        
+        <ScrollView Padding="20,10">
+            <VerticalStackLayout Spacing="15">
+                
+                <Label Text="Ozel Tema Olustur"
+                       FontSize="24"
+                       FontAttributes="Bold"
+                       Margin="0,10,0,10"
+                       TextColor="{AppThemeBinding Light=#00796B, Dark=#81C784}"/>
+
+                <!-- Arkaplan Degistir -->
+                <Frame Style="{StaticResource BorderFrame}" Padding="5" BackgroundColor="Transparent">
+                    <Button Text="Arkaplan Degistir"
+                            Clicked="ArkaplanDegistir_Clicked"
+                            BackgroundColor="Transparent"
+                            TextColor="{AppThemeBinding Light=#00796B, Dark=#81C784}"
+                            FontSize="18"
+                            FontAttributes="Bold"
+                            HorizontalOptions="Fill"
+                            Padding="15"/>
+                </Frame>
+
+                <!-- Ana Frame Onizleme ve Ayarlari -->
+                <Frame Style="{StaticResource BorderFrame}" Padding="15" BackgroundColor="Transparent">
+                    <VerticalStackLayout Spacing="15">
+                        <!-- Onizleme Basligi -->
+                        <Label Text="Ana Frame Onizleme"
+                               FontSize="18"
+                               FontAttributes="Bold"
+                               TextColor="{AppThemeBinding Light=#00796B, Dark=#81C784}"/>
+                        
+                        <!-- Onizleme Frame -->
+                        <Frame x:Name="OnizlemeFrame" Style="{StaticResource BorderFrame}" Padding="20" BackgroundColor="Transparent" CornerRadius="15">
+                            <StackLayout Spacing="5" HorizontalOptions="Center">
+                                <Label x:Name="NamazLabel"
+                                       Style="{StaticResource AnaLabel}" 
+                                       Text="Ikindi Namazina" 
+                                       HorizontalOptions="Center" 
+                                       FontSize="25" />
+                                <Label x:Name="SaatLabel"
+                                       Style="{StaticResource AnaLabel}" 
+                                       Text="02 : 45 : 32"  
+                                       HorizontalOptions="Center" 
+                                       FontSize="45" />
+                                <Label x:Name="KaldiLabel"
+                                       Style="{StaticResource AnaLabel}" 
+                                       Text="Kaldi" 
+                                       HorizontalOptions="Center"  />
+                                <Label x:Name="KonumLabel"
+                                       Style="{StaticResource AnaLabel}" 
+                                       Text="Istanbul / Besiktas" 
+                                       HorizontalOptions="Center" 
+                                       FontSize="10" />
+                            </StackLayout>
+                        </Frame>
+
+                        <!-- Renk Ayarlari Basligi -->
+                        <Label Text="Renk Ayarlari"
+                               FontSize="18"
+                               FontAttributes="Bold"
+                               Margin="0,10,0,0"
+                               TextColor="{AppThemeBinding Light=#00796B, Dark=#81C784}"/>
+                        
+                        <!-- Renk Butonlari -->
+                        <Frame Style="{StaticResource BorderFrame}" Padding="5" BackgroundColor="Transparent">
+                            <Button Text="Frame Rengi Degistir"
+                                    Clicked="FrameRengiDegistir_Clicked"
+                                    BackgroundColor="Transparent"
+                                    TextColor="{AppThemeBinding Light=#00796B, Dark=#81C784}"
+                                    FontSize="16"
+                                    FontAttributes="Bold"
+                                    HorizontalOptions="Fill"
+                                    Padding="15"/>
+                        </Frame>
+
+                        <Frame Style="{StaticResource BorderFrame}" Padding="5" BackgroundColor="Transparent">
+                            <Button Text="Cerceve Rengi Degistir"
+                                    Clicked="CerceveRengiDegistir_Clicked"
+                                    BackgroundColor="Transparent"
+                                    TextColor="{AppThemeBinding Light=#00796B, Dark=#81C784}"
+                                    FontSize="16"
+                                    FontAttributes="Bold"
+                                    HorizontalOptions="Fill"
+                                    Padding="15"/>
+                        </Frame>
+
+                        <Frame Style="{StaticResource BorderFrame}" Padding="5" BackgroundColor="Transparent">
+                            <Button Text="Yazi Rengi Degistir"
+                                    Clicked="YaziRengiDegistir_Clicked"
+                                    BackgroundColor="Transparent"
+                                    TextColor="{AppThemeBinding Light=#00796B, Dark=#81C784}"
+                                    FontSize="16"
+                                    FontAttributes="Bold"
+                                    HorizontalOptions="Fill"
+                                    Padding="15"/>
+                        </Frame>
+                    </VerticalStackLayout>
+                </Frame>
+
+                <!-- Kucuk Frame'ler Onizleme ve Ayarlari -->
+                <Frame Style="{StaticResource BorderFrame}" Padding="15" BackgroundColor="Transparent">
+                    <VerticalStackLayout Spacing="15">
+                        <!-- Onizleme Basligi -->
+                        <Label Text="Kucuk Frame'ler Onizleme"
+                               FontSize="18"
+                               FontAttributes="Bold"
+                               TextColor="{AppThemeBinding Light=#00796B, Dark=#81C784}"/>
+                        
+                        <!-- Kucuk Frame'ler Grid -->
+                        <Grid ColumnDefinitions="*,*,*" RowDefinitions="Auto,Auto" ColumnSpacing="10" RowSpacing="10">
+                            <!-- Ilk Satir -->
+                            <Frame x:Name="ImsakKucukFrame" Grid.Row="0" Grid.Column="0" Style="{StaticResource BorderFrame}" BackgroundColor="Transparent" CornerRadius="15" Padding="10">
+                                <StackLayout Spacing="5" HorizontalOptions="Center">
+                                    <Label x:Name="ImsakYaziLabel" Text="Imsak" Style="{StaticResource AnaLabel}" HorizontalOptions="Center" FontSize="16" HorizontalTextAlignment="Center" />
+                                    <Label x:Name="ImsakVakitLabel" Text="06:16" Style="{StaticResource AnaLabel}" HorizontalOptions="Center" HorizontalTextAlignment="Center" FontSize="14"/>
+                                </StackLayout>
+                            </Frame>
+
+                            <Frame x:Name="GunesKucukFrame" Grid.Row="0" Grid.Column="1" Style="{StaticResource BorderFrame}" BackgroundColor="Transparent" CornerRadius="15" Padding="10">
+                                <StackLayout Spacing="5" HorizontalOptions="Center">
+                                    <Label x:Name="GunesYaziLabel" Text="Gunes" Style="{StaticResource AnaLabel}" HorizontalOptions="Center" FontSize="16" HorizontalTextAlignment="Center" />
+                                    <Label x:Name="GunesVakitLabel" Text="07:40" Style="{StaticResource AnaLabel}" HorizontalOptions="Center" HorizontalTextAlignment="Center" FontSize="14"/>
+                                </StackLayout>
+                            </Frame>
+
+                            <Frame x:Name="OgleKucukFrame" Grid.Row="0" Grid.Column="2" Style="{StaticResource BorderFrame}" BackgroundColor="Transparent" CornerRadius="15" Padding="10">
+                                <StackLayout Spacing="5" HorizontalOptions="Center">
+                                    <Label x:Name="OgleYaziLabel" Text="Ogle" Style="{StaticResource AnaLabel}" HorizontalOptions="Center" FontSize="16" HorizontalTextAlignment="Center" />
+                                    <Label x:Name="OgleVakitLabel" Text="12:49" Style="{StaticResource AnaLabel}" HorizontalOptions="Center" HorizontalTextAlignment="Center" FontSize="14"/>
+                                </StackLayout>
+                            </Frame>
+
+                            <!-- Ikinci Satir -->
+                            <Frame x:Name="IkindiKucukFrame" Grid.Row="1" Grid.Column="0" Style="{StaticResource BorderFrame}" BackgroundColor="Transparent" CornerRadius="15" Padding="10">
+                                <StackLayout Spacing="5" HorizontalOptions="Center">
+                                    <Label x:Name="IkindiYaziLabel" Text="Ikindi" Style="{StaticResource AnaLabel}" HorizontalOptions="Center" FontSize="16" HorizontalTextAlignment="Center" />
+                                    <Label x:Name="IkindiVakitLabel" Text="15:27" Style="{StaticResource AnaLabel}" HorizontalOptions="Center" HorizontalTextAlignment="Center" FontSize="14"/>
+                                </StackLayout>
+                            </Frame>
+
+                            <Frame x:Name="AksamKucukFrame" Grid.Row="1" Grid.Column="1" Style="{StaticResource BorderFrame}" BackgroundColor="Transparent" CornerRadius="15" Padding="10">
+                                <StackLayout Spacing="5" HorizontalOptions="Center">
+                                    <Label x:Name="AksamYaziLabel" Text="Aksam" Style="{StaticResource AnaLabel}" HorizontalOptions="Center" FontSize="16" HorizontalTextAlignment="Center" />
+                                    <Label x:Name="AksamVakitLabel" Text="17:49" Style="{StaticResource AnaLabel}" HorizontalOptions="Center" HorizontalTextAlignment="Center" FontSize="14"/>
+                                </StackLayout>
+                            </Frame>
+
+                            <Frame x:Name="YatsiKucukFrame" Grid.Row="1" Grid.Column="2" Style="{StaticResource BorderFrame}" BackgroundColor="Transparent" CornerRadius="15" Padding="10">
+                                <StackLayout Spacing="5" HorizontalOptions="Center">
+                                    <Label x:Name="YatsiYaziLabel" Text="Yatsi" Style="{StaticResource AnaLabel}" HorizontalOptions="Center" FontSize="16" HorizontalTextAlignment="Center" />
+                                    <Label x:Name="YatsiVakitLabel" Text="19:08" Style="{StaticResource AnaLabel}" HorizontalOptions="Center" HorizontalTextAlignment="Center" FontSize="14"/>
+                                </StackLayout>
+                            </Frame>
+                        </Grid>
+
+                        <!-- Renk Ayarlari Basligi -->
+                        <Label Text="Renk Ayarlari"
+                               FontSize="18"
+                               FontAttributes="Bold"
+                               Margin="0,10,0,0"
+                               TextColor="{AppThemeBinding Light=#00796B, Dark=#81C784}"/>
+                        
+                        <!-- Renk Butonlari -->
+                        <Frame Style="{StaticResource BorderFrame}" Padding="5" BackgroundColor="Transparent">
+                            <Button Text="Frame Rengi Degistir"
+                                    Clicked="KucukFrameRengiDegistir_Clicked"
+                                    BackgroundColor="Transparent"
+                                    TextColor="{AppThemeBinding Light=#00796B, Dark=#81C784}"
+                                    FontSize="16"
+                                    FontAttributes="Bold"
+                                    HorizontalOptions="Fill"
+                                    Padding="15"/>
+                        </Frame>
+
+                        <Frame Style="{StaticResource BorderFrame}" Padding="5" BackgroundColor="Transparent">
+                            <Button Text="Cerceve Rengi Degistir"
+                                    Clicked="KucukCerceveRengiDegistir_Clicked"
+                                    BackgroundColor="Transparent"
+                                    TextColor="{AppThemeBinding Light=#00796B, Dark=#81C784}"
+                                    FontSize="16"
+                                    FontAttributes="Bold"
+                                    HorizontalOptions="Fill"
+                                    Padding="15"/>
+                        </Frame>
+
+                        <Frame Style="{StaticResource BorderFrame}" Padding="5" BackgroundColor="Transparent">
+                            <Button Text="Yazi Rengi Degistir"
+                                    Clicked="KucukYaziRengiDegistir_Clicked"
+                                    BackgroundColor="Transparent"
+                                    TextColor="{AppThemeBinding Light=#00796B, Dark=#81C784}"
+                                    FontSize="16"
+                                    FontAttributes="Bold"
+                                    HorizontalOptions="Fill"
+                                    Padding="15"/>
+                        </Frame>
+                    </VerticalStackLayout>
+                </Frame>
+
+                <!-- Ayet Frame Onizleme ve Ayarlari -->
+                <Frame Style="{StaticResource BorderFrame}" Padding="15" BackgroundColor="Transparent">
+                    <VerticalStackLayout Spacing="15">
+                        <!-- Onizleme Basligi -->
+                        <Label Text="Ayet Frame Onizleme"
+                               FontSize="18"
+                               FontAttributes="Bold"
+                               TextColor="{AppThemeBinding Light=#00796B, Dark=#81C784}"/>
+                        
+                        <!-- Ayet Frame -->
+                        <Frame x:Name="AyetFrame" Style="{StaticResource BorderFrame}" Padding="15" BackgroundColor="Transparent" CornerRadius="15">
+                            <StackLayout HorizontalOptions="Center" VerticalOptions="Center">
+                                <Label x:Name="AyetLabel" 
+                                       Text="Gercekten gudukle beraber bir kolaylik vardir. (Insirah, 6)" 
+                                       Style="{StaticResource AnaLabel}" 
+                                       LineBreakMode="WordWrap"
+                                       HorizontalTextAlignment="Center"/>
+                            </StackLayout>
+                        </Frame>
+
+                        <!-- Renk Ayarlari Basligi -->
+                        <Label Text="Renk Ayarlari"
+                               FontSize="18"
+                               FontAttributes="Bold"
+                               Margin="0,10,0,0"
+                               TextColor="{AppThemeBinding Light=#00796B, Dark=#81C784}"/>
+                        
+                        <!-- Renk Butonlari -->
+                        <Frame Style="{StaticResource BorderFrame}" Padding="5" BackgroundColor="Transparent">
+                            <Button Text="Frame Rengi Degistir"
+                                    Clicked="AyetFrameRengiDegistir_Clicked"
+                                    BackgroundColor="Transparent"
+                                    TextColor="{AppThemeBinding Light=#00796B, Dark=#81C784}"
+                                    FontSize="16"
+                                    FontAttributes="Bold"
+                                    HorizontalOptions="Fill"
+                                    Padding="15"/>
+                        </Frame>
+
+                        <Frame Style="{StaticResource BorderFrame}" Padding="5" BackgroundColor="Transparent">
+                            <Button Text="Cerceve Rengi Degistir"
+                                    Clicked="AyetCerceveRengiDegistir_Clicked"
+                                    BackgroundColor="Transparent"
+                                    TextColor="{AppThemeBinding Light=#00796B, Dark=#81C784}"
+                                    FontSize="16"
+                                    FontAttributes="Bold"
+                                    HorizontalOptions="Fill"
+                                    Padding="15"/>
+                        </Frame>
+
+                        <Frame Style="{StaticResource BorderFrame}" Padding="5" BackgroundColor="Transparent">
+                            <Button Text="Yazi Rengi Degistir"
+                                    Clicked="AyetYaziRengiDegistir_Clicked"
+                                    BackgroundColor="Transparent"
+                                    TextColor="{AppThemeBinding Light=#00796B, Dark=#81C784}"
+                                    FontSize="16"
+                                    FontAttributes="Bold"
+                                    HorizontalOptions="Fill"
+                                    Padding="15"/>
+                        </Frame>
+                    </VerticalStackLayout>
+                </Frame>
+
+                <!-- Tema Ismi ve Kaydet -->
+                <Frame Style="{StaticResource BorderFrame}" Padding="15" BackgroundColor="Transparent">
+                    <VerticalStackLayout Spacing="15">
+                        <Label Text="Tema Ismi"
+                               FontSize="18"
+                               FontAttributes="Bold"
+                               TextColor="{AppThemeBinding Light=#00796B, Dark=#81C784}"/>
+                        
+                        <Entry x:Name="TemaIsmiEntry"
+                               Placeholder="Tema ismi girin..."
+                               PlaceholderColor="{AppThemeBinding Light=#757575, Dark=#BDBDBD}"
+                               TextColor="{AppThemeBinding Light=#212121, Dark=#E0E0E0}"
+                               BackgroundColor="{AppThemeBinding Light=#F5F5F5, Dark=#2C2C2C}"
+                               HeightRequest="50"
+                               FontSize="16"/>
+                        
+                        <Button x:Name="TemaKaydetBtn"
+                                Text="Temayı Kaydet ve Uygula"
+                                Clicked="TemaKaydet_Clicked"
+                                BackgroundColor="{AppThemeBinding Light=#00796B, Dark=#81C784}"
+                                TextColor="White"
+                                CornerRadius="15"
+                                Padding="15,12"
+                                FontAttributes="Bold"
+                                FontSize="16"
+                                HorizontalOptions="Fill"/>
+                    </VerticalStackLayout>
+                </Frame>
+
+            </VerticalStackLayout>
+        </ScrollView>
+    </Grid>
+</ContentPage>

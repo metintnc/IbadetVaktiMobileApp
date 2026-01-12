@@ -4,6 +4,8 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Text.Json;
+using hadis.Models;
 
 namespace hadis
 {
@@ -25,8 +27,79 @@ namespace hadis
         {
             base.OnNavigatedTo(args);
             
+            // Özel tema varsa uygula
+            ApplyCustomTheme();
+            
             // Tab ile gelince scale animasyon
             await AnimateZikirEntry();
+        }
+
+        private void ApplyCustomTheme()
+        {
+            // Kayitli tema tercihini kontrol et
+            string savedTheme = Preferences.Default.Get("AppTheme", "System");
+            
+            // Eğer Custom tema seçili değilse, varsayılan stillere dön
+            if (savedTheme != "Custom")
+            {
+                ResetToDefaultStyles();
+                return;
+            }
+            
+            // Ozel tema yukle
+            string customThemeJson = Preferences.Default.Get("CustomTheme", string.Empty);
+            
+            if (string.IsNullOrEmpty(customThemeJson))
+            {
+                ResetToDefaultStyles();
+                return;
+            }
+            
+            try
+            {
+                var theme = JsonSerializer.Deserialize<CustomTheme>(customThemeJson);
+                if (theme != null)
+                {
+                    // Ana frame text renkleri kullan (Zikir sayısı için)
+                    zikirsayisi.TextColor = Color.FromArgb(theme.MainFrameText);
+                    ZikirBaslik.TextColor = Color.FromArgb(theme.MainFrameText);
+                    
+                    // Buton renkleri (Ana frame border rengi kullan)
+                    zikirbutton.BorderColor = Color.FromArgb(theme.MainFrameBorder);
+                    sifirla.BackgroundColor = Color.FromArgb(theme.MainFrameBorder);
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Ozel tema uygulama hatasi: {ex.Message}");
+                ResetToDefaultStyles();
+            }
+        }
+
+        private void ResetToDefaultStyles()
+        {
+            // Aktif temayı al
+            var currentTheme = Application.Current?.UserAppTheme == AppTheme.Unspecified 
+                ? Application.Current?.RequestedTheme ?? AppTheme.Light 
+                : Application.Current?.UserAppTheme ?? AppTheme.Light;
+
+            // Varsayılan renklere dön
+            if (currentTheme == AppTheme.Dark)
+            {
+                // Dark tema varsayılan renkleri
+                zikirsayisi.TextColor = Colors.White;
+                ZikirBaslik.TextColor = Colors.White;
+                zikirbutton.BorderColor = Color.FromArgb("#26A69A");
+                sifirla.BackgroundColor = Color.FromArgb("#26A69A");
+            }
+            else
+            {
+                // Light tema varsayılan renkleri
+                zikirsayisi.TextColor = Color.FromArgb("#00796B");
+                ZikirBaslik.TextColor = Colors.Black;
+                zikirbutton.BorderColor = Color.FromArgb("#00796B");
+                sifirla.BackgroundColor = Color.FromArgb("#00796B");
+            }
         }
         
         private async Task AnimateZikirEntry()

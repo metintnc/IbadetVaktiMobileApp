@@ -24,7 +24,7 @@
 
         <Grid RowDefinitions="Auto,Auto,*" Style="{StaticResource Background}" ColumnDefinitions="*" Padding="20">
 
-            <Label Text="Zikirmatik" HorizontalOptions="Center" Grid.Row="0" FontSize="20"/>
+            <Label x:Name="ZikirBaslik" Text="Zikirmatik" HorizontalOptions="Center" Grid.Row="0" FontSize="20"/>
             <Label x:Name="zikirsayisi" Style="{StaticResource AnaLabel}" FontAttributes="Bold" Grid.Row="1" Text="0" 
                    VerticalOptions="Center" HorizontalOptions="Center" FontSize="80"/>
             <Button x:Name="sifirla" Grid.Row="1" VerticalOptions="Start" HorizontalOptions="End" 

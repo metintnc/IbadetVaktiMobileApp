@@ -34,86 +34,71 @@
                        Margin="0,10,0,20"
                        TextColor="{AppThemeBinding Light=#00796B, Dark=#81C784}"/>
 
-                <Frame x:Name="BildirimFrame" Style="{StaticResource BorderFrame}" Padding="15" BackgroundColor="Transparent">
-                    <VerticalStackLayout Spacing="12">
-                        <Label Text="Bildirimler"
-                               FontSize="18"
-                               FontAttributes="Bold"
-                               TextColor="{AppThemeBinding Light=#00796B, Dark=#81C784}"/>
-                        
-                        <Grid ColumnDefinitions="*,Auto">
-                            <Label Text="Namaz Vakti Bildirimleri" 
-                                   VerticalOptions="Center"
-                                   TextColor="{AppThemeBinding Light=#424242, Dark=#E0E0E0}"/>
-                            <Switch x:Name="BildirimSwitch" 
-                                    Grid.Column="1" 
-                                    IsToggled="True"
-                                    OnColor="#4CAF50"
-                                    ThumbColor="White"/>
-                        </Grid>
-                    </VerticalStackLayout>
+                <Frame x:Name="BildirimFrame" Style="{StaticResource BorderFrame}" Padding="5" BackgroundColor="Transparent">
+                    <Button x:Name="BildirimButton"
+                            Text="Bildirimler"
+                            Clicked="BildirimButton_Clicked"
+                            BackgroundColor="Transparent"
+                            TextColor="{AppThemeBinding Light=#00796B, Dark=#81C784}"
+                            FontSize="18"
+                            FontAttributes="Bold"
+                            HorizontalOptions="Fill"
+                            Padding="15"/>
                 </Frame>
 
-                <Frame x:Name="KonumFrame" Style="{StaticResource BorderFrame}" Padding="15" BackgroundColor="Transparent">
-                    <VerticalStackLayout Spacing="12">
-                        <Label Text="Konum Ayarlari"
-                               FontSize="18"
-                               FontAttributes="Bold"
-                               TextColor="{AppThemeBinding Light=#00796B, Dark=#81C784}"/>
-                        
-                        <Button Text="Konumu Degistir"
-                                Clicked="SehirSecButton_Clicked"
-                                BackgroundColor="{AppThemeBinding Light=#00796B, Dark=#81C784}"
-                                TextColor="White"
-                                CornerRadius="12"
-                                Padding="12,10"
-                                FontSize="15"
-                                HorizontalOptions="Fill"/>
-                        
+                <Frame x:Name="TemaFrame" Style="{StaticResource BorderFrame}" Padding="5" BackgroundColor="Transparent">
+                    <Button x:Name="TemaButton"
+                            Text="Tema"
+                            Clicked="TemaButton_Clicked"
+                            BackgroundColor="Transparent"
+                            TextColor="{AppThemeBinding Light=#00796B, Dark=#81C784}"
+                            FontSize="18"
+                            FontAttributes="Bold"
+                            HorizontalOptions="Fill"
+                            Padding="15"/>
+                </Frame>
+
+                <Frame x:Name="WidgetFrame" Style="{StaticResource BorderFrame}" Padding="5" BackgroundColor="Transparent">
+                    <Button x:Name="WidgetButton"
+                            Text="Widget"
+                            Clicked="WidgetButton_Clicked"
+                            BackgroundColor="Transparent"
+                            TextColor="{AppThemeBinding Light=#00796B, Dark=#81C784}"
+                            FontSize="18"
+                            FontAttributes="Bold"
+                            HorizontalOptions="Fill"
+                            Padding="15"/>
+                </Frame>
+
+                <Frame x:Name="KonumFrame" Style="{StaticResource BorderFrame}" Padding="5" BackgroundColor="Transparent">
+                    <VerticalStackLayout Spacing="5">
+                        <Button x:Name="KonumButton"
+                                Text="Konum"
+                                Clicked="KonumButton_Clicked"
+                                BackgroundColor="Transparent"
+                                TextColor="{AppThemeBinding Light=#00796B, Dark=#81C784}"
+                                FontSize="18"
+                                FontAttributes="Bold"
+                                HorizontalOptions="Fill"
+                                Padding="15,15,15,5"/>
                         <Label x:Name="SeciliKonumLabel" 
-                               Text="Mevcut Konum: Otomatik" 
+                               Text="Mevcut: Otomatik (GPS)" 
                                FontSize="12"
-                               TextColor="{AppThemeBinding Light=#757575, Dark=#BDBDBD}"
-                               Margin="0,5,0,0"/>
-                    </VerticalStackLayout>
-                </Frame>
-
-                <Frame x:Name="GorunumFrame" Style="{StaticResource BorderFrame}" Padding="15" BackgroundColor="Transparent">
-                    <VerticalStackLayout Spacing="12">
-                        <Label Text="Gorunum"
-                               FontSize="18"
-                               FontAttributes="Bold"
-                               TextColor="{AppThemeBinding Light=#00796B, Dark=#81C784}"/>
-                        
-                        <Grid ColumnDefinitions="*,Auto" RowDefinitions="Auto">
-                            <Label Text="Tema" 
-                                   VerticalOptions="Center"
-                                   TextColor="{AppThemeBinding Light=#424242, Dark=#E0E0E0}"/>
-                            <Picker x:Name="ThemePicker"
-                                    Grid.Column="1"
-                                    SelectedIndexChanged="ThemePicker_SelectedIndexChanged"
-                                    HorizontalOptions="End"
-                                    WidthRequest="150"
-                                    TextColor="{AppThemeBinding Light=#00796B, Dark=#81C784}"
-                                    FontSize="14">
-                                <Picker.Items>
-                                    <x:String>Sistem Temasi</x:String>
-                                    <x:String>Acik Tema</x:String>
-                                    <x:String>Koyu Tema</x:String>
-                                </Picker.Items>
-                            </Picker>
-                        </Grid>
+                               Padding="15,0,15,10"
+                               TextColor="{AppThemeBinding Light=#757575, Dark=#BDBDBD}"/>
                     </VerticalStackLayout>
                 </Frame>
 
                 <Frame x:Name="VeriYonetimiFrame" Style="{StaticResource BorderFrame}" Padding="15" BackgroundColor="Transparent">
                     <VerticalStackLayout Spacing="12">
-                        <Label Text="Veri Yonetimi"
+                        <Label x:Name="VeriYonetimiTitle"
+                               Text="Veri Yonetimi"
                                FontSize="18"
                                FontAttributes="Bold"
                                TextColor="{AppThemeBinding Light=#00796B, Dark=#81C784}"/>
                         
-                        <Button Text="Onbellegi Temizle" 
+                        <Button x:Name="ClearCacheButton"
+                                Text="Onbellegi Temizle" 
                                 Clicked="ClearCacheButton_Clicked"
                                 BackgroundColor="{AppThemeBinding Light=#F57C00, Dark=#FF9800}"
                                 TextColor="White"
@@ -122,7 +107,8 @@
                                 FontAttributes="Bold"
                                 FontSize="15"/>
                         
-                        <Button Text="Ayarlari Sifirla" 
+                        <Button x:Name="ResetButton"
+                                Text="Ayarlari Sifirla" 
                                 Clicked="ResetSettingsButton_Clicked"
                                 BackgroundColor="{AppThemeBinding Light=#D32F2F, Dark=#F44336}"
                                 TextColor="White"
@@ -135,7 +121,8 @@
 
                 <Frame x:Name="HakkindaFrame" Style="{StaticResource BorderFrame}" Padding="15" BackgroundColor="Transparent">
                     <VerticalStackLayout Spacing="10">
-                        <Label Text="Hakkinda"
+                        <Label x:Name="HakkindaTitle"
+                               Text="Hakkinda"
                                FontSize="18"
                                FontAttributes="Bold"
                                TextColor="{AppThemeBinding Light=#00796B, Dark=#81C784}"/>
@@ -144,7 +131,8 @@
                                Text="Versiyon: 1.0.0" 
                                FontSize="14"
                                TextColor="{AppThemeBinding Light=#757575, Dark=#BDBDBD}"/>
-                        <Label Text="2024 Namaz Vakti Uygulamasi" 
+                        <Label x:Name="CopyrightLabel"
+                               Text="2024 Namaz Vakti Uygulamasi" 
                                FontSize="12"
                                TextColor="{AppThemeBinding Light=#9E9E9E, Dark=#757575}"/>
                     </VerticalStackLayout>
