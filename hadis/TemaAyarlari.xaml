@@ -1,0 +1,207 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             x:Class="hadis.TemaAyarlari"
+             Title="Tema Ayarlari">
+    
+    <Grid>
+        <Image Aspect="AspectFill"
+               HorizontalOptions="FillAndExpand"
+               VerticalOptions="FillAndExpand">
+            <Image.Source>
+                <AppThemeBinding Light="bg_light.jpg" Dark="bg_dark.jpg" />
+            </Image.Source>
+        </Image>
+        
+        <BoxView HorizontalOptions="FillAndExpand"
+                 VerticalOptions="FillAndExpand">
+            <BoxView.Color>
+                <AppThemeBinding Light="White" Dark="Black" />
+            </BoxView.Color>
+            <BoxView.Opacity>
+                <AppThemeBinding Light="0.85" Dark="0.55" />
+            </BoxView.Opacity>
+        </BoxView>
+        
+        <ScrollView Padding="20,10">
+            <VerticalStackLayout Spacing="15">
+                
+                <Label Text="Tema Ayarlari"
+                       FontSize="24"
+                       FontAttributes="Bold"
+                       Margin="0,10,0,10"
+                       TextColor="{AppThemeBinding Light=#00796B, Dark=#81C784}"/>
+
+                <Frame Style="{StaticResource BorderFrame}" Padding="15" BackgroundColor="Transparent">
+                    <VerticalStackLayout Spacing="10" RadioButtonGroup.GroupName="ThemeGroup">
+                        <Label Text="Tema Secimi" FontSize="18" FontAttributes="Bold"
+                               TextColor="{AppThemeBinding Light=#00796B, Dark=#81C784}"/>
+                        
+                        <RadioButton x:Name="SistemTemaRadio"
+                                     Content="Sistem Temasi" 
+                                     IsChecked="True"
+                                     CheckedChanged="OnThemeChanged"
+                                     TextColor="{AppThemeBinding Light=#212121, Dark=#E0E0E0}">
+                            <RadioButton.ControlTemplate>
+                                <ControlTemplate>
+                                    <Grid ColumnDefinitions="Auto,*" ColumnSpacing="10">
+                                        <Border Grid.Column="0"
+                                                WidthRequest="22"
+                                                HeightRequest="22"
+                                                VerticalOptions="Center"
+                                                Stroke="{AppThemeBinding Light=#00796B, Dark=#81C784}"
+                                                StrokeThickness="2"
+                                                BackgroundColor="Transparent"
+                                                StrokeShape="RoundRectangle 11">
+                                            <Ellipse x:Name="CheckMark"
+                                                     WidthRequest="12"
+                                                     HeightRequest="12"
+                                                     Fill="{AppThemeBinding Light=#00796B, Dark=#81C784}"
+                                                     HorizontalOptions="Center"
+                                                     VerticalOptions="Center"
+                                                     IsVisible="{TemplateBinding IsChecked}"/>
+                                        </Border>
+                                        <ContentPresenter Grid.Column="1"
+                                                          VerticalOptions="Center"/>
+                                    </Grid>
+                                </ControlTemplate>
+                            </RadioButton.ControlTemplate>
+                        </RadioButton>
+                        <Label Text="Cihazinizin sistem temasini kullanir"
+                               FontSize="12"
+                               Margin="32,0,0,10"
+                               TextColor="{AppThemeBinding Light=#757575, Dark=#BDBDBD}"/>
+                        
+                        <RadioButton x:Name="AcikTemaRadio"
+                                     Content="Acik Tema"
+                                     CheckedChanged="OnThemeChanged"
+                                     TextColor="{AppThemeBinding Light=#212121, Dark=#E0E0E0}">
+                            <RadioButton.ControlTemplate>
+                                <ControlTemplate>
+                                    <Grid ColumnDefinitions="Auto,*" ColumnSpacing="10">
+                                        <Border Grid.Column="0"
+                                                WidthRequest="22"
+                                                HeightRequest="22"
+                                                VerticalOptions="Center"
+                                                Stroke="{AppThemeBinding Light=#00796B, Dark=#81C784}"
+                                                StrokeThickness="2"
+                                                BackgroundColor="Transparent"
+                                                StrokeShape="RoundRectangle 11">
+                                            <Ellipse x:Name="CheckMark"
+                                                     WidthRequest="12"
+                                                     HeightRequest="12"
+                                                     Fill="{AppThemeBinding Light=#00796B, Dark=#81C784}"
+                                                     HorizontalOptions="Center"
+                                                     VerticalOptions="Center"
+                                                     IsVisible="{TemplateBinding IsChecked}"/>
+                                        </Border>
+                                        <ContentPresenter Grid.Column="1"
+                                                          VerticalOptions="Center"/>
+                                    </Grid>
+                                </ControlTemplate>
+                            </RadioButton.ControlTemplate>
+                        </RadioButton>
+                        <Label Text="Her zaman acik tema kullanilir"
+                               FontSize="12"
+                               Margin="32,0,0,10"
+                               TextColor="{AppThemeBinding Light=#757575, Dark=#BDBDBD}"/>
+                        
+                        <RadioButton x:Name="KoyuTemaRadio"
+                                     Content="Koyu Tema"
+                                     CheckedChanged="OnThemeChanged"
+                                     TextColor="{AppThemeBinding Light=#212121, Dark=#E0E0E0}">
+                            <RadioButton.ControlTemplate>
+                                <ControlTemplate>
+                                    <Grid ColumnDefinitions="Auto,*" ColumnSpacing="10">
+                                        <Border Grid.Column="0"
+                                                WidthRequest="22"
+                                                HeightRequest="22"
+                                                VerticalOptions="Center"
+                                                Stroke="{AppThemeBinding Light=#00796B, Dark=#81C784}"
+                                                StrokeThickness="2"
+                                                BackgroundColor="Transparent"
+                                                StrokeShape="RoundRectangle 11">
+                                            <Ellipse x:Name="CheckMark"
+                                                     WidthRequest="12"
+                                                     HeightRequest="12"
+                                                     Fill="{AppThemeBinding Light=#00796B, Dark=#81C784}"
+                                                     HorizontalOptions="Center"
+                                                     VerticalOptions="Center"
+                                                     IsVisible="{TemplateBinding IsChecked}"/>
+                                        </Border>
+                                        <ContentPresenter Grid.Column="1"
+                                                          VerticalOptions="Center"/>
+                                    </Grid>
+                                </ControlTemplate>
+                            </RadioButton.ControlTemplate>
+                        </RadioButton>
+                        <Label Text="Her zaman koyu tema kullanilir"
+                               FontSize="12"
+                               Margin="32,0,0,5"
+                               TextColor="{AppThemeBinding Light=#757575, Dark=#BDBDBD}"/>
+                        
+                        <RadioButton x:Name="OzelTemaRadio"
+                                     Content="Ozel Tema"
+                                     CheckedChanged="OnThemeChanged"
+                                     TextColor="{AppThemeBinding Light=#212121, Dark=#E0E0E0}">
+                            <RadioButton.ControlTemplate>
+                                <ControlTemplate>
+                                    <Grid ColumnDefinitions="Auto,*" ColumnSpacing="10">
+                                        <Border Grid.Column="0"
+                                                WidthRequest="22"
+                                                HeightRequest="22"
+                                                VerticalOptions="Center"
+                                                Stroke="{AppThemeBinding Light=#00796B, Dark=#81C784}"
+                                                StrokeThickness="2"
+                                                BackgroundColor="Transparent"
+                                                StrokeShape="RoundRectangle 11">
+                                            <Ellipse x:Name="CheckMark"
+                                                     WidthRequest="12"
+                                                     HeightRequest="12"
+                                                     Fill="{AppThemeBinding Light=#00796B, Dark=#81C784}"
+                                                     HorizontalOptions="Center"
+                                                     VerticalOptions="Center"
+                                                     IsVisible="{TemplateBinding IsChecked}"/>
+                                        </Border>
+                                        <ContentPresenter Grid.Column="1"
+                                                          VerticalOptions="Center"/>
+                                    </Grid>
+                                </ControlTemplate>
+                            </RadioButton.ControlTemplate>
+                        </RadioButton>
+                        <Label x:Name="OzelTemaAciklama"
+                               Text="Kayitli ozel tema bulunamadi"
+                               FontSize="12"
+                               Margin="32,0,0,5"
+                               TextColor="{AppThemeBinding Light=#757575, Dark=#BDBDBD}"/>
+                    </VerticalStackLayout>
+                </Frame>
+
+                <Frame Style="{StaticResource BorderFrame}" Padding="15" BackgroundColor="Transparent">
+                    <VerticalStackLayout Spacing="12">
+                        <Label Text="Ozel Tema"
+                               FontSize="18"
+                               FontAttributes="Bold"
+                               TextColor="{AppThemeBinding Light=#00796B, Dark=#81C784}"/>
+                        
+                        <Label Text="Kendi temanizi olusturun ve renkleri ozelestirin"
+                               FontSize="13"
+                               TextColor="{AppThemeBinding Light=#757575, Dark=#BDBDBD}"/>
+                        
+                        <Button Text="Ozel Tema Olustur"
+                                Clicked="OzelTemaOlustur_Clicked"
+                                BackgroundColor="{AppThemeBinding Light=#00796B, Dark=#81C784}"
+                                TextColor="White"
+                                CornerRadius="15"
+                                Padding="15,12"
+                                FontAttributes="Bold"
+                                FontSize="16"
+                                HorizontalOptions="Fill"
+                                Margin="0,5,0,0"/>
+                    </VerticalStackLayout>
+                </Frame>
+
+            </VerticalStackLayout>
+        </ScrollView>
+    </Grid>
+</ContentPage>

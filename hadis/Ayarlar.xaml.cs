@@ -1,15 +1,14 @@
 using Microsoft.Maui.ApplicationModel;
+using System.Text.Json;
+using hadis.Models;
 
 namespace hadis
 {
     public partial class Ayarlar : ContentPage
     {
-        private const string ThemePreferenceKey = "AppTheme";
         private const string OtomatikKonumKey = "OtomatikKonum";
-        private const string ManuelLatitudeKey = "ManuelLatitude";
-        private const string ManuelLongitudeKey = "ManuelLongitude";
         private const string ManuelSehirKey = "ManuelSehir";
-        
+
         public Ayarlar()
         {
             InitializeComponent();
@@ -20,134 +19,164 @@ namespace hadis
         {
             base.OnAppearing();
             
-            BildirimSwitch.Toggled += (s, e) => Preferences.Default.Set("BildirimAktif", e.Value);
+            // Özel tema varsa uygula
+            ApplyCustomTheme();
             
-            // Þehir seçim sayfasýndan dönüldüðünde konum etiketini güncelle
+            // Sehir secim sayfasindan donulduðunde konum etiketini guncelle
             UpdateKonumLabel();
         }
-        
-        protected override async void OnNavigatedTo(NavigatedToEventArgs args)
+
+        private void ApplyCustomTheme()
         {
-            base.OnNavigatedTo(args);
+            // Kayitli tema tercihini kontrol et
+            string savedTheme = Preferences.Default.Get("AppTheme", "System");
             
-            // Tab ile gelince soldan saða kayma animasyonu
-            await AnimateFromLeft();
+            // Eðer Custom tema seçili deðilse, varsayýlan stillere dön
+            if (savedTheme != "Custom")
+            {
+                ResetToDefaultStyles();
+                return;
+            }
+            
+            // Ozel tema yukle
+            string customThemeJson = Preferences.Default.Get("CustomTheme", string.Empty);
+            
+            if (string.IsNullOrEmpty(customThemeJson))
+            {
+                ResetToDefaultStyles();
+                return;
+            }
+            
+            try
+            {
+                var theme = JsonSerializer.Deserialize<CustomTheme>(customThemeJson);
+                if (theme != null)
+                {
+                    // Tüm frame'lerin çerçeve rengini SmallFrameBorder ile ayarla
+                    Color borderColor = Color.FromArgb(theme.SmallFrameBorder);
+                    
+                    BildirimFrame.BorderColor = borderColor;
+                    TemaFrame.BorderColor = borderColor;
+                    WidgetFrame.BorderColor = borderColor;
+                    KonumFrame.BorderColor = borderColor;
+                    VeriYonetimiFrame.BorderColor = borderColor;
+                    HakkindaFrame.BorderColor = borderColor;
+                    
+                    // Background'larý transparent tut
+                    BildirimFrame.BackgroundColor = Colors.Transparent;
+                    TemaFrame.BackgroundColor = Colors.Transparent;
+                    WidgetFrame.BackgroundColor = Colors.Transparent;
+                    KonumFrame.BackgroundColor = Colors.Transparent;
+                    VeriYonetimiFrame.BackgroundColor = Colors.Transparent;
+                    HakkindaFrame.BackgroundColor = Colors.Transparent;
+                    
+                    // Text renklerini ayarla
+                    Color textColor = Color.FromArgb(theme.SmallFrameText);
+                    
+                    BildirimButton.TextColor = textColor;
+                    TemaButton.TextColor = textColor;
+                    WidgetButton.TextColor = textColor;
+                    KonumButton.TextColor = textColor;
+                    VeriYonetimiTitle.TextColor = textColor;
+                    HakkindaTitle.TextColor = textColor;
+                    AyarlarTitle.TextColor = textColor;
+                    
+                    // Alt label'lar için biraz daha soluk renk
+                    SeciliKonumLabel.TextColor = textColor.WithAlpha(0.7f);
+                    VersionLabel.TextColor = textColor.WithAlpha(0.7f);
+                    CopyrightLabel.TextColor = textColor.WithAlpha(0.5f);
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Ozel tema uygulama hatasi: {ex.Message}");
+                ResetToDefaultStyles();
+            }
         }
-        
-        private async Task AnimateFromLeft()
+
+        private void ResetToDefaultStyles()
         {
-            // Baþlýk ve tüm frame'leri solda baþlat
-            AyarlarTitle.Opacity = 0;
-            AyarlarTitle.TranslationX = -300;
-            
-            BildirimFrame.Opacity = 0;
-            BildirimFrame.TranslationX = -300;
-            
-            KonumFrame.Opacity = 0;
-            KonumFrame.TranslationX = -300;
-            
-            GorunumFrame.Opacity = 0;
-            GorunumFrame.TranslationX = -300;
-            
-            VeriYonetimiFrame.Opacity = 0;
-            VeriYonetimiFrame.TranslationX = -300;
-            
-            HakkindaFrame.Opacity = 0;
-            HakkindaFrame.TranslationX = -300;
-            
-            // 1. Baþlýk soldan kayarak gelsin
-            await Task.WhenAll(
-                AyarlarTitle.FadeTo(1, 400, Easing.CubicOut),
-                AyarlarTitle.TranslateTo(0, 0, 500, Easing.CubicOut)
-            );
-            
-            // 2. Bildirim frame'i
-            var bildirimTask = Task.WhenAll(
-                BildirimFrame.FadeTo(1, 400, Easing.CubicOut),
-                BildirimFrame.TranslateTo(0, 0, 500, Easing.CubicOut)
-            );
-            
-            await Task.Delay(80);
-            
-            // 3. Konum frame'i
-            var konumTask = Task.WhenAll(
-                KonumFrame.FadeTo(1, 400, Easing.CubicOut),
-                KonumFrame.TranslateTo(0, 0, 500, Easing.CubicOut)
-            );
-            
-            await Task.Delay(80);
-            
-            // 4. Görünüm frame'i
-            var gorunumTask = Task.WhenAll(
-                GorunumFrame.FadeTo(1, 400, Easing.CubicOut),
-                GorunumFrame.TranslateTo(0, 0, 500, Easing.CubicOut)
-            );
-            
-            await Task.Delay(80);
-            
-            // 5. Veri yönetimi frame'i
-            var veriTask = Task.WhenAll(
-                VeriYonetimiFrame.FadeTo(1, 400, Easing.CubicOut),
-                VeriYonetimiFrame.TranslateTo(0, 0, 500, Easing.CubicOut)
-            );
-            
-            await Task.Delay(80);
-            
-            // 6. Hakkýnda frame'i
-            await Task.WhenAll(
-                HakkindaFrame.FadeTo(1, 400, Easing.CubicOut),
-                HakkindaFrame.TranslateTo(0, 0, 500, Easing.CubicOut)
-            );
-        }
-        
-        protected override async void OnNavigatedFrom(NavigatedFromEventArgs args)
-        {
-            base.OnNavigatedFrom(args);
-            
-            // Tab deðiþirken saða kayma
-            await Task.WhenAll(
-                AyarlarTitle.TranslateTo(300, 0, 250, Easing.CubicIn),
-                BildirimFrame.TranslateTo(300, 0, 250, Easing.CubicIn),
-                KonumFrame.TranslateTo(300, 0, 250, Easing.CubicIn),
-                GorunumFrame.TranslateTo(300, 0, 250, Easing.CubicIn),
-                VeriYonetimiFrame.TranslateTo(300, 0, 250, Easing.CubicIn),
-                HakkindaFrame.TranslateTo(300, 0, 250, Easing.CubicIn),
+            // Aktif temayý al
+            var currentTheme = Application.Current?.UserAppTheme == AppTheme.Unspecified 
+                ? Application.Current?.RequestedTheme ?? AppTheme.Light 
+                : Application.Current?.UserAppTheme ?? AppTheme.Light;
+
+            // Varsayýlan renklere dön
+            if (currentTheme == AppTheme.Dark)
+            {
+                // Dark tema varsayýlan renkleri
+                Color borderColor = Color.FromArgb("#26A69A");
                 
-                AyarlarTitle.FadeTo(0, 200, Easing.CubicIn),
-                BildirimFrame.FadeTo(0, 200, Easing.CubicIn),
-                KonumFrame.FadeTo(0, 200, Easing.CubicIn),
-                GorunumFrame.FadeTo(0, 200, Easing.CubicIn),
-                VeriYonetimiFrame.FadeTo(0, 200, Easing.CubicIn),
-                HakkindaFrame.FadeTo(0, 200, Easing.CubicIn)
-            );
+                // Tüm frame çerçeveleri
+                BildirimFrame.BorderColor = borderColor;
+                TemaFrame.BorderColor = borderColor;
+                WidgetFrame.BorderColor = borderColor;
+                KonumFrame.BorderColor = borderColor;
+                VeriYonetimiFrame.BorderColor = borderColor;
+                HakkindaFrame.BorderColor = borderColor;
+                
+                // Background'lar
+                BildirimFrame.BackgroundColor = Colors.Transparent;
+                TemaFrame.BackgroundColor = Colors.Transparent;
+                WidgetFrame.BackgroundColor = Colors.Transparent;
+                KonumFrame.BackgroundColor = Colors.Transparent;
+                VeriYonetimiFrame.BackgroundColor = Colors.Transparent;
+                HakkindaFrame.BackgroundColor = Colors.Transparent;
+                
+                // Text renkleri
+                BildirimButton.TextColor = Color.FromArgb("#81C784");
+                TemaButton.TextColor = Color.FromArgb("#81C784");
+                WidgetButton.TextColor = Color.FromArgb("#81C784");
+                KonumButton.TextColor = Color.FromArgb("#81C784");
+                VeriYonetimiTitle.TextColor = Color.FromArgb("#81C784");
+                HakkindaTitle.TextColor = Color.FromArgb("#81C784");
+                AyarlarTitle.TextColor = Color.FromArgb("#81C784");
+                
+                SeciliKonumLabel.TextColor = Color.FromArgb("#BDBDBD");
+                VersionLabel.TextColor = Color.FromArgb("#BDBDBD");
+                CopyrightLabel.TextColor = Color.FromArgb("#757575");
+            }
+            else
+            {
+                // Light tema varsayýlan renkleri
+                Color borderColor = Color.FromArgb("#009688");
+                
+                // Tüm frame çerçeveleri
+                BildirimFrame.BorderColor = borderColor;
+                TemaFrame.BorderColor = borderColor;
+                WidgetFrame.BorderColor = borderColor;
+                KonumFrame.BorderColor = borderColor;
+                VeriYonetimiFrame.BorderColor = borderColor;
+                HakkindaFrame.BorderColor = borderColor;
+                
+                // Background'lar
+                BildirimFrame.BackgroundColor = Color.FromArgb("#FAFFFFFF");
+                TemaFrame.BackgroundColor = Color.FromArgb("#FAFFFFFF");
+                WidgetFrame.BackgroundColor = Color.FromArgb("#FAFFFFFF");
+                KonumFrame.BackgroundColor = Color.FromArgb("#FAFFFFFF");
+                VeriYonetimiFrame.BackgroundColor = Color.FromArgb("#FAFFFFFF");
+                HakkindaFrame.BackgroundColor = Color.FromArgb("#FAFFFFFF");
+                
+                // Text renkleri
+                BildirimButton.TextColor = Color.FromArgb("#00796B");
+                TemaButton.TextColor = Color.FromArgb("#00796B");
+                WidgetButton.TextColor = Color.FromArgb("#00796B");
+                KonumButton.TextColor = Color.FromArgb("#00796B");
+                VeriYonetimiTitle.TextColor = Color.FromArgb("#00796B");
+                HakkindaTitle.TextColor = Color.FromArgb("#00796B");
+                AyarlarTitle.TextColor = Color.FromArgb("#00796B");
+                
+                SeciliKonumLabel.TextColor = Color.FromArgb("#757575");
+                VersionLabel.TextColor = Color.FromArgb("#757575");
+                CopyrightLabel.TextColor = Color.FromArgb("#9E9E9E");
+            }
         }
 
         private void LoadSettings()
         {
-            BildirimSwitch.IsToggled = Preferences.Default.Get("BildirimAktif", true);
             VersionLabel.Text = $"Versiyon: {AppInfo.VersionString}";
             
-            // Kaydedilmiþ tema tercihini yükle
-            string savedTheme = Preferences.Default.Get(ThemePreferenceKey, "System");
-            
-            // Picker'da doðru seçeneði seç
-            switch (savedTheme)
-            {
-                case "System":
-                    ThemePicker.SelectedIndex = 0;
-                    break;
-                case "Light":
-                    ThemePicker.SelectedIndex = 1;
-                    break;
-                case "Dark":
-                    ThemePicker.SelectedIndex = 2;
-                    break;
-                default:
-                    ThemePicker.SelectedIndex = 0;
-                    break;
-            }
-            
-            // Konum etiketini güncelle
+            // Konum etiketini guncelle
             UpdateKonumLabel();
         }
 
@@ -157,100 +186,40 @@ namespace hadis
             
             if (otomatikKonum)
             {
-                SeciliKonumLabel.Text = "Mevcut Konum: Otomatik (GPS)";
+                SeciliKonumLabel.Text = "Mevcut: Otomatik (GPS)";
             }
             else
             {
                 string manuelSehir = Preferences.Default.Get(ManuelSehirKey, "");
                 if (!string.IsNullOrEmpty(manuelSehir))
                 {
-                    SeciliKonumLabel.Text = $"Mevcut Konum: {manuelSehir}";
+                    SeciliKonumLabel.Text = $"Mevcut: {manuelSehir}";
                 }
                 else
                 {
-                    SeciliKonumLabel.Text = "Mevcut Konum: Otomatik (GPS)";
+                    SeciliKonumLabel.Text = "Mevcut: Otomatik (GPS)";
                 }
             }
         }
 
-        private async void SehirSecButton_Clicked(object? sender, EventArgs e)
+        private async void BildirimButton_Clicked(object? sender, EventArgs e)
+        {
+            await Navigation.PushAsync(new BildirimAyarlari());
+        }
+
+        private async void TemaButton_Clicked(object? sender, EventArgs e)
+        {
+            await Navigation.PushAsync(new TemaAyarlari());
+        }
+
+        private async void WidgetButton_Clicked(object? sender, EventArgs e)
+        {
+            await Navigation.PushAsync(new WidgetAyarlari());
+        }
+
+        private async void KonumButton_Clicked(object? sender, EventArgs e)
         {
             await Navigation.PushAsync(new SehirSecim());
-        }
-        
-        private void ThemePicker_SelectedIndexChanged(object? sender, EventArgs e)
-        {
-            if (ThemePicker.SelectedIndex == -1 || Application.Current == null)
-                return;
-            
-            string selectedTheme;
-            
-            switch (ThemePicker.SelectedIndex)
-            {
-                case 0: // Sistem Temasý
-                    Application.Current.UserAppTheme = AppTheme.Unspecified;
-                    selectedTheme = "System";
-                    break;
-                case 1: // Açýk Tema
-                    Application.Current.UserAppTheme = AppTheme.Light;
-                    selectedTheme = "Light";
-                    break;
-                case 2: // Koyu Tema
-                    Application.Current.UserAppTheme = AppTheme.Dark;
-                    selectedTheme = "Dark";
-                    break;
-                default:
-                    return;
-            }
-            
-            Preferences.Default.Set(ThemePreferenceKey, selectedTheme);
-            
-            // Status bar rengini güncelle
-            UpdateStatusBarColor(selectedTheme);
-        }
-        
-        private void UpdateStatusBarColor(string theme)
-        {
-            // Aktif temayý belirle
-            var currentTheme = theme == "System" 
-                ? Application.Current?.RequestedTheme ?? AppTheme.Light 
-                : (theme == "Dark" ? AppTheme.Dark : AppTheme.Light);
-
-#if ANDROID
-            Microsoft.Maui.ApplicationModel.Platform.CurrentActivity?.RunOnUiThread(() =>
-            {
-                var window = Microsoft.Maui.ApplicationModel.Platform.CurrentActivity?.Window;
-                if (window != null)
-                {
-                    if (currentTheme == AppTheme.Dark)
-                    {
-                        // Koyu tema - siyah status bar
-                        window.SetStatusBarColor(Android.Graphics.Color.Black);
-                        
-                        // Android 6.0 ve üzeri için metin rengini ayarla
-                        if (Android.OS.Build.VERSION.SdkInt >= Android.OS.BuildVersionCodes.M)
-                        {
-                            // Koyu tema için açýk renkli iconlar
-                            window.DecorView.SystemUiVisibility = (Android.Views.StatusBarVisibility)
-                                Android.Views.SystemUiFlags.Visible;
-                        }
-                    }
-                    else
-                    {
-                        // Açýk tema - beyaz status bar
-                        window.SetStatusBarColor(Android.Graphics.Color.White);
-                        
-                        // Android 6.0 ve üzeri için metin rengini ayarla
-                        if (Android.OS.Build.VERSION.SdkInt >= Android.OS.BuildVersionCodes.M)
-                        {
-                            // Açýk tema için koyu renkli iconlar
-                            window.DecorView.SystemUiVisibility = (Android.Views.StatusBarVisibility)
-                                (Android.Views.SystemUiFlags.LightStatusBar);
-                        }
-                    }
-                }
-            });
-#endif
         }
 
         private async void ClearCacheButton_Clicked(object? sender, EventArgs e)

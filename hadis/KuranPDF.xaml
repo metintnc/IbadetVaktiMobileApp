@@ -6,8 +6,7 @@
     <Grid>
         <pdfViewer:SfPdfViewer x:Name="pdfViewer"
                                PageLayoutMode="Single"
-                               ShowToolbars="False"  
-                               ShowScrollHead="True"
+                               ShowToolbars="False"                         
                                EnableTextSelection="False"
                                FlowDirection="RightToLeft"/>
     </Grid>

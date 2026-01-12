@@ -5,7 +5,7 @@
 
 
     <Grid>
-        <Image
+        <Image x:Name="BackgroundImage"
    Aspect="AspectFill"
    HorizontalOptions="FillAndExpand"
    VerticalOptions="FillAndExpand" >
@@ -13,7 +13,8 @@
                 <AppThemeBinding Light="bg_light.jpg" Dark="bg_dark.jpg" />
             </Image.Source>
         </Image>
-        <BoxView HorizontalOptions="FillAndExpand"
+        <BoxView x:Name="BackgroundOverlay"
+             HorizontalOptions="FillAndExpand"
              VerticalOptions="FillAndExpand">
             <BoxView.Color>
                 <AppThemeBinding Light="White" Dark="Black" />
@@ -32,7 +33,11 @@
                         <Label Style="{StaticResource AnaLabel}" x:Name="namazismi" Text="" HorizontalOptions="Center" FontSize="25" />
                         <Label Style="{StaticResource AnaLabel}" x:Name="kalan" Text =" - - "  HorizontalOptions="Center" FontSize="45" />
                         <Label Style="{StaticResource AnaLabel}" Text="Kaldı" HorizontalOptions="Center"  />
-                        <Label Style="{StaticResource AnaLabel}" x:Name="Konum" Text="" HorizontalOptions="Center" FontSize="10" />
+                        <Label Style="{StaticResource AnaLabel}" x:Name="Konum" Text="" HorizontalOptions="Center" FontSize="10">
+                            <Label.GestureRecognizers>
+                                <TapGestureRecognizer Tapped="Konum_Tapped"/>
+                            </Label.GestureRecognizers>
+                        </Label>
                     </StackLayout>
                 </Frame>
             </StackLayout>
