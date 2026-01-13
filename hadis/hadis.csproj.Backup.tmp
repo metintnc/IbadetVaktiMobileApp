@@ -4,6 +4,15 @@
 		<TargetFrameworks>net9.0-android;net9.0-ios;net9.0-maccatalyst</TargetFrameworks>
 		<TargetFrameworks Condition="$([MSBuild]::IsOSPlatform('windows'))">$(TargetFrameworks);net9.0-windows10.0.19041.0</TargetFrameworks>
 		<AndroidPackageFormat>apk</AndroidPackageFormat>
+		<!-- Uncomment to also build the tizen app. You will need to install tizen by following this: https://github.com/Samsung/Tizen.NET -->
+		<!-- <TargetFrameworks>$(TargetFrameworks);net9.0-tizen</TargetFrameworks> -->
+
+		<!-- Note for MacCatalyst:
+		The default runtime is maccatalyst-x64, except in Release config, in which case the default is maccatalyst-x64;maccatalyst-arm64.
+		When specifying both architectures, use the plural <RuntimeIdentifiers> instead of the singular <RuntimeIdentifier>.
+		The Mac App Store will NOT accept apps with ONLY maccatalyst-arm64 indicated;
+		either BOTH runtimes must be indicated or ONLY macatalyst-x64. -->
+		<!-- For example: <RuntimeIdentifiers>maccatalyst-x64;maccatalyst-arm64</RuntimeIdentifiers> -->
 
 		<OutputType>Exe</OutputType>
 		<RootNamespace>hadis</RootNamespace>
@@ -22,6 +31,7 @@
 		<ApplicationDisplayVersion>1.0</ApplicationDisplayVersion>
 		<ApplicationVersion>1</ApplicationVersion>
 
+		<!-- To develop, package, and publish an app to the Microsoft Store, see: https://aka.ms/MauiTemplateUnpackaged -->
 		<WindowsPackageType>None</WindowsPackageType>
 
 		<SupportedOSPlatformVersion Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'ios'">15.0</SupportedOSPlatformVersion>
@@ -35,22 +45,22 @@
 
 	<PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Debug|net9.0-android|AnyCPU'">
 	  <AndroidKeyStore>False</AndroidKeyStore>
-	  <AndroidSigningStorePass>***</AndroidSigningStorePass>
+	  <AndroidSigningStorePass>***REMOVED***</AndroidSigningStorePass>
 	</PropertyGroup>
 
 	<PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Debug|net9.0-android|ARM64'">
 	  <AndroidKeyStore>False</AndroidKeyStore>
-	  <AndroidSigningStorePass>***</AndroidSigningStorePass>
+	  <AndroidSigningStorePass>***REMOVED***</AndroidSigningStorePass>
 	</PropertyGroup>
 
 	<PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Release|net9.0-android|AnyCPU'">
 	  <AndroidKeyStore>False</AndroidKeyStore>
-	  <AndroidSigningStorePass>***</AndroidSigningStorePass>
+	  <AndroidSigningStorePass>***REMOVED***</AndroidSigningStorePass>
 	</PropertyGroup>
 
 	<PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Release|net9.0-android|ARM64'">
 	  <AndroidKeyStore>False</AndroidKeyStore>
-	  <AndroidSigningStorePass>***</AndroidSigningStorePass>
+	  <AndroidSigningStorePass>***REMOVED***</AndroidSigningStorePass>
 	</PropertyGroup>
 
 	<ItemGroup>
@@ -78,11 +88,20 @@
 	</ItemGroup>
 
 	<ItemGroup>
+	  <AndroidResource Remove="Platforms\Android\Resources\drawable\widget_background.xml" />
+	  <AndroidResource Remove="Platforms\Android\Resources\layout\widget_layout.xml" />
+	  <AndroidResource Remove="Platforms\Android\Resources\values\styles.xml" />
+	  <AndroidResource Remove="Platforms\Android\Resources\xml\widget_provider.xml" />
+	</ItemGroup>
+
+	<ItemGroup>
 	  <None Remove="Resources\Images\bg_dark.jpg" />
 	  <None Remove="Resources\Images\bg_light.jpg" />
 	  <None Remove="Resources\Images\kibleoklight.svg" />
 	  <None Remove="Resources\Images\kiblesekme.svg" />
 	</ItemGroup>
+
+	
 
 	<ItemGroup>
 		<PackageReference Include="Microsoft.Maui.Controls" Version="9.0.120" />
@@ -115,6 +134,8 @@
 
 	<ItemGroup>
 	  <Folder Include="Platforms\Android\Handlers\" />
+	  <Folder Include="Platforms\Android\Resources\layout\" />
+	  <Folder Include="Platforms\Android\Resources\xml\" />
 	</ItemGroup>
 
 </Project>

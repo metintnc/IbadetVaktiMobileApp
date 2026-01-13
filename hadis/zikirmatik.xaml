@@ -1,19 +1,21 @@
 <?xml version="1.0" encoding="utf-8" ?>
 <ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
-             x:Class="hadis.zikirmatik">
+             x:Class="hadis.zikirmatik"
+             Shell.NavBarIsVisible="False">
 
     <Grid>
-        <Image
-    Aspect="AspectFill"
-    HorizontalOptions="FillAndExpand"
-    VerticalOptions="FillAndExpand" >
+        <!-- Arkaplan -->
+        <Image Aspect="AspectFill"
+               HorizontalOptions="FillAndExpand"
+               VerticalOptions="FillAndExpand">
             <Image.Source>
                 <AppThemeBinding Light="bg_light.jpg" Dark="bg_dark.jpg" />
             </Image.Source>
         </Image>
+        
         <BoxView HorizontalOptions="FillAndExpand"
-    VerticalOptions="FillAndExpand">
+                 VerticalOptions="FillAndExpand">
             <BoxView.Color>
                 <AppThemeBinding Light="White" Dark="Black" />
             </BoxView.Color>
@@ -22,18 +24,272 @@
             </BoxView.Opacity>
         </BoxView>
 
-        <Grid RowDefinitions="Auto,Auto,*" Style="{StaticResource Background}" ColumnDefinitions="*" Padding="20">
+        <ScrollView>
+            <VerticalStackLayout Padding="20" Spacing="20">
 
-            <Label x:Name="ZikirBaslik" Text="Zikirmatik" HorizontalOptions="Center" Grid.Row="0" FontSize="20"/>
-            <Label x:Name="zikirsayisi" Style="{StaticResource AnaLabel}" FontAttributes="Bold" Grid.Row="1" Text="0" 
-                   VerticalOptions="Center" HorizontalOptions="Center" FontSize="80"/>
-            <Button x:Name="sifirla" Grid.Row="1" VerticalOptions="Start" HorizontalOptions="End" 
-                    BackgroundColor="{AppThemeBinding Light=#00796B, Dark=#26A69A}" CornerRadius="125" Clicked="sifirla_Clicked" HeightRequest="20" WidthRequest="20" />
-            <Label x:Name="ToplamZikir" TextColor="Silver" Text="0" HorizontalOptions="End" VerticalOptions="Start" Margin="0,0,0,0" FontSize="20"/>
+                <!-- Baslik Alani -->
+                <Frame Padding="15"
+                       CornerRadius="15"
+                       BorderColor="{AppThemeBinding Light=#009688, Dark=#26A69A}"
+                       BackgroundColor="Transparent"
+                       HasShadow="True">
+                    <HorizontalStackLayout Spacing="10" HorizontalOptions="Center">
+                        <Label Text="📿" FontSize="28" VerticalOptions="Center"/>
+                        <Label x:Name="ZikirBaslik" 
+                               Text="Zikirmatik" 
+                               FontSize="24"
+                               FontAttributes="Bold"
+                               VerticalOptions="Center"
+                               TextColor="{AppThemeBinding Light=#00796B, Dark=White}"/>
+                    </HorizontalStackLayout>
+                </Frame>
 
-            <Button x:Name="zikirbutton" Margin="50" Grid.Row="2" Padding="10" Clicked="zikirbutton_Clicked" HorizontalOptions="Center" VerticalOptions="End" HeightRequest="250" 
-                    WidthRequest="250" CornerRadius="9000000" BorderColor="{AppThemeBinding Light=#00796B, Dark=#26A69A}" BorderWidth="2" BackgroundColor="Transparent" />
-        </Grid>
+                <!-- Istatistik Kartlari -->
+                <Grid ColumnDefinitions="*,*" ColumnSpacing="15">
+                    
+                    <!-- Toplam Zikir -->
+                    <Frame Grid.Column="0"
+                           Padding="15"
+                           CornerRadius="15"
+                           BorderColor="{AppThemeBinding Light=#009688, Dark=#26A69A}"
+                           BackgroundColor="Transparent"
+                           HasShadow="True">
+                        <VerticalStackLayout Spacing="8" HorizontalOptions="Center">
+                            <Label Text="📊" FontSize="24" HorizontalOptions="Center"/>
+                            <Label Text="TOPLAM ZİKİR" 
+                                   FontSize="11"
+                                   FontAttributes="Bold"
+                                   HorizontalOptions="Center"
+                                   TextColor="{AppThemeBinding Light=#00796B, Dark=White}"
+                                   Opacity="0.7"/>
+                            <Label x:Name="ToplamZikir" 
+                                   Text="0" 
+                                   FontSize="22"
+                                   FontAttributes="Bold"
+                                   HorizontalOptions="Center"
+                                   TextColor="{AppThemeBinding Light=#009688, Dark=#26A69A}"/>
+                        </VerticalStackLayout>
+                    </Frame>
+
+                    <!-- Mevcut Tur -->
+                    <Frame Grid.Column="1"
+                           Padding="15"
+                           CornerRadius="15"
+                           BorderColor="{AppThemeBinding Light=#009688, Dark=#26A69A}"
+                           BackgroundColor="Transparent"
+                           HasShadow="True">
+                        <VerticalStackLayout Spacing="8" HorizontalOptions="Center">
+                            <Label Text="🎯" FontSize="24" HorizontalOptions="Center"/>
+                            <Label Text="MEVCUT TUR" 
+                                   FontSize="11"
+                                   FontAttributes="Bold"
+                                   HorizontalOptions="Center"
+                                   TextColor="{AppThemeBinding Light=#00796B, Dark=White}"
+                                   Opacity="0.7"/>
+                            <Label x:Name="MevcutTur" 
+                                   Text="0 / 99" 
+                                   FontSize="18"
+                                   FontAttributes="Bold"
+                                   HorizontalOptions="Center"
+                                   TextColor="{AppThemeBinding Light=#009688, Dark=#26A69A}"/>
+                        </VerticalStackLayout>
+                    </Frame>
+                </Grid>
+
+                <!-- Ana Sayac -->
+                <Frame Padding="30,40"
+                       CornerRadius="20"
+                       BorderColor="{AppThemeBinding Light=#009688, Dark=#26A69A}"
+                       BackgroundColor="Transparent"
+                       HasShadow="True">
+                    <VerticalStackLayout Spacing="20">
+                        
+                        <!-- Mevcut Sayac -->
+                        <Label Text="MEVCUT SAYAÇ" 
+                               FontSize="13"
+                               FontAttributes="Bold"
+                               HorizontalOptions="Center"
+                               TextColor="{AppThemeBinding Light=#00796B, Dark=White}"
+                               Opacity="0.7"/>
+                        
+                        <Label x:Name="zikirsayisi" 
+                               Text="0" 
+                               FontSize="72"
+                               FontAttributes="Bold"
+                               HorizontalOptions="Center"
+                               TextColor="{AppThemeBinding Light=#00796B, Dark=White}"/>
+
+                        <!-- Ilerleme Cubugu -->
+                        <VerticalStackLayout Spacing="8">
+                            <ProgressBar x:Name="IlerlemeBar"
+                                        Progress="0"
+                                        ProgressColor="{AppThemeBinding Light=#009688, Dark=#26A69A}"
+                                        HeightRequest="12"/>
+                            
+                            <HorizontalStackLayout Spacing="10" HorizontalOptions="Center">
+                                <Label x:Name="IlerlemeYuzde" 
+                                       Text="0%"
+                                       FontSize="14"
+                                       FontAttributes="Bold"
+                                       TextColor="{AppThemeBinding Light=#009688, Dark=#26A69A}"/>
+                                <Label Text="→ 99" 
+                                       FontSize="14"
+                                       TextColor="{AppThemeBinding Light=#00796B, Dark=White}"
+                                       Opacity="0.6"/>
+                            </HorizontalStackLayout>
+                        </VerticalStackLayout>
+
+                        <!-- Sifirla Butonu -->
+                        <Button x:Name="sifirla"
+                                Text="🔄 Sıfırla"
+                                FontSize="14"
+                                FontAttributes="Bold"
+                                Clicked="sifirla_Clicked"
+                                BackgroundColor="{AppThemeBinding Light=#919191, Dark=#404040}"
+                                TextColor="White"
+                                CornerRadius="10"
+                                Padding="15,10"
+                                HorizontalOptions="Center"
+                                WidthRequest="150"/>
+                    </VerticalStackLayout>
+                </Frame>
+
+                <!-- Ana Zikir Butonu -->
+                <Grid HeightRequest="280" Margin="0,10,0,20">
+                    <!-- Ana Buton -->
+                    <Button x:Name="zikirbutton"
+                            Clicked="zikirbutton_Clicked"
+                            SizeChanged="zikirbutton_SizeChanged"
+                            HorizontalOptions="Center"
+                            VerticalOptions="Center"
+                            HeightRequest="240"
+                            WidthRequest="240"
+                            CornerRadius="120"
+                            BorderColor="{AppThemeBinding Light=#009688, Dark=#26A69A}"
+                            BorderWidth="3"
+                            BackgroundColor="Transparent"/>
+
+                    <!-- Buton Icindeki Text -->
+                    <VerticalStackLayout HorizontalOptions="Center"
+                                        VerticalOptions="Center"
+                                        Spacing="10"
+                                        InputTransparent="True">
+                        <Label Text="☝️" 
+                               FontSize="48" 
+                               HorizontalOptions="Center"/>
+                        <Label Text="ZİKİR ÇEK" 
+                               FontSize="16"
+                               FontAttributes="Bold"
+                               HorizontalOptions="Center"
+                               TextColor="{AppThemeBinding Light=#00796B, Dark=White}"/>
+                        <Label Text="Dokun" 
+                               FontSize="12"
+                               HorizontalOptions="Center"
+                               Opacity="0.6"
+                               TextColor="{AppThemeBinding Light=#00796B, Dark=White}"/>
+                    </VerticalStackLayout>
+                </Grid>
+
+                <!-- Hizli Hedefler -->
+                <Frame Padding="15"
+                       CornerRadius="15"
+                       BorderColor="{AppThemeBinding Light=#009688, Dark=#26A69A}"
+                       BackgroundColor="Transparent"
+                       HasShadow="True">
+                    <VerticalStackLayout Spacing="12">
+                        <Label Text="🎯 HEDEF DURUMU" 
+                               FontSize="13"
+                               FontAttributes="Bold"
+                               HorizontalOptions="Center"
+                               TextColor="{AppThemeBinding Light=#00796B, Dark=White}"
+                               Opacity="0.7"/>
+                        
+                        <Grid ColumnDefinitions="*,*,*" ColumnSpacing="8">
+                            <Frame Grid.Column="0"
+                                   Padding="10,8"
+                                   CornerRadius="10"
+                                   BorderColor="{AppThemeBinding Light=#009688, Dark=#26A69A}"
+                                   BackgroundColor="Transparent"
+                                   HasShadow="False">
+                                <VerticalStackLayout Spacing="4">
+                                    <Label Text="33" 
+                                           FontSize="18"
+                                           FontAttributes="Bold"
+                                           HorizontalOptions="Center"
+                                           TextColor="{AppThemeBinding Light=#009688, Dark=#26A69A}"/>
+                                    <Label x:Name="Hedef33" 
+                                           Text="0/33"
+                                           FontSize="10"
+                                           HorizontalOptions="Center"
+                                           TextColor="{AppThemeBinding Light=#00796B, Dark=White}"
+                                           Opacity="0.7"/>
+                                </VerticalStackLayout>
+                            </Frame>
+
+                            <Frame Grid.Column="1"
+                                   Padding="10,8"
+                                   CornerRadius="10"
+                                   BorderColor="{AppThemeBinding Light=#009688, Dark=#26A69A}"
+                                   BackgroundColor="Transparent"
+                                   HasShadow="False">
+                                <VerticalStackLayout Spacing="4">
+                                    <Label Text="66" 
+                                           FontSize="18"
+                                           FontAttributes="Bold"
+                                           HorizontalOptions="Center"
+                                           TextColor="{AppThemeBinding Light=#009688, Dark=#26A69A}"/>
+                                    <Label x:Name="Hedef66" 
+                                           Text="0/66"
+                                           FontSize="10"
+                                           HorizontalOptions="Center"
+                                           TextColor="{AppThemeBinding Light=#00796B, Dark=White}"
+                                           Opacity="0.7"/>
+                                </VerticalStackLayout>
+                            </Frame>
+
+                            <Frame Grid.Column="2"
+                                   Padding="10,8"
+                                   CornerRadius="10"
+                                   BorderColor="{AppThemeBinding Light=#009688, Dark=#26A69A}"
+                                   BackgroundColor="Transparent"
+                                   HasShadow="False">
+                                <VerticalStackLayout Spacing="4">
+                                    <Label Text="99" 
+                                           FontSize="18"
+                                           FontAttributes="Bold"
+                                           HorizontalOptions="Center"
+                                           TextColor="{AppThemeBinding Light=#009688, Dark=#26A69A}"/>
+                                    <Label x:Name="Hedef99" 
+                                           Text="0/99"
+                                           FontSize="10"
+                                           HorizontalOptions="Center"
+                                           TextColor="{AppThemeBinding Light=#00796B, Dark=White}"
+                                           Opacity="0.7"/>
+                                </VerticalStackLayout>
+                            </Frame>
+                        </Grid>
+                    </VerticalStackLayout>
+                </Frame>
+
+                <!-- Bilgi Notu -->
+                <Frame Padding="15"
+                       CornerRadius="15"
+                       BorderColor="{AppThemeBinding Light=#009688, Dark=#26A69A}"
+                       BackgroundColor="Transparent"
+                       HasShadow="True"
+                       Opacity="0.8">
+                    <HorizontalStackLayout Spacing="10">
+                        <Label Text="💡" FontSize="20" VerticalOptions="Start"/>
+                        <Label Text="33, 66 ve 99'da telefon titreşecektir. Her tesbihat sonrası sıfırlamayı unutmayın."
+                               FontSize="11"
+                               LineBreakMode="WordWrap"
+                               VerticalOptions="Center"
+                               TextColor="{AppThemeBinding Light=#00796B, Dark=White}"/>
+                    </HorizontalStackLayout>
+                </Frame>
+
+            </VerticalStackLayout>
+        </ScrollView>
     </Grid>
 
 </ContentPage>
