@@ -9,7 +9,7 @@ using hadis.Models;
 
 namespace hadis
 {
-    public  partial class zikirmatik : ContentPage
+    public partial class zikirmatik : ContentPage
     {
         private int sayı = 0;
         private int toplam = 0;
@@ -19,8 +19,12 @@ namespace hadis
             InitializeComponent();
             sayı = Preferences.Default.Get("sonSayi", 0);
             zikirsayisi.Text = sayı.ToString();
-            toplam = Preferences.Default.Get("Toplam",0);
+            toplam = Preferences.Default.Get("Toplam", 0);
             ToplamZikir.Text = toplam.ToString();
+            
+            // Ilerleme guncelemesi
+            UpdateProgress();
+            UpdateHedefProgress();
         }
 
         protected override async void OnNavigatedTo(NavigatedToEventArgs args)
@@ -134,8 +138,15 @@ namespace hadis
             Preferences.Default.Set("sonSayi", sayı);
             Preferences.Default.Set("Toplam", toplam);
             
-            if(sayı ==33|| sayı == 66 || sayı == 99)
+            // Ilerleme guncelle
+            UpdateProgress();
+            UpdateHedefProgress();
+            
+            if(sayı == 33 || sayı == 66 || sayı == 99)
             {
+                // Basari animasyonu
+                await CelebrateAchievement();
+                
                 try
                 {
                     Vibration.Default.Vibrate(TimeSpan.FromMilliseconds(300));
@@ -156,19 +167,65 @@ namespace hadis
                     Console.WriteLine(ex.ToString());
                 }
             }
+            
+            // Buton animasyonu
             zikirbutton.BackgroundColor = Colors.DarkGray;
             await Task.Delay(50);
             zikirbutton.BackgroundColor = Colors.Transparent;
         }
 
+        private void UpdateProgress()
+        {
+            // 99'a gore ilerleme
+            double progress = Math.Min((double)sayı / 99.0, 1.0);
+            IlerlemeBar.Progress = progress;
+            IlerlemeYuzde.Text = $"{(int)(progress * 100)}%";
+            
+            // Tur gosterimi
+            MevcutTur.Text = $"{sayı} / 99";
+        }
+
+        private void UpdateHedefProgress()
+        {
+            // 33 hedefi
+            if (sayı >= 33)
+                Hedef33.Text = "✓";
+            else
+                Hedef33.Text = $"{sayı}/33";
+            
+            // 66 hedefi
+            if (sayı >= 66)
+                Hedef66.Text = "✓";
+            else
+                Hedef66.Text = $"{sayı}/66";
+            
+            // 99 hedefi
+            if (sayı >= 99)
+                Hedef99.Text = "✓";
+            else
+                Hedef99.Text = $"{sayı}/99";
+        }
+
+        private async Task CelebrateAchievement()
+        {
+            // Buton buyume animasyonu
+            await zikirbutton.ScaleTo(1.15, 200, Easing.SpringOut);
+            await zikirbutton.ScaleTo(1.0, 200, Easing.SpringIn);
+        }
+
         private async void sifirla_Clicked(object sender, EventArgs e)
         {
-            bool cevap = await DisplayAlert("Emin misiniz?","Zikir sayacını sıfırlamak istediğinize emin misiniz?","Evet, Sıfırla","Hayır");
+            bool cevap = await DisplayAlert("Emin misiniz?", "Zikir sayacını sıfırlamak istediğinize emin misiniz?", "Evet, Sıfırla", "Hayır");
             if (cevap)
             {
                 sayı = 0;
                 zikirsayisi.Text = sayı.ToString();
                 Preferences.Default.Set("sonSayi", sayı);
+                
+                // Ilerleme guncelle
+                UpdateProgress();
+                UpdateHedefProgress();
+                
                 try
                 {
                     Vibration.Default.Vibrate(TimeSpan.FromMilliseconds(100));

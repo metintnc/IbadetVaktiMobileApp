@@ -140,6 +140,9 @@ namespace hadis
                 Preferences.Default.Set("ManuelLatitude", selectedCity.Latitude);
                 Preferences.Default.Set("ManuelLongitude", selectedCity.Longitude);
                 Preferences.Default.Set("ManuelSehir", selectedCity.Name);
+                
+                // Widget'ý güncelle
+                UpdateWidget();
 
                 // Seçimi temizle (animasyon için)
                 CitiesCollectionView.SelectedItem = null;
@@ -174,10 +177,43 @@ namespace hadis
                     Preferences.Default.Set("ManuelLongitude", selectedCity.Longitude);
                     Preferences.Default.Set("ManuelSehir", selectedCity.Name);
                 }
+                
+                // Widget'ý güncelle
+                UpdateWidget();
 
                 // Geri dön
                 await Navigation.PopAsync();
             }
+        }
+        
+        private void UpdateWidget()
+        {
+#if ANDROID
+            try
+            {
+                var context = Android.App.Application.Context;
+                var appWidgetManager = Android.Appwidget.AppWidgetManager.GetInstance(context);
+                var componentName = new Android.Content.ComponentName(context, 
+                    Java.Lang.Class.FromType(typeof(Platforms.Android.ClockWeatherWidget)));
+                var appWidgetIds = appWidgetManager?.GetAppWidgetIds(componentName);
+
+                if (appWidgetIds != null && appWidgetIds.Length > 0)
+                {
+                    // Widget'larý güncelle
+                    var intent = new Android.Content.Intent(context, 
+                        typeof(Platforms.Android.ClockWeatherWidget));
+                    intent.SetAction(Android.Appwidget.AppWidgetManager.ActionAppwidgetUpdate);
+                    intent.PutExtra(Android.Appwidget.AppWidgetManager.ExtraAppwidgetIds, appWidgetIds);
+                    context.SendBroadcast(intent);
+                    
+                    System.Diagnostics.Debug.WriteLine("Widget guncelleme broadcast gonderildi");
+                }
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine($"Widget guncelleme hatasi: {ex.Message}");
+            }
+#endif
         }
     }
 }

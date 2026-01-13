@@ -59,6 +59,68 @@
                     </VerticalStackLayout>
                 </Frame>
 
+                <!-- Saat & Namaz Vakti Widget -->
+                <Frame Style="{StaticResource BorderFrame}" Padding="15" BackgroundColor="Transparent">
+                    <VerticalStackLayout Spacing="12">
+                        <Label Text="Saat &amp; Namaz Vakti Widget"
+                               FontSize="18"
+                               FontAttributes="Bold"
+                               TextColor="{AppThemeBinding Light=#00796B, Dark=#81C784}"/>
+                        
+                        <!-- Widget Önizleme -->
+                        <Frame BorderColor="{AppThemeBinding Light=#00796B, Dark=#81C784}"
+                               BackgroundColor="#80000000"
+                               Padding="16"
+                               CornerRadius="12"
+                               HasShadow="True">
+                            <Grid ColumnDefinitions="*,Auto">
+                                <!-- Sol: Saat ve Tarih -->
+                                <VerticalStackLayout Grid.Column="0" Spacing="4" VerticalOptions="Center">
+                                    <Label Text="21:31"
+                                           FontSize="42"
+                                           FontAttributes="Bold"
+                                           TextColor="White"/>
+                                    
+                                    <Label Text="13 Ocak, Sal"
+                                           FontSize="12"
+                                           TextColor="White"
+                                           Margin="0,-4,0,0"/>
+                                </VerticalStackLayout>
+                                
+                                <!-- Sag: Namaz Vakti -->
+                                <VerticalStackLayout Grid.Column="1" Spacing="4" VerticalOptions="Center" HorizontalOptions="End">
+                                    <Label Text="Imsak"
+                                           FontSize="12"
+                                           TextColor="White"
+                                           HorizontalOptions="End"/>
+                                    
+                                    <Label Text="3s 45d"
+                                           FontSize="28"
+                                           FontAttributes="Bold"
+                                           TextColor="White"
+                                           HorizontalOptions="End"/>
+                                </VerticalStackLayout>
+                            </Grid>
+                        </Frame>
+                        
+                        <Label Text="Ana ekrana saat ve sonraki namaza kalan süreyi gösteren şeffaf widget ekler"
+                               FontSize="13"
+                               TextColor="{AppThemeBinding Light=#757575, Dark=#BDBDBD}"/>
+                        
+                        <Button x:Name="EkleButton"
+                                Text="Ana Ekrana Ekle"
+                                Clicked="EkleButton_Clicked"
+                                BackgroundColor="{AppThemeBinding Light=#00796B, Dark=#81C784}"
+                                TextColor="White"
+                                CornerRadius="15"
+                                Padding="15,12"
+                                FontAttributes="Bold"
+                                FontSize="16"
+                                HorizontalOptions="Fill"
+                                Margin="0,5,0,0"/>
+                    </VerticalStackLayout>
+                </Frame>
+
             </VerticalStackLayout>
         </ScrollView>
     </Grid>

@@ -1,0 +1,82 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/widget_container"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="horizontal"
+    android:gravity="center_vertical"
+    android:background="@android:color/transparent"
+    android:padding="16dp">
+
+    <!-- Sol Taraf: Saat ve Tarih -->
+    <LinearLayout
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_weight="1"
+        android:orientation="vertical"
+        android:gravity="start">
+
+        <TextView
+            android:id="@+id/widget_time"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="21:31"
+            android:textSize="48sp"
+            android:textColor="#FFFFFF"
+            android:fontFamily="sans-serif-light"
+            android:shadowColor="#80000000"
+            android:shadowDx="2"
+            android:shadowDy="2"
+            android:shadowRadius="4"/>
+
+        <TextView
+            android:id="@+id/widget_date"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="13 Ocak, Sal"
+            android:textSize="14sp"
+            android:textColor="#FFFFFF"
+            android:layout_marginTop="2dp"
+            android:shadowColor="#80000000"
+            android:shadowDx="1"
+            android:shadowDy="1"
+            android:shadowRadius="3"/>
+    </LinearLayout>
+
+    <!-- Sag Taraf: Namaz Vakti Bilgisi -->
+    <LinearLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:gravity="end">
+
+        <TextView
+            android:id="@+id/widget_namaz_adi"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Imsak"
+            android:textSize="14sp"
+            android:textColor="#FFFFFF"
+            android:gravity="end"
+            android:shadowColor="#80000000"
+            android:shadowDx="1"
+            android:shadowDy="1"
+            android:shadowRadius="3"/>
+
+        <TextView
+            android:id="@+id/widget_kalan_sure"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="3s 45d"
+            android:textSize="32sp"
+            android:textColor="#FFFFFF"
+            android:fontFamily="sans-serif-medium"
+            android:gravity="end"
+            android:layout_marginTop="2dp"
+            android:shadowColor="#80000000"
+            android:shadowDx="2"
+            android:shadowDy="2"
+            android:shadowRadius="4"/>
+    </LinearLayout>
+
+</LinearLayout>
