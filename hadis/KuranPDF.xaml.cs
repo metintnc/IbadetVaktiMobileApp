@@ -1,5 +1,7 @@
 ﻿using System.ComponentModel;
 using Syncfusion.Maui.PdfViewer;
+using hadis.Services;
+
 namespace hadis
 {
     public partial class KuranPDF : ContentPage
@@ -35,6 +37,17 @@ namespace hadis
             if (e.PropertyName == nameof(Syncfusion.Maui.PdfViewer.SfPdfViewer.PageNumber))
             {
                 Preferences.Default.Set("KuranSonSayfa", pdfViewer.PageNumber);
+                
+                // Sure bilgisini güncelle
+                var sure = KuranDataService.GetSureler()
+                    .Where(s => s.BaslangicSayfasi <= pdfViewer.PageNumber)
+                    .OrderByDescending(s => s.BaslangicSayfasi)
+                    .FirstOrDefault();
+                
+                if (sure != null)
+                {
+                    Preferences.Default.Set("KuranSonSureNo", sure.SureNo);
+                }
             }
         }
         

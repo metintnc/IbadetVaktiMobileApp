@@ -59,13 +59,30 @@
 		
 		<!-- Splash Screen -->
 		<MauiSplashScreen Include="Resources\Splash\gemini3.png" Color="#303030" BaseSize="200,200" />
+		
+		<!-- Background Images -->
 		<MauiImage Include="Resources\Images\bg_dark.jpg" />
 		<MauiImage Include="Resources\Images\bg_light.jpg" />
+		<MauiImage Include="Resources\Images\kiblearkaplan.png" />
+		
+		<!-- Sun Images for Time-based Backgrounds -->
+		<MauiImage Include="Resources\Images\sun_01.png" />
+		<MauiImage Include="Resources\Images\sun_02.png" />
+		<MauiImage Include="Resources\Images\sun_03.png" />
+		<MauiImage Include="Resources\Images\sun_04.png" />
+		<MauiImage Include="Resources\Images\sun_05.png" />
+		<MauiImage Include="Resources\Images\sun_06.png" />
+		<MauiImage Include="Resources\Images\sun_07.png" />
+		<MauiImage Include="Resources\Images\sun_08.png" />
+		<MauiImage Include="Resources\Images\sun_09.png" />
+		<MauiImage Include="Resources\Images\sun_10.png" />
+		
+		<!-- Qibla Images -->
 		<MauiImage Include="Resources\Images\kibleokdark.svg" />
 		<MauiImage Include="Resources\Images\kibleoklight.svg" />
 		<MauiImage Include="Resources\Images\kiblesekme.svg" />
 
-		<!-- Images -->
+		<!-- Tab Images -->
 		<MauiImage Include="Resources\Images\kuran.svg" />
 		<MauiImage Include="Resources\Images\vakitler.svg" />
 		<MauiImage Include="Resources\Images\zikirmatik.svg" />
@@ -78,10 +95,25 @@
 	</ItemGroup>
 
 	<ItemGroup>
+	  <AndroidResource Remove="Platforms\Android\Resources\color\bottom_nav_item_color.xml" />
+	  <AndroidResource Remove="Platforms\Android\Resources\drawable\tab_item_background.xml" />
+	</ItemGroup>
+
+	<ItemGroup>
 	  <None Remove="Resources\Images\bg_dark.jpg" />
 	  <None Remove="Resources\Images\bg_light.jpg" />
 	  <None Remove="Resources\Images\kibleoklight.svg" />
 	  <None Remove="Resources\Images\kiblesekme.svg" />
+	  <None Remove="Resources\Images\sun_01.png" />
+	  <None Remove="Resources\Images\sun_02.png" />
+	  <None Remove="Resources\Images\sun_03.png" />
+	  <None Remove="Resources\Images\sun_04.png" />
+	  <None Remove="Resources\Images\sun_05.png" />
+	  <None Remove="Resources\Images\sun_06.png" />
+	  <None Remove="Resources\Images\sun_07.png" />
+	  <None Remove="Resources\Images\sun_08.png" />
+	  <None Remove="Resources\Images\sun_09.png" />
+	  <None Remove="Resources\Images\sun_10.png" />
 	</ItemGroup>
 
 	<ItemGroup>
@@ -102,6 +134,9 @@
 	  <MauiXaml Update="kible.xaml">
 	    <Generator>MSBuild:Compile</Generator>
 	  </MauiXaml>
+	  <MauiXaml Update="Kuran.xaml">
+	    <Generator>MSBuild:Compile</Generator>
+	  </MauiXaml>
 	  <MauiXaml Update="KuranPDF.xaml">
 	    <Generator>MSBuild:Compile</Generator>
 	  </MauiXaml>
@@ -111,10 +146,6 @@
 	  <MauiXaml Update="zikirmatik.xaml">
 	    <Generator>MSBuild:Compile</Generator>
 	  </MauiXaml>
-	</ItemGroup>
-
-	<ItemGroup>
-	  <Folder Include="Platforms\Android\Handlers\" />
 	</ItemGroup>
 
 </Project>

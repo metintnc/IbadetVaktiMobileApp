@@ -30,18 +30,21 @@
                        FontSize="24"
                        FontAttributes="Bold"
                        Margin="0,10,0,10"
-                       TextColor="{AppThemeBinding Light=#00796B, Dark=#81C784}"/>
+                       TextColor="{AppThemeBinding Light=#00796B, Dark=#FFFFFF}"/>
 
-                <Frame Style="{StaticResource BorderFrame}" Padding="15" BackgroundColor="Transparent">
+                <Frame Style="{StaticResource BorderFrame}" 
+                       Padding="15" 
+                       BackgroundColor="Transparent"
+                       BorderColor="{AppThemeBinding Light=#80009688, Dark=#80FFFFFF}">
                     <VerticalStackLayout Spacing="10" RadioButtonGroup.GroupName="ThemeGroup">
                         <Label Text="Tema Secimi" FontSize="18" FontAttributes="Bold"
-                               TextColor="{AppThemeBinding Light=#00796B, Dark=#81C784}"/>
+                               TextColor="{AppThemeBinding Light=#00796B, Dark=#FFFFFF}"/>
                         
                         <RadioButton x:Name="SistemTemaRadio"
                                      Content="Sistem Temasi" 
                                      IsChecked="True"
                                      CheckedChanged="OnThemeChanged"
-                                     TextColor="{AppThemeBinding Light=#212121, Dark=#E0E0E0}">
+                                     TextColor="{AppThemeBinding Light=#00796B, Dark=#FFFFFF}">
                             <RadioButton.ControlTemplate>
                                 <ControlTemplate>
                                     <Grid ColumnDefinitions="Auto,*" ColumnSpacing="10">
@@ -49,14 +52,14 @@
                                                 WidthRequest="22"
                                                 HeightRequest="22"
                                                 VerticalOptions="Center"
-                                                Stroke="{AppThemeBinding Light=#00796B, Dark=#81C784}"
+                                                Stroke="{AppThemeBinding Light=#80009688, Dark=#FFFFFF}"
                                                 StrokeThickness="2"
                                                 BackgroundColor="Transparent"
                                                 StrokeShape="RoundRectangle 11">
                                             <Ellipse x:Name="CheckMark"
                                                      WidthRequest="12"
                                                      HeightRequest="12"
-                                                     Fill="{AppThemeBinding Light=#00796B, Dark=#81C784}"
+                                                     Fill="{AppThemeBinding Light=#00796B, Dark=#FFFFFF}"
                                                      HorizontalOptions="Center"
                                                      VerticalOptions="Center"
                                                      IsVisible="{TemplateBinding IsChecked}"/>
@@ -75,7 +78,7 @@
                         <RadioButton x:Name="AcikTemaRadio"
                                      Content="Acik Tema"
                                      CheckedChanged="OnThemeChanged"
-                                     TextColor="{AppThemeBinding Light=#212121, Dark=#E0E0E0}">
+                                     TextColor="{AppThemeBinding Light=#00796B, Dark=#FFFFFF}">
                             <RadioButton.ControlTemplate>
                                 <ControlTemplate>
                                     <Grid ColumnDefinitions="Auto,*" ColumnSpacing="10">
@@ -83,14 +86,14 @@
                                                 WidthRequest="22"
                                                 HeightRequest="22"
                                                 VerticalOptions="Center"
-                                                Stroke="{AppThemeBinding Light=#00796B, Dark=#81C784}"
+                                                Stroke="{AppThemeBinding Light=#80009688, Dark=#FFFFFF}"
                                                 StrokeThickness="2"
                                                 BackgroundColor="Transparent"
                                                 StrokeShape="RoundRectangle 11">
                                             <Ellipse x:Name="CheckMark"
                                                      WidthRequest="12"
                                                      HeightRequest="12"
-                                                     Fill="{AppThemeBinding Light=#00796B, Dark=#81C784}"
+                                                     Fill="{AppThemeBinding Light=#00796B, Dark=#FFFFFF}"
                                                      HorizontalOptions="Center"
                                                      VerticalOptions="Center"
                                                      IsVisible="{TemplateBinding IsChecked}"/>
@@ -109,7 +112,7 @@
                         <RadioButton x:Name="KoyuTemaRadio"
                                      Content="Koyu Tema"
                                      CheckedChanged="OnThemeChanged"
-                                     TextColor="{AppThemeBinding Light=#212121, Dark=#E0E0E0}">
+                                     TextColor="{AppThemeBinding Light=#00796B, Dark=#FFFFFF}">
                             <RadioButton.ControlTemplate>
                                 <ControlTemplate>
                                     <Grid ColumnDefinitions="Auto,*" ColumnSpacing="10">
@@ -117,14 +120,14 @@
                                                 WidthRequest="22"
                                                 HeightRequest="22"
                                                 VerticalOptions="Center"
-                                                Stroke="{AppThemeBinding Light=#00796B, Dark=#81C784}"
+                                                Stroke="{AppThemeBinding Light=#80009688, Dark=#FFFFFF}"
                                                 StrokeThickness="2"
                                                 BackgroundColor="Transparent"
                                                 StrokeShape="RoundRectangle 11">
                                             <Ellipse x:Name="CheckMark"
                                                      WidthRequest="12"
                                                      HeightRequest="12"
-                                                     Fill="{AppThemeBinding Light=#00796B, Dark=#81C784}"
+                                                     Fill="{AppThemeBinding Light=#00796B, Dark=#FFFFFF}"
                                                      HorizontalOptions="Center"
                                                      VerticalOptions="Center"
                                                      IsVisible="{TemplateBinding IsChecked}"/>
@@ -143,7 +146,7 @@
                         <RadioButton x:Name="OzelTemaRadio"
                                      Content="Ozel Tema"
                                      CheckedChanged="OnThemeChanged"
-                                     TextColor="{AppThemeBinding Light=#212121, Dark=#E0E0E0}">
+                                     TextColor="{AppThemeBinding Light=#00796B, Dark=#FFFFFF}">
                             <RadioButton.ControlTemplate>
                                 <ControlTemplate>
                                     <Grid ColumnDefinitions="Auto,*" ColumnSpacing="10">
@@ -151,14 +154,14 @@
                                                 WidthRequest="22"
                                                 HeightRequest="22"
                                                 VerticalOptions="Center"
-                                                Stroke="{AppThemeBinding Light=#00796B, Dark=#81C784}"
+                                                Stroke="{AppThemeBinding Light=#80009688, Dark=#FFFFFF}"
                                                 StrokeThickness="2"
                                                 BackgroundColor="Transparent"
                                                 StrokeShape="RoundRectangle 11">
                                             <Ellipse x:Name="CheckMark"
                                                      WidthRequest="12"
                                                      HeightRequest="12"
-                                                     Fill="{AppThemeBinding Light=#00796B, Dark=#81C784}"
+                                                     Fill="{AppThemeBinding Light=#00796B, Dark=#FFFFFF}"
                                                      HorizontalOptions="Center"
                                                      VerticalOptions="Center"
                                                      IsVisible="{TemplateBinding IsChecked}"/>
@@ -177,12 +180,15 @@
                     </VerticalStackLayout>
                 </Frame>
 
-                <Frame Style="{StaticResource BorderFrame}" Padding="15" BackgroundColor="Transparent">
+                <Frame Style="{StaticResource BorderFrame}" 
+                       Padding="15" 
+                       BackgroundColor="Transparent"
+                       BorderColor="{AppThemeBinding Light=#80009688, Dark=#80FFFFFF}">
                     <VerticalStackLayout Spacing="12">
                         <Label Text="Ozel Tema"
                                FontSize="18"
                                FontAttributes="Bold"
-                               TextColor="{AppThemeBinding Light=#00796B, Dark=#81C784}"/>
+                               TextColor="{AppThemeBinding Light=#00796B, Dark=#FFFFFF}"/>
                         
                         <Label Text="Kendi temanizi olusturun ve renkleri ozelestirin"
                                FontSize="13"
@@ -190,8 +196,8 @@
                         
                         <Button Text="Ozel Tema Olustur"
                                 Clicked="OzelTemaOlustur_Clicked"
-                                BackgroundColor="{AppThemeBinding Light=#00796B, Dark=#81C784}"
-                                TextColor="White"
+                                BackgroundColor="{AppThemeBinding Light=#00796B, Dark=#FFFFFF}"
+                                TextColor="{AppThemeBinding Light=#FFFFFF, Dark=#00796B}"
                                 CornerRadius="15"
                                 Padding="15,12"
                                 FontAttributes="Bold"

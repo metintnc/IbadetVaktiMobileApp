@@ -13,18 +13,46 @@ namespace hadis
     {
         private int sayı = 0;
         private int toplam = 0;
+        private int hedef = 100;
+        private string seciliZikir = "Sübhanallah";
+        private bool sesDurum = true;
         
         public zikirmatik()
         {
             InitializeComponent();
-            sayı = Preferences.Default.Get("sonSayi", 0);
-            zikirsayisi.Text = sayı.ToString();
-            toplam = Preferences.Default.Get("Toplam", 0);
-            ToplamZikir.Text = toplam.ToString();
             
-            // Ilerleme guncelemesi
+            // Kayıtlı değerleri yükle
+            sayı = Preferences.Default.Get("sonSayi", 0);
+            toplam = Preferences.Default.Get("Toplam", 0);
+            hedef = Preferences.Default.Get("ZikirHedef", 100);
+            seciliZikir = Preferences.Default.Get("SeciliZikir", "Sübhanallah");
+            sesDurum = Preferences.Default.Get("SesDurum", true);
+            
+            // UI'ı güncelle
+            zikirsayisi.Text = sayı.ToString();
+            SeciliZikirLabel.Text = $"Seçili Zikir: {seciliZikir}";
+            HedefLabel.Text = $"Hedef: {hedef}";
+            SesTitresimIcon.Text = sesDurum ? "🔊" : "🔇";
+            
+            // İlerleme güncelle
             UpdateProgress();
-            UpdateHedefProgress();
+            
+            // Layout değişikliğinde ilerleme çubuğu genişliğini ayarla
+            HeaderFrame.SizeChanged += OnHeaderFrameSizeChanged;
+        }
+
+        private void OnHeaderFrameSizeChanged(object sender, EventArgs e)
+        {
+            if (sender is Frame frame)
+            {
+                // Progress bar için maksimum genişliği ayarla
+                double availableWidth = frame.Width - 48; // Padding için
+                if (availableWidth > 0)
+                {
+                    double progress = Math.Min((double)sayı / (double)hedef, 1.0);
+                    IlerlemeIbresi.WidthRequest = availableWidth * progress;
+                }
+            }
         }
 
         protected override async void OnNavigatedTo(NavigatedToEventArgs args)
@@ -34,13 +62,13 @@ namespace hadis
             // Özel tema varsa uygula
             ApplyCustomTheme();
             
-            // Tab ile gelince scale animasyon
+            // Giriş animasyonu
             await AnimateZikirEntry();
         }
 
         private void ApplyCustomTheme()
         {
-            // Kayitli tema tercihini kontrol et
+            // Kayıtlı tema tercihini kontrol et
             string savedTheme = Preferences.Default.Get("AppTheme", "System");
             
             // Eğer Custom tema seçili değilse, varsayılan stillere dön
@@ -50,7 +78,7 @@ namespace hadis
                 return;
             }
             
-            // Ozel tema yukle
+            // Özel tema yükle
             string customThemeJson = Preferences.Default.Get("CustomTheme", string.Empty);
             
             if (string.IsNullOrEmpty(customThemeJson))
@@ -64,18 +92,17 @@ namespace hadis
                 var theme = JsonSerializer.Deserialize<CustomTheme>(customThemeJson);
                 if (theme != null)
                 {
-                    // Ana frame text renkleri kullan (Zikir sayısı için)
+                    // Ana sayaç rengini uygula
                     zikirsayisi.TextColor = Color.FromArgb(theme.MainFrameText);
                     ZikirBaslik.TextColor = Color.FromArgb(theme.MainFrameText);
                     
-                    // Buton renkleri (Ana frame border rengi kullan)
+                    // Border renkleri
                     zikirbutton.BorderColor = Color.FromArgb(theme.MainFrameBorder);
-                    sifirla.BackgroundColor = Color.FromArgb(theme.MainFrameBorder);
                 }
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"Ozel tema uygulama hatasi: {ex.Message}");
+                Console.WriteLine($"Özel tema uygulama hatası: {ex.Message}");
                 ResetToDefaultStyles();
             }
         }
@@ -90,25 +117,21 @@ namespace hadis
             // Varsayılan renklere dön
             if (currentTheme == AppTheme.Dark)
             {
-                // Dark tema varsayılan renkleri
                 zikirsayisi.TextColor = Colors.White;
                 ZikirBaslik.TextColor = Colors.White;
-                zikirbutton.BorderColor = Color.FromArgb("#26A69A");
-                sifirla.BackgroundColor = Color.FromArgb("#26A69A");
+                zikirbutton.BorderColor = Color.FromArgb("#80FFFFFF");
             }
             else
             {
-                // Light tema varsayılan renkleri
                 zikirsayisi.TextColor = Color.FromArgb("#00796B");
-                ZikirBaslik.TextColor = Colors.Black;
-                zikirbutton.BorderColor = Color.FromArgb("#00796B");
-                sifirla.BackgroundColor = Color.FromArgb("#00796B");
+                ZikirBaslik.TextColor = Color.FromArgb("#00796B");
+                zikirbutton.BorderColor = Color.FromArgb("#80009688");
             }
         }
         
         private async Task AnimateZikirEntry()
         {
-            // Zikir butonu
+            // Ana daire animasyonu
             zikirbutton.Opacity = 0;
             zikirbutton.Scale = 0.5;
             
@@ -122,7 +145,7 @@ namespace hadis
         {
             base.OnNavigatedFrom(args);
             
-            // Tab değişirken scale out
+            // Çıkış animasyonu
             await Task.WhenAll(
                 zikirbutton.FadeTo(0, 300, Easing.CubicIn),
                 zikirbutton.ScaleTo(0.5, 400, Easing.CubicIn)
@@ -131,36 +154,50 @@ namespace hadis
 
         private async void zikirbutton_Clicked(object sender, EventArgs e)
         {
-            toplam++;
             sayı++;
-            ToplamZikir.Text = toplam.ToString();
+            toplam++;
+            
             zikirsayisi.Text = sayı.ToString();
             Preferences.Default.Set("sonSayi", sayı);
             Preferences.Default.Set("Toplam", toplam);
             
-            // Ilerleme guncelle
+            // İlerleme güncelle
             UpdateProgress();
-            UpdateHedefProgress();
             
-            if(sayı == 33 || sayı == 66 || sayı == 99)
+            // Hedef kontrolü
+            if(sayı == hedef)
             {
-                // Basari animasyonu
                 await CelebrateAchievement();
+                await DisplayAlert("Tebrikler! 🎉", $"{hedef} {seciliZikir} tamamlandı!", "Tamam");
                 
+                if (sesDurum)
+                {
+                    try
+                    {
+                        Vibration.Default.Vibrate(TimeSpan.FromMilliseconds(500));
+                    }
+                    catch(Exception ex)
+                    {
+                        Console.WriteLine(ex.ToString());
+                    }
+                }
+            }
+            else if(sayı % 33 == 0 && sesDurum)
+            {
                 try
                 {
-                    Vibration.Default.Vibrate(TimeSpan.FromMilliseconds(300));
+                    Vibration.Default.Vibrate(TimeSpan.FromMilliseconds(200));
                 }
                 catch(Exception ex)
                 {
                     Console.WriteLine(ex.ToString());
                 }
             }
-            else
+            else if(sesDurum)
             {
                 try
                 {
-                    Vibration.Default.Vibrate(TimeSpan.FromMilliseconds(50));
+                    Vibration.Default.Vibrate(TimeSpan.FromMilliseconds(30));
                 }
                 catch (Exception ex)
                 {
@@ -169,78 +206,138 @@ namespace hadis
             }
             
             // Buton animasyonu
-            zikirbutton.BackgroundColor = Colors.DarkGray;
-            await Task.Delay(50);
-            zikirbutton.BackgroundColor = Colors.Transparent;
+            await AnimateButton();
+        }
+
+        private async Task AnimateButton()
+        {
+            await zikirbutton.ScaleTo(0.95, 50, Easing.CubicOut);
+            await zikirbutton.ScaleTo(1.0, 100, Easing.SpringOut);
         }
 
         private void UpdateProgress()
         {
-            // 99'a gore ilerleme
-            double progress = Math.Min((double)sayı / 99.0, 1.0);
+            // Hedefe göre ilerleme
+            double progress = Math.Min((double)sayı / (double)hedef, 1.0);
             IlerlemeBar.Progress = progress;
-            IlerlemeYuzde.Text = $"{(int)(progress * 100)}%";
             
-            // Tur gosterimi
-            MevcutTur.Text = $"{sayı} / 99";
-        }
-
-        private void UpdateHedefProgress()
-        {
-            // 33 hedefi
-            if (sayı >= 33)
-                Hedef33.Text = "✓";
-            else
-                Hedef33.Text = $"{sayı}/33";
+            // İlerleme ibresi genişliği (BoxView için)
+            double availableWidth = HeaderFrame.Width > 0 ? HeaderFrame.Width - 48 : 300;
+            IlerlemeIbresi.WidthRequest = availableWidth * progress;
             
-            // 66 hedefi
-            if (sayı >= 66)
-                Hedef66.Text = "✓";
-            else
-                Hedef66.Text = $"{sayı}/66";
+            // Yüzde ve kalan bilgileri
+            int yuzde = (int)(progress * 100);
+            int kalan = Math.Max(0, hedef - sayı);
             
-            // 99 hedefi
-            if (sayı >= 99)
-                Hedef99.Text = "✓";
+            IlerlemeYuzdeLabel.Text = $"İlerleme: {yuzde}%";
+            KalanLabel.Text = $"(Kalan: {kalan})";
+            
+            // İlerleme tamamlandığında renk değişimi
+            if (progress >= 1.0)
+            {
+                IlerlemeYuzdeLabel.TextColor = Colors.Green;
+            }
             else
-                Hedef99.Text = $"{sayı}/99";
+            {
+                var currentTheme = Application.Current?.UserAppTheme == AppTheme.Unspecified 
+                    ? Application.Current?.RequestedTheme ?? AppTheme.Light 
+                    : Application.Current?.UserAppTheme ?? AppTheme.Light;
+                    
+                IlerlemeYuzdeLabel.TextColor = currentTheme == AppTheme.Dark 
+                    ? Colors.White 
+                    : Color.FromArgb("#00796B");
+            }
         }
 
         private async Task CelebrateAchievement()
         {
-            // Buton buyume animasyonu
-            await zikirbutton.ScaleTo(1.15, 200, Easing.SpringOut);
+            // Başarı animasyonu
+            await zikirbutton.ScaleTo(1.2, 200, Easing.SpringOut);
             await zikirbutton.ScaleTo(1.0, 200, Easing.SpringIn);
         }
 
         private async void sifirla_Clicked(object sender, EventArgs e)
         {
-            bool cevap = await DisplayAlert("Emin misiniz?", "Zikir sayacını sıfırlamak istediğinize emin misiniz?", "Evet, Sıfırla", "Hayır");
+            bool cevap = await DisplayAlert("Emin misiniz?", "Zikir sayacını sıfırlamak istediğimize emin misiniz?", "Evet, Sıfırla", "Hayır");
             if (cevap)
             {
                 sayı = 0;
                 zikirsayisi.Text = sayı.ToString();
                 Preferences.Default.Set("sonSayi", sayı);
                 
-                // Ilerleme guncelle
                 UpdateProgress();
-                UpdateHedefProgress();
                 
-                try
+                if (sesDurum)
                 {
-                    Vibration.Default.Vibrate(TimeSpan.FromMilliseconds(100));
-                }
-                catch (Exception ex)
-                {
-                    Console.WriteLine(ex.ToString());
+                    try
+                    {
+                        Vibration.Default.Vibrate(TimeSpan.FromMilliseconds(100));
+                    }
+                    catch (Exception ex)
+                    {
+                        Console.WriteLine(ex.ToString());
+                    }
                 }
             }
         }
 
-        private void zikirbutton_SizeChanged(object sender, EventArgs e)
+        private async void HedefAyarla_Clicked(object sender, EventArgs e)
         {
-            var btn = (Button)sender;
-            btn.WidthRequest = btn.Height;
+            string result = await DisplayPromptAsync(
+                "Hedef Ayarla",
+                "Yeni hedef değerini girin (33, 66, 99, 100, vb.)",
+                initialValue: hedef.ToString(),
+                keyboard: Keyboard.Numeric);
+            
+            if (!string.IsNullOrEmpty(result) && int.TryParse(result, out int yeniHedef) && yeniHedef > 0)
+            {
+                hedef = yeniHedef;
+                HedefLabel.Text = $"Hedef: {hedef}";
+                Preferences.Default.Set("ZikirHedef", hedef);
+                UpdateProgress();
+                
+                // İlerleme çubuğunu animasyonlu güncelle
+                await AnimateProgressUpdate();
+            }
+        }
+
+        private async Task AnimateProgressUpdate()
+        {
+            await IlerlemeIbresi.ScaleTo(1.05, 200, Easing.CubicOut);
+            await IlerlemeIbresi.ScaleTo(1.0, 200, Easing.CubicIn);
+        }
+
+        private async void ZikirSec_Clicked(object sender, EventArgs e)
+        {
+            string[] zikirler = new string[]
+            {
+                "Sübhanallah",
+                "Elhamdülillah",
+                "Allahu Ekber",
+                "La ilahe illallah",
+                "Estağfirullah",
+                "Sübhanallahi ve bihamdihi",
+                "La havle vela kuvvete illa billah"
+            };
+            
+            string secim = await DisplayActionSheet("Zikir Seçin", "İptal", null, zikirler);
+            
+            if (!string.IsNullOrEmpty(secim) && secim != "İptal")
+            {
+                seciliZikir = secim;
+                SeciliZikirLabel.Text = $"Seçili Zikir: {seciliZikir}";
+                Preferences.Default.Set("SeciliZikir", seciliZikir);
+            }
+        }
+
+        private async void SesTitresim_Clicked(object sender, EventArgs e)
+        {
+            sesDurum = !sesDurum;
+            SesTitresimIcon.Text = sesDurum ? "🔊" : "🔇";
+            Preferences.Default.Set("SesDurum", sesDurum);
+            
+            string mesaj = sesDurum ? "Ses/Titreşim Açık" : "Ses/Titreşim Kapalı";
+            await DisplayAlert("Bilgi", mesaj, "Tamam");
         }
     }
 }

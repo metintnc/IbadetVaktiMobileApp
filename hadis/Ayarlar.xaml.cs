@@ -19,7 +19,7 @@ namespace hadis
         {
             base.OnAppearing();
             
-            // Özel tema varsa uygula
+            // Ozel tema varsa uygula
             ApplyCustomTheme();
             
             // Sehir secim sayfasindan donulduðunde konum etiketini guncelle
@@ -54,35 +54,43 @@ namespace hadis
                 {
                     // Tüm frame'lerin çerçeve rengini SmallFrameBorder ile ayarla
                     Color borderColor = Color.FromArgb(theme.SmallFrameBorder);
-                    
-                    BildirimFrame.BorderColor = borderColor;
-                    TemaFrame.BorderColor = borderColor;
-                    WidgetFrame.BorderColor = borderColor;
-                    KonumFrame.BorderColor = borderColor;
-                    VeriYonetimiFrame.BorderColor = borderColor;
-                    HakkindaFrame.BorderColor = borderColor;
-                    
-                    // Background'larý transparent tut
-                    BildirimFrame.BackgroundColor = Colors.Transparent;
-                    TemaFrame.BackgroundColor = Colors.Transparent;
-                    WidgetFrame.BackgroundColor = Colors.Transparent;
-                    KonumFrame.BackgroundColor = Colors.Transparent;
-                    VeriYonetimiFrame.BackgroundColor = Colors.Transparent;
-                    HakkindaFrame.BackgroundColor = Colors.Transparent;
-                    
-                    // Text renklerini ayarla
                     Color textColor = Color.FromArgb(theme.SmallFrameText);
+                    Color bgColor = Color.FromArgb(theme.SmallFrameBackground).WithAlpha(0.2f);
                     
-                    BildirimButton.TextColor = textColor;
-                    TemaButton.TextColor = textColor;
-                    WidgetButton.TextColor = textColor;
-                    KonumButton.TextColor = textColor;
-                    VeriYonetimiTitle.TextColor = textColor;
-                    HakkindaTitle.TextColor = textColor;
+                    // Header
+                    HeaderFrame.BorderColor = borderColor;
+                    HeaderFrame.BackgroundColor = bgColor;
                     AyarlarTitle.TextColor = textColor;
                     
-                    // Alt label'lar için biraz daha soluk renk
+                    // Main cards
+                    TemaFrame.BorderColor = borderColor;
+                    TemaFrame.BackgroundColor = bgColor;
+                    TemaTitle.TextColor = textColor;
+                    TemaSubtitle.TextColor = textColor.WithAlpha(0.7f);
+                    
+                    BildirimFrame.BorderColor = borderColor;
+                    BildirimFrame.BackgroundColor = bgColor;
+                    BildirimTitle.TextColor = textColor;
+                    BildirimSubtitle.TextColor = textColor.WithAlpha(0.7f);
+                    
+                    WidgetFrame.BorderColor = borderColor;
+                    WidgetFrame.BackgroundColor = bgColor;
+                    WidgetTitle.TextColor = textColor;
+                    WidgetSubtitle.TextColor = textColor.WithAlpha(0.7f);
+                    
+                    KonumFrame.BorderColor = borderColor;
+                    KonumFrame.BackgroundColor = bgColor;
+                    KonumTitle.TextColor = textColor;
                     SeciliKonumLabel.TextColor = textColor.WithAlpha(0.7f);
+                    
+                    // Bottom sections
+                    VeriYonetimiFrame.BorderColor = borderColor;
+                    VeriYonetimiFrame.BackgroundColor = bgColor;
+                    VeriYonetimiTitle.TextColor = textColor;
+                    
+                    HakkindaFrame.BorderColor = borderColor;
+                    HakkindaFrame.BackgroundColor = bgColor;
+                    HakkindaTitle.TextColor = textColor;
                     VersionLabel.TextColor = textColor.WithAlpha(0.7f);
                     CopyrightLabel.TextColor = textColor.WithAlpha(0.5f);
                 }
@@ -101,72 +109,91 @@ namespace hadis
                 ? Application.Current?.RequestedTheme ?? AppTheme.Light 
                 : Application.Current?.UserAppTheme ?? AppTheme.Light;
 
-            // Varsayýlan renklere dön
             if (currentTheme == AppTheme.Dark)
             {
                 // Dark tema varsayýlan renkleri
-                Color borderColor = Color.FromArgb("#26A69A");
+                Color borderColor = Color.FromArgb("#80FFFFFF");
+                Color textColor = Color.FromArgb("#FFFFFF");
+                Color bgColor = Color.FromArgb("#33000000");
                 
-                // Tüm frame çerçeveleri
-                BildirimFrame.BorderColor = borderColor;
+                // Header
+                HeaderFrame.BorderColor = borderColor;
+                HeaderFrame.BackgroundColor = bgColor;
+                AyarlarTitle.TextColor = textColor;
+                
+                // Main cards
                 TemaFrame.BorderColor = borderColor;
+                TemaFrame.BackgroundColor = bgColor;
+                TemaTitle.TextColor = textColor;
+                TemaSubtitle.TextColor = Color.FromArgb("#BDBDBD");
+                
+                BildirimFrame.BorderColor = borderColor;
+                BildirimFrame.BackgroundColor = bgColor;
+                BildirimTitle.TextColor = textColor;
+                BildirimSubtitle.TextColor = Color.FromArgb("#BDBDBD");
+                
                 WidgetFrame.BorderColor = borderColor;
+                WidgetFrame.BackgroundColor = bgColor;
+                WidgetTitle.TextColor = textColor;
+                WidgetSubtitle.TextColor = Color.FromArgb("#BDBDBD");
+                
                 KonumFrame.BorderColor = borderColor;
-                VeriYonetimiFrame.BorderColor = borderColor;
-                HakkindaFrame.BorderColor = borderColor;
-                
-                // Background'lar
-                BildirimFrame.BackgroundColor = Colors.Transparent;
-                TemaFrame.BackgroundColor = Colors.Transparent;
-                WidgetFrame.BackgroundColor = Colors.Transparent;
-                KonumFrame.BackgroundColor = Colors.Transparent;
-                VeriYonetimiFrame.BackgroundColor = Colors.Transparent;
-                HakkindaFrame.BackgroundColor = Colors.Transparent;
-                
-                // Text renkleri
-                BildirimButton.TextColor = Color.FromArgb("#81C784");
-                TemaButton.TextColor = Color.FromArgb("#81C784");
-                WidgetButton.TextColor = Color.FromArgb("#81C784");
-                KonumButton.TextColor = Color.FromArgb("#81C784");
-                VeriYonetimiTitle.TextColor = Color.FromArgb("#81C784");
-                HakkindaTitle.TextColor = Color.FromArgb("#81C784");
-                AyarlarTitle.TextColor = Color.FromArgb("#81C784");
-                
+                KonumFrame.BackgroundColor = bgColor;
+                KonumTitle.TextColor = textColor;
                 SeciliKonumLabel.TextColor = Color.FromArgb("#BDBDBD");
+                
+                // Bottom sections
+                VeriYonetimiFrame.BorderColor = borderColor;
+                VeriYonetimiFrame.BackgroundColor = bgColor;
+                VeriYonetimiTitle.TextColor = textColor;
+                
+                HakkindaFrame.BorderColor = borderColor;
+                HakkindaFrame.BackgroundColor = bgColor;
+                HakkindaTitle.TextColor = textColor;
                 VersionLabel.TextColor = Color.FromArgb("#BDBDBD");
                 CopyrightLabel.TextColor = Color.FromArgb("#757575");
             }
             else
             {
                 // Light tema varsayýlan renkleri
-                Color borderColor = Color.FromArgb("#009688");
+                Color borderColor = Color.FromArgb("#80009688");
+                Color textColor = Color.FromArgb("#00796B");
+                Color bgColor = Color.FromArgb("#22FFFFFF");
                 
-                // Tüm frame çerçeveleri
-                BildirimFrame.BorderColor = borderColor;
+                // Header
+                HeaderFrame.BorderColor = borderColor;
+                HeaderFrame.BackgroundColor = bgColor;
+                AyarlarTitle.TextColor = textColor;
+                
+                // Main cards
                 TemaFrame.BorderColor = borderColor;
+                TemaFrame.BackgroundColor = bgColor;
+                TemaTitle.TextColor = textColor;
+                TemaSubtitle.TextColor = Color.FromArgb("#757575");
+                
+                BildirimFrame.BorderColor = borderColor;
+                BildirimFrame.BackgroundColor = bgColor;
+                BildirimTitle.TextColor = textColor;
+                BildirimSubtitle.TextColor = Color.FromArgb("#757575");
+                
                 WidgetFrame.BorderColor = borderColor;
+                WidgetFrame.BackgroundColor = bgColor;
+                WidgetTitle.TextColor = textColor;
+                WidgetSubtitle.TextColor = Color.FromArgb("#757575");
+                
                 KonumFrame.BorderColor = borderColor;
-                VeriYonetimiFrame.BorderColor = borderColor;
-                HakkindaFrame.BorderColor = borderColor;
-                
-                // Background'lar
-                BildirimFrame.BackgroundColor = Color.FromArgb("#FAFFFFFF");
-                TemaFrame.BackgroundColor = Color.FromArgb("#FAFFFFFF");
-                WidgetFrame.BackgroundColor = Color.FromArgb("#FAFFFFFF");
-                KonumFrame.BackgroundColor = Color.FromArgb("#FAFFFFFF");
-                VeriYonetimiFrame.BackgroundColor = Color.FromArgb("#FAFFFFFF");
-                HakkindaFrame.BackgroundColor = Color.FromArgb("#FAFFFFFF");
-                
-                // Text renkleri
-                BildirimButton.TextColor = Color.FromArgb("#00796B");
-                TemaButton.TextColor = Color.FromArgb("#00796B");
-                WidgetButton.TextColor = Color.FromArgb("#00796B");
-                KonumButton.TextColor = Color.FromArgb("#00796B");
-                VeriYonetimiTitle.TextColor = Color.FromArgb("#00796B");
-                HakkindaTitle.TextColor = Color.FromArgb("#00796B");
-                AyarlarTitle.TextColor = Color.FromArgb("#00796B");
-                
+                KonumFrame.BackgroundColor = bgColor;
+                KonumTitle.TextColor = textColor;
                 SeciliKonumLabel.TextColor = Color.FromArgb("#757575");
+                
+                // Bottom sections
+                VeriYonetimiFrame.BorderColor = borderColor;
+                VeriYonetimiFrame.BackgroundColor = bgColor;
+                VeriYonetimiTitle.TextColor = textColor;
+                
+                HakkindaFrame.BorderColor = borderColor;
+                HakkindaFrame.BackgroundColor = bgColor;
+                HakkindaTitle.TextColor = textColor;
                 VersionLabel.TextColor = Color.FromArgb("#757575");
                 CopyrightLabel.TextColor = Color.FromArgb("#9E9E9E");
             }
@@ -186,18 +213,18 @@ namespace hadis
             
             if (otomatikKonum)
             {
-                SeciliKonumLabel.Text = "Mevcut: Otomatik (GPS)";
+                SeciliKonumLabel.Text = "Þehir ve GPS";
             }
             else
             {
                 string manuelSehir = Preferences.Default.Get(ManuelSehirKey, "");
                 if (!string.IsNullOrEmpty(manuelSehir))
                 {
-                    SeciliKonumLabel.Text = $"Mevcut: {manuelSehir}";
+                    SeciliKonumLabel.Text = manuelSehir;
                 }
                 else
                 {
-                    SeciliKonumLabel.Text = "Mevcut: Otomatik (GPS)";
+                    SeciliKonumLabel.Text = "Þehir ve GPS";
                 }
             }
         }
