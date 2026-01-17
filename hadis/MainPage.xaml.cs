@@ -1,6 +1,10 @@
 ﻿using System.Text.Json;
 using Microsoft.Maui.Devices.Sensors;
 using hadis.Models;
+#if ANDROID
+using Android.OS;
+using Android.Views;
+#endif
 
 namespace hadis
 {
@@ -24,17 +28,206 @@ namespace hadis
         {
             base.OnAppearing();
             
-            // Status bar rengini güncelle
-            UpdateStatusBarColor();
-            
-            // Özel tema varsa uygula
+            // Özel tema varsa uygula (bu status bar'ı ayarlar)
             ApplyCustomTheme();
+            
+            // Custom tema yoksa, saate göre otomatik arkaplan ayarla (bu da status bar'ı ayarlar)
+            
             
             // Sayfa her gösterildiğinde konum bilgisini ve namaz vakitlerini güncelle
             await KonumBilgisiniGoster();
             await NamazVakitleriniÇek();
+            SetTimeBasedBackground();
         }
 
+        private void SetTimeBasedBackground()
+        {
+            // Sadece Custom tema değilse otomatik arkaplan uygula
+            string savedTheme = Preferences.Default.Get("AppTheme", "System");
+            if (savedTheme == "Custom")
+            {
+                Console.WriteLine("Custom tema aktif - otomatik arkaplan devre dışı");
+                Console.WriteLine("⚠️ Status bar rengi Custom tema tarafından ayarlanmalı!");
+                return;
+            }
+
+            Console.WriteLine("🎨 SetTimeBasedBackground çalışıyor - Status bar rengi ayarlanacak");
+            
+            DateTime now = DateTime.Now;
+            int currentHour = now.Hour;
+            int currentMinute = now.Minute;
+            string backgroundImage = "";
+            string statusBarColor = "#000000"; // Varsayılan siyah
+
+            Console.WriteLine($"Şu anki saat: {currentHour}:{currentMinute:D2}");
+
+            // Saatlere göre arkaplan ve status bar rengi belirleme
+            if (currentHour >= 0 && currentHour < 5)
+            {
+                // Gece/Tan Vakti (00:00-05:00) → Güneş görünmüyor - Koyu mavi/siyah
+                backgroundImage = "sun_01.png";
+                statusBarColor = "#05051B"; // Koyu gece mavisi
+            }
+            else if (currentHour == 5 && currentMinute < 30)
+            {
+                // İmsak (05:00-05:30) → Güneş ufukta belirir - Koyu mavi
+                backgroundImage = "sun_02.png";
+                statusBarColor = "#060723"; // Koyu sabah mavisi
+            }
+            else if ((currentHour == 5 && currentMinute >= 30) || (currentHour == 6))
+            {
+                // Sabah Erken (05:30-07:00) → Güneş yükseliyor - Mor/pembe tonlar
+                backgroundImage = "sun_03.png";
+                statusBarColor = "#4B427E"; // Sabah mor-mavi
+            }
+            else if (currentHour >= 7 && currentHour < 9)
+            {
+                // Sabah (07:00-09:00) → Güneş doğuyor - Turuncu/sarı tonlar
+                backgroundImage = "sun_04.png";
+                statusBarColor = "#4077D9"; // Sabah turuncusu
+            }
+            else if (currentHour >= 9 && currentHour < 11)
+            {
+                // Kuşluk (09:00-11:00) → Güneş yükseliyor - Açık mavi
+                backgroundImage = "sun_05.png";
+                statusBarColor = "#2F71E4"; // Kuşluk yeşil-mavi
+            }
+            else if (currentHour >= 11 && currentHour < 13)
+            {
+                // Öğle (11:00-13:00) → Güneş tepe noktada - Açık mavi
+                backgroundImage = "sun_06.png";
+                statusBarColor = "#5E92F3"; // Öğle mavisi
+            }
+            else if (currentHour >= 13 && currentHour < 15)
+            {
+                // Öğleden Sonra (13:00-15:00) → Güneş parlak - Açık mavi
+                backgroundImage = "sun_07.png";
+                statusBarColor = "#5C89F2"; // Öğleden sonra mavisi
+            }
+            else if (currentHour >= 15 && currentHour < 17)
+            {
+                // İkindi (15:00-17:00) → Güneş alçalıyor - Sarı-turuncu
+                backgroundImage = "sun_08.png";
+                statusBarColor = "#6376C6"; // İkindi açık mavisi
+            }
+            else if (currentHour >= 17 && currentHour < 19)
+            {
+                // Akşam (17:00-19:00) → Gün batımı - Turuncu/kırmızı
+                backgroundImage = "sun_09.png";
+                statusBarColor = "#22133A"; // Akşam turuncusu
+            }
+            else if (currentHour >= 19 && currentHour < 24)
+            {
+                // Yatsı (19:00-00:00) → Güneş battı - Koyu mavi
+                backgroundImage = "sun_10.png";
+                statusBarColor = "#08091D"; // Gece mavisi
+            }
+
+            // Arkaplanı uygula
+            try
+            {
+                Console.WriteLine($"Arkaplan resmi ayarlanıyor: {backgroundImage}");
+                
+                BackgroundImage.Source = ImageSource.FromFile(backgroundImage);
+                BackgroundImage.IsVisible = true;
+                
+                // Overlay'i kaldır
+                BackgroundOverlay.IsVisible = false;
+                
+                // Status bar rengini arkaplan resmine göre ayarla
+                SetStatusBarColorForBackground(statusBarColor);
+                
+                Console.WriteLine($"Arkaplan ve status bar rengi başarıyla ayarlandı! Status Bar: {statusBarColor}");
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Arkaplan ayarlama hatası: {ex.Message}");
+                Console.WriteLine($"Stack trace: {ex.StackTrace}");
+            }
+        }
+
+        private void SetStatusBarColorForBackground(string hexColor)
+        {
+#if ANDROID
+            try
+            {
+                var activity = Microsoft.Maui.ApplicationModel.Platform.CurrentActivity;
+                if (activity?.Window == null)
+                {
+                    Console.WriteLine("Activity veya Window null - status bar ayarlanamıyor");
+                    return;
+                }
+
+                activity.RunOnUiThread(() =>
+                {
+                    try
+                    {
+                        // Hex rengini Android Color'a çevir
+                        var color = Android.Graphics.Color.ParseColor(hexColor);
+                        activity.Window.SetStatusBarColor(color);
+                        
+                        Console.WriteLine($"Status bar rengi değiştirildi: {hexColor}");
+                        
+                        // Rengin açık mı koyu mu olduğunu hesapla
+                        bool isLightColor = IsColorLight(hexColor);
+                        
+                        // Android 6.0 ve üzeri için icon rengini ayarla
+                        if (Build.VERSION.SdkInt >= BuildVersionCodes.M)
+                        {
+                            var decorView = activity.Window.DecorView;
+                            var systemUiVisibility = decorView.SystemUiVisibility;
+                            
+                            if (isLightColor)
+                            {
+                                // Açık renk için koyu iconlar
+                                decorView.SystemUiVisibility = (StatusBarVisibility)
+                                    ((int)systemUiVisibility | (int)SystemUiFlags.LightStatusBar);
+                                Console.WriteLine("Status bar iconları koyu yapıldı (açık arkaplan için)");
+                            }
+                            else
+                            {
+                                // Koyu renk için açık iconlar
+                                decorView.SystemUiVisibility = (StatusBarVisibility)
+                                    ((int)systemUiVisibility & ~(int)SystemUiFlags.LightStatusBar);
+                                Console.WriteLine("Status bar iconları açık yapıldı (koyu arkaplan için)");
+                            }
+                        }
+                    }
+                    catch (Exception ex)
+                    {
+                        Console.WriteLine($"Status bar renk ayarlama hatası (UI thread): {ex.Message}");
+                    }
+                });
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Status bar renk ayarlama hatası: {ex.Message}");
+            }
+#endif
+        }
+
+        private bool IsColorLight(string hexColor)
+        {
+            // Hex rengi RGB'ye çevir ve parlaklığı hesapla
+            try
+            {
+                hexColor = hexColor.Replace("#", "");
+                int r = Convert.ToInt32(hexColor.Substring(0, 2), 16);
+                int g = Convert.ToInt32(hexColor.Substring(2, 2), 16);
+                int b = Convert.ToInt32(hexColor.Substring(4, 2), 16);
+                
+                // Parlaklık hesaplama formülü (0-255 arası)
+                double brightness = (r * 0.299 + g * 0.587 + b * 0.114);
+                
+                // 128'den büyükse açık renk
+                return brightness > 128;
+            }
+            catch
+            {
+                return false; // Hata durumunda koyu kabul et
+            }
+        }
+        
         private void ApplyCustomTheme()
         {
             // Kayitli tema tercihini kontrol et
@@ -44,6 +237,7 @@ namespace hadis
             if (savedTheme != "Custom")
             {
                 ResetToDefaultStyles();
+                // SetTimeBasedBackground kendi status bar'ını ayarlayacak, burada bir şey yapma
                 return;
             }
             
@@ -64,59 +258,195 @@ namespace hadis
                     // Arkaplan uygula
                     ApplyCustomBackground(theme.BackgroundImage);
                     
-                    // Ana Frame renkleri
-                    MainCountdownFrame.BackgroundColor = Color.FromArgb(theme.MainFrameBackground);
+                    // Custom tema için status bar rengini arkaplan türüne göre ayarla
+                    SetStatusBarColorForCustomTheme(theme.BackgroundImage);
+                    
+                    // Ana Frame renkleri - Glassmorphism
                     MainCountdownFrame.BorderColor = Color.FromArgb(theme.MainFrameBorder);
+                    var mainBaseColor = Color.FromArgb(theme.MainFrameBackground);
+                    MainCountdownFrame.Background = new LinearGradientBrush
+                    {
+                        StartPoint = new Point(0, 0),
+                        EndPoint = new Point(1, 1),
+                        GradientStops = new GradientStopCollection
+                        {
+                            new GradientStop { Color = mainBaseColor.WithAlpha(0.3f), Offset = 0.0f },
+                            new GradientStop { Color = mainBaseColor.WithAlpha(0.2f), Offset = 1.0f }
+                        }
+                    };
                     
                     // Ana frame text renkleri
                     namazismi.TextColor = Color.FromArgb(theme.MainFrameText);
                     kalan.TextColor = Color.FromArgb(theme.MainFrameText);
                     Konum.TextColor = Color.FromArgb(theme.MainFrameText);
                     
-                    // Kucuk Frame'ler renkleri
-                    ImsakFrame.BackgroundColor = Color.FromArgb(theme.SmallFrameBackground);
-                    ImsakFrame.BorderColor = Color.FromArgb(theme.SmallFrameBorder);
-                    imsakyazı.TextColor = Color.FromArgb(theme.SmallFrameText);
-                    imsakvakit.TextColor = Color.FromArgb(theme.SmallFrameText);
+                    // Kucuk Frame'ler renkleri - Glassmorphism
+                    var smallBaseColor = Color.FromArgb(theme.SmallFrameBackground);
+                    var smallBorderColor = Color.FromArgb(theme.SmallFrameBorder);
+                    var smallTextColor = Color.FromArgb(theme.SmallFrameText);
                     
-                    GunesFrame.BackgroundColor = Color.FromArgb(theme.SmallFrameBackground);
-                    GunesFrame.BorderColor = Color.FromArgb(theme.SmallFrameBorder);
-                    gunesyazı.TextColor = Color.FromArgb(theme.SmallFrameText);
-                    gunesvakit.TextColor = Color.FromArgb(theme.SmallFrameText);
+                    ImsakFrame.BorderColor = smallBorderColor;
+                    ImsakFrame.Background = new LinearGradientBrush
+                    {
+                        StartPoint = new Point(0, 0),
+                        EndPoint = new Point(1, 1),
+                        GradientStops = new GradientStopCollection
+                        {
+                            new GradientStop { Color = smallBaseColor.WithAlpha(0.3f), Offset = 0.0f },
+                            new GradientStop { Color = smallBaseColor.WithAlpha(0.2f), Offset = 1.0f }
+                        }
+                    };
+                    imsakyazı.TextColor = smallTextColor;
+                    imsakvakit.TextColor = smallTextColor;
                     
-                    OgleFrame.BackgroundColor = Color.FromArgb(theme.SmallFrameBackground);
-                    OgleFrame.BorderColor = Color.FromArgb(theme.SmallFrameBorder);
-                    ogleyazı.TextColor = Color.FromArgb(theme.SmallFrameText);
-                    oglevakit.TextColor = Color.FromArgb(theme.SmallFrameText);
+                    GunesFrame.BorderColor = smallBorderColor;
+                    GunesFrame.Background = new LinearGradientBrush
+                    {
+                        StartPoint = new Point(0, 0),
+                        EndPoint = new Point(1, 1),
+                        GradientStops = new GradientStopCollection
+                        {
+                            new GradientStop { Color = smallBaseColor.WithAlpha(0.3f), Offset = 0.0f },
+                            new GradientStop { Color = smallBaseColor.WithAlpha(0.2f), Offset = 1.0f }
+                        }
+                    };
+                    gunesyazı.TextColor = smallTextColor;
+                    gunesvakit.TextColor = smallTextColor;
                     
-                    IkindiFrame.BackgroundColor = Color.FromArgb(theme.SmallFrameBackground);
-                    IkindiFrame.BorderColor = Color.FromArgb(theme.SmallFrameBorder);
-                    ikindiyazı.TextColor = Color.FromArgb(theme.SmallFrameText);
-                    ikindivakit.TextColor = Color.FromArgb(theme.SmallFrameText);
+                    OgleFrame.BorderColor = smallBorderColor;
+                    OgleFrame.Background = new LinearGradientBrush
+                    {
+                        StartPoint = new Point(0, 0),
+                        EndPoint = new Point(1, 1),
+                        GradientStops = new GradientStopCollection
+                        {
+                            new GradientStop { Color = smallBaseColor.WithAlpha(0.3f), Offset = 0.0f },
+                            new GradientStop { Color = smallBaseColor.WithAlpha(0.2f), Offset = 1.0f }
+                        }
+                    };
+                    ogleyazı.TextColor = smallTextColor;
+                    oglevakit.TextColor = smallTextColor;
                     
-                    AksamFrame.BackgroundColor = Color.FromArgb(theme.SmallFrameBackground);
-                    AksamFrame.BorderColor = Color.FromArgb(theme.SmallFrameBorder);
-                    aksamyazı.TextColor = Color.FromArgb(theme.SmallFrameText);
-                    aksamvakit.TextColor = Color.FromArgb(theme.SmallFrameText);
+                    IkindiFrame.BorderColor = smallBorderColor;
+                    IkindiFrame.Background = new LinearGradientBrush
+                    {
+                        StartPoint = new Point(0, 0),
+                        EndPoint = new Point(1, 1),
+                        GradientStops = new GradientStopCollection
+                        {
+                            new GradientStop { Color = smallBaseColor.WithAlpha(0.3f), Offset = 0.0f },
+                            new GradientStop { Color = smallBaseColor.WithAlpha(0.2f), Offset = 1.0f }
+                        }
+                    };
+                    ikindiyazı.TextColor = smallTextColor;
+                    ikindivakit.TextColor = smallTextColor;
                     
-                    YatsiFrame.BackgroundColor = Color.FromArgb(theme.SmallFrameBackground);
-                    YatsiFrame.BorderColor = Color.FromArgb(theme.SmallFrameBorder);
-                    yatsıyazı.TextColor = Color.FromArgb(theme.SmallFrameText);
-                    yatsıvakit.TextColor = Color.FromArgb(theme.SmallFrameText);
+                    AksamFrame.BorderColor = smallBorderColor;
+                    AksamFrame.Background = new LinearGradientBrush
+                    {
+                        StartPoint = new Point(0, 0),
+                        EndPoint = new Point(1, 1),
+                        GradientStops = new GradientStopCollection
+                        {
+                            new GradientStop { Color = smallBaseColor.WithAlpha(0.3f), Offset = 0.0f },
+                            new GradientStop { Color = smallBaseColor.WithAlpha(0.2f), Offset = 1.0f }
+                        }
+                    };
+                    aksamyazı.TextColor = smallTextColor;
+                    aksamvakit.TextColor = smallTextColor;
                     
-                    // Ayet Frame renkleri
-                    AyetFrame.BackgroundColor = Color.FromArgb(theme.AyetFrameBackground);
+                    YatsiFrame.BorderColor = smallBorderColor;
+                    YatsiFrame.Background = new LinearGradientBrush
+                    {
+                        StartPoint = new Point(0, 0),
+                        EndPoint = new Point(1, 1),
+                        GradientStops = new GradientStopCollection
+                        {
+                            new GradientStop { Color = smallBaseColor.WithAlpha(0.3f), Offset = 0.0f },
+                            new GradientStop { Color = smallBaseColor.WithAlpha(0.2f), Offset = 1.0f }
+                        }
+                    };
+                    yatsıyazı.TextColor = smallTextColor;
+                    yatsıvakit.TextColor = smallTextColor;
+                    
+                    // Ayet Frame - Glassmorphism efekti ile
                     AyetFrame.BorderColor = Color.FromArgb(theme.AyetFrameBorder);
+                    
+                    // Glassmorphism background
+                    var baseColor = Color.FromArgb(theme.AyetFrameBackground);
+                    AyetFrame.Background = new LinearGradientBrush
+                    {
+                        StartPoint = new Point(0, 0),
+                        EndPoint = new Point(1, 1),
+                        GradientStops = new GradientStopCollection
+                        {
+                            new GradientStop { Color = baseColor.WithAlpha(0.3f), Offset = 0.0f },
+                            new GradientStop { Color = baseColor.WithAlpha(0.2f), Offset = 1.0f }
+                        }
+                    };
+                    
                     gununayeti.TextColor = Color.FromArgb(theme.AyetFrameText);
                 }
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"Ozel tema uygulama hatasi: {ex.Message}");
+                Console.WriteLine($"Ozel tema uygula hatasi: {ex.Message}");
                 ResetToDefaultStyles();
             }
         }
 
+        private void SetStatusBarColorForCustomTheme(string backgroundValue)
+        {
+            if (string.IsNullOrEmpty(backgroundValue))
+                return;
+
+            string statusBarColor = "#000000"; // Varsayılan
+
+            // Arkaplan türüne göre status bar rengini belirle
+            if (backgroundValue.EndsWith(".jpg") || backgroundValue.EndsWith(".png"))
+            {
+                // Özel arkaplan resimleri için ortalama bir renk kullan
+                // sun_ resimlerine göre ayarla
+                if (backgroundValue.Contains("sun_01")) statusBarColor = "#0D1B2A";
+                else if (backgroundValue.Contains("sun_02")) statusBarColor = "#1B263B";
+                else if (backgroundValue.Contains("sun_03")) statusBarColor = "#415A77";
+                else if (backgroundValue.Contains("sun_04")) statusBarColor = "#E07A5F";
+                else if (backgroundValue.Contains("sun_05")) statusBarColor = "#81B29A";
+                else if (backgroundValue.Contains("sun_06")) statusBarColor = "#3D5A80";
+                else if (backgroundValue.Contains("sun_07")) statusBarColor = "#4A90A4";
+                else if (backgroundValue.Contains("sun_08")) statusBarColor = "#98C1D9";
+                else if (backgroundValue.Contains("sun_09")) statusBarColor = "#EE6C4D";
+                else if (backgroundValue.Contains("sun_10")) statusBarColor = "#293241";
+                else statusBarColor = "#1A1A1A"; // Diğer resimler için koyu gri
+            }
+            else if (backgroundValue.StartsWith("gradient_"))
+            {
+                // Gradient'ler için ilk rengi al
+                switch (backgroundValue)
+                {
+                    case "gradient_blue":
+                        statusBarColor = "#1e3c72";
+                        break;
+                    case "gradient_green":
+                        statusBarColor = "#134E5E";
+                        break;
+                    case "gradient_dark_blue":
+                        statusBarColor = "#2C3E50";
+                        break;
+                    case "gradient_night":
+                        statusBarColor = "#141E30";
+                        break;
+                }
+            }
+            else if (backgroundValue.StartsWith("#"))
+            {
+                // Hex renk kodu ise direkt kullan
+                statusBarColor = backgroundValue;
+            }
+
+            SetStatusBarColorForBackground(statusBarColor);
+        }
+        
         private void ApplyCustomBackground(string backgroundValue)
         {
             if (string.IsNullOrEmpty(backgroundValue))
@@ -148,15 +478,16 @@ namespace hadis
                     BackgroundImage.Source = ImageSource.FromFile(backgroundValue);
                     BackgroundImage.IsVisible = true;
                     BackgroundOverlay.IsVisible = true;
-                    BackgroundOverlay.Opacity = opacity;
                     
                     // Overlay rengi tema bazinda ayarla
                     var currentTheme = Application.Current?.UserAppTheme == AppTheme.Unspecified 
                         ? Application.Current?.RequestedTheme ?? AppTheme.Light 
                         : Application.Current?.UserAppTheme ?? AppTheme.Light;
                     
-                    BackgroundOverlay.Background = new SolidColorBrush(
-                        currentTheme == AppTheme.Dark ? Colors.Black : Colors.White);
+                    var overlayColor = currentTheme == AppTheme.Dark ? Colors.Black : Colors.White;
+                    var overlayColorWithOpacity = overlayColor.WithAlpha((float)opacity);
+                    
+                    BackgroundOverlay.Background = new SolidColorBrush(overlayColorWithOpacity);
                 }
                 // Eger gradient ise
                 else if (backgroundValue.StartsWith("gradient_"))
@@ -164,10 +495,12 @@ namespace hadis
                     BackgroundImage.IsVisible = false;
                     BackgroundOverlay.IsVisible = true;
                     
+                    LinearGradientBrush gradientBrush = null;
+                    
                     switch (backgroundValue)
                     {
                         case "gradient_blue":
-                            BackgroundOverlay.Background = new LinearGradientBrush
+                            gradientBrush = new LinearGradientBrush
                             {
                                 StartPoint = new Point(0, 0),
                                 EndPoint = new Point(1, 1),
@@ -179,7 +512,7 @@ namespace hadis
                             };
                             break;
                         case "gradient_green":
-                            BackgroundOverlay.Background = new LinearGradientBrush
+                            gradientBrush = new LinearGradientBrush
                             {
                                 StartPoint = new Point(0, 0),
                                 EndPoint = new Point(1, 1),
@@ -191,7 +524,7 @@ namespace hadis
                             };
                             break;
                         case "gradient_dark_blue":
-                            BackgroundOverlay.Background = new LinearGradientBrush
+                            gradientBrush = new LinearGradientBrush
                             {
                                 StartPoint = new Point(0, 0),
                                 EndPoint = new Point(1, 1),
@@ -203,7 +536,7 @@ namespace hadis
                             };
                             break;
                         case "gradient_night":
-                            BackgroundOverlay.Background = new LinearGradientBrush
+                            gradientBrush = new LinearGradientBrush
                             {
                                 StartPoint = new Point(0, 0),
                                 EndPoint = new Point(1, 1),
@@ -215,15 +548,25 @@ namespace hadis
                             };
                             break;
                     }
-                    BackgroundOverlay.Opacity = opacity;
+                    
+                    if (gradientBrush != null)
+                    {
+                        // Gradient'e opacity uygula
+                        foreach (var stop in gradientBrush.GradientStops)
+                        {
+                            stop.Color = stop.Color.WithAlpha((float)opacity);
+                        }
+                        BackgroundOverlay.Background = gradientBrush;
+                    }
                 }
                 // Eger hex renk koduysa
                 else if (backgroundValue.StartsWith("#"))
                 {
                     BackgroundImage.IsVisible = false;
                     BackgroundOverlay.IsVisible = true;
-                    BackgroundOverlay.Background = new SolidColorBrush(Color.FromArgb(backgroundValue));
-                    BackgroundOverlay.Opacity = opacity;
+                    
+                    var color = Color.FromArgb(backgroundValue).WithAlpha((float)opacity);
+                    BackgroundOverlay.Background = new SolidColorBrush(color);
                 }
             }
             catch (Exception ex)
@@ -239,93 +582,244 @@ namespace hadis
                 ? Application.Current?.RequestedTheme ?? AppTheme.Light 
                 : Application.Current?.UserAppTheme ?? AppTheme.Light;
 
+            // NOT: Status bar rengini burada AYARLAMA - SetTimeBasedBackground zaten ayarlıyor!
+            // Sadece Custom tema yoksa ve otomatik arkaplan devre dışıysa tema bazlı renk kullan
+            
             // Varsayılan renklere dön (Styles.xaml'deki değerler)
             if (currentTheme == AppTheme.Dark)
             {
-                // Dark tema varsayılan renkleri
-                MainCountdownFrame.BackgroundColor = Colors.Transparent;
-                MainCountdownFrame.BorderColor = Color.FromArgb("#26A69A");
+                // Dark tema varsayılan renkleri - Glassmorphism
+                MainCountdownFrame.BorderColor = Color.FromArgb("#80FFFFFF");
+                MainCountdownFrame.Background = new LinearGradientBrush
+                {
+                    StartPoint = new Point(0, 0),
+                    EndPoint = new Point(1, 1),
+                    GradientStops = new GradientStopCollection
+                    {
+                        new GradientStop { Color = Color.FromArgb("#30FFFFFF"), Offset = 0.0f },
+                        new GradientStop { Color = Color.FromArgb("#20FFFFFF"), Offset = 1.0f }
+                    }
+                };
                 
                 namazismi.TextColor = Colors.White;
                 kalan.TextColor = Colors.White;
                 Konum.TextColor = Colors.White;
                 
-                ImsakFrame.BackgroundColor = Colors.Transparent;
-                ImsakFrame.BorderColor = Color.FromArgb("#26A69A");
+                // Küçük frame'ler - Glassmorphism
+                ImsakFrame.BorderColor = Color.FromArgb("#80FFFFFF");
+                ImsakFrame.Background = new LinearGradientBrush
+                {
+                    StartPoint = new Point(0, 0),
+                    EndPoint = new Point(1, 1),
+                    GradientStops = new GradientStopCollection
+                    {
+                        new GradientStop { Color = Color.FromArgb("#30FFFFFF"), Offset = 0.0f },
+                        new GradientStop { Color = Color.FromArgb("#20FFFFFF"), Offset = 1.0f }
+                    }
+                };
                 imsakyazı.TextColor = Colors.White;
                 imsakvakit.TextColor = Colors.White;
                 
-                GunesFrame.BackgroundColor = Colors.Transparent;
-                GunesFrame.BorderColor = Color.FromArgb("#26A69A");
+                GunesFrame.BorderColor = Color.FromArgb("#80FFFFFF");
+                GunesFrame.Background = new LinearGradientBrush
+                {
+                    StartPoint = new Point(0, 0),
+                    EndPoint = new Point(1, 1),
+                    GradientStops = new GradientStopCollection
+                    {
+                        new GradientStop { Color = Color.FromArgb("#30FFFFFF"), Offset = 0.0f },
+                        new GradientStop { Color = Color.FromArgb("#20FFFFFF"), Offset = 1.0f }
+                    }
+                };
                 gunesyazı.TextColor = Colors.White;
                 gunesvakit.TextColor = Colors.White;
                 
-                OgleFrame.BackgroundColor = Colors.Transparent;
-                OgleFrame.BorderColor = Color.FromArgb("#26A69A");
+                OgleFrame.BorderColor = Color.FromArgb("#80FFFFFF");
+                OgleFrame.Background = new LinearGradientBrush
+                {
+                    StartPoint = new Point(0, 0),
+                    EndPoint = new Point(1, 1),
+                    GradientStops = new GradientStopCollection
+                    {
+                        new GradientStop { Color = Color.FromArgb("#30FFFFFF"), Offset = 0.0f },
+                        new GradientStop { Color = Color.FromArgb("#20FFFFFF"), Offset = 1.0f }
+                    }
+                };
                 ogleyazı.TextColor = Colors.White;
                 oglevakit.TextColor = Colors.White;
                 
-                IkindiFrame.BackgroundColor = Colors.Transparent;
-                IkindiFrame.BorderColor = Color.FromArgb("#26A69A");
+                IkindiFrame.BorderColor = Color.FromArgb("#80FFFFFF");
+                IkindiFrame.Background = new LinearGradientBrush
+                {
+                    StartPoint = new Point(0, 0),
+                    EndPoint = new Point(1, 1),
+                    GradientStops = new GradientStopCollection
+                    {
+                        new GradientStop { Color = Color.FromArgb("#30FFFFFF"), Offset = 0.0f },
+                        new GradientStop { Color = Color.FromArgb("#20FFFFFF"), Offset = 1.0f }
+                    }
+                };
                 ikindiyazı.TextColor = Colors.White;
                 ikindivakit.TextColor = Colors.White;
                 
-                AksamFrame.BackgroundColor = Colors.Transparent;
-                AksamFrame.BorderColor = Color.FromArgb("#26A69A");
+                AksamFrame.BorderColor = Color.FromArgb("#80FFFFFF");
+                AksamFrame.Background = new LinearGradientBrush
+                {
+                    StartPoint = new Point(0, 0),
+                    EndPoint = new Point(1, 1),
+                    GradientStops = new GradientStopCollection
+                    {
+                        new GradientStop { Color = Color.FromArgb("#30FFFFFF"), Offset = 0.0f },
+                        new GradientStop { Color = Color.FromArgb("#20FFFFFF"), Offset = 1.0f }
+                    }
+                };
                 aksamyazı.TextColor = Colors.White;
                 aksamvakit.TextColor = Colors.White;
                 
-                YatsiFrame.BackgroundColor = Colors.Transparent;
-                YatsiFrame.BorderColor = Color.FromArgb("#26A69A");
+                YatsiFrame.BorderColor = Color.FromArgb("#80FFFFFF");
+                YatsiFrame.Background = new LinearGradientBrush
+                {
+                    StartPoint = new Point(0, 0),
+                    EndPoint = new Point(1, 1),
+                    GradientStops = new GradientStopCollection
+                    {
+                        new GradientStop { Color = Color.FromArgb("#30FFFFFF"), Offset = 0.0f },
+                        new GradientStop { Color = Color.FromArgb("#20FFFFFF"), Offset = 1.0f }
+                    }
+                };
                 yatsıyazı.TextColor = Colors.White;
                 yatsıvakit.TextColor = Colors.White;
                 
-                AyetFrame.BackgroundColor = Color.FromArgb("#E6102825");
-                AyetFrame.BorderColor = Color.FromArgb("#26A69A");
+                // Ayet Frame - Glassmorphism korunuyor
+                AyetFrame.BorderColor = Color.FromArgb("#80FFFFFF");
+                AyetFrame.Background = new LinearGradientBrush
+                {
+                    StartPoint = new Point(0, 0),
+                    EndPoint = new Point(1, 1),
+                    GradientStops = new GradientStopCollection
+                    {
+                        new GradientStop { Color = Color.FromArgb("#30FFFFFF"), Offset = 0.0f },
+                        new GradientStop { Color = Color.FromArgb("#20FFFFFF"), Offset = 1.0f }
+                    }
+                };
                 gununayeti.TextColor = Colors.White;
             }
             else
             {
-                // Light tema varsayılan renkleri - TÜM FRAME'LER ŞEFFAF
-                MainCountdownFrame.BackgroundColor = Colors.Transparent;  // Değişti
-                MainCountdownFrame.BorderColor = Color.FromArgb("#009688");
+                // Light tema varsayılan renkleri - Glassmorphism
+                MainCountdownFrame.BorderColor = Color.FromArgb("#80009688");
+                MainCountdownFrame.Background = new LinearGradientBrush
+                {
+                    StartPoint = new Point(0, 0),
+                    EndPoint = new Point(1, 1),
+                    GradientStops = new GradientStopCollection
+                    {
+                        new GradientStop { Color = Color.FromArgb("#40FFFFFF"), Offset = 0.0f },
+                        new GradientStop { Color = Color.FromArgb("#30FFFFFF"), Offset = 1.0f }
+                    }
+                };
 
                 namazismi.TextColor = Color.FromArgb("#00796B");
                 kalan.TextColor = Color.FromArgb("#00796B");
                 Konum.TextColor = Color.FromArgb("#00796B");
 
-                ImsakFrame.BackgroundColor = Colors.Transparent;  // Değişti
-                ImsakFrame.BorderColor = Color.FromArgb("#009688");
+                // Küçük frame'ler - Glassmorphism
+                ImsakFrame.BorderColor = Color.FromArgb("#80009688");
+                ImsakFrame.Background = new LinearGradientBrush
+                {
+                    StartPoint = new Point(0, 0),
+                    EndPoint = new Point(1, 1),
+                    GradientStops = new GradientStopCollection
+                    {
+                        new GradientStop { Color = Color.FromArgb("#40FFFFFF"), Offset = 0.0f },
+                        new GradientStop { Color = Color.FromArgb("#30FFFFFF"), Offset = 1.0f }
+                    }
+                };
                 imsakyazı.TextColor = Color.FromArgb("#00796B");
                 imsakvakit.TextColor = Color.FromArgb("#00796B");
 
-                GunesFrame.BackgroundColor = Colors.Transparent;  // Değişti
-                GunesFrame.BorderColor = Color.FromArgb("#009688");
+                GunesFrame.BorderColor = Color.FromArgb("#80009688");
+                GunesFrame.Background = new LinearGradientBrush
+                {
+                    StartPoint = new Point(0, 0),
+                    EndPoint = new Point(1, 1),
+                    GradientStops = new GradientStopCollection
+                    {
+                        new GradientStop { Color = Color.FromArgb("#40FFFFFF"), Offset = 0.0f },
+                        new GradientStop { Color = Color.FromArgb("#30FFFFFF"), Offset = 1.0f }
+                    }
+                };
                 gunesyazı.TextColor = Color.FromArgb("#00796B");
                 gunesvakit.TextColor = Color.FromArgb("#00796B");
 
-                OgleFrame.BackgroundColor = Colors.Transparent;  // Değişti
-                OgleFrame.BorderColor = Color.FromArgb("#009688");
+                OgleFrame.BorderColor = Color.FromArgb("#80009688");
+                OgleFrame.Background = new LinearGradientBrush
+                {
+                    StartPoint = new Point(0, 0),
+                    EndPoint = new Point(1, 1),
+                    GradientStops = new GradientStopCollection
+                    {
+                        new GradientStop { Color = Color.FromArgb("#40FFFFFF"), Offset = 0.0f },
+                        new GradientStop { Color = Color.FromArgb("#30FFFFFF"), Offset = 1.0f }
+                    }
+                };
                 ogleyazı.TextColor = Color.FromArgb("#00796B");
                 oglevakit.TextColor = Color.FromArgb("#00796B");
 
-                IkindiFrame.BackgroundColor = Colors.Transparent;  // Değişti
-                IkindiFrame.BorderColor = Color.FromArgb("#009688");
+                IkindiFrame.BorderColor = Color.FromArgb("#80009688");
+                IkindiFrame.Background = new LinearGradientBrush
+                {
+                    StartPoint = new Point(0, 0),
+                    EndPoint = new Point(1, 1),
+                    GradientStops = new GradientStopCollection
+                    {
+                        new GradientStop { Color = Color.FromArgb("#40FFFFFF"), Offset = 0.0f },
+                        new GradientStop { Color = Color.FromArgb("#30FFFFFF"), Offset = 1.0f }
+                    }
+                };
                 ikindiyazı.TextColor = Color.FromArgb("#00796B");
                 ikindivakit.TextColor = Color.FromArgb("#00796B");
 
-                AksamFrame.BackgroundColor = Colors.Transparent;  // Değişti
-                AksamFrame.BorderColor = Color.FromArgb("#009688");
+                AksamFrame.BorderColor = Color.FromArgb("#80009688");
+                AksamFrame.Background = new LinearGradientBrush
+                {
+                    StartPoint = new Point(0, 0),
+                    EndPoint = new Point(1, 1),
+                    GradientStops = new GradientStopCollection
+                    {
+                        new GradientStop { Color = Color.FromArgb("#40FFFFFF"), Offset = 0.0f },
+                        new GradientStop { Color = Color.FromArgb("#30FFFFFF"), Offset = 1.0f }
+                    }
+                };
                 aksamyazı.TextColor = Color.FromArgb("#00796B");
                 aksamvakit.TextColor = Color.FromArgb("#00796B");
 
-                YatsiFrame.BackgroundColor = Colors.Transparent;  // Değişti
-                YatsiFrame.BorderColor = Color.FromArgb("#009688");
+                YatsiFrame.BorderColor = Color.FromArgb("#80009688");
+                YatsiFrame.Background = new LinearGradientBrush
+                {
+                    StartPoint = new Point(0, 0),
+                    EndPoint = new Point(1, 1),
+                    GradientStops = new GradientStopCollection
+                    {
+                        new GradientStop { Color = Color.FromArgb("#40FFFFFF"), Offset = 0.0f },
+                        new GradientStop { Color = Color.FromArgb("#30FFFFFF"), Offset = 1.0f }
+                    }
+                };
                 yatsıyazı.TextColor = Color.FromArgb("#00796B");
                 yatsıvakit.TextColor = Color.FromArgb("#00796B");
 
-                AyetFrame.BackgroundColor = Colors.Transparent;  // Değişti
-                AyetFrame.BorderColor = Color.FromArgb("#00796B");
+                // Ayet Frame - Glassmorphism korunuyor
+                AyetFrame.BorderColor = Color.FromArgb("#8000796B");
+                AyetFrame.Background = new LinearGradientBrush
+                {
+                    StartPoint = new Point(0, 0),
+                    EndPoint = new Point(1, 1),
+                    GradientStops = new GradientStopCollection
+                    {
+                        new GradientStop { Color = Color.FromArgb("#40FFFFFF"), Offset = 0.0f },
+                        new GradientStop { Color = Color.FromArgb("#30FFFFFF"), Offset = 1.0f }
+                    }
+                };
                 gununayeti.TextColor = Color.FromArgb("#00796B");
             }
         }
@@ -492,10 +986,10 @@ namespace hadis
             "Gerçekten güçlükle beraber bir kolaylık vardır. (İnşirah, 6)",
             "Allah, kullarına karşı çok şefkatlidir. (Şura, 19)",
             "Ey iman edenler! Sabır ve namazla Allah’tan yardım isteyin. (Bakara, 45)",
-            "Göklerde ve yerde ne varsa hepsi Allah’ındır. (Bakara, 284)",
+            "Göklerde ve yerde ne varsа hepsi Allah’ındır. (Bakara, 284)",
             "Zorlukla beraber bir kolaylık vardır. (İnşirah, 5)",
             "Kıyamet günü herkese amel defteri verilecektir. (İsra, 13)",
-            "İyilik ve takva üzere yardımlaşın. (Maide, 2)",
+            "İyilik ve takva üzerine yardımlaşın. (Maide, 2)",
             "Şüphesiz dönüş ancak Allah’adır. (Bakara, 156)"
             };
             int gunIndex = DateTime.Now.DayOfYear % ayetler.Length;
@@ -508,7 +1002,7 @@ namespace hadis
             "Ameller niyetlere göredir. (Buhârî, 1)",
             "Kolaylaştırın, zorlaştırmayın. (Buhârî, 11)",
             "Güzel söz sadakadır. (Müslim, 56)",
-            "Tebessüm sadakadır. (Tirmizî, Birr 36)",
+            "Tebessüm sadakadir. (Tirmizî, Birr 36)",
             "Faydasız şeyi terk et. (Tirmizî, Zühd 11)",
             "Temizlik imanın yarısıdır. (Müslim, Tahâret 1)",
             "Allah işini sağlam yapanı sever. (Taberânî)",

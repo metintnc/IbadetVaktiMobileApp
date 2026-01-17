@@ -30,60 +30,87 @@
                        FontSize="24"
                        FontAttributes="Bold"
                        Margin="0,10,0,10"
-                       TextColor="{AppThemeBinding Light=#00796B, Dark=#81C784}"/>
+                       TextColor="{AppThemeBinding Light=#00796B, Dark=#FFFFFF}"/>
 
-                <Frame Style="{StaticResource BorderFrame}" Padding="15" BackgroundColor="Transparent">
+                <Frame Style="{StaticResource BorderFrame}" 
+                       Padding="15" 
+                       BackgroundColor="Transparent"
+                       BorderColor="{AppThemeBinding Light=#80009688, Dark=#80FFFFFF}">
                     <VerticalStackLayout Spacing="10">
                         <Label Text="Genel Ayarlar" FontSize="18" FontAttributes="Bold"
-                               TextColor="{AppThemeBinding Light=#00796B, Dark=#81C784}"/>
+                               TextColor="{AppThemeBinding Light=#00796B, Dark=#FFFFFF}"/>
                         
                         <Grid ColumnDefinitions="*,Auto">
                             <Label Text="Tum Bildirimleri Ac" VerticalOptions="Center"
-                                   TextColor="{AppThemeBinding Light=#212121, Dark=#E0E0E0}"/>
-                            <Switch Grid.Column="1" IsToggled="True"/>
+                                   TextColor="{AppThemeBinding Light=#00796B, Dark=#FFFFFF}"/>
+                            <Switch Grid.Column="1" 
+                                    IsToggled="True"
+                                    OnColor="{AppThemeBinding Light=#00796B, Dark=#FFFFFF}"
+                                    ThumbColor="White"/>
                         </Grid>
                     </VerticalStackLayout>
                 </Frame>
 
-                <Frame Style="{StaticResource BorderFrame}" Padding="15" BackgroundColor="Transparent">
+                <Frame Style="{StaticResource BorderFrame}" 
+                       Padding="15" 
+                       BackgroundColor="Transparent"
+                       BorderColor="{AppThemeBinding Light=#80009688, Dark=#80FFFFFF}">
                     <VerticalStackLayout Spacing="10">
                         <Label Text="Namaz Vakitleri" FontSize="18" FontAttributes="Bold"
-                               TextColor="{AppThemeBinding Light=#00796B, Dark=#81C784}"/>
+                               TextColor="{AppThemeBinding Light=#00796B, Dark=#FFFFFF}"/>
                         
                         <Grid ColumnDefinitions="*,Auto">
                             <Label Text="Imsak" VerticalOptions="Center"
-                                   TextColor="{AppThemeBinding Light=#212121, Dark=#E0E0E0}"/>
-                            <Switch Grid.Column="1" IsToggled="True"/>
+                                   TextColor="{AppThemeBinding Light=#00796B, Dark=#FFFFFF}"/>
+                            <Switch Grid.Column="1" 
+                                    IsToggled="True"
+                                    OnColor="{AppThemeBinding Light=#00796B, Dark=#FFFFFF}"
+                                    ThumbColor="White"/>
                         </Grid>
                         
                         <Grid ColumnDefinitions="*,Auto">
                             <Label Text="Gunes" VerticalOptions="Center"
-                                   TextColor="{AppThemeBinding Light=#212121, Dark=#E0E0E0}"/>
-                            <Switch Grid.Column="1" IsToggled="True"/>
+                                   TextColor="{AppThemeBinding Light=#00796B, Dark=#FFFFFF}"/>
+                            <Switch Grid.Column="1" 
+                                    IsToggled="True"
+                                    OnColor="{AppThemeBinding Light=#00796B, Dark=#FFFFFF}"
+                                    ThumbColor="White"/>
                         </Grid>
                         
                         <Grid ColumnDefinitions="*,Auto">
                             <Label Text="Ogle" VerticalOptions="Center"
-                                   TextColor="{AppThemeBinding Light=#212121, Dark=#E0E0E0}"/>
-                            <Switch Grid.Column="1" IsToggled="True"/>
+                                   TextColor="{AppThemeBinding Light=#00796B, Dark=#FFFFFF}"/>
+                            <Switch Grid.Column="1" 
+                                    IsToggled="True"
+                                    OnColor="{AppThemeBinding Light=#00796B, Dark=#FFFFFF}"
+                                    ThumbColor="White"/>
                         </Grid>
                         
                         <Grid ColumnDefinitions="*,Auto">
                             <Label Text="Ikindi" VerticalOptions="Center"
-                                   TextColor="{AppThemeBinding Light=#212121, Dark=#E0E0E0}"/>
-                            <Switch Grid.Column="1" IsToggled="True"/>
+                                   TextColor="{AppThemeBinding Light=#00796B, Dark=#FFFFFF}"/>
+                            <Switch Grid.Column="1" 
+                                    IsToggled="True"
+                                    OnColor="{AppThemeBinding Light=#00796B, Dark=#FFFFFF}"
+                                    ThumbColor="White"/>
                         </Grid>
                         
                         <Grid ColumnDefinitions="*,Auto">
                             <Label Text="Aksam" VerticalOptions="Center"
-                                   TextColor="{AppThemeBinding Light=#212121, Dark=#E0E0E0}"/>
-                            <Switch Grid.Column="1" IsToggled="True"/>
+                                   TextColor="{AppThemeBinding Light=#00796B, Dark=#FFFFFF}"/>
+                            <Switch Grid.Column="1" 
+                                    IsToggled="True"
+                                    OnColor="{AppThemeBinding Light=#00796B, Dark=#FFFFFF}"
+                                    ThumbColor="White"/>
                         </Grid>
                         
                         <Grid ColumnDefinitions="*,Auto">
                             <Label Text="Yatsi" VerticalOptions="Center"
-                                   TextColor="{AppThemeBinding Light=#212121, Dark=#E0E0E0}"/>
-                            <Switch Grid.Column="1" IsToggled="True"/>
+                                   TextColor="{AppThemeBinding Light=#00796B, Dark=#FFFFFF}"/>
+                            <Switch Grid.Column="1" 
+                                    IsToggled="True"
+                                    OnColor="{AppThemeBinding Light=#00796B, Dark=#FFFFFF}"
+                                    ThumbColor="White"/>
                         </Grid>
                     </VerticalStackLayout>
                 </Frame>

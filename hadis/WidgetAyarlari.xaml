@@ -30,45 +30,133 @@
                        FontSize="24"
                        FontAttributes="Bold"
                        Margin="0,10,0,10"
-                       TextColor="{AppThemeBinding Light=#00796B, Dark=#81C784}"/>
+                       TextColor="{AppThemeBinding Light=#00796B, Dark=#FFFFFF}"/>
 
-                <Frame Style="{StaticResource BorderFrame}" Padding="15" BackgroundColor="Transparent">
+                <Frame Style="{StaticResource BorderFrame}" 
+                       Padding="15" 
+                       BackgroundColor="Transparent"
+                       BorderColor="{AppThemeBinding Light=#80009688, Dark=#80FFFFFF}">
                     <VerticalStackLayout Spacing="10">
                         <Label Text="Widget Durumu" FontSize="18" FontAttributes="Bold"
-                               TextColor="{AppThemeBinding Light=#00796B, Dark=#81C784}"/>
+                               TextColor="{AppThemeBinding Light=#00796B, Dark=#FFFFFF}"/>
                         
                         <Grid ColumnDefinitions="*,Auto">
                             <Label Text="Widget Etkin" VerticalOptions="Center"
-                                   TextColor="{AppThemeBinding Light=#212121, Dark=#E0E0E0}"/>
-                            <Switch Grid.Column="1" IsToggled="True"/>
+                                   TextColor="{AppThemeBinding Light=#00796B, Dark=#FFFFFF}"/>
+                            <Switch Grid.Column="1" 
+                                    IsToggled="True"
+                                    OnColor="{AppThemeBinding Light=#00796B, Dark=#FFFFFF}"
+                                    ThumbColor="White"/>
                         </Grid>
                     </VerticalStackLayout>
                 </Frame>
 
-                <Frame Style="{StaticResource BorderFrame}" Padding="15" BackgroundColor="Transparent">
+                <Frame Style="{StaticResource BorderFrame}" 
+                       Padding="15" 
+                       BackgroundColor="Transparent"
+                       BorderColor="{AppThemeBinding Light=#80009688, Dark=#80FFFFFF}">
                     <VerticalStackLayout Spacing="10">
                         <Label Text="Widget Boyutu" FontSize="18" FontAttributes="Bold"
-                               TextColor="{AppThemeBinding Light=#00796B, Dark=#81C784}"/>
+                               TextColor="{AppThemeBinding Light=#00796B, Dark=#FFFFFF}"/>
                         
-                        <RadioButton Content="Kucuk (2x2)" IsChecked="True"
-                                     TextColor="{AppThemeBinding Light=#212121, Dark=#E0E0E0}"/>
+                        <RadioButton Content="Kucuk (2x2)" 
+                                     IsChecked="True"
+                                     TextColor="{AppThemeBinding Light=#00796B, Dark=#FFFFFF}">
+                            <RadioButton.ControlTemplate>
+                                <ControlTemplate>
+                                    <Grid ColumnDefinitions="Auto,*" ColumnSpacing="10">
+                                        <Border Grid.Column="0"
+                                                WidthRequest="22"
+                                                HeightRequest="22"
+                                                VerticalOptions="Center"
+                                                Stroke="{AppThemeBinding Light=#80009688, Dark=#FFFFFF}"
+                                                StrokeThickness="2"
+                                                BackgroundColor="Transparent"
+                                                StrokeShape="RoundRectangle 11">
+                                            <Ellipse WidthRequest="12"
+                                                     HeightRequest="12"
+                                                     Fill="{AppThemeBinding Light=#00796B, Dark=#FFFFFF}"
+                                                     HorizontalOptions="Center"
+                                                     VerticalOptions="Center"
+                                                     IsVisible="{TemplateBinding IsChecked}"/>
+                                        </Border>
+                                        <ContentPresenter Grid.Column="1"
+                                                          VerticalOptions="Center"/>
+                                    </Grid>
+                                </ControlTemplate>
+                            </RadioButton.ControlTemplate>
+                        </RadioButton>
+                        
                         <RadioButton Content="Orta (4x2)"
-                                     TextColor="{AppThemeBinding Light=#212121, Dark=#E0E0E0}"/>
+
+                                     TextColor="{AppThemeBinding Light=#00796B, Dark=#FFFFFF}">
+                            <RadioButton.ControlTemplate>
+                                <ControlTemplate>
+                                    <Grid ColumnDefinitions="Auto,*" ColumnSpacing="10">
+                                        <Border Grid.Column="0"
+                                                WidthRequest="22"
+                                                HeightRequest="22"
+                                                VerticalOptions="Center"
+                                                Stroke="{AppThemeBinding Light=#80009688, Dark=#FFFFFF}"
+                                                StrokeThickness="2"
+                                                BackgroundColor="Transparent"
+                                                StrokeShape="RoundRectangle 11">
+                                            <Ellipse WidthRequest="12"
+                                                     HeightRequest="12"
+                                                     Fill="{AppThemeBinding Light=#00796B, Dark=#FFFFFF}"
+                                                     HorizontalOptions="Center"
+                                                     VerticalOptions="Center"
+                                                     IsVisible="{TemplateBinding IsChecked}"/>
+                                        </Border>
+                                        <ContentPresenter Grid.Column="1"
+                                                          VerticalOptions="Center"/>
+                                    </Grid>
+                                </ControlTemplate>
+                            </RadioButton.ControlTemplate>
+                        </RadioButton>
+                        
                         <RadioButton Content="Buyuk (4x4)"
-                                     TextColor="{AppThemeBinding Light=#212121, Dark=#E0E0E0}"/>
+                                     TextColor="{AppThemeBinding Light=#00796B, Dark=#FFFFFF}">
+                            <RadioButton.ControlTemplate>
+                                <ControlTemplate>
+                                    <Grid ColumnDefinitions="Auto,*" ColumnSpacing="10">
+                                        <Border Grid.Column="0"
+                                                WidthRequest="22"
+                                                HeightRequest="22"
+                                                VerticalOptions="Center"
+                                                Stroke="{AppThemeBinding Light=#80009688, Dark=#FFFFFF}"
+                                                StrokeThickness="2"
+                                                BackgroundColor="Transparent"
+                                                StrokeShape="RoundRectangle 11">
+                                            <Ellipse WidthRequest="12"
+                                                     HeightRequest="12"
+                                                     Fill="{AppThemeBinding Light=#00796B, Dark=#FFFFFF}"
+                                                     HorizontalOptions="Center"
+                                                     VerticalOptions="Center"
+                                                     IsVisible="{TemplateBinding IsChecked}"/>
+                                        </Border>
+                                        <ContentPresenter Grid.Column="1"
+                                                          VerticalOptions="Center"/>
+                                    </Grid>
+                                </ControlTemplate>
+                            </RadioButton.ControlTemplate>
+                        </RadioButton>
                     </VerticalStackLayout>
                 </Frame>
 
                 <!-- Saat & Namaz Vakti Widget -->
-                <Frame Style="{StaticResource BorderFrame}" Padding="15" BackgroundColor="Transparent">
+                <Frame Style="{StaticResource BorderFrame}" 
+                       Padding="15" 
+                       BackgroundColor="Transparent"
+                       BorderColor="{AppThemeBinding Light=#80009688, Dark=#80FFFFFF}">
                     <VerticalStackLayout Spacing="12">
                         <Label Text="Saat &amp; Namaz Vakti Widget"
                                FontSize="18"
                                FontAttributes="Bold"
-                               TextColor="{AppThemeBinding Light=#00796B, Dark=#81C784}"/>
+                               TextColor="{AppThemeBinding Light=#00796B, Dark=#FFFFFF}"/>
                         
                         <!-- Widget Önizleme -->
-                        <Frame BorderColor="{AppThemeBinding Light=#00796B, Dark=#81C784}"
+                        <Frame BorderColor="{AppThemeBinding Light=#80009688, Dark=#80FFFFFF}"
                                BackgroundColor="#80000000"
                                Padding="16"
                                CornerRadius="12"
@@ -110,8 +198,8 @@
                         <Button x:Name="EkleButton"
                                 Text="Ana Ekrana Ekle"
                                 Clicked="EkleButton_Clicked"
-                                BackgroundColor="{AppThemeBinding Light=#00796B, Dark=#81C784}"
-                                TextColor="White"
+                                BackgroundColor="{AppThemeBinding Light=#00796B, Dark=#FFFFFF}"
+                                TextColor="{AppThemeBinding Light=#FFFFFF, Dark=#00796B}"
                                 CornerRadius="15"
                                 Padding="15,12"
                                 FontAttributes="Bold"

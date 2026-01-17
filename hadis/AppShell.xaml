@@ -6,28 +6,33 @@
     Title="hadis"
     
     Shell.NavBarIsVisible="False"
-    Shell.TabBarBackgroundColor="{AppThemeBinding Light=White, Dark={StaticResource Gray900}}"
+    Shell.TabBarBackgroundColor="{AppThemeBinding Light=#1A1A1A, Dark=#1A1A1A}"
+    Shell.TabBarForegroundColor="{AppThemeBinding Light=#00BCD4, Dark=#00BCD4}"
+    Shell.TabBarUnselectedColor="{AppThemeBinding Light=#666666, Dark=#666666}"
+    Shell.TabBarTitleColor="{AppThemeBinding Light=#666666, Dark=#666666}">
     
-    Shell.TabBarForegroundColor="{AppThemeBinding Light={StaticResource Primary}, Dark=White}"
-    
-    Shell.TabBarUnselectedColor="{AppThemeBinding Light=Gray, Dark=LightGray}">
     <TabBar>
         
-        <Tab Title="" Icon="vakitler.png">
+        <Tab Title="Vakit" Icon="vakitler.png">
             <ShellContent ContentTemplate="{DataTemplate local:MainPage}" />
         </Tab>
-        <Tab Title="" Icon="kuran.png">
-            <ShellContent ContentTemplate="{DataTemplate local:KuranPDF}" />
-        </Tab>
-        <Tab Title="" Icon="zikirmatik.png">
-            <ShellContent ContentTemplate="{DataTemplate local:zikirmatik}" />
-        </Tab>
-        <Tab Title="" Icon="kiblesekme.png"> 
+        <Tab Title="Pusula" Icon="kiblesekme.png"> 
             <ShellContent ContentTemplate="{DataTemplate local:kible}" />
         </Tab>
-        <Tab Title="" Icon="dotnet_bot.png"> 
+        <Tab Title="Gelisim" Icon="zikirmatik.png">
+            <ShellContent ContentTemplate="{DataTemplate local:zikirmatik}" />
+        </Tab>
+        <Tab Title="Kesfet" Icon="kuran.png">
+            <ShellContent ContentTemplate="{DataTemplate local:Kuran}" />
+        </Tab>
+        <Tab Title="Profil" Icon="dotnet_bot.png"> 
             <ShellContent ContentTemplate="{DataTemplate local:Ayarlar}" />
         </Tab>
 
     </TabBar>
+    
+    <ShellContent x:Name="KuranPDFPage" 
+                  Route="KuranPDF"
+                  ContentTemplate="{DataTemplate local:KuranPDF}"
+                  IsVisible="False"/>
 </Shell>
