@@ -1,4 +1,5 @@
 ﻿using Foundation;
+using UIKit;
 
 namespace hadis
 {
@@ -6,5 +7,9 @@ namespace hadis
     public class AppDelegate : MauiUIApplicationDelegate
     {
         protected override MauiApp CreateMauiApp() => MauiProgram.CreateMauiApp();
+        public override UIInterfaceOrientationMask GetSupportedInterfaceOrientations(UIApplication application, UIWindow forWindow)
+        {
+            return UIInterfaceOrientationMask.Portrait;
+        }
     }
 }
