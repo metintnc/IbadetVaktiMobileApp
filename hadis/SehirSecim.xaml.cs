@@ -140,6 +140,7 @@ namespace hadis
                 Preferences.Default.Set("ManuelLatitude", selectedCity.Latitude);
                 Preferences.Default.Set("ManuelLongitude", selectedCity.Longitude);
                 Preferences.Default.Set("ManuelSehir", selectedCity.Name);
+                Preferences.Default.Set("ManuelIlce", selectedCity.Name); // Ýlçe olarak þehir adý kaydedildi
                 
                 // Widget'ý güncelle
                 UpdateWidget();
@@ -168,6 +169,7 @@ namespace hadis
                     Preferences.Default.Remove("ManuelLatitude");
                     Preferences.Default.Remove("ManuelLongitude");
                     Preferences.Default.Remove("ManuelSehir");
+                    Preferences.Default.Remove("ManuelIlce"); // Ýlçe de temizlensin
                 }
                 else
                 {
@@ -176,6 +178,7 @@ namespace hadis
                     Preferences.Default.Set("ManuelLatitude", selectedCity.Latitude);
                     Preferences.Default.Set("ManuelLongitude", selectedCity.Longitude);
                     Preferences.Default.Set("ManuelSehir", selectedCity.Name);
+                    Preferences.Default.Set("ManuelIlce", selectedCity.Name); // Ýlçe olarak þehir adý kaydedildi
                 }
                 
                 // Widget'ý güncelle
