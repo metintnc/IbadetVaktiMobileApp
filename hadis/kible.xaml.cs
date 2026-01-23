@@ -17,12 +17,19 @@ namespace hadis
             compass = new Pusula();
         }
         
-        protected override async void OnAppearing()
+        protected override void OnAppearing()
         {
             base.OnAppearing();
-            
-            await compass.KontrolEt();
-            compass.AciDegisti += KıbleOkunuDondur;
+
+            // Sensör başlatmayı arka planda başlat
+            Task.Run(async () =>
+            {
+                await compass.KontrolEt();
+                MainThread.BeginInvokeOnMainThread(() =>
+                {
+                    compass.AciDegisti += KıbleOkunuDondur;
+                });
+            });
         }
         
         protected override async void OnNavigatedTo(NavigatedToEventArgs args)

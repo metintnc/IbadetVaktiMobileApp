@@ -21,7 +21,15 @@ namespace hadis
         protected override void OnAppearing()
         {
             base.OnAppearing();
-            SonOkunanYukle();
+
+            // Son okunan yükleme iþlemini arka planda baþlat
+            Task.Run(() =>
+            {
+                MainThread.BeginInvokeOnMainThread(() =>
+                {
+                    SonOkunanYukle();
+                });
+            });
         }
 
         private void SonOkunanYukle()

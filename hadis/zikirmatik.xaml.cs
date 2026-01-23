@@ -6,6 +6,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Text.Json;
 using hadis.Models;
+using System.Globalization;
 
 namespace hadis
 {
@@ -17,6 +18,8 @@ namespace hadis
         private string seciliZikir = "Sübhanallah";
         private bool sesDurum = true;
         
+        private const string ZikirHistoryKey = "ZikirHistory";
+
         public zikirmatik()
         {
             InitializeComponent();
@@ -64,6 +67,22 @@ namespace hadis
             
             // Giriş animasyonu
             await AnimateZikirEntry();
+        }
+
+        protected override void OnAppearing()
+        {
+            base.OnAppearing();
+
+            // Tema ve animasyon işlemlerini arka planda başlat
+            Task.Run(async () =>
+            {
+                MainThread.BeginInvokeOnMainThread(() =>
+                {
+                    ApplyCustomTheme();
+                });
+
+                await AnimateZikirEntry();
+            });
         }
 
         private void ApplyCustomTheme()
@@ -152,15 +171,41 @@ namespace hadis
             );
         }
 
+        // Zikir geçmişini yükle
+        private Dictionary<string, Dictionary<string, int>> LoadZikirHistory()
+        {
+            var json = Preferences.Default.Get(ZikirHistoryKey, string.Empty);
+            if (string.IsNullOrEmpty(json))
+                return new Dictionary<string, Dictionary<string, int>>();
+            return JsonSerializer.Deserialize<Dictionary<string, Dictionary<string, int>>>(json) ?? new();
+        }
+
+        // Zikir geçmişini kaydet
+        private void SaveZikirHistory(Dictionary<string, Dictionary<string, int>> history)
+        {
+            var json = JsonSerializer.Serialize(history);
+            Preferences.Default.Set(ZikirHistoryKey, json);
+        }
+
         private async void zikirbutton_Clicked(object sender, EventArgs e)
         {
             sayı++;
             toplam++;
-            
             zikirsayisi.Text = sayı.ToString();
             Preferences.Default.Set("sonSayi", sayı);
             Preferences.Default.Set("Toplam", toplam);
-            
+
+            // --- Zikir geçmişini güncelle ---
+            var history = LoadZikirHistory();
+            string today = DateTime.Now.ToString("yyyy-MM-dd", CultureInfo.InvariantCulture);
+            if (!history.ContainsKey(today))
+                history[today] = new Dictionary<string, int>();
+            if (!history[today].ContainsKey(seciliZikir))
+                history[today][seciliZikir] = 0;
+            history[today][seciliZikir]++;
+            SaveZikirHistory(history);
+            // --- ---
+
             // İlerleme güncelle
             UpdateProgress();
             
@@ -338,6 +383,11 @@ namespace hadis
             
             string mesaj = sesDurum ? "Ses/Titreşim Açık" : "Ses/Titreşim Kapalı";
             await DisplayAlert("Bilgi", mesaj, "Tamam");
+        }
+
+        private async void Istatistik_Clicked(object sender, EventArgs e)
+        {
+            await Navigation.PushAsync(new IstatistikPage());
         }
     }
 }
