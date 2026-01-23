@@ -131,6 +131,9 @@
 	  <MauiXaml Update="Ayarlar.xaml">
 	    <Generator>MSBuild:Compile</Generator>
 	  </MauiXaml>
+	  <MauiXaml Update="IstatistikPage.xaml">
+	    <Generator>MSBuild:Compile</Generator>
+	  </MauiXaml>
 	  <MauiXaml Update="kible.xaml">
 	    <Generator>MSBuild:Compile</Generator>
 	  </MauiXaml>

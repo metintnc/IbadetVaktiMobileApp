@@ -166,7 +166,7 @@
 
             <!-- Alt Butonlar -->
             <Grid Grid.Row="2" 
-                  ColumnDefinitions="*,*,*,*"
+                  ColumnDefinitions="*,*,*,*,*"
                   ColumnSpacing="10"
                   Margin="0,20,0,0">
                 
@@ -258,6 +258,30 @@
                                HorizontalOptions="Center"/>
                         <Label x:Name="SesTitresimLabel"
                                Text="Ses/Titreşim"
+                               FontSize="11"
+                               FontAttributes="Bold"
+                               HorizontalOptions="Center"
+                               HorizontalTextAlignment="Center"
+                               TextColor="{AppThemeBinding Light=#00796B, Dark=#FFFFFF}"/>
+                    </VerticalStackLayout>
+                </Frame>
+
+                <!-- İstatistik Butonu -->
+                <Frame Grid.Column="4"
+                       CornerRadius="20"
+                       Padding="15"
+                       HasShadow="True"
+                       BorderColor="{AppThemeBinding Light=#80009688, Dark=#80FFFFFF}"
+                       BackgroundColor="{AppThemeBinding Light=#22FFFFFF, Dark=#33000000}">
+                    <Frame.GestureRecognizers>
+                        <TapGestureRecognizer Tapped="Istatistik_Clicked"/>
+                    </Frame.GestureRecognizers>
+                    <VerticalStackLayout Spacing="5" HorizontalOptions="Center">
+                        <Label Text="📈"
+                               FontSize="28"
+                               HorizontalOptions="Center"/>
+                        <Label x:Name="IstatistikLabel"
+                               Text="İstatistik"
                                FontSize="11"
                                FontAttributes="Bold"
                                HorizontalOptions="Center"
