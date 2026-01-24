@@ -49,10 +49,19 @@
                                FontAttributes="Bold"
                                TextColor="{AppThemeBinding Light=#212121, Dark=#FFFFFF}"/>
                         
-                        <Label x:Name="SonOkunanAyetLabel"
-                               Text="Sayfa 1"
-                               FontSize="14"
-                               TextColor="{AppThemeBinding Light=#757575, Dark=#BDBDBD}"/>
+                        <HorizontalStackLayout>
+                            <Label x:Name="SonOkunanAyetLabel"
+                                   Text="Ayet 1"
+                                   FontSize="14"
+                                   TextColor="{AppThemeBinding Light=#757575, Dark=#BDBDBD}"
+                                   HorizontalOptions="StartAndExpand"/>
+                            <BoxView WidthRequest="12" Opacity="0"/>
+                            <Label x:Name="SonOkunanAyetYuzdeLabel"
+                                   Text="."
+                                   FontSize="14"
+                                   TextColor="{AppThemeBinding Light=#00796B, Dark=#81C784}"
+                                   HorizontalOptions="End"/>
+                        </HorizontalStackLayout>
                         
                         <Button Text="Okumaya Devam Et"
                                 Clicked="OkumayaDevamEt_Clicked"
@@ -62,57 +71,6 @@
                                 Padding="15,12"
                                 FontAttributes="Bold"
                                 FontSize="15"/>
-                    </VerticalStackLayout>
-                </Frame>
-
-                <Frame Style="{StaticResource BorderFrame}" Padding="10" BackgroundColor="Transparent">
-                    <VerticalStackLayout Spacing="10">
-                        <Label Text="Hizli Erisim"
-                               FontSize="18"
-                               FontAttributes="Bold"
-                               TextColor="{AppThemeBinding Light=#00796B, Dark=#81C784}"/>
-                        
-                        <Grid ColumnDefinitions="*,*" RowDefinitions="Auto,Auto" ColumnSpacing="10" RowSpacing="10">
-                            <Button Grid.Row="0" Grid.Column="0"
-                                    Text="Cuzler"
-                                    Clicked="Cuzler_Clicked"
-                                    BackgroundColor="{AppThemeBinding Light=#00796B, Dark=#26A69A}"
-                                    TextColor="White"
-                                    CornerRadius="15"
-                                    Padding="15,12"
-                                    FontAttributes="Bold"
-                                    FontSize="15"/>
-                            
-                            <Button Grid.Row="0" Grid.Column="1"
-                                    Text="Sureler"
-                                    Clicked="Sureler_Clicked"
-                                    BackgroundColor="{AppThemeBinding Light=#00796B, Dark=#26A69A}"
-                                    TextColor="White"
-                                    CornerRadius="15"
-                                    Padding="15,12"
-                                    FontAttributes="Bold"
-                                    FontSize="15"/>
-                            
-                            <Button Grid.Row="1" Grid.Column="0"
-                                    Text="Favoriler"
-                                    Clicked="Favoriler_Clicked"
-                                    BackgroundColor="{AppThemeBinding Light=#00796B, Dark=#26A69A}"
-                                    TextColor="White"
-                                    CornerRadius="15"
-                                    Padding="15,12"
-                                    FontAttributes="Bold"
-                                    FontSize="15"/>
-                            
-                            <Button Grid.Row="1" Grid.Column="1"
-                                    Text="Konular"
-                                    Clicked="Konular_Clicked"
-                                    BackgroundColor="{AppThemeBinding Light=#00796B, Dark=#26A69A}"
-                                    TextColor="White"
-                                    CornerRadius="15"
-                                    Padding="15,12"
-                                    FontAttributes="Bold"
-                                    FontSize="15"/>
-                        </Grid>
                     </VerticalStackLayout>
                 </Frame>
 

@@ -1,12 +1,8 @@
-﻿using Syncfusion.Maui.Themes;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.Text.Json;
-using hadis.Models;
+﻿using System;
 using System.Globalization;
+using System.Text.Json;
+using System.Threading.Tasks;
+using hadis.Models;
 
 namespace hadis
 {
@@ -17,30 +13,21 @@ namespace hadis
         private int hedef = 100;
         private string seciliZikir = "Sübhanallah";
         private bool sesDurum = true;
-        
         private const string ZikirHistoryKey = "ZikirHistory";
 
         public zikirmatik()
         {
             InitializeComponent();
-            
-            // Kayıtlı değerleri yükle
             sayı = Preferences.Default.Get("sonSayi", 0);
             toplam = Preferences.Default.Get("Toplam", 0);
             hedef = Preferences.Default.Get("ZikirHedef", 100);
             seciliZikir = Preferences.Default.Get("SeciliZikir", "Sübhanallah");
             sesDurum = Preferences.Default.Get("SesDurum", true);
-            
-            // UI'ı güncelle
             zikirsayisi.Text = sayı.ToString();
             SeciliZikirLabel.Text = $"Seçili Zikir: {seciliZikir}";
             HedefLabel.Text = $"Hedef: {hedef}";
             SesTitresimIcon.Text = sesDurum ? "🔊" : "🔇";
-            
-            // İlerleme güncelle
             UpdateProgress();
-            
-            // Layout değişikliğinde ilerleme çubuğu genişliğini ayarla
             HeaderFrame.SizeChanged += OnHeaderFrameSizeChanged;
         }
 
@@ -48,8 +35,7 @@ namespace hadis
         {
             if (sender is Frame frame)
             {
-                // Progress bar için maksimum genişliği ayarla
-                double availableWidth = frame.Width - 48; // Padding için
+                double availableWidth = frame.Width - 48;
                 if (availableWidth > 0)
                 {
                     double progress = Math.Min((double)sayı / (double)hedef, 1.0);
@@ -61,61 +47,44 @@ namespace hadis
         protected override async void OnNavigatedTo(NavigatedToEventArgs args)
         {
             base.OnNavigatedTo(args);
-            
-            // Özel tema varsa uygula
             ApplyCustomTheme();
-            
-            // Giriş animasyonu
             await AnimateZikirEntry();
         }
 
         protected override void OnAppearing()
         {
             base.OnAppearing();
-
-            // Tema ve animasyon işlemlerini arka planda başlat
             Task.Run(async () =>
             {
                 MainThread.BeginInvokeOnMainThread(() =>
                 {
                     ApplyCustomTheme();
                 });
-
                 await AnimateZikirEntry();
             });
         }
 
         private void ApplyCustomTheme()
         {
-            // Kayıtlı tema tercihini kontrol et
             string savedTheme = Preferences.Default.Get("AppTheme", "System");
-            
-            // Eğer Custom tema seçili değilse, varsayılan stillere dön
             if (savedTheme != "Custom")
             {
                 ResetToDefaultStyles();
                 return;
             }
-            
-            // Özel tema yükle
             string customThemeJson = Preferences.Default.Get("CustomTheme", string.Empty);
-            
             if (string.IsNullOrEmpty(customThemeJson))
             {
                 ResetToDefaultStyles();
                 return;
             }
-            
             try
             {
                 var theme = JsonSerializer.Deserialize<CustomTheme>(customThemeJson);
                 if (theme != null)
                 {
-                    // Ana sayaç rengini uygula
                     zikirsayisi.TextColor = Color.FromArgb(theme.MainFrameText);
                     ZikirBaslik.TextColor = Color.FromArgb(theme.MainFrameText);
-                    
-                    // Border renkleri
                     zikirbutton.BorderColor = Color.FromArgb(theme.MainFrameBorder);
                 }
             }
@@ -128,12 +97,10 @@ namespace hadis
 
         private void ResetToDefaultStyles()
         {
-            // Aktif temayı al
             var currentTheme = Application.Current?.UserAppTheme == AppTheme.Unspecified 
                 ? Application.Current?.RequestedTheme ?? AppTheme.Light 
                 : Application.Current?.UserAppTheme ?? AppTheme.Light;
 
-            // Varsayılan renklere dön
             if (currentTheme == AppTheme.Dark)
             {
                 zikirsayisi.TextColor = Colors.White;
@@ -150,10 +117,8 @@ namespace hadis
         
         private async Task AnimateZikirEntry()
         {
-            // Ana daire animasyonu
             zikirbutton.Opacity = 0;
             zikirbutton.Scale = 0.5;
-            
             await Task.WhenAll(
                 zikirbutton.FadeTo(1, 500, Easing.CubicOut),
                 zikirbutton.ScaleTo(1.0, 600, Easing.SpringOut)
@@ -163,15 +128,12 @@ namespace hadis
         protected override async void OnNavigatedFrom(NavigatedFromEventArgs args)
         {
             base.OnNavigatedFrom(args);
-            
-            // Çıkış animasyonu
             await Task.WhenAll(
                 zikirbutton.FadeTo(0, 300, Easing.CubicIn),
                 zikirbutton.ScaleTo(0.5, 400, Easing.CubicIn)
             );
         }
 
-        // Zikir geçmişini yükle
         private Dictionary<string, Dictionary<string, int>> LoadZikirHistory()
         {
             var json = Preferences.Default.Get(ZikirHistoryKey, string.Empty);
@@ -180,7 +142,6 @@ namespace hadis
             return JsonSerializer.Deserialize<Dictionary<string, Dictionary<string, int>>>(json) ?? new();
         }
 
-        // Zikir geçmişini kaydet
         private void SaveZikirHistory(Dictionary<string, Dictionary<string, int>> history)
         {
             var json = JsonSerializer.Serialize(history);
@@ -195,7 +156,6 @@ namespace hadis
             Preferences.Default.Set("sonSayi", sayı);
             Preferences.Default.Set("Toplam", toplam);
 
-            // --- Zikir geçmişini güncelle ---
             var history = LoadZikirHistory();
             string today = DateTime.Now.ToString("yyyy-MM-dd", CultureInfo.InvariantCulture);
             if (!history.ContainsKey(today))
@@ -204,12 +164,9 @@ namespace hadis
                 history[today][seciliZikir] = 0;
             history[today][seciliZikir]++;
             SaveZikirHistory(history);
-            // --- ---
 
-            // İlerleme güncelle
             UpdateProgress();
             
-            // Hedef kontrolü
             if(sayı == hedef)
             {
                 await CelebrateAchievement();
@@ -250,7 +207,6 @@ namespace hadis
                 }
             }
             
-            // Buton animasyonu
             await AnimateButton();
         }
 
@@ -262,22 +218,14 @@ namespace hadis
 
         private void UpdateProgress()
         {
-            // Hedefe göre ilerleme
             double progress = Math.Min((double)sayı / (double)hedef, 1.0);
             IlerlemeBar.Progress = progress;
-            
-            // İlerleme ibresi genişliği (BoxView için)
             double availableWidth = HeaderFrame.Width > 0 ? HeaderFrame.Width - 48 : 300;
             IlerlemeIbresi.WidthRequest = availableWidth * progress;
-            
-            // Yüzde ve kalan bilgileri
             int yuzde = (int)(progress * 100);
             int kalan = Math.Max(0, hedef - sayı);
-            
             IlerlemeYuzdeLabel.Text = $"İlerleme: {yuzde}%";
             KalanLabel.Text = $"(Kalan: {kalan})";
-            
-            // İlerleme tamamlandığında renk değişimi
             if (progress >= 1.0)
             {
                 IlerlemeYuzdeLabel.TextColor = Colors.Green;
@@ -287,7 +235,6 @@ namespace hadis
                 var currentTheme = Application.Current?.UserAppTheme == AppTheme.Unspecified 
                     ? Application.Current?.RequestedTheme ?? AppTheme.Light 
                     : Application.Current?.UserAppTheme ?? AppTheme.Light;
-                    
                 IlerlemeYuzdeLabel.TextColor = currentTheme == AppTheme.Dark 
                     ? Colors.White 
                     : Color.FromArgb("#00796B");
@@ -296,7 +243,6 @@ namespace hadis
 
         private async Task CelebrateAchievement()
         {
-            // Başarı animasyonu
             await zikirbutton.ScaleTo(1.2, 200, Easing.SpringOut);
             await zikirbutton.ScaleTo(1.0, 200, Easing.SpringIn);
         }
@@ -309,7 +255,6 @@ namespace hadis
                 sayı = 0;
                 zikirsayisi.Text = sayı.ToString();
                 Preferences.Default.Set("sonSayi", sayı);
-                
                 UpdateProgress();
                 
                 if (sesDurum)
@@ -340,8 +285,6 @@ namespace hadis
                 HedefLabel.Text = $"Hedef: {hedef}";
                 Preferences.Default.Set("ZikirHedef", hedef);
                 UpdateProgress();
-                
-                // İlerleme çubuğunu animasyonlu güncelle
                 await AnimateProgressUpdate();
             }
         }
