@@ -1,0 +1,69 @@
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:viewModels="clr-namespace:hadis.ViewModels"
+             xmlns:models="clr-namespace:hadis.Models"
+             x:Class="hadis.SurePage"
+             Title="{Binding SureTitle}"
+             BackgroundColor="#FDFBF2">
+    <Grid RowDefinitions="Auto,*">
+        <Image Aspect="AspectFill"
+               Grid.RowSpan="2"
+               IsVisible="True">
+            <Image.Source>
+                <AppThemeBinding Light="bg_light.jpg" Dark="bg_dark.jpg" />
+            </Image.Source>
+        </Image>
+        <BoxView Grid.RowSpan="2"
+                 IsVisible="True">
+            <BoxView.Color>
+                <AppThemeBinding Light="White" Dark="Black" />
+            </BoxView.Color>
+            <BoxView.Opacity>
+                <AppThemeBinding Light="0.75" Dark="0.45" />
+            </BoxView.Opacity>
+        </BoxView>
+        <Frame Grid.Row="0"
+               CornerRadius="20"
+               Padding="20,25,20,20"
+               Margin="20,20,20,10"
+               HasShadow="True"
+               BorderColor="{AppThemeBinding Light=#80009688, Dark=#80FFFFFF}"
+               BackgroundColor="{AppThemeBinding Light=#22FFFFFF, Dark=#33000000}">
+            <HorizontalStackLayout Spacing="10" HorizontalOptions="Center">
+                <Label Text="{Binding SureTitle}" FontSize="20" FontAttributes="Bold" TextColor="#00796B" />
+                <Label Text="{Binding SureTitleArabic}" FontSize="18" VerticalOptions="Center" TextColor="#81C784" />
+            </HorizontalStackLayout>
+        </Frame>
+        <CollectionView x:Name="SureCollectionView" Grid.Row="1" ItemsSource="{Binding Ayahs}" SelectionMode="None">
+            <CollectionView.ItemTemplate>
+                <DataTemplate x:DataType="models:Ayah">
+                    <Border Margin="15,10" Padding="20" StrokeShape="RoundRectangle 20"
+                            BackgroundColor="{AppThemeBinding Light=#CCFAFAFA, Dark=#CC000000}">
+                        <Border.Shadow>
+                            <Shadow Brush="Black" Offset="0,2" Opacity="0.1" Radius="5" />
+                        </Border.Shadow>
+                        <VerticalStackLayout Spacing="15">
+                            <Border WidthRequest="40" HeightRequest="40" StrokeShape="RoundRectangle 20" BackgroundColor="#E8F1F2" HorizontalOptions="Start">
+                                <Label Text="{Binding Number}" HorizontalOptions="Center" VerticalOptions="Center" TextColor="#00796B" />
+                            </Border>
+                            <Label Text="{Binding ArabicText}"
+                                   FontSize="28"
+                                   HorizontalOptions="End"
+                                   HorizontalTextAlignment="End"
+                                   FontFamily="ArabicFontFamily"
+                                   TextColor="{AppThemeBinding Light=#212121, Dark=White}" />
+                            <Label Text="{Binding Translation}"
+                                   TextColor="{AppThemeBinding Light=#2E7D32, Dark=White}"
+                                   FontSize="16"
+                                   HorizontalTextAlignment="Center" />
+                            <Label Text="{Binding Transliteration}"
+                                   FontAttributes="Italic"
+                                   FontSize="14"
+                                   TextColor="{AppThemeBinding Light=Gray, Dark=White}" />
+                        </VerticalStackLayout>
+                    </Border>
+                </DataTemplate>
+            </CollectionView.ItemTemplate>
+        </CollectionView>
+    </Grid>
+</ContentPage>

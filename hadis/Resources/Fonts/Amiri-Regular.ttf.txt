@@ -1,0 +1,3 @@
+// Bu dosya örnek amaçlýdýr. Gerçek font dosyasýný kendin eklemelisin.
+// Amiri-Regular.ttf veya baþka bir Arapça fontu Resources/Fonts klasörüne ekle.
+// Font dosyasýný https://fonts.google.com/specimen/Amiri veya https://fonts.google.com/noto/specimen/Noto+Naskh+Arabic adresinden indirebilirsin.
