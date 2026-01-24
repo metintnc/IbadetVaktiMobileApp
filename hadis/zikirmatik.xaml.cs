@@ -362,16 +362,30 @@ namespace hadis
                 "La ilahe illallah",
                 "Estağfirullah",
                 "Sübhanallahi ve bihamdihi",
-                "La havle vela kuvvete illa billah"
+                "La havle vela kuvvete illa billah",
+                "Kendi Zikrini Gir"
             };
             
             string secim = await DisplayActionSheet("Zikir Seçin", "İptal", null, zikirler);
             
             if (!string.IsNullOrEmpty(secim) && secim != "İptal")
             {
-                seciliZikir = secim;
-                SeciliZikirLabel.Text = $"Seçili Zikir: {seciliZikir}";
-                Preferences.Default.Set("SeciliZikir", seciliZikir);
+                if (secim == "Kendi Zikrini Gir")
+                {
+                    string customZikir = await DisplayPromptAsync("Kendi Zikrini Gir", "Lütfen istediğiniz zikri yazın:", initialValue: "", maxLength: 50);
+                    if (!string.IsNullOrWhiteSpace(customZikir))
+                    {
+                        seciliZikir = customZikir.Trim();
+                        SeciliZikirLabel.Text = $"Seçili Zikir: {seciliZikir}";
+                        Preferences.Default.Set("SeciliZikir", seciliZikir);
+                    }
+                }
+                else
+                {
+                    seciliZikir = secim;
+                    SeciliZikirLabel.Text = $"Seçili Zikir: {seciliZikir}";
+                    Preferences.Default.Set("SeciliZikir", seciliZikir);
+                }
             }
         }
 
