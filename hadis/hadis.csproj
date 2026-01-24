@@ -64,6 +64,7 @@
 		<MauiImage Include="Resources\Images\bg_dark.jpg" />
 		<MauiImage Include="Resources\Images\bg_light.jpg" />
 		<MauiImage Include="Resources\Images\kiblearkaplan.png" />
+		<MauiImage Include="Resources\Images\kuranarkaplan.png" />
 		
 		<!-- Sun Images for Time-based Backgrounds -->
 		<MauiImage Include="Resources\Images\sun_01.png" />
@@ -104,6 +105,7 @@
 	  <None Remove="Resources\Images\bg_light.jpg" />
 	  <None Remove="Resources\Images\kibleoklight.svg" />
 	  <None Remove="Resources\Images\kiblesekme.svg" />
+	  <None Remove="Resources\Images\kuranarkaplan.png" />
 	  <None Remove="Resources\Images\sun_01.png" />
 	  <None Remove="Resources\Images\sun_02.png" />
 	  <None Remove="Resources\Images\sun_03.png" />
