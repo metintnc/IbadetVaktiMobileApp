@@ -59,6 +59,7 @@
 		
 		<!-- Splash Screen -->
 		<MauiSplashScreen Include="Resources\Splash\gemini3.png" Color="#303030" BaseSize="200,200" />
+		<MauiImage Include="Resources\Images\ayarlararkaplan.png" />
 		
 		<!-- Background Images -->
 		<MauiImage Include="Resources\Images\bg_dark.jpg" />
@@ -101,6 +102,7 @@
 	</ItemGroup>
 
 	<ItemGroup>
+	  <None Remove="Resources\Images\ayarlararkaplan.png" />
 	  <None Remove="Resources\Images\bg_dark.jpg" />
 	  <None Remove="Resources\Images\bg_light.jpg" />
 	  <None Remove="Resources\Images\kibleoklight.svg" />

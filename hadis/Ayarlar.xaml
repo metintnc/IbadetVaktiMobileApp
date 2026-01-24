@@ -9,7 +9,7 @@
                HorizontalOptions="FillAndExpand"
                VerticalOptions="FillAndExpand">
             <Image.Source>
-                <AppThemeBinding Light="bg_light.jpg" Dark="bg_dark.jpg" />
+                <AppThemeBinding Light="bg_light.jpg" Dark="ayarlararkaplan.png" />
             </Image.Source>
         </Image>
         
