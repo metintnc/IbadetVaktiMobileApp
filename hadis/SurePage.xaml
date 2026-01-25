@@ -38,7 +38,7 @@
             <CollectionView.ItemTemplate>
                 <DataTemplate x:DataType="models:Ayah">
                     <Border Margin="15,10" Padding="20" StrokeShape="RoundRectangle 20"
-                            BackgroundColor="{AppThemeBinding Light=#CCFAFAFA, Dark=#CC000000}">
+                            BackgroundColor="{AppThemeBinding Light=#80FAFAFA, Dark=#80000000}">
                         <Border.Shadow>
                             <Shadow Brush="Black" Offset="0,2" Opacity="0.1" Radius="5" />
                         </Border.Shadow>
