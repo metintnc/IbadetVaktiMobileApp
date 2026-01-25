@@ -1,6 +1,7 @@
 ﻿using Maui.PDFView;
 using Microsoft.Extensions.Logging;
 using Syncfusion.Maui.Core.Hosting;
+using hadis.Services;
 
 namespace hadis
 {
@@ -20,6 +21,14 @@ namespace hadis
                     fonts.AddFont("OpenSans-Semibold.ttf", "OpenSansSemibold");
                     fonts.AddFont("Amiri-Regular.ttf", "ArabicFontFamily");
                 });
+
+            // Servisleri kaydet
+            builder.Services.AddSingleton<StatusBarService>();
+            builder.Services.AddSingleton<BackgroundService>();
+            builder.Services.AddSingleton<ThemeService>();
+
+            // Pages
+            builder.Services.AddTransient<MainPage>();
 
             return builder.Build();
         }
