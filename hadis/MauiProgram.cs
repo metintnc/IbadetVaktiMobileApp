@@ -28,6 +28,14 @@ namespace hadis
             builder.Services.AddSingleton<BackgroundService>();
             builder.Services.AddSingleton<ThemeService>();
 
+            builder.Services.AddSingleton<ThemeService>();
+            
+#if ANDROID
+            builder.Services.AddSingleton<INativeCompassService, hadis.Platforms.Android.Services.AndroidCompassService>();
+#else
+            builder.Services.AddSingleton<INativeCompassService, hadis.Services.PlatformCompassService>();
+#endif
+
             // Pages
             builder.Services.AddTransient<MainPage>();
             builder.Services.AddTransient<kible>();

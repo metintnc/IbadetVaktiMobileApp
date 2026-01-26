@@ -21,7 +21,25 @@ VerticalOptions="FillAndExpand" >
             </BoxView.Opacity>
         </BoxView>
         <Grid RowDefinitions="Auto,*"  Style="{StaticResource Background}" >
-        <Label Grid.Row="0" Text="0°" HorizontalOptions="Center" VerticalOptions="Center" Margin="0,20,0,0" x:Name="AciDegeri" FontSize="35" Style="{StaticResource AnaLabel}"/>
+        <VerticalStackLayout Grid.Row="0" Spacing="5" VerticalOptions="Center" Margin="0,20,0,0">
+            <Label Text="0°" HorizontalOptions="Center" x:Name="AciDegeri" FontSize="35" Style="{StaticResource AnaLabel}"/>
+            
+            <Label x:Name="AccuracyStatusLabel"
+                   Text="Kalibrasyon: Bekleniyor..."
+                   FontSize="14"
+                   FontAttributes="Bold"
+                   HorizontalOptions="Center"
+                   TextColor="{AppThemeBinding Light=#757575, Dark=#BDBDBD}"/>
+
+            <Label x:Name="AccuracyWarningLabel"
+                   Text="Doğruluk için cihazı düz tutun ve 8 işareti çizin (∞)" 
+                   FontSize="12" 
+                   HorizontalOptions="Center" 
+                   HorizontalTextAlignment="Center"
+                   TextColor="{AppThemeBinding Light=#D32F2F, Dark=#EF5350}"
+                   Opacity="0.9"
+                   IsVisible="False"/>
+        </VerticalStackLayout>
         <Image Grid.Row="1" x:Name="kibleoku" Style="{StaticResource KibleOk}" Aspect="AspectFit" VerticalOptions="Fill" HorizontalOptions="Fill"/>
 
 

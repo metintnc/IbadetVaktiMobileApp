@@ -10,13 +10,15 @@ namespace hadis
         private bool _animationPlayed = false;
         private readonly StatusBarService _statusBarService;
         private readonly TabBarService _tabBarService;
+        private readonly INativeCompassService _nativeCompassService;
         
-        public kible(StatusBarService statusBarService, TabBarService tabBarService)
+        public kible(StatusBarService statusBarService, TabBarService tabBarService, INativeCompassService nativeCompassService)
         {
             InitializeComponent();
             compass = new Pusula();
             _statusBarService = statusBarService;
             _tabBarService = tabBarService;
+            _nativeCompassService = nativeCompassService;
         }
         
         protected override void OnAppearing()
@@ -27,6 +29,9 @@ namespace hadis
             _statusBarService.SetStatusBarColor("#000000"); // Siyah
             _tabBarService.SetTabBarColor("#19222B"); // Özel kıble rengi
             
+            _nativeCompassService.AccuracyChanged += OnCompassAccuracyChanged;
+            _nativeCompassService.Start();
+
             Task.Run(async () =>
             {
                 await compass.KontrolEt();
@@ -34,6 +39,44 @@ namespace hadis
                 {
                     compass.AciDegisti += KıbleOkunuDondur;
                 });
+            });
+        }
+
+        private void OnCompassAccuracyChanged(CompassAccuracy accuracy)
+        {
+            MainThread.BeginInvokeOnMainThread(() =>
+            {
+                string statusText = "";
+                Color statusColor = Colors.Gray;
+                bool showWarning = false;
+
+                switch (accuracy)
+                {
+                    case CompassAccuracy.High:
+                        statusText = "Kalibrasyon: Yüksek";
+                        statusColor = Colors.Green;
+                        showWarning = false;
+                        break;
+                    case CompassAccuracy.Medium:
+                        statusText = "Kalibrasyon: Orta";
+                        statusColor = Colors.Orange;
+                        showWarning = false;
+                        break;
+                    case CompassAccuracy.Low:
+                        statusText = "Kalibrasyon: Düşük";
+                        statusColor = Colors.Red;
+                        showWarning = true;
+                        break;
+                    case CompassAccuracy.Unreliable:
+                        statusText = "Kalibrasyon: Güvenilmez";
+                        statusColor = Colors.DarkRed;
+                        showWarning = true;
+                        break;
+                }
+
+                AccuracyStatusLabel.Text = statusText;
+                AccuracyStatusLabel.TextColor = statusColor;
+                AccuracyWarningLabel.IsVisible = showWarning;
             });
         }
         
@@ -64,6 +107,9 @@ namespace hadis
             base.OnDisappearing();
             compass.PusulaDurdur();
             compass.AciDegisti -= KıbleOkunuDondur;
+            
+            _nativeCompassService.Stop();
+            _nativeCompassService.AccuracyChanged -= OnCompassAccuracyChanged;
         }
         
         protected override async void OnNavigatedFrom(NavigatedFromEventArgs args)
