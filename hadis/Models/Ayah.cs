@@ -6,5 +6,6 @@ namespace hadis.Models
         public string ArabicText { get; set; }
         public string Translation { get; set; }
         public string Transliteration { get; set; }
+        public bool IsSaved { get; set; }
     }
 }

@@ -22,18 +22,35 @@
                 <AppThemeBinding Light="0.75" Dark="0.45" />
             </BoxView.Opacity>
         </BoxView>
-        <Frame Grid.Row="0"
-               CornerRadius="20"
-               Padding="20,25,20,20"
-               Margin="20,20,20,10"
-               HasShadow="True"
-               BorderColor="{AppThemeBinding Light=#80009688, Dark=#80FFFFFF}"
-               BackgroundColor="{AppThemeBinding Light=#22FFFFFF, Dark=#33000000}">
-            <HorizontalStackLayout Spacing="10" HorizontalOptions="Center">
-                <Label Text="{Binding SureTitle}" FontSize="20" FontAttributes="Bold" TextColor="#00796B" />
-                <Label Text="{Binding SureTitleArabic}" FontSize="18" VerticalOptions="Center" TextColor="#81C784" />
+        <Grid Grid.Row="0"
+              ColumnDefinitions="Auto, *"
+              Padding="10,15,10,10"
+              Margin="0,20,0,0">
+            <ImageButton Source="gerigit.svg"
+                         Grid.Column="0"
+                         BackgroundColor="Transparent"
+                         HeightRequest="40"
+                         WidthRequest="40"
+                         Padding="5"
+                         Clicked="OnBackButtonClicked"
+                         VerticalOptions="Center"
+                         HorizontalOptions="Start" />
+            <HorizontalStackLayout Grid.Column="1" 
+                                   Spacing="8" 
+                                   HorizontalOptions="Start" 
+                                   VerticalOptions="Center"
+                                   Margin="5,0,0,0">
+                <Label Text="{Binding SureTitle}" 
+                       FontSize="22" 
+                       FontAttributes="Bold" 
+                       TextColor="#00796B" 
+                       VerticalOptions="Center" />
+                <Label Text="{Binding SureTitleArabic}" 
+                       FontSize="20" 
+                       VerticalOptions="Center" 
+                       TextColor="#81C784" />
             </HorizontalStackLayout>
-        </Frame>
+        </Grid>
         <CollectionView x:Name="SureCollectionView" Grid.Row="1" ItemsSource="{Binding Ayahs}" SelectionMode="None">
             <CollectionView.ItemTemplate>
                 <DataTemplate x:DataType="models:Ayah">
@@ -43,9 +60,42 @@
                             <Shadow Brush="Black" Offset="0,2" Opacity="0.1" Radius="5" />
                         </Border.Shadow>
                         <VerticalStackLayout Spacing="15">
-                            <Border WidthRequest="40" HeightRequest="40" StrokeShape="RoundRectangle 20" BackgroundColor="#E8F1F2" HorizontalOptions="Start">
-                                <Label Text="{Binding Number}" HorizontalOptions="Center" VerticalOptions="Center" TextColor="#00796B" />
-                            </Border>
+                            <Grid ColumnDefinitions="Auto, *" HorizontalOptions="FillAndExpand">
+                                <Border Grid.Column="0" WidthRequest="40" HeightRequest="40" StrokeShape="RoundRectangle 20" BackgroundColor="#E8F1F2" HorizontalOptions="Start">
+                                    <Label Text="{Binding Number}" HorizontalOptions="Center" VerticalOptions="Center" TextColor="#00796B" />
+                                </Border>
+
+                                <ImageButton Grid.Column="1"
+                                             HeightRequest="16"
+                                             WidthRequest="16"
+                                             HorizontalOptions="End"
+                                             VerticalOptions="Center"
+                                             BackgroundColor="Transparent"
+                                             Clicked="OnSaveAyahClicked"
+                                             CommandParameter="{Binding .}">
+                                    <ImageButton.Source>
+                                        <AppThemeBinding Light="kaydet.svg" Dark="kaydet_white.svg" />
+                                    </ImageButton.Source>
+                                    <ImageButton.Triggers>
+                                        <DataTrigger TargetType="ImageButton" Binding="{Binding IsSaved}" Value="True">
+                                            <Setter Property="Source">
+                                                <Setter.Value>
+                                                    <AppThemeBinding Light="kaydet_filled_white.svg" Dark="kaydet_filled_white.svg" />
+                                                </Setter.Value> 
+                                            </Setter>
+                                            <!-- Not: Ikon içi dolu ve beyaz istendiği için her iki temada da beyaz filled kullanıyorum. 
+                                                 Açık temada görünürlük sorunu olursa kural değişebilir ama istek "içi beyaz olsun" yönündeydi. 
+                                                 Arka plan açık renkse beyaz görünmeyebilir? 
+                                                 Kullanıcı "resmin içi beyaz olsun" dedi. 
+                                                 Normal, kaydedilmemiş hali: Siyah (Light) / Beyaz (Dark)
+                                                 Kaydedilmiş hali: İçi dolu Beyaz (Her ikisinde de). Light bg üstünde beyaz görünmeyebilir mi?
+                                                 SurePage bg #FDFBF2 (açık krem). Beyaz ikon çok silik kalabilir.
+                                                 Yine de isteğe sadık kalıp filled_white deniyorum, gerekirse filled_black yaparız.
+                                                 Güvenlik için Light modda koyu bir filled ikon gerekebilir ama şimdilik isteği yapalım. -->
+                                         </DataTrigger>
+                                    </ImageButton.Triggers>
+                                </ImageButton>
+                            </Grid>
                             <Label Text="{Binding ArabicText}"
                                    FontSize="28"
                                    HorizontalOptions="End"

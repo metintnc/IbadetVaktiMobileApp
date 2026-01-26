@@ -1,0 +1,92 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             x:Class="hadis.KaydedilenlerPage"
+             Title="Kaydedilen Ayetler"
+             BackgroundColor="#FDFBF2">
+    
+    <Grid RowDefinitions="Auto,*">
+        <Image Aspect="AspectFill"
+               Grid.RowSpan="2"
+               IsVisible="True">
+            <Image.Source>
+                <AppThemeBinding Light="bg_light.jpg" Dark="kuranarkaplan.png" />
+            </Image.Source>
+        </Image>
+        <BoxView Grid.RowSpan="2"
+                 IsVisible="True">
+            <BoxView.Color>
+                <AppThemeBinding Light="White" Dark="Black" />
+            </BoxView.Color>
+            <BoxView.Opacity>
+                <AppThemeBinding Light="0.75" Dark="0.45" />
+            </BoxView.Opacity>
+        </BoxView>
+        <!-- Header -->
+        <Grid Grid.Row="0"
+              ColumnDefinitions="Auto, *"
+              Padding="10,15,10,10"
+              Margin="0,20,0,0">
+            <ImageButton Source="gerigit.svg"
+                         Grid.Column="0"
+                         BackgroundColor="Transparent"
+                         HeightRequest="40"
+                         WidthRequest="40"
+                         Padding="5"
+                         Clicked="OnBackButtonClicked"
+                         VerticalOptions="Center"
+                         HorizontalOptions="Start" />
+            <Label Grid.Column="1" 
+                   Text="Kaydedilen Ayetler" 
+                   FontSize="22" 
+                   FontAttributes="Bold" 
+                   TextColor="#00796B" 
+                   VerticalOptions="Center"
+                   Margin="10,0,0,0"/>
+        </Grid>
+
+        <CollectionView x:Name="KaydedilenlerCollection" Grid.Row="1" SelectionMode="None" Margin="0,10,0,0">
+            <CollectionView.EmptyView>
+                <VerticalStackLayout VerticalOptions="Center" HorizontalOptions="Center" Spacing="10">
+                    <Label Text="Henüz kaydedilmiş ayet yok." TextColor="Gray" HorizontalOptions="Center"/>
+                </VerticalStackLayout>
+            </CollectionView.EmptyView>
+            <CollectionView.ItemTemplate>
+                <DataTemplate>
+                    <Border Margin="15,5" 
+                            Padding="20" 
+                            StrokeShape="RoundRectangle 20"
+                            BackgroundColor="{AppThemeBinding Light=#80FAFAFA, Dark=#80000000}">
+                        <Border.Shadow>
+                            <Shadow Brush="Black" Offset="0,2" Opacity="0.1" Radius="5" />
+                        </Border.Shadow>
+                        <Border.GestureRecognizers>
+                            <TapGestureRecognizer Tapped="OnAyahTapped" CommandParameter="{Binding .}"/>
+                        </Border.GestureRecognizers>
+                        <VerticalStackLayout Spacing="8">
+                            <Grid ColumnDefinitions="*, Auto">
+                                <Label Grid.Column="0" FontAttributes="Bold" TextColor="{AppThemeBinding Light=#00796B, Dark=#81C784}" FontSize="16">
+                                    <Label.FormattedText>
+                                        <FormattedString>
+                                            <Span Text="{Binding SureName}" />
+                                            <Span Text=" " />
+                                            <Span Text="{Binding Number}" />
+                                            <Span Text=". Ayet" />
+                                        </FormattedString>
+                                    </Label.FormattedText>
+                                </Label>
+                                <Label Grid.Column="1" Text="{Binding SavedDate, StringFormat='{0:dd.MM.yyyy}'}" FontSize="12" TextColor="Gray"/>
+                            </Grid>
+                            
+                            <HorizontalStackLayout Spacing="5" HorizontalOptions="End">
+                                <Label Text="{Binding ArabicText}" FontFamily="ArabicFontFamily" FontSize="20" HorizontalTextAlignment="End"/>
+                            </HorizontalStackLayout>
+                            
+                            <Label Text="{Binding Translation}" TextColor="{AppThemeBinding Light=#2E7D32, Dark=White}" FontSize="16" MaxLines="3" LineBreakMode="TailTruncation"/>
+                        </VerticalStackLayout>
+                    </Border>
+                </DataTemplate>
+            </CollectionView.ItemTemplate>
+        </CollectionView>
+    </Grid>
+</ContentPage>

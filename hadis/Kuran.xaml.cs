@@ -1,5 +1,6 @@
 using hadis.Models;
 using hadis.Services;
+using System.Linq;
 
 namespace hadis
 {
@@ -40,7 +41,7 @@ namespace hadis
                 SonOkunanFrame.IsVisible = true;
                 SonOkunanSureLabel.Text = sure.Ad;
                 SonOkunanAyetLabel.Text = $"Ayet {sonAyet}";
-                // Yüzdeyi hesapla ve label'a yaz
+                // YÃ¼zdeyi hesapla ve label'a yaz
                 int toplamAyet = sure.AyetSayisi > 0 ? sure.AyetSayisi : 1;
                 int yuzde = (int)Math.Round((double)sonAyet * 100 / toplamAyet);
                 SonOkunanAyetYuzdeLabel.Text = $"%{yuzde}";
@@ -60,7 +61,7 @@ namespace hadis
             }
             else
             {
-                await DisplayAlert("Uyarý", "Son okunan sure bulunamadý.", "Tamam");
+                await DisplayAlert("UyarÄ±", "Son okunan sure bulunamadÄ±.", "Tamam");
             }
         }
 
@@ -102,6 +103,11 @@ namespace hadis
                 SonOkunanYukle();
                 await Navigation.PushAsync(new SurePage(sureNo));
             }
+        }
+
+        private async void KaydedilenlerButonu_Clicked(object sender, TappedEventArgs e)
+        {
+            await Navigation.PushAsync(new KaydedilenlerPage());
         }
     }
 }

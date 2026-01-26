@@ -3,6 +3,9 @@ using Microsoft.Maui.Controls;
 using Microsoft.Maui.Storage;
 using System.Threading.Tasks;
 using System.Collections.Specialized;
+using hadis.Services;
+using hadis.Models;
+using System;
 
 namespace hadis
 {
@@ -25,6 +28,7 @@ namespace hadis
         protected override void OnAppearing()
         {
             base.OnAppearing();
+            Shell.SetTabBarIsVisible(this, false);
             var percent = Preferences.Default.Get($"KuranScrollPercent_{_sureNo}", 0.0);
             _pendingScrollPercent = percent;
             _scrollRestored = false;
@@ -42,6 +46,7 @@ namespace hadis
         protected override void OnDisappearing()
         {
             base.OnDisappearing();
+            Shell.SetTabBarIsVisible(this, true);
             if (_collectionView != null)
             {
                 _collectionView.Scrolled -= CollectionView_Scrolled;
@@ -58,8 +63,8 @@ namespace hadis
             {
                 var percent = (double)e.FirstVisibleItemIndex / (items.Count - 1);
                 Preferences.Default.Set($"KuranScrollPercent_{_sureNo}", percent);
-                // Son okunan ayet numarasını kaydet
-                int ayetNo = e.FirstVisibleItemIndex + 1; // 1 tabanlı
+                // Son okunan ayet numarasÄ±nÄ± kaydet
+                int ayetNo = e.FirstVisibleItemIndex + 1; // 1 tabanlÄ±
                 Preferences.Default.Set("KuranSonAyetNo", ayetNo);
             }
         }
@@ -68,12 +73,62 @@ namespace hadis
         {
             if (!_scrollRestored && _pendingScrollPercent.HasValue && _collectionView != null && _collectionView.ItemsSource is System.Collections.ICollection items && items.Count > 0)
             {
-                await Task.Delay(30); // UI'nın yüklenmesini bekle
+                await Task.Delay(30); // UI'nÄ±n yÃ¼klenmesini bekle
                 int targetIndex = (int)(_pendingScrollPercent.Value * (items.Count - 1));
                 if (targetIndex < 0) targetIndex = 0;
                 if (targetIndex >= items.Count) targetIndex = items.Count - 1;
                 _collectionView.ScrollTo(targetIndex, position: ScrollToPosition.Start, animate: false);
                 _scrollRestored = true;
+            }
+        }
+
+        private async void OnBackButtonClicked(object sender, EventArgs e)
+        {
+            if (Navigation.NavigationStack.Count > 1)
+                await Navigation.PopAsync();
+        }
+
+        private async void OnSaveAyahClicked(object sender, EventArgs e)
+        {
+            if (sender is ImageButton button && button.CommandParameter is Ayah ayah)
+            {
+                // Toggle Logic
+                if (ayah.IsSaved)
+                {
+                     // Remove Logic
+                     var ayahToRemove = new SavedAyah { SureNo = _sureNo, Number = ayah.Number }; // Minimal info needed for matching
+                     await SavedAyahsService.RemoveAyahAsync(ayahToRemove);
+                     
+                     ayah.IsSaved = false;
+                     // UI Refresh
+                     var index = _viewModel.Ayahs.IndexOf(ayah);
+                     if (index >= 0) _viewModel.Ayahs[index] = ayah;
+
+                     // Opsiyonel: "Kaydetme silindi" mesajÄ± vermek istersen:
+                     // await DisplayAlert("Bilgi", "Kaydetme silindi.", "Tamam");
+                     return;
+                }
+
+                // Save Logic
+                var savedAyah = new SavedAyah
+                {
+                    Number = ayah.Number,
+                    ArabicText = ayah.ArabicText,
+                    Translation = ayah.Translation,
+                    Transliteration = ayah.Transliteration,
+                    SureNo = _sureNo,
+                    SureName = _viewModel.SureTitle,
+                    SavedDate = DateTime.Now
+                };
+
+                await SavedAyahsService.SaveAyahAsync(savedAyah);
+                
+                ayah.IsSaved = true;
+                // UI Refresh
+                var idx = _viewModel.Ayahs.IndexOf(ayah);
+                if (idx >= 0) _viewModel.Ayahs[idx] = ayah;
+                
+                // await DisplayAlert("BaÅŸarÄ±lÄ±", "Ayet kaydedildi.", "Tamam");
             }
         }
     }

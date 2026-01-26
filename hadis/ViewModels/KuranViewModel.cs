@@ -26,6 +26,11 @@ namespace hadis.ViewModels
             var service = new QuranApiService();
             var arabicAyahs = await service.GetSurahAsync(_sureNo, "ar");
             var turkishAyahs = await service.GetSurahAsync(_sureNo, "tr.diyanet");
+            
+            // Kaydedilenleri al
+            var savedAyahs = await SavedAyahsService.GetSavedAyahsAsync();
+            var savedSet = new HashSet<int>(savedAyahs.Where(x => x.SureNo == _sureNo).Select(x => x.Number));
+
             Ayahs.Clear();
             int localNumber = 1;
             foreach (var a in arabicAyahs)
@@ -33,11 +38,13 @@ namespace hadis.ViewModels
                 var translation = turkishAyahs.FirstOrDefault(t => t.Number == a.Number)?.Text ?? string.Empty;
                 Ayahs.Add(new Ayah
                 {
-                    Number = localNumber++, // Her surede 1'den baþlayýp artacak
+                    Number = localNumber, // Her surede 1'den baÅŸlayÄ±p artacak
                     ArabicText = a.Text,
                     Translation = translation,
-                    Transliteration = string.Empty
+                    Transliteration = string.Empty,
+                    IsSaved = savedSet.Contains(localNumber)
                 });
+                localNumber++;
             }
         }
     }
