@@ -23,21 +23,17 @@
             </BoxView.Opacity>
         </BoxView>
         
-        <Grid RowDefinitions="Auto,Auto,*" Padding="20" RowSpacing="20">
+        <Grid RowDefinitions="Auto,Auto,Auto,*" Padding="20" RowSpacing="20">
             
             <!-- Header - Sabit -->
-            <Frame Grid.Row="0"
-                   CornerRadius="20"
-                   Padding="20,25"
-                   HasShadow="True"
-                   BorderColor="{AppThemeBinding Light=#80009688, Dark=#80FFFFFF}"
-                   BackgroundColor="{AppThemeBinding Light=#22FFFFFF, Dark=#33000000}">
-                <Label Text="Kur'an-ı Kerim"
-                       FontSize="32"
-                       FontAttributes="Bold"
-                       HorizontalOptions="Center"
-                       TextColor="{AppThemeBinding Light=#00796B, Dark=#FFFFFF}"/>
-            </Frame>
+            <Label Grid.Row="0"
+                   Text="Kur'an-ı Kerim"
+                   FontSize="36"
+                   FontAttributes="Bold"
+                   HorizontalOptions="Center"
+                   VerticalOptions="Center"
+                   Margin="0,10,0,0"
+                   TextColor="{AppThemeBinding Light=#00796B, Dark=#FFFFFF}"/>
 
             <!-- Son Okunan - Sabit -->
             <Frame Grid.Row="1"
@@ -48,6 +44,9 @@
                    BorderColor="{AppThemeBinding Light=#80009688, Dark=#80FFFFFF}"
                    BackgroundColor="{AppThemeBinding Light=#22FFFFFF, Dark=#33000000}"
                    IsVisible="False">
+                <Frame.GestureRecognizers>
+                    <TapGestureRecognizer Tapped="OkumayaDevamEt_Clicked"/>
+                </Frame.GestureRecognizers>
                 <VerticalStackLayout Spacing="15">
                     <Label Text="Son Okunan"
                            FontSize="20"
@@ -74,20 +73,38 @@
                                TextColor="{AppThemeBinding Light=#00796B, Dark=#81C784}"
                                HorizontalOptions="End"/>
                     </HorizontalStackLayout>
-                    
-                    <Button Text="Okumaya Devam Et"
-                            Clicked="OkumayaDevamEt_Clicked"
-                            BackgroundColor="{AppThemeBinding Light=#00796B, Dark=#26A69A}"
-                            TextColor="White"
-                            CornerRadius="15"
-                            Padding="15,12"
-                            FontAttributes="Bold"
-                            FontSize="15"/>
                 </VerticalStackLayout>
             </Frame>
 
-            <!-- Sure Listesi - Frame sabit, sadece liste kayıyor -->
+            <!-- Kaydedilenler Butonu -->
             <Frame Grid.Row="2"
+                   CornerRadius="15"
+                   Padding="15"
+                   Margin="0,0,0,0"
+                   HasShadow="True"
+                   BorderColor="{AppThemeBinding Light=#80009688, Dark=#80FFFFFF}"
+                   BackgroundColor="{AppThemeBinding Light=#22FFFFFF, Dark=#33000000}">
+                <Frame.GestureRecognizers>
+                    <TapGestureRecognizer Tapped="KaydedilenlerButonu_Clicked"/>
+                </Frame.GestureRecognizers>
+                <Grid ColumnDefinitions="*, Auto">
+                    <Label Grid.Column="0"
+                           Text="Kaydedilen Ayetlerim"
+                           FontSize="18"
+                           FontAttributes="Bold"
+                           VerticalOptions="Center"
+                           TextColor="{AppThemeBinding Light=#00796B, Dark=#FFFFFF}"/>
+                    <Image Grid.Column="1"
+                           Source="gerigit.svg"
+                           Rotation="180"
+                           HeightRequest="24"
+                           WidthRequest="24"
+                           VerticalOptions="Center" />
+               </Grid>
+            </Frame>
+
+            <!-- Sure Listesi - Frame sabit, sadece liste kayıyor -->
+            <Frame Grid.Row="3"
                    CornerRadius="20"
                    Padding="20"
                    HasShadow="True"

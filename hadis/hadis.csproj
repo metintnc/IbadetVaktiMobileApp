@@ -64,6 +64,10 @@
 		<!-- Background Images -->
 		<MauiImage Include="Resources\Images\bg_dark.jpg" />
 		<MauiImage Include="Resources\Images\bg_light.jpg" />
+		<MauiImage Include="Resources\Images\gerigit.svg" />
+		<MauiImage Include="Resources\Images\kaydet.svg" />
+		<MauiImage Include="Resources\Images\kaydet_white.svg" />
+		<MauiImage Include="Resources\Images\kaydet_filled_white.svg" />
 		<MauiImage Include="Resources\Images\kiblearkaplan.png" />
 		<MauiImage Include="Resources\Images\kuranarkaplan.png" />
 		
@@ -105,6 +109,10 @@
 	  <None Remove="Resources\Images\ayarlararkaplan.png" />
 	  <None Remove="Resources\Images\bg_dark.jpg" />
 	  <None Remove="Resources\Images\bg_light.jpg" />
+	  <None Remove="Resources\Images\gerigit.svg" />
+	  <None Remove="Resources\Images\kaydet.svg" />
+	  <None Remove="Resources\Images\kaydet_white.svg" />
+	  <None Remove="Resources\Images\kaydet_filled_white.svg" />
 	  <None Remove="Resources\Images\kibleoklight.svg" />
 	  <None Remove="Resources\Images\kiblesekme.svg" />
 	  <None Remove="Resources\Images\kuranarkaplan.png" />
