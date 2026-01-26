@@ -1,49 +1,86 @@
 using hadis.Models;
 using hadis.Services;
+using System.Text.Json;
 using System.Collections.ObjectModel;
 
 namespace hadis
 {
     public partial class KaydedilenlerPage : ContentPage
     {
-        private List<Sure> _tumSureler;
+        private readonly IImageService _imageService;
+        private ObservableCollection<SavedAyah> _savedAyahs;
 
         public KaydedilenlerPage()
         {
             InitializeComponent();
-            _tumSureler = KuranDataService.GetSureler();
+            _imageService = new PlatformImageService();
+            LoadSavedAyahs();
+        }
+
+        public KaydedilenlerPage(IImageService imageService)
+        {
+            InitializeComponent();
+            _imageService = imageService;
+            LoadSavedAyahs();
         }
 
         protected override async void OnAppearing()
         {
             base.OnAppearing();
-            await LoadData();
+            LoadSavedAyahs(); // Refresh list on appearing in case changes occurred
+            await LoadBackground();
         }
 
-        private async Task LoadData()
+        private async Task LoadBackground()
         {
-            var data = await SavedAyahsService.GetSavedAyahsAsync();
-            KaydedilenlerCollection.ItemsSource = data.OrderByDescending(x => x.SavedDate).ToList();
+            try
+            {
+                if (_imageService != null)
+                {
+                    string imageName = Application.Current.RequestedTheme == AppTheme.Dark ? "kuranarkaplan.png" : "bg_light.jpg";
+                    BackgroundImage.Source = await _imageService.GetOptimizedBackgroundImageAsync(imageName);
+                    BackgroundImage.IsVisible = true;
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Kaydedilenler Background Load Error: {ex.Message}");
+            }
+        }
+
+        private void LoadSavedAyahs()
+        {
+            try
+            {
+                string json = Preferences.Default.Get("SavedAyahs", "[]");
+                var list = JsonSerializer.Deserialize<List<SavedAyah>>(json) ?? new List<SavedAyah>();
+                
+                // Sort by date descending
+                list = list.OrderByDescending(x => x.SavedDate).ToList();
+                
+                _savedAyahs = new ObservableCollection<SavedAyah>(list);
+                KaydedilenlerCollection.ItemsSource = _savedAyahs;
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error loading saved ayahs: {ex.Message}");
+                _savedAyahs = new ObservableCollection<SavedAyah>();
+                KaydedilenlerCollection.ItemsSource = _savedAyahs;
+            }
         }
 
         private async void OnBackButtonClicked(object sender, EventArgs e)
         {
-             if (Navigation.NavigationStack.Count > 1)
-                await Navigation.PopAsync();
+            await Navigation.PopAsync();
         }
 
         private async void OnAyahTapped(object sender, TappedEventArgs e)
         {
-            if (e.Parameter is SavedAyah savedAyah)
+            if (e.Parameter is SavedAyah ayah)
             {
-                var sure = _tumSureler.FirstOrDefault(s => s.SureNo == savedAyah.SureNo);
-                if (sure != null && sure.AyetSayisi > 0)
-                {
-                    double percent = (double)(savedAyah.Number - 1) / (sure.AyetSayisi - 1);
-                    Preferences.Default.Set($"KuranScrollPercent_{savedAyah.SureNo}", percent);
-                }
-                
-                await Navigation.PushAsync(new SurePage(savedAyah.SureNo));
+                Preferences.Default.Set("KuranSonSureNo", ayah.SureNo);
+                Preferences.Default.Set("KuranSonAyetNo", ayah.Number);
+                await Navigation.PushAsync(new SurePage(ayah.SureNo));
             }
         }
     }

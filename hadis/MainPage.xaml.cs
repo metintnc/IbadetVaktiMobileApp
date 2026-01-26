@@ -19,14 +19,9 @@ namespace hadis
         private readonly ThemeService _themeService;
         private readonly StatusBarService _statusBarService;
 
-        public MainPage(
-            BackgroundService backgroundService,
-            ThemeService themeService,
-            StatusBarService statusBarService)
+        public MainPage(BackgroundService backgroundService,ThemeService themeService,StatusBarService statusBarService)
         {
             InitializeComponent();
-
-            // Servisleri inject et
             _backgroundService = backgroundService;
             _themeService = themeService;
             _statusBarService = statusBarService;
@@ -36,17 +31,7 @@ namespace hadis
             _timer.Elapsed += async (s, e) => await MainThread.InvokeOnMainThreadAsync(GeriSayımıGüncelle);
             _timer.Start();
 
-            // İlk yüklemeleri yap
-            _ = InitializePageAsync();
-        }
-
-        private async Task InitializePageAsync()
-        {
-            await Task.WhenAll(
-                NamazVakitleriniÇek(),
-                ayetgoster(),
-                KonumBilgisiniGoster()
-            );
+            // İlk yüklemeleri yap (Gereksiz çift çağrı kaldırıldı - OnAppearing halledecek)
         }
 
         protected override async void OnAppearing()
@@ -56,18 +41,36 @@ namespace hadis
             // Özel tema varsa uygula
             ApplyTheme();
 
-            // Sayfa her gösterildiğinde konum ve vakitleri güncelle
-            await KonumBilgisiniGoster();
-            await NamazVakitleriniÇek();
-
-            // Zamana göre arkaplan ayarla
             SetTimeBasedBackground();
+            
+            // Sayfa her gösterildiğinde gerekli verileri güncelle
+            await Task.WhenAll(
+                KonumBilgisiniGoster(),
+                NamazVakitleriniÇek(),
+                ayetgoster()
+            );
         }
 
         private void SetTimeBasedBackground()
         {
             string savedTheme = Preferences.Default.Get(AppConstants.PREF_APP_THEME, AppConstants.THEME_SYSTEM);
-            _backgroundService.SetTimeBasedBackground(BackgroundImage, BackgroundOverlay, savedTheme);
+            
+            // BackgroundService artık bool isBright dönüyor
+            bool isBright = _backgroundService.SetTimeBasedBackground(BackgroundImage, BackgroundOverlay, savedTheme);
+
+            // Custom tema değilse, adaptif cam efektini uygula
+            if (savedTheme != AppConstants.THEME_CUSTOM)
+            {
+                _themeService.ApplyAdaptiveGlassTheme(isBright,
+                    MainCountdownFrame, namazismi, kalan, Konum,
+                    ImsakFrame, imsakyazı, imsakvakit,
+                    GunesFrame, gunesyazı, gunesvakit,
+                    OgleFrame, ogleyazı, oglevakit,
+                    IkindiFrame, ikindiyazı, ikindivakit,
+                    AksamFrame, aksamyazı, aksamvakit,
+                    YatsiFrame, yatsıyazı, yatsıvakit,
+                    AyetFrame, gununayeti);
+            }
         }
 
         private void ApplyTheme()
@@ -285,8 +288,8 @@ namespace hadis
             namazismi.Text = sonraki;
             kalan.Text = $"{kalansure.Hours:D2} : {kalansure.Minutes:D2} : {kalansure.Seconds:D2}";
 
-            // Tüm vakitleri güncelle
-            UpdateAllPrayerTimes();
+            // Tüm vakitleri güncelle (Gereksiz CPU kullanımı için timer'dan kaldırıldı)
+            // UpdateAllPrayerTimes();
         }
 
         private void UpdatePrayerTimeColors(Label current, Label previous)
@@ -297,6 +300,8 @@ namespace hadis
 
         private void UpdateAllPrayerTimes()
         {
+            if (_namazvakitleri == null) return;
+
             yatsıvakit.Text = $"{_namazvakitleri["Yatsi"].Hour:D2}:{_namazvakitleri["Yatsi"].Minute:D2}";
             aksamvakit.Text = $"{_namazvakitleri["Aksam"].Hour:D2} : {_namazvakitleri["Aksam"].Minute:D2}";
             ikindivakit.Text = $"{_namazvakitleri["İkindi"].Hour:D2} : {_namazvakitleri["İkindi"].Minute:D2}";
@@ -347,37 +352,22 @@ namespace hadis
                     return;
                 }
 
-                HttpClient http = new HttpClient();
-                string url = $"https://api.aladhan.com/v1/timingsByAddress?address={ilce},{sehir},Turkey&method=13";
-                HttpResponseMessage response = await http.GetAsync(url);
-                string vakitler = await response.Content.ReadAsStringAsync();
+                // Yeni Servisi Kullan
+                var vakitler = await PrayerTimesService.GetPrayerTimesForDateAsync(DateTime.Now, ilce, sehir);
 
-                var root = JsonDocument.Parse(vakitler).RootElement.GetProperty("data");
-                root = root.GetProperty("timings");
-
-                string imsak = root.GetProperty("Fajr").GetString();
-                string gunes = root.GetProperty("Sunrise").GetString();
-                string ogle = root.GetProperty("Dhuhr").GetString();
-                string ikindi = root.GetProperty("Asr").GetString();
-                string aksam = root.GetProperty("Maghrib").GetString();
-                string yatsi = root.GetProperty("Isha").GetString();
-
-                DateTime imsakvakti = DateTime.Today + TimeSpan.Parse(imsak);
-                DateTime gunesvakti = DateTime.Today + TimeSpan.Parse(gunes);
-                DateTime oglevakti = DateTime.Today + TimeSpan.Parse(ogle);
-                DateTime ikindivakti = DateTime.Today + TimeSpan.Parse(ikindi);
-                DateTime aksamvakti = DateTime.Today + TimeSpan.Parse(aksam);
-                DateTime yatsivakti = DateTime.Today + TimeSpan.Parse(yatsi);
-
-                _namazvakitleri = new Dictionary<string, DateTime>
+                if (vakitler != null)
                 {
-                    { "İmsak", imsakvakti },
-                    { "gunes", gunesvakti },
-                    { "Ogle", oglevakti },
-                    { "İkindi", ikindivakti },
-                    { "Aksam", aksamvakti },
-                    { "Yatsi", yatsivakti }
-                };
+                    _namazvakitleri = vakitler;
+                    // Veriler geldiğinde UI'ı güncelle (Timer yerine burası daha verimli)
+                    MainThread.BeginInvokeOnMainThread(UpdateAllPrayerTimes);
+                }
+                else
+                {
+                    Console.WriteLine("❌ Namaz vakitleri alınamadı (Hem cache boş hem internet yok veya API hatası).");
+                    // Eski cache'de var mıydı acaba? Belki bir önceki task'ta buna bakmıştık.
+                    // Şimdilik boş bırakıyoruz, kullanıcıya belki bir uyarı gösterilebilir.
+                    ResetPrayerTimes();
+                }
             }
             catch (Exception e)
             {

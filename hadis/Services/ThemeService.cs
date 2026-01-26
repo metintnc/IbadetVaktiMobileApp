@@ -223,5 +223,79 @@ namespace hadis.Services
             ayetFrame.ApplyGlassmorphism(baseColor, Color.FromArgb("#8000796B"));
             gununAyeti.TextColor = textColor;
         }
+        /// <summary>
+        /// Arkaplan parlaklığına göre framelere adaptif cam efekti uygular
+        /// </summary>
+        public void ApplyAdaptiveGlassTheme(
+            bool isBrightBackground,
+            Frame mainFrame, Label namazIsmi, Label kalan, Label konum,
+            Frame imsakFrame, Label imsakYazi, Label imsakVakit,
+            Frame gunesFrame, Label gunesYazi, Label gunesVakit,
+            Frame ogleFrame, Label ogleYazi, Label ogleVakit,
+            Frame ikindiFrame, Label ikindiYazi, Label ikindiVakit,
+            Frame aksamFrame, Label aksamYazi, Label aksamVakit,
+            Frame yatsiFrame, Label yatsiYazi, Label yatsiVakit,
+            Frame ayetFrame, Label gununAyeti)
+        {
+            Color baseColor;
+            Color borderColor;
+            Color textColor;
+
+            if (isBrightBackground)
+            {
+                // Arkaplan parlak ise (Gündüz vb.) -> KOYU CAM (Dark Glass) kullan ki görünsün
+                // Örn: Siyah %50 opaklık
+                baseColor = Color.FromArgb("#80000000"); 
+                borderColor = Color.FromArgb("#99FFFFFF"); // Beyazımsı sınır
+                textColor = Colors.White;
+            }
+            else
+            {
+                // Arkaplan karanlık ise (Gece vb.) -> AÇIK CAM (Light Glass) kullan
+                // Örn: Beyaz %20-30 opaklık
+                baseColor = Color.FromArgb("#40FFFFFF");
+                borderColor = Color.FromArgb("#80FFFFFF");
+                textColor = Colors.White; // Koyu arkaplanda beyaz yazı genelde iyidir ama frame açık renkse?
+                // Light Glass (Beyazımsı) üstüne Beyaz yazı okunmayabilir.
+                // Eğer frame beyazımsı ise yazı koyu olmalı.
+                // Veya "Light Glass" tamamen şeffaf beyaz ise...
+                // Varsayılan tasarımımızda gece arkaplan koyu, frameler beyazımsı, yazılar KOYU (ThemeService.ApplyLightTheme'deki gibi).
+                
+                // Ancak kullanıcı "Gece" modunda genelde beyaz yazı bekler.
+                // Mevcut tasarım: Koyu arkaplanlarda beyaz yazı, açık frameler.
+                // Hadi Light Theme renklerini baz alalım ama text rengine dikkat.
+                
+                // Revize:
+                // Gece (Koyu BG) -> Frame: #30FFFFFF (Hafif Beyaz), Text: White. (ApplyDarkTheme gibi)
+                baseColor = Color.FromArgb("#30FFFFFF");
+                borderColor = Color.FromArgb("#50FFFFFF");
+                textColor = Colors.White;
+            }
+
+            // Ana frame
+            mainFrame.ApplyGlassmorphism(baseColor, borderColor);
+            namazIsmi.TextColor = textColor;
+            kalan.TextColor = textColor;
+            konum.TextColor = textColor;
+
+            // Namaz vakitleri
+            void ApplyStyle(Frame f, Label l1, Label l2)
+            {
+                f.ApplyGlassmorphism(baseColor, borderColor);
+                l1.TextColor = textColor;
+                l2.TextColor = textColor;
+            }
+
+            ApplyStyle(imsakFrame, imsakYazi, imsakVakit);
+            ApplyStyle(gunesFrame, gunesYazi, gunesVakit);
+            ApplyStyle(ogleFrame, ogleYazi, ogleVakit);
+            ApplyStyle(ikindiFrame, ikindiYazi, ikindiVakit);
+            ApplyStyle(aksamFrame, aksamYazi, aksamVakit);
+            ApplyStyle(yatsiFrame, yatsiYazi, yatsiVakit);
+
+            // Ayet Frame
+            ayetFrame.ApplyGlassmorphism(baseColor, borderColor);
+            gununAyeti.TextColor = textColor;
+        }
     }
 }

@@ -6,13 +6,11 @@
 
     <Grid>
         <!-- Arkaplan -->
-        <Image Aspect="AspectFill"
-               HorizontalOptions="FillAndExpand"
-               VerticalOptions="FillAndExpand">
-            <Image.Source>
-                <AppThemeBinding Light="bg_light.jpg" Dark="bg_dark.jpg" />
-            </Image.Source>
-        </Image>
+        <Image x:Name="BackgroundImage"
+                Aspect="AspectFill"
+                HorizontalOptions="FillAndExpand"
+                VerticalOptions="FillAndExpand" 
+                IsVisible="False"/>
         
         <BoxView HorizontalOptions="FillAndExpand"
                  VerticalOptions="FillAndExpand">

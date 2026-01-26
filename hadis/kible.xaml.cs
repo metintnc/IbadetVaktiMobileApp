@@ -11,20 +11,24 @@ namespace hadis
         private readonly StatusBarService _statusBarService;
         private readonly TabBarService _tabBarService;
         private readonly INativeCompassService _nativeCompassService;
+        private readonly IImageService _imageService;
         
-        public kible(StatusBarService statusBarService, TabBarService tabBarService, INativeCompassService nativeCompassService)
+        public kible(StatusBarService statusBarService, TabBarService tabBarService, INativeCompassService nativeCompassService, IImageService imageService)
         {
             InitializeComponent();
             compass = new Pusula();
             _statusBarService = statusBarService;
             _tabBarService = tabBarService;
             _nativeCompassService = nativeCompassService;
+            _imageService = imageService;
         }
         
-        protected override void OnAppearing()
+        protected override async void OnAppearing()
         {
             base.OnAppearing();
             
+            await LoadBackground();
+
             // Kıble sayfası için özel StatusBar ve TabBar renkleri
             _statusBarService.SetStatusBarColor("#000000"); // Siyah
             _tabBarService.SetTabBarColor("#19222B"); // Özel kıble rengi
@@ -40,6 +44,24 @@ namespace hadis
                     compass.AciDegisti += KıbleOkunuDondur;
                 });
             });
+        }
+
+        private async Task LoadBackground()
+        {
+            try
+            {
+                string imageName = Application.Current.RequestedTheme == AppTheme.Dark ? "kiblearkaplan.png" : "bg_light.jpg";
+                // Kullanıcı manuel tema seçtiyse ona bakmak gerekebilir ama basitlik için sistem temasını baz alıyoruz 
+                // veya Namaz Vakti uygulamasında genelde ThemeService kullanılır. 
+                // Burada basit AppTheme kontrolü yapıyoruz mevcut kod gibi.
+                
+                BackgroundImage.Source = await _imageService.GetOptimizedBackgroundImageAsync(imageName);
+                BackgroundImage.IsVisible = true;
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Kible Background Load Error: {ex.Message}");
+            }
         }
 
         private void OnCompassAccuracyChanged(CompassAccuracy accuracy)

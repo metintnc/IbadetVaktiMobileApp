@@ -1,222 +1,191 @@
 using hadis.Models;
+using hadis.Services;
 using System.Collections.ObjectModel;
 
 namespace hadis
 {
     public partial class SehirSecim : ContentPage
     {
-        private ObservableCollection<City> _allCities;
+        private readonly IImageService _imageService;
+        private List<City> _allCities;
         private ObservableCollection<City> _filteredCities;
 
         public SehirSecim()
         {
             InitializeComponent();
+            _imageService = new PlatformImageService(); 
+            InitializeCities();
+        }
+
+        // Dependency Injection Constructor
+        public SehirSecim(IImageService imageService)
+        {
+            InitializeComponent();
+            _imageService = imageService;
             InitializeCities();
         }
 
         private void InitializeCities()
         {
-            _allCities = new ObservableCollection<City>
+            // TÃ¼rkiye'nin 81 ili ve yaklaÅŸÄ±k koordinatlarÄ±
+            _allCities = new List<City>
             {
-                new City("Otomatik Konum (GPS)", 0, 0),
-                new City("Adana", 37.0017, 35.3289),
-                new City("Adýyaman", 37.7636, 38.2765),
+                new City("Adana", 37.0000, 35.3213),
+                new City("AdÄ±yaman", 37.7648, 38.2786),
                 new City("Afyonkarahisar", 38.7507, 30.5567),
-                new City("Aðrý", 39.7191, 43.0503),
+                new City("AÄŸrÄ±", 39.7191, 43.0503),
                 new City("Amasya", 40.6499, 35.8353),
                 new City("Ankara", 39.9334, 32.8597),
                 new City("Antalya", 36.8969, 30.7133),
                 new City("Artvin", 41.1828, 41.8183),
-                new City("Aydýn", 37.8444, 27.8458),
-                new City("Balýkesir", 39.6484, 27.8826),
-                new City("Bilecik", 40.1500, 29.9833),
-                new City("Bingöl", 38.8854, 40.4983),
-                new City("Bitlis", 38.4001, 42.1083),
-                new City("Bolu", 40.7392, 31.6061),
-                new City("Burdur", 37.7267, 30.2900),
-                new City("Bursa", 40.1826, 29.0665),
-                new City("Çanakkale", 40.1553, 26.4142),
-                new City("Çankýrý", 40.6013, 33.6134),
-                new City("Çorum", 40.5506, 34.9556),
+                new City("AydÄ±n", 37.8560, 27.8416),
+                new City("BalÄ±kesir", 39.6484, 27.8826),
+                new City("Bilecik", 40.1451, 29.9799),
+                new City("BingÃ¶l", 38.8851, 40.4981),
+                new City("Bitlis", 38.4006, 42.1095),
+                new City("Bolu", 40.7350, 31.6061),
+                new City("Burdur", 37.7204, 30.2908),
+                new City("Bursa", 40.1885, 29.0610),
+                new City("Ã‡anakkale", 40.1553, 26.4142),
+                new City("Ã‡ankÄ±rÄ±", 40.6013, 33.6134),
+                new City("Ã‡orum", 40.5506, 34.9556),
                 new City("Denizli", 37.7765, 29.0864),
-                new City("Diyarbakýr", 37.9144, 40.2306),
+                new City("DiyarbakÄ±r", 37.9144, 40.2306),
                 new City("Edirne", 41.6771, 26.5557),
-                new City("Elazýð", 38.6748, 39.2226),
+                new City("ElazÄ±ÄŸ", 38.6810, 39.2264),
                 new City("Erzincan", 39.7500, 39.5000),
                 new City("Erzurum", 39.9000, 41.2700),
-                new City("Eskiþehir", 39.7767, 30.5206),
+                new City("EskiÅŸehir", 39.7767, 30.5206),
                 new City("Gaziantep", 37.0662, 37.3833),
                 new City("Giresun", 40.9128, 38.3895),
-                new City("Gümüþhane", 40.4386, 39.5086),
-                new City("Hakkari", 37.5744, 43.7408),
+                new City("GÃ¼mÃ¼ÅŸhane", 40.4600, 39.4700),
+                new City("Hakkari", 37.5833, 43.7333),
                 new City("Hatay", 36.4018, 36.3498),
                 new City("Isparta", 37.7648, 30.5566),
-                new City("Mersin", 36.8121, 34.6415),
-                new City("Ýstanbul", 41.0082, 28.9784),
-                new City("Ýzmir", 38.4237, 27.1428),
+                new City("Mersin", 36.8000, 34.6333),
+                new City("Ä°stanbul", 41.0082, 28.9784),
+                new City("Ä°zmir", 38.4189, 27.1287),
                 new City("Kars", 40.6167, 43.1000),
                 new City("Kastamonu", 41.3887, 33.7827),
-                new City("Kayseri", 38.7205, 35.4826),
-                new City("Kýrklareli", 41.7333, 27.2167),
-                new City("Kýrþehir", 39.1458, 34.1709),
+                new City("Kayseri", 38.7312, 35.4787),
+                new City("KÄ±rklareli", 41.7333, 27.2167),
+                new City("KÄ±rÅŸehir", 39.1425, 34.1709),
                 new City("Kocaeli", 40.8533, 29.8815),
                 new City("Konya", 37.8667, 32.4833),
-                new City("Kütahya", 39.4167, 29.9833),
+                new City("KÃ¼tahya", 39.4167, 29.9833),
                 new City("Malatya", 38.3552, 38.3095),
                 new City("Manisa", 38.6191, 27.4289),
-                new City("Kahramanmaraþ", 37.5858, 36.9371),
-                new City("Mardin", 37.3212, 40.7350),
-                new City("Muðla", 37.2153, 28.3636),
-                new City("Muþ", 38.7432, 41.5064),
-                new City("Nevþehir", 38.6939, 34.6857),
-                new City("Niðde", 37.9667, 34.6833),
+                new City("KahramanmaraÅŸ", 37.5858, 36.9371),
+                new City("Mardin", 37.3212, 40.7245),
+                new City("MuÄŸla", 37.2153, 28.3636),
+                new City("MuÅŸ", 38.7432, 41.5064),
+                new City("NevÅŸehir", 38.6244, 34.7144),
+                new City("NiÄŸde", 37.9667, 34.6833),
                 new City("Ordu", 40.9839, 37.8764),
                 new City("Rize", 41.0201, 40.5234),
                 new City("Sakarya", 40.7569, 30.3783),
                 new City("Samsun", 41.2867, 36.3300),
                 new City("Siirt", 37.9333, 41.9500),
-                new City("Sinop", 42.0267, 35.1550),
+                new City("Sinop", 42.0231, 35.1531),
                 new City("Sivas", 39.7477, 37.0179),
-                new City("Tekirdað", 40.9833, 27.5167),
+                new City("TekirdaÄŸ", 40.9833, 27.5167),
                 new City("Tokat", 40.3167, 36.5500),
-                new City("Trabzon", 41.0015, 39.7178),
+                new City("Trabzon", 41.0028, 39.7167),
                 new City("Tunceli", 39.1079, 39.5401),
-                new City("Þanlýurfa", 37.1591, 38.7969),
-                new City("Uþak", 38.6823, 29.4082),
+                new City("ÅžanlÄ±urfa", 37.1591, 38.7969),
+                new City("UÅŸak", 38.6823, 29.4082),
                 new City("Van", 38.4891, 43.4089),
                 new City("Yozgat", 39.8181, 34.8147),
                 new City("Zonguldak", 41.4564, 31.7987),
                 new City("Aksaray", 38.3687, 34.0370),
                 new City("Bayburt", 40.2552, 40.2249),
                 new City("Karaman", 37.1759, 33.2287),
-                new City("Kýrýkkale", 39.8468, 33.5153),
+                new City("KÄ±rÄ±kkale", 39.8468, 33.5153),
                 new City("Batman", 37.8812, 41.1351),
-                new City("Þýrnak", 37.4187, 42.4918),
-                new City("Bartýn", 41.5811, 32.4610),
+                new City("ÅžÄ±rnak", 37.5164, 42.4611),
+                new City("BartÄ±n", 41.6344, 32.3375),
                 new City("Ardahan", 41.1105, 42.7022),
-                new City("Iðdýr", 39.8880, 44.0048),
+                new City("IÄŸdÄ±r", 39.9196, 44.0459),
                 new City("Yalova", 40.6500, 29.2667),
-                new City("Karabük", 41.2061, 32.6204),
+                new City("KarabÃ¼k", 41.2061, 32.6204),
                 new City("Kilis", 36.7184, 37.1212),
-                new City("Osmaniye", 37.0742, 36.2478),
-                new City("Düzce", 40.8438, 31.1565)
+                new City("Osmaniye", 37.0742, 36.2467),
+                new City("DÃ¼zce", 40.8438, 31.1565)
             };
 
-            _filteredCities = new ObservableCollection<City>(_allCities);
+            _filteredCities = new ObservableCollection<City>(_allCities.OrderBy(c => c.Name));
             CitiesCollectionView.ItemsSource = _filteredCities;
         }
 
-        private void SearchBar_TextChanged(object? sender, TextChangedEventArgs e)
+        protected override async void OnAppearing()
         {
-            string searchText = e.NewTextValue?.ToLowerInvariant() ?? string.Empty;
-
-            _filteredCities.Clear();
-
-            if (string.IsNullOrWhiteSpace(searchText))
-            {
-                foreach (var city in _allCities)
-                {
-                    _filteredCities.Add(city);
-                }
-            }
-            else
-            {
-                var filtered = _allCities
-                    .Where(c => c.Name.ToLowerInvariant().Contains(searchText))
-                    .ToList();
-
-                foreach (var city in filtered)
-                {
-                    _filteredCities.Add(city);
-                }
-            }
+            base.OnAppearing();
+            await LoadBackground();
         }
 
-        private async void CitiesCollectionView_SelectionChanged(object? sender, SelectionChangedEventArgs e)
+        private async Task LoadBackground()
         {
-            if (e.CurrentSelection.FirstOrDefault() is City selectedCity)
-            {
-                // Seçili þehri kaydet
-                Preferences.Default.Set("ManuelLatitude", selectedCity.Latitude);
-                Preferences.Default.Set("ManuelLongitude", selectedCity.Longitude);
-                Preferences.Default.Set("ManuelSehir", selectedCity.Name);
-                Preferences.Default.Set("ManuelIlce", selectedCity.Name); // Ýlçe olarak þehir adý kaydedildi
-                
-                // Widget'ý güncelle
-                UpdateWidget();
-
-                // Seçimi temizle (animasyon için)
-                CitiesCollectionView.SelectedItem = null;
-
-                // Geri dön
-                await Navigation.PopAsync();
-            }
-        }
-
-        private async void OnCityTapped(object? sender, EventArgs e)
-        {
-            if (sender is Grid grid && grid.BindingContext is City selectedCity)
-            {
-                // Animasyon ekle
-                await grid.ScaleTo(0.95, 50);
-                await grid.ScaleTo(1.0, 50);
-
-                // Otomatik Konum seçildi mi kontrol et
-                if (selectedCity.Latitude == 0 && selectedCity.Longitude == 0)
-                {
-                    // Otomatik konum aktif et
-                    Preferences.Default.Set("OtomatikKonum", true);
-                    Preferences.Default.Remove("ManuelLatitude");
-                    Preferences.Default.Remove("ManuelLongitude");
-                    Preferences.Default.Remove("ManuelSehir");
-                    Preferences.Default.Remove("ManuelIlce"); // Ýlçe de temizlensin
-                }
-                else
-                {
-                    // Manuel konum kaydet
-                    Preferences.Default.Set("OtomatikKonum", false);
-                    Preferences.Default.Set("ManuelLatitude", selectedCity.Latitude);
-                    Preferences.Default.Set("ManuelLongitude", selectedCity.Longitude);
-                    Preferences.Default.Set("ManuelSehir", selectedCity.Name);
-                    Preferences.Default.Set("ManuelIlce", selectedCity.Name); // Ýlçe olarak þehir adý kaydedildi
-                }
-                
-                // Widget'ý güncelle
-                UpdateWidget();
-
-                // Geri dön
-                await Navigation.PopAsync();
-            }
-        }
-        
-        private void UpdateWidget()
-        {
-#if ANDROID
             try
             {
-                var context = Android.App.Application.Context;
-                var appWidgetManager = Android.Appwidget.AppWidgetManager.GetInstance(context);
-                var componentName = new Android.Content.ComponentName(context, 
-                    Java.Lang.Class.FromType(typeof(Platforms.Android.ClockWeatherWidget)));
-                var appWidgetIds = appWidgetManager?.GetAppWidgetIds(componentName);
-
-                if (appWidgetIds != null && appWidgetIds.Length > 0)
+                if (_imageService != null)
                 {
-                    // Widget'larý güncelle
-                    var intent = new Android.Content.Intent(context, 
-                        typeof(Platforms.Android.ClockWeatherWidget));
-                    intent.SetAction(Android.Appwidget.AppWidgetManager.ActionAppwidgetUpdate);
-                    intent.PutExtra(Android.Appwidget.AppWidgetManager.ExtraAppwidgetIds, appWidgetIds);
-                    context.SendBroadcast(intent);
-                    
-                    System.Diagnostics.Debug.WriteLine("Widget guncelleme broadcast gonderildi");
+                    string imageName = Application.Current.RequestedTheme == AppTheme.Dark ? "bg_dark.jpg" : "bg_light.jpg";
+                    BackgroundImage.Source = await _imageService.GetOptimizedBackgroundImageAsync(imageName);
+                    BackgroundImage.IsVisible = true;
                 }
             }
             catch (Exception ex)
             {
-                System.Diagnostics.Debug.WriteLine($"Widget guncelleme hatasi: {ex.Message}");
+                Console.WriteLine($"SehirSecim Background Load Error: {ex.Message}");
             }
-#endif
+        }
+
+        private void SearchBar_TextChanged(object sender, TextChangedEventArgs e)
+        {
+            var searchTerm = e.NewTextValue?.ToLower();
+
+            if (string.IsNullOrWhiteSpace(searchTerm))
+            {
+                CitiesCollectionView.ItemsSource = new ObservableCollection<City>(_allCities.OrderBy(c => c.Name));
+            }
+            else
+            {
+                var filtered = _allCities.Where(c => c.Name.ToLower().Contains(searchTerm)).OrderBy(c => c.Name);
+                CitiesCollectionView.ItemsSource = new ObservableCollection<City>(filtered);
+            }
+        }
+
+        private async void CitiesCollectionView_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+            var selectedCity = e.CurrentSelection.FirstOrDefault() as City;
+            if (selectedCity != null)
+            {
+                await SelectCity(selectedCity);
+                CitiesCollectionView.SelectedItem = null;
+            }
+        }
+
+        private async void OnCityTapped(object sender, TappedEventArgs e)
+        {
+            if (sender is Element element && element.BindingContext is City city)
+            {
+                await SelectCity(city);
+            }
+        }
+
+        private async Task SelectCity(City city)
+        {
+            bool answer = await DisplayAlert("Onay", $"{city.Name} ÅŸehrini seÃ§mek istiyor musunuz?", "Evet", "HayÄ±r");
+            if (answer)
+            {
+                Preferences.Default.Set("ManuelSehir", city.Name);
+                Preferences.Default.Set("ManuelIlce", city.Name);
+                Preferences.Default.Set("ManuelLatitude", city.Latitude);
+                Preferences.Default.Set("ManuelLongitude", city.Longitude);
+                Preferences.Default.Set("OtomatikKonum", false);
+
+                await Navigation.PopAsync();
+            }
         }
     }
 }

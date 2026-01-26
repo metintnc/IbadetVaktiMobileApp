@@ -5,13 +5,11 @@
              Title="Konum Sec">
     
     <Grid>
-        <Image Aspect="AspectFill"
+        <Image x:Name="BackgroundImage"
+               Aspect="AspectFill"
                HorizontalOptions="FillAndExpand"
-               VerticalOptions="FillAndExpand">
-            <Image.Source>
-                <AppThemeBinding Light="bg_light.jpg" Dark="bg_dark.jpg" />
-            </Image.Source>
-        </Image>
+               VerticalOptions="FillAndExpand" 
+               IsVisible="False"/>
         
         <BoxView HorizontalOptions="FillAndExpand"
                  VerticalOptions="FillAndExpand">
