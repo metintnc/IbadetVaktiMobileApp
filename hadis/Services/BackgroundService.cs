@@ -8,10 +8,12 @@ namespace hadis.Services
     public class BackgroundService
     {
         private readonly StatusBarService _statusBarService;
+        private readonly TabBarService _tabBarService;
 
-        public BackgroundService(StatusBarService statusBarService)
+        public BackgroundService(StatusBarService statusBarService, TabBarService tabBarService)
         {
             _statusBarService = statusBarService;
+            _tabBarService = tabBarService;
         }
 
         /// <summary>
@@ -45,8 +47,11 @@ namespace hadis.Services
 
                 // Status bar rengini ayarla
                 _statusBarService.SetStatusBarColor(backgroundInfo.StatusBarColor);
+                
+                // TabBar rengini ayarla
+                _tabBarService.SetTabBarColor(backgroundInfo.TabBarColor);
 
-                Console.WriteLine("✅ Arkaplan ve status bar başarıyla ayarlandı!");
+                Console.WriteLine("✅ Arkaplan, status bar ve TabBar başarıyla ayarlandı!");
             }
             catch (Exception ex)
             {
@@ -84,8 +89,12 @@ namespace hadis.Services
                 // Status bar rengini ayarla
                 string statusBarColor = TimeBasedBackgroundConfig.GetStatusBarColorForCustomBackground(backgroundValue);
                 _statusBarService.SetStatusBarColor(statusBarColor);
+                
+                // TabBar rengini ayarla
+                string tabBarColor = TimeBasedBackgroundConfig.GetTabBarColorForCustomBackground(backgroundValue);
+                _tabBarService.SetTabBarColor(tabBarColor);
 
-                Console.WriteLine($"✅ Özel arkaplan uygulandı: {backgroundValue}");
+                Console.WriteLine($"✅ Özel arkaplan, status bar ve TabBar uygulandı: {backgroundValue}");
             }
             catch (Exception ex)
             {

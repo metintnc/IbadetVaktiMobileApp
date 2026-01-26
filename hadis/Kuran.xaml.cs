@@ -7,10 +7,14 @@ namespace hadis
     {
         private List<Sure> _tumSureler;
         private List<Sure> _filtreSureler;
+        private readonly StatusBarService _statusBarService;
+        private readonly TabBarService _tabBarService;
 
-        public Kuran()
+        public Kuran(StatusBarService statusBarService, TabBarService tabBarService)
         {
             InitializeComponent();
+            _statusBarService = statusBarService;
+            _tabBarService = tabBarService;
             _tumSureler = KuranDataService.GetSureler();
             _filtreSureler = _tumSureler;
             SureListesi.ItemsSource = _filtreSureler;
@@ -20,6 +24,8 @@ namespace hadis
         protected override void OnAppearing()
         {
             base.OnAppearing();
+            _statusBarService.SetStatusBarColor("#000000");
+            _tabBarService.SetTabBarColor("#000000");
             SonOkunanYukle();
         }
 

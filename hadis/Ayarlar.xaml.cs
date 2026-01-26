@@ -1,6 +1,7 @@
 using Microsoft.Maui.ApplicationModel;
 using System.Text.Json;
 using hadis.Models;
+using hadis.Services;
 
 namespace hadis
 {
@@ -8,17 +9,22 @@ namespace hadis
     {
         private const string OtomatikKonumKey = "OtomatikKonum";
         private const string ManuelSehirKey = "ManuelSehir";
+        private readonly StatusBarService _statusBarService;
+        private readonly TabBarService _tabBarService;
 
-        public Ayarlar()
+        public Ayarlar(StatusBarService statusBarService, TabBarService tabBarService)
         {
             InitializeComponent();
+            _statusBarService = statusBarService;
+            _tabBarService = tabBarService;
             LoadSettings();
         }
 
         protected override void OnAppearing()
         {
             base.OnAppearing();
-            
+            _statusBarService.SetStatusBarColor("#000000");
+            _tabBarService.SetTabBarColor("#000000");
             // Ozel tema varsa uygula
             ApplyCustomTheme();
             
