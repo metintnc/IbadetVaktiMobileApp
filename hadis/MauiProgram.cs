@@ -24,11 +24,16 @@ namespace hadis
 
             // Servisleri kaydet
             builder.Services.AddSingleton<StatusBarService>();
+            builder.Services.AddSingleton<TabBarService>();
             builder.Services.AddSingleton<BackgroundService>();
             builder.Services.AddSingleton<ThemeService>();
 
             // Pages
             builder.Services.AddTransient<MainPage>();
+            builder.Services.AddTransient<kible>();
+            builder.Services.AddTransient<zikirmatik>();
+            builder.Services.AddTransient<Kuran>();
+            builder.Services.AddTransient<Ayarlar>();
 
             return builder.Build();
         }

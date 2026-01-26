@@ -1,5 +1,6 @@
-﻿using System;
+using System;
 using System.Threading.Tasks;
+using hadis.Services;
 
 namespace hadis
 {
@@ -7,16 +8,25 @@ namespace hadis
     {
         private Pusula compass;
         private bool _animationPlayed = false;
+        private readonly StatusBarService _statusBarService;
+        private readonly TabBarService _tabBarService;
         
-        public kible()
+        public kible(StatusBarService statusBarService, TabBarService tabBarService)
         {
             InitializeComponent();
             compass = new Pusula();
+            _statusBarService = statusBarService;
+            _tabBarService = tabBarService;
         }
         
         protected override void OnAppearing()
         {
             base.OnAppearing();
+            
+            // Kıble sayfası için özel StatusBar ve TabBar renkleri
+            _statusBarService.SetStatusBarColor("#000000"); // Siyah
+            _tabBarService.SetTabBarColor("#19222B"); // Özel kıble rengi
+            
             Task.Run(async () =>
             {
                 await compass.KontrolEt();

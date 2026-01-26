@@ -5,62 +5,62 @@ namespace hadis.Helpers
     /// </summary>
     public static class TimeBasedBackgroundConfig
     {
-        public record BackgroundInfo(string Image, string StatusBarColor);
+        public record BackgroundInfo(string Image, string StatusBarColor, string TabBarColor);
 
         /// <summary>
-        /// Saatlere göre arkaplan resmi ve status bar rengi
+        /// Saatlere göre arkaplan resmi, status bar rengi ve TabBar rengi
         /// </summary>
         public static BackgroundInfo GetBackgroundForTime(int hour, int minute)
         {
             // Gece 00:00 - 04:59
             if (hour >= 0 && hour < 5)
             {
-                return new BackgroundInfo("sun_01.png", "#05051B");
+                return new BackgroundInfo("sun_01.png", "#05051B", "#000115");
             }
             // Sabah erkeni 05:00 - 05:29
             else if (hour == 5 && minute < 30)
             {
-                return new BackgroundInfo("sun_02.png", "#060723");
+                return new BackgroundInfo("sun_02.png", "#060723", "#040519");
             }
             // Şafak 05:30 - 06:59
             else if ((hour == 5 && minute >= 30) || (hour == 6))
             {
-                return new BackgroundInfo("sun_03.png", "#4B427E");
+                return new BackgroundInfo("sun_03.png", "#4B427E", "#0C0718");
             }
             // Sabah 07:00 - 08:59
             else if (hour >= 7 && hour < 9)
             {
-                return new BackgroundInfo("sun_04.png", "#4077D9");
+                return new BackgroundInfo("sun_04.png", "#4077D9", "#181F3D");
             }
             // Kuşluk 09:00 - 10:59
             else if (hour >= 9 && hour < 11)
             {
-                return new BackgroundInfo("sun_05.png", "#2F71E4");
+                return new BackgroundInfo("sun_05.png", "#2F71E4", "#13254F");
             }
             // Öğle 11:00 - 12:59
             else if (hour >= 11 && hour < 13)
             {
-                return new BackgroundInfo("sun_06.png", "#5E92F3");
+                return new BackgroundInfo("sun_06.png", "#5E92F3", "#14255D");
             }
             // Öğleden sonra 13:00 - 14:59
             else if (hour >= 13 && hour < 15)
             {
-                return new BackgroundInfo("sun_07.png", "#5C89F2");
+                return new BackgroundInfo("sun_07.png", "#5C89F2", "#192143");
             }
             // İkindi 15:00 - 16:59
             else if (hour >= 15 && hour < 17)
             {
-                return new BackgroundInfo("sun_08.png", "#6376C6");
+                return new BackgroundInfo("sun_08.png", "#6376C6", "#271C2F");
             }
             // Akşam 17:00 - 18:59
             else if (hour >= 17 && hour < 19)
             {
-                return new BackgroundInfo("sun_09.png", "#22133A");
+                return new BackgroundInfo("sun_09.png", "#22133A", "#251334");
             }
             // Gece 19:00 - 23:59
             else // hour >= 19 && hour < 24
             {
-                return new BackgroundInfo("sun_10.png", "#08091D");
+                return new BackgroundInfo("sun_10.png", "#08091D", "#0C0D2A");
             }
         }
 
@@ -108,6 +108,53 @@ namespace hadis.Helpers
             }
 
             return "#000000";
+        }
+
+        /// <summary>
+        /// Özel tema arkaplanları için TabBar rengi
+        /// </summary>
+        public static string GetTabBarColorForCustomBackground(string backgroundValue)
+        {
+            if (string.IsNullOrEmpty(backgroundValue))
+                return "#1A1A1A";
+
+            // Resim dosyaları için
+            if (backgroundValue.EndsWith(".jpg") || backgroundValue.EndsWith(".png"))
+            {
+                if (backgroundValue.Contains("sun_01")) return "#000115";
+                if (backgroundValue.Contains("sun_02")) return "#040519";
+                if (backgroundValue.Contains("sun_03")) return "#0C0718";
+                if (backgroundValue.Contains("sun_04")) return "#181F3D";
+                if (backgroundValue.Contains("sun_05")) return "#13254F";
+                if (backgroundValue.Contains("sun_06")) return "#14255D";
+                if (backgroundValue.Contains("sun_07")) return "#192143";
+                if (backgroundValue.Contains("sun_08")) return "#271C2F";
+                if (backgroundValue.Contains("sun_09")) return "#251334";
+                if (backgroundValue.Contains("sun_10")) return "#0C0D2A";
+                return "#1A1A1A"; // Diğer resimler için koyu gri
+            }
+
+            // Gradient'ler için
+            if (backgroundValue.StartsWith("gradient_"))
+            {
+                return backgroundValue switch
+                {
+                    "gradient_blue" => "#1e3c72",
+                    "gradient_green" => "#134E5E",
+                    "gradient_dark_blue" => "#2C3E50",
+                    "gradient_night" => "#141E30",
+                    _ => "#1A1A1A"
+                };
+            }
+
+            // Hex renk kodu ise
+            if (backgroundValue.StartsWith("#"))
+            {
+                // Aynı rengi kullan
+                return backgroundValue;
+            }
+
+            return "#1A1A1A";
         }
 
         /// <summary>

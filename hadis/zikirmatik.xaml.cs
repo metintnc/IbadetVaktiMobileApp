@@ -3,6 +3,7 @@ using System.Globalization;
 using System.Text.Json;
 using System.Threading.Tasks;
 using hadis.Models;
+using hadis.Services;
 
 namespace hadis
 {
@@ -14,10 +15,14 @@ namespace hadis
         private string seciliZikir = "Sübhanallah";
         private bool sesDurum = true;
         private const string ZikirHistoryKey = "ZikirHistory";
+        private readonly StatusBarService _statusBarService;
+        private readonly TabBarService _tabBarService;
 
-        public zikirmatik()
+        public zikirmatik(StatusBarService statusBarService, TabBarService tabBarService)
         {
             InitializeComponent();
+            _statusBarService = statusBarService;
+            _tabBarService = tabBarService;
             sayı = Preferences.Default.Get("sonSayi", 0);
             toplam = Preferences.Default.Get("Toplam", 0);
             hedef = Preferences.Default.Get("ZikirHedef", 100);
@@ -54,6 +59,11 @@ namespace hadis
         protected override void OnAppearing()
         {
             base.OnAppearing();
+            
+            // Zikirmatik sayfası için özel StatusBar ve TabBar renkleri
+            _statusBarService.SetStatusBarColor("#000000"); // Siyah
+            _tabBarService.SetTabBarColor("#1D1F1E"); // Özel zikirmatik rengi
+            
             Task.Run(async () =>
             {
                 MainThread.BeginInvokeOnMainThread(() =>
