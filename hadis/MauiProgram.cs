@@ -32,8 +32,10 @@ namespace hadis
             
 #if ANDROID
             builder.Services.AddSingleton<INativeCompassService, hadis.Platforms.Android.Services.AndroidCompassService>();
+            builder.Services.AddSingleton<IImageService, hadis.Platforms.Android.Services.AndroidImageService>();
 #else
             builder.Services.AddSingleton<INativeCompassService, hadis.Services.PlatformCompassService>();
+            builder.Services.AddSingleton<IImageService, hadis.Services.PlatformImageService>();
 #endif
 
             // Pages

@@ -9,23 +9,25 @@ namespace hadis.Services
     {
         private readonly StatusBarService _statusBarService;
         private readonly TabBarService _tabBarService;
+        private readonly IImageService _imageService;
 
-        public BackgroundService(StatusBarService statusBarService, TabBarService tabBarService)
+        public BackgroundService(StatusBarService statusBarService, TabBarService tabBarService, IImageService imageService)
         {
             _statusBarService = statusBarService;
             _tabBarService = tabBarService;
+            _imageService = imageService;
         }
 
         /// <summary>
         /// Saate göre otomatik arkaplan ayarlar
         /// </summary>
-        public void SetTimeBasedBackground(Image backgroundImage, Grid backgroundOverlay, string savedTheme)
+        public bool SetTimeBasedBackground(Image backgroundImage, Grid backgroundOverlay, string savedTheme)
         {
             // Sadece Custom tema değilse otomatik arkaplan uygula
             if (savedTheme == AppConstants.THEME_CUSTOM)
             {
                 Console.WriteLine("ℹ️ Custom tema aktif - otomatik arkaplan devre dışı");
-                return;
+                return false; // Default to dark/false
             }
 
             Console.WriteLine("🎨 Zamana göre arkaplan ayarlanıyor...");
@@ -38,12 +40,17 @@ namespace hadis.Services
 
             try
             {
-                // Arkaplanı uygula
-                backgroundImage.Source = ImageSource.FromFile(backgroundInfo.Image);
+                // Arkaplanı uygula (Optimize edilmiş)
+                MainThread.BeginInvokeOnMainThread(async () => 
+                {
+                    backgroundImage.Source = await _imageService.GetOptimizedBackgroundImageAsync(backgroundInfo.Image);
+                });
+                
                 backgroundImage.IsVisible = true;
 
-                // Overlay'i uygula (kontrast kontrolü)
-                ApplyContrastOverlay(backgroundOverlay, backgroundInfo.Image);
+                // Overlay'i devre dışı bırak (Artık frameler değişecek)
+                backgroundOverlay.IsVisible = false;
+                // ApplyContrastOverlay(backgroundOverlay, backgroundInfo.Image);
 
                 // Status bar rengini ayarla
                 _statusBarService.SetStatusBarColor(backgroundInfo.StatusBarColor);
@@ -52,10 +59,14 @@ namespace hadis.Services
                 _tabBarService.SetTabBarColor(backgroundInfo.TabBarColor);
 
                 Console.WriteLine("✅ Arkaplan, status bar ve TabBar başarıyla ayarlandı!");
+
+                // Arkaplan parlak mı?
+                return TimeBasedBackgroundConfig.IsBackgroundBright(backgroundInfo.Image);
             }
             catch (Exception ex)
             {
                 Console.WriteLine($"❌ Arkaplan ayarlama hatası: {ex.Message}");
+                return false;
             }
         }
 

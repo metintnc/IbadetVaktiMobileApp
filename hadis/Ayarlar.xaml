@@ -5,13 +5,11 @@
              Title="Ayarlar">
     
     <Grid>
-        <Image Aspect="AspectFill"
+        <Image x:Name="BackgroundImage"
+               Aspect="AspectFill"
                HorizontalOptions="FillAndExpand"
-               VerticalOptions="FillAndExpand">
-            <Image.Source>
-                <AppThemeBinding Light="bg_light.jpg" Dark="ayarlararkaplan.png" />
-            </Image.Source>
-        </Image>
+               VerticalOptions="FillAndExpand" 
+               IsVisible="False"/>
         
         <BoxView HorizontalOptions="FillAndExpand"
                  VerticalOptions="FillAndExpand">

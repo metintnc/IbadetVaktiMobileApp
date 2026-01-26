@@ -11,23 +11,41 @@ namespace hadis
         private readonly StatusBarService _statusBarService;
         private readonly TabBarService _tabBarService;
 
-        public Kuran(StatusBarService statusBarService, TabBarService tabBarService)
+        private readonly IImageService _imageService;
+
+        public Kuran(StatusBarService statusBarService, TabBarService tabBarService, IImageService imageService)
         {
             InitializeComponent();
             _statusBarService = statusBarService;
             _tabBarService = tabBarService;
+            _imageService = imageService;
             _tumSureler = KuranDataService.GetSureler();
             _filtreSureler = _tumSureler;
             SureListesi.ItemsSource = _filtreSureler;
             SonOkunanYukle();
         }
 
-        protected override void OnAppearing()
+        protected override async void OnAppearing()
         {
             base.OnAppearing();
+            await LoadBackground();
             _statusBarService.SetStatusBarColor("#000000");
             _tabBarService.SetTabBarColor("#000000");
             SonOkunanYukle();
+        }
+
+        private async Task LoadBackground()
+        {
+            try
+            {
+                string imageName = Application.Current.RequestedTheme == AppTheme.Dark ? "kuranarkaplan.png" : "bg_light.jpg";
+                BackgroundImage.Source = await _imageService.GetOptimizedBackgroundImageAsync(imageName);
+                BackgroundImage.IsVisible = true;
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Kuran Background Load Error: {ex.Message}");
+            }
         }
 
         private void SonOkunanYukle()

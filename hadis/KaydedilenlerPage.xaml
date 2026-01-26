@@ -6,13 +6,10 @@
              BackgroundColor="#FDFBF2">
     
     <Grid RowDefinitions="Auto,*">
-        <Image Aspect="AspectFill"
+        <Image x:Name="BackgroundImage" 
+               Aspect="AspectFill"
                Grid.RowSpan="2"
-               IsVisible="True">
-            <Image.Source>
-                <AppThemeBinding Light="bg_light.jpg" Dark="kuranarkaplan.png" />
-            </Image.Source>
-        </Image>
+               IsVisible="False"/>
         <BoxView Grid.RowSpan="2"
                  IsVisible="True">
             <BoxView.Color>
