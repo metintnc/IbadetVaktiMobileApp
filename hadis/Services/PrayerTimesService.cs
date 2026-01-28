@@ -7,6 +7,18 @@ namespace hadis.Services
     {
         private static readonly string CacheFile = Path.Combine(FileSystem.AppDataDirectory, "prayer_times_cache_v1.json");
 
+        public static void ClearCache()
+        {
+            try
+            {
+                if (File.Exists(CacheFile))
+                {
+                    File.Delete(CacheFile);
+                }
+            }
+            catch { }
+        }
+
         public static async Task<Dictionary<string, DateTime>> GetPrayerTimesForDateAsync(DateTime date, string ilce, string sehir)
         {
             // 1. Önbelleğe bak

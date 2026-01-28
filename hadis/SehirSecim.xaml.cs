@@ -17,6 +17,81 @@ namespace hadis
             InitializeCities();
         }
 
+        private async void OnFindLocationTapped(object sender, TappedEventArgs e)
+        {
+            try
+            {
+                var status = await Permissions.CheckStatusAsync<Permissions.LocationWhenInUse>();
+                if (status != PermissionStatus.Granted)
+                {
+                    status = await Permissions.RequestAsync<Permissions.LocationWhenInUse>();
+                }
+
+                if (status != PermissionStatus.Granted)
+                {
+                    // İzin verilmezse sessizce kalabiliriz veya çok kısa bir uyarı
+                    // Kullanıcı 'uyarı verme' dediği için hiçbir şey yapmıyoruz veya log atıyoruz.
+                    return; 
+                }
+
+                // Kullanıcıya işlem yapıldığını hissettirmek için belki bir loading... ama uyarı istemedi.
+                
+                var location = await Geolocation.Default.GetLocationAsync(new GeolocationRequest(GeolocationAccuracy.Medium, TimeSpan.FromSeconds(5)));
+
+                if (location != null)
+                {
+                    string cityName = null;
+                    try
+                    {
+                        var placemarks = await Geocoding.Default.GetPlacemarksAsync(location.Latitude, location.Longitude);
+                        var placemark = placemarks?.FirstOrDefault();
+                        if (placemark != null)
+                        {
+                            cityName = placemark.AdminArea;
+                        }
+                    }
+                    catch { }
+
+                    // Şehir isminden listemizde olanı bulmaya çalışalım (Namaz vakitleri servisi için eşleşme önemli olabilir)
+                    City foundCity = null;
+                    if (!string.IsNullOrEmpty(cityName))
+                    {
+                        foundCity = _allCities.FirstOrDefault(c => c.Name.Equals(cityName, StringComparison.OrdinalIgnoreCase));
+                        if (foundCity == null)
+                        {
+                             foundCity = _allCities.FirstOrDefault(c => c.Name.IndexOf(cityName, StringComparison.OrdinalIgnoreCase) >= 0 || cityName.IndexOf(c.Name, StringComparison.OrdinalIgnoreCase) >= 0);
+                        }
+                    }
+                    
+                    if (foundCity == null)
+                    {
+                         // İsimle bulamazsak en yakını bul
+                        foundCity = _allCities
+                            .OrderBy(c => Location.CalculateDistance(location.Latitude, location.Longitude, c.Latitude, c.Longitude, DistanceUnits.Kilometers))
+                            .FirstOrDefault();
+                    }
+
+                    if (foundCity != null)
+                    {
+                        Preferences.Default.Set("ManuelSehir", foundCity.Name);
+                        Preferences.Default.Set("ManuelIlce", "Otomatik Konum"); 
+                        Preferences.Default.Set("ManuelLatitude", location.Latitude);
+                        Preferences.Default.Set("ManuelLongitude", location.Longitude);
+                        Preferences.Default.Set("OtomatikKonum", true);
+
+                        // Cache'i temizle ki yeni konum için veri çekilsin
+                        PrayerTimesService.ClearCache();
+
+                        await Navigation.PopAsync();
+                    }
+                }
+            }
+            catch 
+            {
+                // Hata durumunda sessiz kal
+            }
+        }
+
         // Dependency Injection Constructor
         public SehirSecim(IImageService imageService)
         {
@@ -31,6 +106,8 @@ namespace hadis
             _allCities = new List<City>
             {
                 new City("Adana", 37.0000, 35.3213),
+                // ... (other cities)
+
                 new City("Adıyaman", 37.7648, 38.2786),
                 new City("Afyonkarahisar", 38.7507, 30.5567),
                 new City("Ağrı", 39.7191, 43.0503),
@@ -175,17 +252,16 @@ namespace hadis
 
         private async Task SelectCity(City city)
         {
-            bool answer = await DisplayAlert("Onay", $"{city.Name} şehrini seçmek istiyor musunuz?", "Evet", "Hayır");
-            if (answer)
-            {
-                Preferences.Default.Set("ManuelSehir", city.Name);
-                Preferences.Default.Set("ManuelIlce", city.Name);
-                Preferences.Default.Set("ManuelLatitude", city.Latitude);
-                Preferences.Default.Set("ManuelLongitude", city.Longitude);
-                Preferences.Default.Set("OtomatikKonum", false);
+            Preferences.Default.Set("ManuelSehir", city.Name);
+            Preferences.Default.Set("ManuelIlce", city.Name);
+            Preferences.Default.Set("ManuelLatitude", city.Latitude);
+            Preferences.Default.Set("ManuelLongitude", city.Longitude);
+            Preferences.Default.Set("OtomatikKonum", false);
+            
+            // Konum değiştiği için cache'i temizle
+            PrayerTimesService.ClearCache();
 
-                await Navigation.PopAsync();
-            }
+            await Navigation.PopAsync();
         }
     }
 }
