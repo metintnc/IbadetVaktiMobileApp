@@ -155,9 +155,6 @@
 	  <MauiXaml Update="KuranAyetlerPage.xaml">
 	    <Generator>MSBuild:Compile</Generator>
 	  </MauiXaml>
-	  <MauiXaml Update="KuranPDF.xaml">
-	    <Generator>MSBuild:Compile</Generator>
-	  </MauiXaml>
 	  <MauiXaml Update="SehirSecim.xaml">
 	    <Generator>MSBuild:Compile</Generator>
 	  </MauiXaml>

@@ -25,17 +25,25 @@ namespace hadis
             _statusBarService = statusBarService;
             _tabBarService = tabBarService;
             _imageService = imageService;
+
+            // Verileri hızlıca yükle
             sayı = Preferences.Default.Get("sonSayi", 0);
             toplam = Preferences.Default.Get("Toplam", 0);
             hedef = Preferences.Default.Get("ZikirHedef", 100);
             seciliZikir = Preferences.Default.Get("SeciliZikir", "Sübhanallah");
             sesDurum = Preferences.Default.Get("SesDurum", true);
+            
+            // UI'ı güncelle
             zikirsayisi.Text = sayı.ToString();
             SeciliZikirLabel.Text = $"Seçili Zikir: {seciliZikir}";
             HedefLabel.Text = $"Hedef: {hedef}";
-            SesTitresimIcon.Text = sesDurum ? "🔊" : "🔇";
+            SesTitresimIcon.Text = sesDurum ? "📳" : "🔕";
             UpdateProgress();
+            
             HeaderFrame.SizeChanged += OnHeaderFrameSizeChanged;
+
+            // Arka planı arka planda yüklemeye başla (Fire-and-forget)
+            Task.Run(LoadBackground);
         }
 
         private void OnHeaderFrameSizeChanged(object sender, EventArgs e)
@@ -51,40 +59,41 @@ namespace hadis
             }
         }
 
-        protected override async void OnNavigatedTo(NavigatedToEventArgs args)
+        protected override void OnNavigatedTo(NavigatedToEventArgs args)
         {
             base.OnNavigatedTo(args);
             ApplyCustomTheme();
-            await AnimateZikirEntry();
+            // Giriş animasyonunu başlat
+            _ = AnimateZikirEntry();
         }
 
-        protected override async void OnAppearing()
+        protected override void OnAppearing()
         {
             base.OnAppearing();
             
-            await LoadBackground();
-
-            // Zikirmatik sayfası için özel StatusBar ve TabBar renkleri
-            _statusBarService.SetStatusBarColor("#000000"); // Siyah
-            _tabBarService.SetTabBarColor("#1D1F1E"); // Özel zikirmatik rengi
-            
-            Task.Run(async () =>
-            {
-                MainThread.BeginInvokeOnMainThread(() =>
-                {
-                    ApplyCustomTheme();
-                });
-                await AnimateZikirEntry();
-            });
+            // StatusBar rengini ayarla
+            _statusBarService.SetStatusBarColor("#000000");
+            _tabBarService.SetTabBarColor("#1D1F1E");
         }
 
         private async Task LoadBackground()
         {
             try
             {
-                string imageName = Application.Current.RequestedTheme == AppTheme.Dark ? "bg_dark.jpg" : "bg_light.jpg";
-                BackgroundImage.Source = await _imageService.GetOptimizedBackgroundImageAsync(imageName);
-                BackgroundImage.IsVisible = true;
+                // UI thread'i bloklamamak için kısa bir gecikme veya yield
+                await Task.Yield(); 
+                
+                string imageName = Application.Current.RequestedTheme == AppTheme.Dark ? "ayarlararkaplan.png" : "bg_light.jpg";
+                var imageSource = await _imageService.GetOptimizedBackgroundImageAsync(imageName);
+                
+                // UI güncellemesi MainThread'de olmalı
+                MainThread.BeginInvokeOnMainThread(() =>
+                {
+                    BackgroundImage.Source = imageSource;
+                    BackgroundImage.IsVisible = true;
+                    // Opacity animasyonu ile yumuşak geçiş
+                    BackgroundImage.FadeTo(1, 500); 
+                });
             }
             catch (Exception ex)
             {
@@ -178,64 +187,99 @@ namespace hadis
 
         private async void zikirbutton_Clicked(object sender, EventArgs e)
         {
+            // 1. Görsel animasyonu anında başlat (Fire-and-forget)
+            _ = AnimateButton();
+
+            // 2. Titreşim Geri Bildirimi
+            if (sesDurum)
+            {
+                try
+                {
+#if ANDROID
+                    // "Dokunma Titreşimi" kapalı olsa bile titretmek için "Usage.Game" veya "Usage.Alarm" kullanmalıyız.
+                    var vibrator = (Android.OS.Vibrator?)Platform.CurrentActivity?.GetSystemService(Android.Content.Context.VibratorService);
+                    if (vibrator != null && vibrator.HasVibrator)
+                    {
+                        if (Android.OS.Build.VERSION.SdkInt >= Android.OS.BuildVersionCodes.Q) // Android 10+
+                        {
+                            var effect = Android.OS.VibrationEffect.CreateOneShot(80, Android.OS.VibrationEffect.DefaultAmplitude);
+                            // Usage.Alarm en güçlü yetkidir ve 'Silent' modda bile çalışabilir.
+                            // Obsolete uyarısı için Enum'u (int) cast ederek kullanıyoruz.
+                            var attributes = new Android.OS.VibrationAttributes.Builder()
+                                .SetUsage((int)Android.OS.VibrationAttributesUsageClass.Alarm) 
+                                .Build();
+                            vibrator.Vibrate(effect, attributes);
+                        }
+                        else if (Android.OS.Build.VERSION.SdkInt >= Android.OS.BuildVersionCodes.O) // Android 8+
+                        {
+                            var effect = Android.OS.VibrationEffect.CreateOneShot(80, Android.OS.VibrationEffect.DefaultAmplitude);
+                            var audioAttrs = new Android.Media.AudioAttributes.Builder()
+                                .SetContentType(Android.Media.AudioContentType.Sonification)
+                                .SetUsage(Android.Media.AudioUsageKind.Alarm)
+                                .Build();
+                            vibrator.Vibrate(effect, audioAttrs);
+                        }
+                        else
+                        {
+                            vibrator.Vibrate(80);
+                        }
+                    }
+                    else
+                    {
+                         Vibration.Default.Vibrate(TimeSpan.FromMilliseconds(80));
+                    }
+#else
+                    // iOS için standart yöntem
+                    Vibration.Default.Vibrate(TimeSpan.FromMilliseconds(80));
+#endif
+                }
+                catch
+                {
+                    // Hata yut
+                }
+            }
+            else
+            {
+                 Console.WriteLine("DEBUGGING: sesDurum is FALSE. Vibration skipped.");
+            }
+
+            // 3. Mantıksal İşlemler
             sayı++;
             toplam++;
             zikirsayisi.Text = sayı.ToString();
+            
+            // Verileri kaydet
             Preferences.Default.Set("sonSayi", sayı);
             Preferences.Default.Set("Toplam", toplam);
 
+            // Geçmişi güncelle
             var history = LoadZikirHistory();
             string today = DateTime.Now.ToString("yyyy-MM-dd", CultureInfo.InvariantCulture);
-            if (!history.ContainsKey(today))
-                history[today] = new Dictionary<string, int>();
-            if (!history[today].ContainsKey(seciliZikir))
-                history[today][seciliZikir] = 0;
+            if (!history.ContainsKey(today)) history[today] = new Dictionary<string, int>();
+            if (!history[today].ContainsKey(seciliZikir)) history[today][seciliZikir] = 0;
             history[today][seciliZikir]++;
             SaveZikirHistory(history);
 
             UpdateProgress();
             
+            // 4. Hedef Kontrolü (Ekstra uzun titreşim/uyarı)
             if(sayı == hedef)
             {
-                await CelebrateAchievement();
-                await DisplayAlert("Tebrikler! 🎉", $"{hedef} {seciliZikir} tamamlandı!", "Tamam");
+                // Hedefe ulaşıldı - Konfetiler ve Uzun Titreşim
+                _ = CelebrateAchievement(); // Async bekleme yapma, arayüzü kilitlemesin
                 
                 if (sesDurum)
                 {
-                    try
-                    {
-                        Vibration.Default.Vibrate(TimeSpan.FromMilliseconds(500));
-                    }
-                    catch(Exception ex)
-                    {
-                        Console.WriteLine(ex.ToString());
-                    }
+                    try { Vibration.Default.Vibrate(TimeSpan.FromMilliseconds(500)); } catch { }
                 }
+
+                await DisplayAlert("Tebrikler! 🎉", $"{hedef} {seciliZikir} tamamlandı!", "Tamam");
             }
             else if(sayı % 33 == 0 && sesDurum)
             {
-                try
-                {
-                    Vibration.Default.Vibrate(TimeSpan.FromMilliseconds(200));
-                }
-                catch(Exception ex)
-                {
-                    Console.WriteLine(ex.ToString());
-                }
+                // 33'lü set ara uyarısı - Hafifçe hissettir
+                try { Vibration.Default.Vibrate(TimeSpan.FromMilliseconds(150)); } catch { }
             }
-            else if(sesDurum)
-            {
-                try
-                {
-                    Vibration.Default.Vibrate(TimeSpan.FromMilliseconds(30));
-                }
-                catch (Exception ex)
-                {
-                    Console.WriteLine(ex.ToString());
-                }
-            }
-            
-            await AnimateButton();
         }
 
         private async Task AnimateButton()
@@ -275,45 +319,109 @@ namespace hadis
             await zikirbutton.ScaleTo(1.0, 200, Easing.SpringIn);
         }
 
-        private async void sifirla_Clicked(object sender, EventArgs e)
+        private void sifirla_Clicked(object sender, EventArgs e)
         {
-            bool cevap = await DisplayAlert("Emin misiniz?", "Zikir sayacını sıfırlamak istediğimize emin misiniz?", "Evet, Sıfırla", "Hayır");
-            if (cevap)
+            // DisplayAlert yerine custom overlay göster
+            ResetConfirmationOverlay.IsVisible = true;
+        }
+
+        private void OnCancelReset_Clicked(object sender, EventArgs e)
+        {
+            ResetConfirmationOverlay.IsVisible = false;
+        }
+
+        private void OnConfirmReset_Clicked(object sender, EventArgs e)
+        {
+            ResetConfirmationOverlay.IsVisible = false;
+
+            sayı = 0;
+            zikirsayisi.Text = sayı.ToString();
+            Preferences.Default.Set("sonSayi", sayı);
+            UpdateProgress();
+            
+            if (sesDurum)
             {
-                sayı = 0;
-                zikirsayisi.Text = sayı.ToString();
-                Preferences.Default.Set("sonSayi", sayı);
-                UpdateProgress();
-                
-                if (sesDurum)
+                try
                 {
-                    try
-                    {
-                        Vibration.Default.Vibrate(TimeSpan.FromMilliseconds(100));
-                    }
-                    catch (Exception ex)
-                    {
-                        Console.WriteLine(ex.ToString());
-                    }
+                    Vibration.Default.Vibrate(TimeSpan.FromMilliseconds(100));
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine(ex.ToString());
                 }
             }
         }
 
-        private async void HedefAyarla_Clicked(object sender, EventArgs e)
+        private void HedefAyarla_Clicked(object sender, EventArgs e)
         {
-            string result = await DisplayPromptAsync(
-                "Hedef Ayarla",
-                "Yeni hedef değerini girin (33, 66, 99, 100, vb.)",
-                initialValue: hedef.ToString(),
-                keyboard: Keyboard.Numeric);
+            HedefEntry.Text = hedef.ToString();
+            TargetSelectionOverlay.IsVisible = true;
+        }
+
+        private void OnCancelTarget_Clicked(object sender, EventArgs e)
+        {
+            // Klavyeyi kapat
+            HedefEntry.IsEnabled = false;
+            HedefEntry.IsEnabled = true;
+            HedefEntry.Unfocus();
             
-            if (!string.IsNullOrEmpty(result) && int.TryParse(result, out int yeniHedef) && yeniHedef > 0)
+            TargetSelectionOverlay.IsVisible = false;
+        }
+
+        private void OnPresetTarget_Clicked(object sender, EventArgs e)
+        {
+            if (sender is Button btn)
+            {
+                HedefEntry.Text = btn.Text;
+            }
+        }
+
+        protected override bool OnBackButtonPressed()
+        {
+            if (CustomZikirOverlay.IsVisible)
+            {
+                CustomZikirOverlay.IsVisible = false;
+                ZikirSelectionOverlay.IsVisible = true; // Geri basınca listeye dön
+                return true;
+            }
+            if (ZikirSelectionOverlay.IsVisible)
+            {
+                ZikirSelectionOverlay.IsVisible = false;
+                return true;
+            }
+            if (TargetSelectionOverlay.IsVisible)
+            {
+                TargetSelectionOverlay.IsVisible = false;
+                return true;
+            }
+            if (ResetConfirmationOverlay.IsVisible)
+            {
+                ResetConfirmationOverlay.IsVisible = false;
+                return true;
+            }
+            return base.OnBackButtonPressed();
+        }
+
+        private async void OnSaveTarget_Clicked(object sender, EventArgs e)
+        {
+            // Klavyeyi kapat
+            HedefEntry.IsEnabled = false;
+            HedefEntry.IsEnabled = true;
+            HedefEntry.Unfocus();
+
+            if (!string.IsNullOrEmpty(HedefEntry.Text) && int.TryParse(HedefEntry.Text, out int yeniHedef) && yeniHedef > 0)
             {
                 hedef = yeniHedef;
                 HedefLabel.Text = $"Hedef: {hedef}";
                 Preferences.Default.Set("ZikirHedef", hedef);
                 UpdateProgress();
                 await AnimateProgressUpdate();
+                TargetSelectionOverlay.IsVisible = false;
+            }
+            else
+            {
+                HedefEntry.Text = "";
+                HedefEntry.Placeholder = "Geçerli sayı girin!";
             }
         }
 
@@ -323,51 +431,77 @@ namespace hadis
             await IlerlemeIbresi.ScaleTo(1.0, 200, Easing.CubicIn);
         }
 
-        private async void ZikirSec_Clicked(object sender, EventArgs e)
+        private void ZikirSec_Clicked(object sender, EventArgs e)
         {
-            string[] zikirler = new string[]
+            ZikirSelectionOverlay.IsVisible = true;
+        }
+
+        private void OnCancelZikirSelection_Clicked(object sender, EventArgs e)
+        {
+            ZikirSelectionOverlay.IsVisible = false;
+        }
+
+        private void OnSelectZikir_Clicked(object sender, EventArgs e)
+        {
+            if (sender is Button btn)
             {
-                "Sübhanallah",
-                "Elhamdülillah",
-                "Allahu Ekber",
-                "La ilahe illallah",
-                "Estağfirullah",
-                "Sübhanallahi ve bihamdihi",
-                "La havle vela kuvvete illa billah",
-                "Kendi Zikrini Gir"
-            };
-            
-            string secim = await DisplayActionSheet("Zikir Seçin", "İptal", null, zikirler);
-            
-            if (!string.IsNullOrEmpty(secim) && secim != "İptal")
-            {
-                if (secim == "Kendi Zikrini Gir")
-                {
-                    string customZikir = await DisplayPromptAsync("Kendi Zikrini Gir", "Lütfen istediğiniz zikri yazın:", initialValue: "", maxLength: 50);
-                    if (!string.IsNullOrWhiteSpace(customZikir))
-                    {
-                        seciliZikir = customZikir.Trim();
-                        SeciliZikirLabel.Text = $"Seçili Zikir: {seciliZikir}";
-                        Preferences.Default.Set("SeciliZikir", seciliZikir);
-                    }
-                }
-                else
-                {
-                    seciliZikir = secim;
-                    SeciliZikirLabel.Text = $"Seçili Zikir: {seciliZikir}";
-                    Preferences.Default.Set("SeciliZikir", seciliZikir);
-                }
+                seciliZikir = btn.Text;
+                SeciliZikirLabel.Text = $"Seçili Zikir: {seciliZikir}";
+                Preferences.Default.Set("SeciliZikir", seciliZikir);
+                ZikirSelectionOverlay.IsVisible = false;
             }
         }
 
-        private async void SesTitresim_Clicked(object sender, EventArgs e)
+        private void OnOpenCustomZikir_Clicked(object sender, EventArgs e)
+        {
+            ZikirSelectionOverlay.IsVisible = false;
+            CustomZikirEntry.Text = "";
+            CustomZikirOverlay.IsVisible = true;
+        }
+
+        private void OnCancelCustomZikir_Clicked(object sender, EventArgs e)
+        {
+            // Klavyeyi kapat
+            CustomZikirEntry.IsEnabled = false;
+            CustomZikirEntry.IsEnabled = true;
+            CustomZikirEntry.Unfocus();
+
+            CustomZikirOverlay.IsVisible = false;
+            ZikirSelectionOverlay.IsVisible = true; // Listeye geri dön
+        }
+
+        private void OnSaveCustomZikir_Clicked(object sender, EventArgs e)
+        {
+            // Klavyeyi kapat
+            CustomZikirEntry.IsEnabled = false;
+            CustomZikirEntry.IsEnabled = true;
+            CustomZikirEntry.Unfocus();
+
+            if (!string.IsNullOrWhiteSpace(CustomZikirEntry.Text))
+            {
+                seciliZikir = CustomZikirEntry.Text.Trim();
+                SeciliZikirLabel.Text = $"Seçili Zikir: {seciliZikir}";
+                Preferences.Default.Set("SeciliZikir", seciliZikir);
+                CustomZikirOverlay.IsVisible = false;
+            }
+            else
+            {
+                CustomZikirEntry.Placeholder = "Lütfen bir zikir yazın!";
+            }
+        }
+
+        private void SesTitresim_Clicked(object sender, EventArgs e)
         {
             sesDurum = !sesDurum;
-            SesTitresimIcon.Text = sesDurum ? "🔊" : "🔇";
+            SesTitresimIcon.Text = sesDurum ? "📳" : "🔕";
             Preferences.Default.Set("SesDurum", sesDurum);
             
-            string mesaj = sesDurum ? "Ses/Titreşim Açık" : "Ses/Titreşim Kapalı";
-            await DisplayAlert("Bilgi", mesaj, "Tamam");
+            // Kullanıcıya geri bildirim olarak sadece titreşim verelim, diyalog kutusu açmak yerine.
+            try 
+            {
+               Vibration.Default.Vibrate(TimeSpan.FromMilliseconds(50));
+            } 
+            catch {}
         }
 
         private async void Istatistik_Clicked(object sender, EventArgs e)

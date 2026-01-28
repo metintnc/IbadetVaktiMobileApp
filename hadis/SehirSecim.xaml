@@ -52,6 +52,32 @@
                                SelectionMode="Single"
                                SelectionChanged="CitiesCollectionView_SelectionChanged"
                                VerticalScrollBarVisibility="Never">
+                    <CollectionView.Header>
+                        <Frame Padding="0" 
+                               Margin="5,2"
+                               BorderColor="Transparent"
+                               BackgroundColor="Transparent"
+                               HasShadow="False">
+                            <Grid Padding="15,12" 
+                                  ColumnDefinitions="*,Auto"
+                                  BackgroundColor="Transparent">
+                                <Grid.GestureRecognizers>
+                                    <TapGestureRecognizer Tapped="OnFindLocationTapped"/>
+                                </Grid.GestureRecognizers>
+                                <Label Grid.Column="0"
+                                       Text="📍 Konumumu Bul (Otomatik)"
+                                       FontAttributes="Bold"
+                                       FontSize="16"
+                                       VerticalOptions="Center"
+                                       TextColor="{AppThemeBinding Light=#00796B, Dark=#FFFFFF}"/>
+                                <Label Grid.Column="1"
+                                       Text=">"
+                                       FontSize="24"
+                                       VerticalOptions="Center"
+                                       TextColor="{AppThemeBinding Light=#00796B, Dark=#FFFFFF}"/>
+                            </Grid>
+                        </Frame>
+                    </CollectionView.Header>
                     <CollectionView.ItemTemplate>
                         <DataTemplate>
                             <Frame Padding="0" 

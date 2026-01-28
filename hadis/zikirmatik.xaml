@@ -34,19 +34,40 @@
                    BorderColor="{AppThemeBinding Light=#80009688, Dark=#80FFFFFF}"
                    BackgroundColor="{AppThemeBinding Light=#22FFFFFF, Dark=#33000000}">
                 <VerticalStackLayout Spacing="15">
-                    <VerticalStackLayout Spacing="5">
-                        <Label x:Name="ZikirBaslik" 
-                               Text="Zikirmatik"
-                               FontSize="28"
-                               FontAttributes="Bold"
-                               HorizontalOptions="Center"
-                               TextColor="{AppThemeBinding Light=#00796B, Dark=#FFFFFF}"/>
-                        <Label x:Name="SeciliZikirLabel" 
-                               Text="Seçili Zikir: Sübhanallah"
-                               FontSize="14"
-                               HorizontalOptions="Center"
-                               TextColor="{AppThemeBinding Light=#757575, Dark=#BDBDBD}"/>
-                    </VerticalStackLayout>
+                    <Grid VerticalOptions="Center">
+                        <!-- Başlık ve Zikir İsmi (Ortalanmış) -->
+                        <VerticalStackLayout Spacing="5" HorizontalOptions="Center" VerticalOptions="Center">
+                            <Label x:Name="ZikirBaslik" 
+                                   Text="Zikirmatik"
+                                   FontSize="28"
+                                   FontAttributes="Bold"
+                                   HorizontalOptions="Center"
+                                   TextColor="{AppThemeBinding Light=#00796B, Dark=#FFFFFF}"/>
+                            <Label x:Name="SeciliZikirLabel" 
+                                   Text="Seçili Zikir: Sübhanallah"
+                                   FontSize="14"
+                                   HorizontalOptions="Center"
+                                   TextColor="{AppThemeBinding Light=#757575, Dark=#BDBDBD}"/>
+                        </VerticalStackLayout>
+                        
+                        <!-- Ses Butonu (Sağ Üst) -->
+                        <Frame Padding="10"
+                               CornerRadius="15"
+                               HasShadow="False"
+                               BackgroundColor="Transparent"
+                               BorderColor="Transparent"
+                               HorizontalOptions="End"
+                               VerticalOptions="Start">
+                            <Frame.GestureRecognizers>
+                                <TapGestureRecognizer Tapped="SesTitresim_Clicked"/>
+                            </Frame.GestureRecognizers>
+                            <Label x:Name="SesTitresimIcon"
+                                   Text="📳"
+                                   FontSize="24"
+                                   VerticalOptions="Center"
+                                   HorizontalOptions="Center"/>
+                        </Frame>
+                    </Grid>
                     
                     <!-- İlerleme Göstergesi -->
                     <VerticalStackLayout Spacing="8">
@@ -164,14 +185,14 @@
 
             <!-- Alt Butonlar -->
             <Grid Grid.Row="2" 
-                  ColumnDefinitions="*,*,*,*,*"
+                  ColumnDefinitions="*,*,*,*"
                   ColumnSpacing="10"
                   Margin="0,20,0,0">
                 
                 <!-- Sıfırla Butonu -->
                 <Frame Grid.Column="0"
                        CornerRadius="20"
-                       Padding="15"
+                       Padding="10"
                        HasShadow="True"
                        BorderColor="{AppThemeBinding Light=#80009688, Dark=#80FFFFFF}"
                        BackgroundColor="{AppThemeBinding Light=#22FFFFFF, Dark=#33000000}">
@@ -180,11 +201,11 @@
                     </Frame.GestureRecognizers>
                     <VerticalStackLayout Spacing="5" HorizontalOptions="Center">
                         <Label Text="🔄"
-                               FontSize="28"
+                               FontSize="24"
                                HorizontalOptions="Center"/>
                         <Label x:Name="SifirlaLabel"
                                Text="Sıfırla"
-                               FontSize="11"
+                               FontSize="10"
                                FontAttributes="Bold"
                                HorizontalOptions="Center"
                                TextColor="{AppThemeBinding Light=#00796B, Dark=#FFFFFF}"/>
@@ -194,7 +215,7 @@
                 <!-- Hedef Ayarla Butonu -->
                 <Frame Grid.Column="1"
                        CornerRadius="20"
-                       Padding="15"
+                       Padding="10"
                        HasShadow="True"
                        BorderColor="{AppThemeBinding Light=#80009688, Dark=#80FFFFFF}"
                        BackgroundColor="{AppThemeBinding Light=#22FFFFFF, Dark=#33000000}">
@@ -203,11 +224,11 @@
                     </Frame.GestureRecognizers>
                     <VerticalStackLayout Spacing="5" HorizontalOptions="Center">
                         <Label Text="⚙️"
-                               FontSize="28"
+                               FontSize="24"
                                HorizontalOptions="Center"/>
                         <Label x:Name="HedefAyarlaLabel"
-                               Text="Hedef Ayarla"
-                               FontSize="11"
+                               Text="Hedef"
+                               FontSize="10"
                                FontAttributes="Bold"
                                HorizontalOptions="Center"
                                HorizontalTextAlignment="Center"
@@ -218,7 +239,7 @@
                 <!-- Zikir Seç Butonu -->
                 <Frame Grid.Column="2"
                        CornerRadius="20"
-                       Padding="15"
+                       Padding="10"
                        HasShadow="True"
                        BorderColor="{AppThemeBinding Light=#80009688, Dark=#80FFFFFF}"
                        BackgroundColor="{AppThemeBinding Light=#22FFFFFF, Dark=#33000000}">
@@ -227,36 +248,11 @@
                     </Frame.GestureRecognizers>
                     <VerticalStackLayout Spacing="5" HorizontalOptions="Center">
                         <Label Text="📋"
-                               FontSize="28"
+                               FontSize="24"
                                HorizontalOptions="Center"/>
                         <Label x:Name="ZikirSecLabel"
-                               Text="Zikir Seç"
-                               FontSize="11"
-                               FontAttributes="Bold"
-                               HorizontalOptions="Center"
-                               HorizontalTextAlignment="Center"
-                               TextColor="{AppThemeBinding Light=#00796B, Dark=#FFFFFF}"/>
-                    </VerticalStackLayout>
-                </Frame>
-
-                <!-- Ses/Titreşim Butonu -->
-                <Frame Grid.Column="3"
-                       CornerRadius="20"
-                       Padding="15"
-                       HasShadow="True"
-                       BorderColor="{AppThemeBinding Light=#80009688, Dark=#80FFFFFF}"
-                       BackgroundColor="{AppThemeBinding Light=#22FFFFFF, Dark=#33000000}">
-                    <Frame.GestureRecognizers>
-                        <TapGestureRecognizer Tapped="SesTitresim_Clicked"/>
-                    </Frame.GestureRecognizers>
-                    <VerticalStackLayout Spacing="5" HorizontalOptions="Center">
-                        <Label x:Name="SesTitresimIcon"
-                               Text="🔊"
-                               FontSize="28"
-                               HorizontalOptions="Center"/>
-                        <Label x:Name="SesTitresimLabel"
-                               Text="Ses/Titreşim"
-                               FontSize="11"
+                               Text="Seç"
+                               FontSize="10"
                                FontAttributes="Bold"
                                HorizontalOptions="Center"
                                HorizontalTextAlignment="Center"
@@ -265,9 +261,9 @@
                 </Frame>
 
                 <!-- İstatistik Butonu -->
-                <Frame Grid.Column="4"
+                <Frame Grid.Column="3"
                        CornerRadius="20"
-                       Padding="15"
+                       Padding="10"
                        HasShadow="True"
                        BorderColor="{AppThemeBinding Light=#80009688, Dark=#80FFFFFF}"
                        BackgroundColor="{AppThemeBinding Light=#22FFFFFF, Dark=#33000000}">
@@ -276,11 +272,11 @@
                     </Frame.GestureRecognizers>
                     <VerticalStackLayout Spacing="5" HorizontalOptions="Center">
                         <Label Text="📈"
-                               FontSize="28"
+                               FontSize="24"
                                HorizontalOptions="Center"/>
                         <Label x:Name="IstatistikLabel"
                                Text="İstatistik"
-                               FontSize="11"
+                               FontSize="10"
                                FontAttributes="Bold"
                                HorizontalOptions="Center"
                                HorizontalTextAlignment="Center"
@@ -288,6 +284,261 @@
                     </VerticalStackLayout>
                 </Frame>
             </Grid>
+        </Grid>
+
+        <!-- Hedef Ayarlama Penceresi (Custom Pop-up) -->
+        <Grid x:Name="TargetSelectionOverlay"
+              BackgroundColor="#CC000000"
+              IsVisible="False"
+              VerticalOptions="FillAndExpand"
+              HorizontalOptions="FillAndExpand"
+              ZIndex="999">
+              <Grid.GestureRecognizers>
+                  <TapGestureRecognizer Tapped="OnCancelTarget_Clicked"/>
+              </Grid.GestureRecognizers>
+            
+            <Frame BackgroundColor="{AppThemeBinding Light=#FFFFFF, Dark=#1F1F1F}"
+                   CornerRadius="25"
+                   HorizontalOptions="Center"
+                   VerticalOptions="Center"
+                   WidthRequest="320"
+                   Padding="20"
+                   HasShadow="True">
+                <VerticalStackLayout Spacing="20">
+                    <Label Text="Hedef Ayarla" 
+                           FontSize="22" 
+                           FontAttributes="Bold"
+                           HorizontalOptions="Center"
+                           TextColor="{AppThemeBinding Light=#00796B, Dark=#FFFFFF}"/>
+                    
+                    <!-- Hazır Seçenekler -->
+                    <Grid ColumnDefinitions="*,*,*,*" ColumnSpacing="10">
+                        <Button Text="33" Clicked="OnPresetTarget_Clicked" 
+                                BackgroundColor="{AppThemeBinding Light=#E0F2F1, Dark=#33000000}" 
+                                TextColor="{AppThemeBinding Light=#00796B, Dark=#80CBC4}"
+                                CornerRadius="10" Padding="0"/>
+                        <Button Grid.Column="1" Text="99" Clicked="OnPresetTarget_Clicked" 
+                                BackgroundColor="{AppThemeBinding Light=#E0F2F1, Dark=#33000000}" 
+                                TextColor="{AppThemeBinding Light=#00796B, Dark=#80CBC4}"
+                                CornerRadius="10" Padding="0"/>
+                        <Button Grid.Column="2" Text="100" Clicked="OnPresetTarget_Clicked" 
+                                BackgroundColor="{AppThemeBinding Light=#E0F2F1, Dark=#33000000}" 
+                                TextColor="{AppThemeBinding Light=#00796B, Dark=#80CBC4}"
+                                CornerRadius="10" Padding="0"/>
+                        <Button Grid.Column="3" Text="500" Clicked="OnPresetTarget_Clicked" 
+                                BackgroundColor="{AppThemeBinding Light=#E0F2F1, Dark=#33000000}" 
+                                TextColor="{AppThemeBinding Light=#00796B, Dark=#80CBC4}"
+                                CornerRadius="10" Padding="0"/>
+                    </Grid>
+
+                    <!-- Manuel Giriş -->
+                    <Border Stroke="{AppThemeBinding Light=#80009688, Dark=#80FFFFFF}"
+                            StrokeThickness="1"
+                            StrokeShape="RoundRectangle 10"
+                            Padding="10,0">
+                        <Entry x:Name="HedefEntry"
+                               Placeholder="Özel bir sayı girin..."
+                               Keyboard="Numeric"
+                               HorizontalTextAlignment="Center"
+                               MaxLength="5"
+                               TextColor="{AppThemeBinding Light=#000000, Dark=#FFFFFF}"/>
+                    </Border>
+                    
+                    <Grid ColumnDefinitions="*,*" ColumnSpacing="15">
+                        <!-- İptal Butonu -->
+                        <Button Grid.Column="0"
+                                Text="Vazgeç"
+                                BackgroundColor="{AppThemeBinding Light=#E0E0E0, Dark=#424242}"
+                                TextColor="{AppThemeBinding Light=#000000, Dark=#FFFFFF}"
+                                CornerRadius="12"
+                                HeightRequest="45"
+                                Clicked="OnCancelTarget_Clicked"/>
+                        
+                        <!-- Kaydet Butonu -->
+                        <Button Grid.Column="1"
+                                Text="Kaydet"
+                                BackgroundColor="#00796B"
+                                TextColor="White"
+                                CornerRadius="12"
+                                HeightRequest="45"
+                                Clicked="OnSaveTarget_Clicked"/>
+                    </Grid>
+                </VerticalStackLayout>
+            </Frame>
+        </Grid>
+
+        <!-- Zikir Seçim Listesi (Custom Pop-up) -->
+        <Grid x:Name="ZikirSelectionOverlay"
+              BackgroundColor="#CC000000"
+              IsVisible="False"
+              VerticalOptions="FillAndExpand"
+              HorizontalOptions="FillAndExpand"
+              ZIndex="999">
+            <Grid.GestureRecognizers>
+                <TapGestureRecognizer Tapped="OnCancelZikirSelection_Clicked"/>
+            </Grid.GestureRecognizers>
+
+            <Frame BackgroundColor="{AppThemeBinding Light=#FFFFFF, Dark=#1F1F1F}"
+                   CornerRadius="25"
+                   HorizontalOptions="Center"
+                   VerticalOptions="Center"
+                   WidthRequest="320"
+                   HeightRequest="500"
+                   Padding="20"
+                   HasShadow="True">
+                <Grid RowDefinitions="Auto,*,Auto,Auto" RowSpacing="15">
+                    <Label Grid.Row="0"
+                           Text="Zikir Seç" 
+                           FontSize="22" 
+                           FontAttributes="Bold"
+                           HorizontalOptions="Center"
+                           TextColor="{AppThemeBinding Light=#00796B, Dark=#FFFFFF}"/>
+
+                    <ScrollView Grid.Row="1">
+                        <VerticalStackLayout Spacing="10" x:Name="ZikirListStack">
+                            <!-- Zikir butonları kod tarafından doldurulacak veya burada statik tanımlanabilir -->
+                            <Button Text="Sübhanallah" Clicked="OnSelectZikir_Clicked" BackgroundColor="Transparent" TextColor="{AppThemeBinding Light=#00796B, Dark=#BDBDBD}" BorderColor="{AppThemeBinding Light=#00796B, Dark=#80CBC4}" BorderWidth="1" CornerRadius="10"/>
+                            <Button Text="Elhamdülillah" Clicked="OnSelectZikir_Clicked" BackgroundColor="Transparent" TextColor="{AppThemeBinding Light=#00796B, Dark=#BDBDBD}" BorderColor="{AppThemeBinding Light=#00796B, Dark=#80CBC4}" BorderWidth="1" CornerRadius="10"/>
+                            <Button Text="Allahu Ekber" Clicked="OnSelectZikir_Clicked" BackgroundColor="Transparent" TextColor="{AppThemeBinding Light=#00796B, Dark=#BDBDBD}" BorderColor="{AppThemeBinding Light=#00796B, Dark=#80CBC4}" BorderWidth="1" CornerRadius="10"/>
+                            <Button Text="La ilahe illallah" Clicked="OnSelectZikir_Clicked" BackgroundColor="Transparent" TextColor="{AppThemeBinding Light=#00796B, Dark=#BDBDBD}" BorderColor="{AppThemeBinding Light=#00796B, Dark=#80CBC4}" BorderWidth="1" CornerRadius="10"/>
+                            <Button Text="Estağfirullah" Clicked="OnSelectZikir_Clicked" BackgroundColor="Transparent" TextColor="{AppThemeBinding Light=#00796B, Dark=#BDBDBD}" BorderColor="{AppThemeBinding Light=#00796B, Dark=#80CBC4}" BorderWidth="1" CornerRadius="10"/>
+                            <Button Text="Sübhanallahi ve bihamdihi" Clicked="OnSelectZikir_Clicked" BackgroundColor="Transparent" TextColor="{AppThemeBinding Light=#00796B, Dark=#BDBDBD}" BorderColor="{AppThemeBinding Light=#00796B, Dark=#80CBC4}" BorderWidth="1" CornerRadius="10"/>
+                            <Button Text="La havle vela kuvvete illa billah" Clicked="OnSelectZikir_Clicked" BackgroundColor="Transparent" TextColor="{AppThemeBinding Light=#00796B, Dark=#BDBDBD}" BorderColor="{AppThemeBinding Light=#00796B, Dark=#80CBC4}" BorderWidth="1" CornerRadius="10"/>
+                            <Button Text="Allahümme salli ala seyyidina Muhammed" Clicked="OnSelectZikir_Clicked" BackgroundColor="Transparent" TextColor="{AppThemeBinding Light=#00796B, Dark=#BDBDBD}" BorderColor="{AppThemeBinding Light=#00796B, Dark=#80CBC4}" BorderWidth="1" CornerRadius="10"/>
+                        </VerticalStackLayout>
+                    </ScrollView>
+
+                    <Button Grid.Row="2"
+                            Text="➕ Kendi Zikrini Gir"
+                            BackgroundColor="{AppThemeBinding Light=#E0F2F1, Dark=#33000000}" 
+                            TextColor="{AppThemeBinding Light=#00796B, Dark=#80CBC4}"
+                            CornerRadius="10"
+                            Clicked="OnOpenCustomZikir_Clicked"/>
+
+                    <Button Grid.Row="3"
+                            Text="Vazgeç"
+                            BackgroundColor="{AppThemeBinding Light=#E0E0E0, Dark=#424242}"
+                            TextColor="{AppThemeBinding Light=#000000, Dark=#FFFFFF}"
+                            CornerRadius="12"
+                            HeightRequest="45"
+                            Clicked="OnCancelZikirSelection_Clicked"/>
+                </Grid>
+            </Frame>
+        </Grid>
+
+        <!-- Özel Zikir Giriş Penceresi -->
+        <Grid x:Name="CustomZikirOverlay"
+              BackgroundColor="#CC000000"
+              IsVisible="False"
+              VerticalOptions="FillAndExpand"
+              HorizontalOptions="FillAndExpand"
+              ZIndex="1000">
+            <Grid.GestureRecognizers>
+                <TapGestureRecognizer Tapped="OnCancelCustomZikir_Clicked"/>
+            </Grid.GestureRecognizers>
+
+            <Frame BackgroundColor="{AppThemeBinding Light=#FFFFFF, Dark=#1F1F1F}"
+                   CornerRadius="25"
+                   HorizontalOptions="Center"
+                   VerticalOptions="Center"
+                   WidthRequest="320"
+                   Padding="20"
+                   HasShadow="True">
+                <VerticalStackLayout Spacing="20">
+                    <Label Text="Özel Zikir" 
+                           FontSize="22" 
+                           FontAttributes="Bold"
+                           HorizontalOptions="Center"
+                           TextColor="{AppThemeBinding Light=#00796B, Dark=#FFFFFF}"/>
+
+                    <Border Stroke="{AppThemeBinding Light=#80009688, Dark=#80FFFFFF}"
+                            StrokeThickness="1"
+                            StrokeShape="RoundRectangle 10"
+                            Padding="10,0">
+                        <Entry x:Name="CustomZikirEntry"
+                               Placeholder="Zikrinizi buraya yazın..."
+                               HorizontalTextAlignment="Center"
+                               MaxLength="50"
+                               TextColor="{AppThemeBinding Light=#000000, Dark=#FFFFFF}"/>
+                    </Border>
+
+                    <Grid ColumnDefinitions="*,*" ColumnSpacing="15">
+                        <Button Grid.Column="0"
+                                Text="Vazgeç"
+                                BackgroundColor="{AppThemeBinding Light=#E0E0E0, Dark=#424242}"
+                                TextColor="{AppThemeBinding Light=#000000, Dark=#FFFFFF}"
+                                CornerRadius="12"
+                                HeightRequest="45"
+                                Clicked="OnCancelCustomZikir_Clicked"/>
+
+                        <Button Grid.Column="1"
+                                Text="Kaydet"
+                                BackgroundColor="#00796B"
+                                TextColor="White"
+                                CornerRadius="12"
+                                HeightRequest="45"
+                                Clicked="OnSaveCustomZikir_Clicked"/>
+                    </Grid>
+                </VerticalStackLayout>
+            </Frame>
+        </Grid>
+
+        <!-- Sıfırla Onay Penceresi (Custom Pop-up) -->
+        <Grid x:Name="ResetConfirmationOverlay"
+              BackgroundColor="#CC000000"
+              IsVisible="False"
+              VerticalOptions="FillAndExpand"
+              HorizontalOptions="FillAndExpand"
+              ZIndex="999">
+              <Grid.GestureRecognizers>
+                  <TapGestureRecognizer Tapped="OnCancelReset_Clicked"/>
+              </Grid.GestureRecognizers>
+            
+            <Frame BackgroundColor="{AppThemeBinding Light=#FFFFFF, Dark=#1F1F1F}"
+                   CornerRadius="25"
+                   HorizontalOptions="Center"
+                   VerticalOptions="Center"
+                   WidthRequest="300"
+                   Padding="20"
+                   HasShadow="True">
+                <VerticalStackLayout Spacing="20">
+                    <Label Text="⚠️" 
+                           FontSize="40" 
+                           HorizontalOptions="Center"/>
+                    
+                    <Label Text="Sıfırlansın mı?" 
+                           FontSize="20" 
+                           FontAttributes="Bold"
+                           HorizontalOptions="Center"
+                           TextColor="{AppThemeBinding Light=#000000, Dark=#FFFFFF}"/>
+                    
+                    <Label Text="Zikir sayacını sıfırlamak istediğinize emin misiniz?" 
+                           FontSize="14" 
+                           HorizontalOptions="Center" 
+                           HorizontalTextAlignment="Center"
+                           TextColor="{AppThemeBinding Light=#757575, Dark=#BDBDBD}"/>
+                    
+                    <Grid ColumnDefinitions="*,*" ColumnSpacing="15" Margin="0,10,0,0">
+                        <!-- İptal Butonu -->
+                        <Button Grid.Column="0"
+                                Text="Vazgeç"
+                                BackgroundColor="{AppThemeBinding Light=#E0E0E0, Dark=#424242}"
+                                TextColor="{AppThemeBinding Light=#000000, Dark=#FFFFFF}"
+                                CornerRadius="12"
+                                HeightRequest="45"
+                                Clicked="OnCancelReset_Clicked"/>
+                        
+                        <!-- Onay Butonu -->
+                        <Button Grid.Column="1"
+                                Text="Sıfırla"
+                                BackgroundColor="#D32F2F"
+                                TextColor="White"
+                                CornerRadius="12"
+                                HeightRequest="45"
+                                Clicked="OnConfirmReset_Clicked"/>
+                    </Grid>
+                </VerticalStackLayout>
+            </Frame>
         </Grid>
     </Grid>
 </ContentPage>

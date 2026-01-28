@@ -68,37 +68,24 @@ namespace hadis
         {
             MainThread.BeginInvokeOnMainThread(() =>
             {
-                string statusText = "";
-                Color statusColor = Colors.Gray;
                 bool showWarning = false;
 
                 switch (accuracy)
                 {
                     case CompassAccuracy.High:
-                        statusText = "Kalibrasyon: Yüksek";
-                        statusColor = Colors.Green;
-                        showWarning = false;
-                        break;
                     case CompassAccuracy.Medium:
-                        statusText = "Kalibrasyon: Orta";
-                        statusColor = Colors.Orange;
                         showWarning = false;
                         break;
                     case CompassAccuracy.Low:
-                        statusText = "Kalibrasyon: Düşük";
-                        statusColor = Colors.Red;
-                        showWarning = true;
-                        break;
                     case CompassAccuracy.Unreliable:
-                        statusText = "Kalibrasyon: Güvenilmez";
-                        statusColor = Colors.DarkRed;
                         showWarning = true;
                         break;
                 }
 
-                AccuracyStatusLabel.Text = statusText;
-                AccuracyStatusLabel.TextColor = statusColor;
-                AccuracyWarningLabel.IsVisible = showWarning;
+                if (CalibrationWarningFrame != null)
+                {
+                    CalibrationWarningFrame.IsVisible = showWarning;
+                }
             });
         }
         
