@@ -1,4 +1,5 @@
 using hadis.Models;
+using hadis.Helpers;
 using System.Text.Json;
 
 namespace hadis
@@ -16,26 +17,22 @@ namespace hadis
 
         private void LoadCurrentTheme()
         {
-            // Kaydedilmis tema tercihini yukle
-            string savedTheme = Preferences.Default.Get(ThemePreferenceKey, "System");
-            
-            switch (savedTheme)
+            // Default to "MainDark" (Standard Dark)
+            string savedTheme = Preferences.Default.Get(ThemePreferenceKey, "MainDark");
+            UpdateThemeUI(savedTheme);
+
+            // Set "Ana Tema" preview images based on current time
+            try
             {
-                case "System":
-                    SistemTemaRadio.IsChecked = true;
-                    break;
-                case "Light":
-                    AcikTemaRadio.IsChecked = true;
-                    break;
-                case "Dark":
-                    KoyuTemaRadio.IsChecked = true;
-                    break;
-                case "Custom":
-                    OzelTemaRadio.IsChecked = true;
-                    break;
-                default:
-                    SistemTemaRadio.IsChecked = true;
-                    break;
+                var now = DateTime.Now;
+                var bgInfo = TimeBasedBackgroundConfig.GetBackgroundForTime(now.Hour, now.Minute);
+                
+                if (AnaAcikImage != null) AnaAcikImage.Source = bgInfo.Image;
+                if (AnaKoyuImage != null) AnaKoyuImage.Source = bgInfo.Image;
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error setting AnaTemaImage: {ex.Message}");
             }
         }
 
@@ -43,6 +40,7 @@ namespace hadis
         {
             // Kayitli ozel tema var mi kontrol et
             string customThemeJson = Preferences.Default.Get("CustomTheme", string.Empty);
+            bool hasCustomTheme = false;
             
             if (!string.IsNullOrEmpty(customThemeJson))
             {
@@ -51,57 +49,149 @@ namespace hadis
                     var theme = JsonSerializer.Deserialize<CustomTheme>(customThemeJson);
                     if (theme != null)
                     {
-                        OzelTemaRadio.Content = $"Ozel Tema ({theme.Name})";
-                        OzelTemaAciklama.Text = "Kaydedilmis ozel temanizi kullanir";
-                        OzelTemaRadio.IsEnabled = true;
+                        hasCustomTheme = true;
+                        
+                        // Set preview image if it is an image file
+                        if (!string.IsNullOrEmpty(theme.BackgroundImage) && 
+                           (theme.BackgroundImage.EndsWith(".jpg", StringComparison.OrdinalIgnoreCase) || 
+                            theme.BackgroundImage.EndsWith(".png", StringComparison.OrdinalIgnoreCase)))
+                        {
+                            if (OzelTemaImage != null)
+                            {
+                                OzelTemaImage.Source = theme.BackgroundImage;
+                            }
+                        }
                     }
                 }
-                catch
-                {
-                    OzelTemaRadio.IsEnabled = false;
-                }
+                catch { }
             }
-            else
+
+            // Ozel tema varsa belirtecini aktif et (Opacity 1.0)
+            if (OzelFrame != null)
             {
-                OzelTemaRadio.IsEnabled = false;
+                OzelFrame.Opacity = hasCustomTheme ? 1.0 : 0.5;
             }
         }
 
-        private void OnThemeChanged(object sender, CheckedChangedEventArgs e)
+        private void OnThemeCardTapped(object sender, EventArgs e)
         {
-            if (!e.Value || Application.Current == null)
-                return;
+            if (sender is View view && view.GestureRecognizers.Count > 0)
+            {
+                 var tapGesture = view.GestureRecognizers[0] as TapGestureRecognizer;
+                 if (tapGesture != null && tapGesture.CommandParameter is string theme)
+                 {
+                     // Ozel tema secildiyse ve kayitli tema yoksa uyari ver
+                     if (theme == "Custom")
+                     {
+                         string customThemeJson = Preferences.Default.Get("CustomTheme", string.Empty);
+                         if (string.IsNullOrEmpty(customThemeJson))
+                         {
+                             DisplayAlert("Uyarı", "Önce özel bir tema oluşturmalısınız.", "Tamam");
+                             return;
+                         }
+                     }
 
-            string selectedTheme;
-            
-            if (sender == SistemTemaRadio)
-            {
-                Application.Current.UserAppTheme = AppTheme.Unspecified;
-                selectedTheme = "System";
+                     ApplyTheme(theme);
+                 }
             }
-            else if (sender == AcikTemaRadio)
+        }
+
+        private void ApplyTheme(string selectedTheme)
+        {
+            if (Application.Current == null) return;
+
+            switch (selectedTheme)
             {
-                Application.Current.UserAppTheme = AppTheme.Light;
-                selectedTheme = "Light";
+                case "MainLight": // Ana Tema (Açık) - Dynamic
+                    Application.Current.UserAppTheme = AppTheme.Light;
+                    break;
+                case "MainDark": // Ana Tema (Koyu) - Dynamic
+                    Application.Current.UserAppTheme = AppTheme.Dark;
+                    break;
+                case "Light": // Açık (Sabit)
+                    Application.Current.UserAppTheme = AppTheme.Light;
+                    break;
+                case "PitchBlack": // Simsiyah (Sabit)
+                    Application.Current.UserAppTheme = AppTheme.Dark;
+                    break;
+                case "Custom":
+                    Application.Current.UserAppTheme = AppTheme.Dark; 
+                    break;
+                default: 
+                    // Fallback
+                    Application.Current.UserAppTheme = AppTheme.Dark;
+                    break;
             }
-            else if (sender == KoyuTemaRadio)
+
+            Preferences.Default.Set(ThemePreferenceKey, selectedTheme);
+            UpdateStatusBarColor(selectedTheme);
+            UpdateThemeUI(selectedTheme);
+        }
+
+        private void UpdateThemeUI(string selectedTheme)
+        {
+            // Reset All (Visual State: Unselected)
+            SetFrameState(AnaAcikFrame, AnaAcikStatus, false);
+            SetFrameState(AnaKoyuFrame, AnaKoyuStatus, false);
+            SetFrameState(AcikFrame, AcikStatus, false);
+            SetFrameState(SimsiyahFrame, SimsiyahStatus, false);
+            SetFrameState(OzelFrame, OzelStatus, false);
+
+            // Set Selected
+            switch (selectedTheme)
             {
-                Application.Current.UserAppTheme = AppTheme.Dark;
-                selectedTheme = "Dark";
+                case "MainLight":
+                    SetFrameState(AnaAcikFrame, AnaAcikStatus, true);
+                    break;
+                case "MainDark":
+                    SetFrameState(AnaKoyuFrame, AnaKoyuStatus, true);
+                    break;
+                case "Main": // Legacy mapping
+                    SetFrameState(AnaKoyuFrame, AnaKoyuStatus, true);
+                    break;
+                case "System": // Legacy mapping
+                    SetFrameState(AnaKoyuFrame, AnaKoyuStatus, true);
+                    break;
+                case "Light":
+                    SetFrameState(AcikFrame, AcikStatus, true);
+                    break;
+                case "PitchBlack":
+                    SetFrameState(SimsiyahFrame, SimsiyahStatus, true);
+                    break;
+                case "Dark": // Legacy mapping -> PitchBlack or MainDark? 
+                             // Let's map old "Dark" to "Simsiyah" (PitchBlack) as user likely wanted dark mode.
+                             // Or stick to "MainDark" if that was the default. 
+                             // Given "Koyu" was the old placeholder, PitchBlack is safe.
+                    SetFrameState(SimsiyahFrame, SimsiyahStatus, true);
+                    break;
+                case "Custom":
+                    SetFrameState(OzelFrame, OzelStatus, true);
+                    break;
             }
-            else if (sender == OzelTemaRadio)
+        }
+
+        private void SetFrameState(Frame frame, Label statusLabel, bool isSelected)
+        {
+            if (frame == null) return;
+
+            if (isSelected)
             {
-                // Ozel tema secildi - koyu temaya ayarla (ozel renkler MainPage'de uygulanacak)
-                Application.Current.UserAppTheme = AppTheme.Dark;
-                selectedTheme = "Custom";
+                // Highlight: Primary Color
+                frame.SetAppThemeColor(Microsoft.Maui.Controls.Frame.BorderColorProperty, 
+                    Color.FromArgb("#00796B"), Color.FromArgb("#80CBC4"));
+                
+                // Show Status Label
+                if (statusLabel != null) statusLabel.IsVisible = true;
             }
             else
             {
-                return;
+                // Default: Gray
+                frame.SetAppThemeColor(Microsoft.Maui.Controls.Frame.BorderColorProperty, 
+                    Color.FromArgb("#E0E0E0"), Color.FromArgb("#333333"));
+                
+                // Hide Status Label
+                if (statusLabel != null) statusLabel.IsVisible = false;
             }
-            
-            Preferences.Default.Set(ThemePreferenceKey, selectedTheme);
-            UpdateStatusBarColor(selectedTheme);
         }
 
         private async void OzelTemaOlustur_Clicked(object sender, EventArgs e)
@@ -112,16 +202,17 @@ namespace hadis
         protected override void OnAppearing()
         {
             base.OnAppearing();
-            // Sayfa gorunur oldugunda ozel tema bilgisini yeniden yukle
+            LoadCurrentTheme(); 
             LoadCustomThemeInfo();
         }
 
         private void UpdateStatusBarColor(string theme)
         {
-            // Aktif temayi belirle
+            if (Application.Current == null) return;
+
             var currentTheme = theme == "System" 
-                ? Application.Current?.RequestedTheme ?? AppTheme.Light 
-                : (theme == "Dark" ? AppTheme.Dark : AppTheme.Light);
+                ? Application.Current.RequestedTheme 
+                : (theme == "Dark" || theme == "Custom" ? AppTheme.Dark : AppTheme.Light);
 
 #if ANDROID
             Microsoft.Maui.ApplicationModel.Platform.CurrentActivity?.RunOnUiThread(() =>
@@ -131,26 +222,18 @@ namespace hadis
                 {
                     if (currentTheme == AppTheme.Dark)
                     {
-                        // Koyu tema - siyah status bar
                         window.SetStatusBarColor(Android.Graphics.Color.Black);
-                        
-                        // Android 6.0 ve uzeri icin metin rengini ayarla
                         if (Android.OS.Build.VERSION.SdkInt >= Android.OS.BuildVersionCodes.M)
                         {
-                            // Koyu tema icin acik renkli iconlar
                             window.DecorView.SystemUiVisibility = (Android.Views.StatusBarVisibility)
                                 Android.Views.SystemUiFlags.Visible;
                         }
                     }
                     else
                     {
-                        // Acik tema - beyaz status bar
                         window.SetStatusBarColor(Android.Graphics.Color.White);
-                        
-                        // Android 6.0 ve uzeri icin metin rengini ayarla
                         if (Android.OS.Build.VERSION.SdkInt >= Android.OS.BuildVersionCodes.M)
                         {
-                            // Acik tema icin koyu renkli iconlar
                             window.DecorView.SystemUiVisibility = (Android.Views.StatusBarVisibility)
                                 (Android.Views.SystemUiFlags.LightStatusBar);
                         }

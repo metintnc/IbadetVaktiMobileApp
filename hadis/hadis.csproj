@@ -132,8 +132,6 @@
 		<PackageReference Include="Microsoft.Maui.Controls" Version="9.0.120" />
 		<PackageReference Include="Microsoft.Extensions.Logging.Debug" Version="9.0.10" />
 		<PackageReference Include="Microsoft.Maui.Essentials" Version="9.0.120" />
-		<PackageReference Include="Syncfusion.Maui.PdfViewer" Version="31.2.10" />
-		<PackageReference Include="Vitvov.Maui.PDFView" Version="1.5.0" />
 	</ItemGroup>
 
 	<ItemGroup>

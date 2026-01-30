@@ -96,16 +96,11 @@ namespace hadis
                 if (ayah.IsSaved)
                 {
                      // Remove Logic
-                     var ayahToRemove = new SavedAyah { SureNo = _sureNo, Number = ayah.Number }; // Minimal info needed for matching
+                     var ayahToRemove = new SavedAyah { SureNo = _sureNo, Number = ayah.Number };
                      await SavedAyahsService.RemoveAyahAsync(ayahToRemove);
                      
                      ayah.IsSaved = false;
-                     // UI Refresh
-                     var index = _viewModel.Ayahs.IndexOf(ayah);
-                     if (index >= 0) _viewModel.Ayahs[index] = ayah;
-
-                     // Opsiyonel: "Kaydetme silindi" mesajı vermek istersen:
-                     // await DisplayAlert("Bilgi", "Kaydetme silindi.", "Tamam");
+                     // UI automatically updates due to INotifyPropertyChanged
                      return;
                 }
 
@@ -124,11 +119,7 @@ namespace hadis
                 await SavedAyahsService.SaveAyahAsync(savedAyah);
                 
                 ayah.IsSaved = true;
-                // UI Refresh
-                var idx = _viewModel.Ayahs.IndexOf(ayah);
-                if (idx >= 0) _viewModel.Ayahs[idx] = ayah;
-                
-                // await DisplayAlert("Başarılı", "Ayet kaydedildi.", "Tamam");
+                // UI automatically updates due to INotifyPropertyChanged
             }
         }
     }

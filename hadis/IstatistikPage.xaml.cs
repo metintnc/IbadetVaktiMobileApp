@@ -158,16 +158,37 @@ namespace hadis
                 double heightFactor = (double)count / maxVal;
                 if (count > 0 && heightFactor < 0.05) heightFactor = 0.05;
 
+                // Main stack for the column (Value + Bar)
+                var columnStack = new VerticalStackLayout
+                {
+                    VerticalOptions = LayoutOptions.End,
+                    HorizontalOptions = LayoutOptions.Fill,
+                    Spacing = 2
+                };
+
+                // Value Label (Shows the count)
+                var valueLabel = new Label
+                {
+                    Text = count > 0 ? count.ToString() : "", // Show only if > 0 or always? User wants to see it. 0 is fine too or empty. Let's show empty for 0 to keep it clean, or 0 if explicit. User example imply seeing count. Let's show if > 0 or just keeping it clean.
+                    FontSize = 10,
+                    TextColor = count > 0 ? Color.FromArgb(i == 6 ? "#FFA000" : "#00796B") : Colors.Transparent, // Match bar color
+                    HorizontalOptions = LayoutOptions.Center,
+                    FontAttributes = FontAttributes.Bold
+                };
+                columnStack.Add(valueLabel);
+
+                // Bar
                 var bar = new BoxView
                 {
                     Color = count > 0 ? Color.FromArgb(i == 6 ? "#FFA000" : "#00796B") : Color.FromArgb("#E0E0E0"),
                     CornerRadius = 4,
-                    VerticalOptions = LayoutOptions.End,
-                    HorizontalOptions = LayoutOptions.Fill,
-                    HeightRequest = heightFactor * 120
+                    HeightRequest = heightFactor * 120,
+                    HorizontalOptions = LayoutOptions.Fill
                 };
+                columnStack.Add(bar);
                 
-                var label = new Label
+                // Day Label (Bottom axis)
+                var dayLabel = new Label
                 {
                     Text = date.ToString("ddd", new CultureInfo("tr-TR")),
                     FontSize = 10,
@@ -175,8 +196,8 @@ namespace hadis
                     TextColor = Color.FromArgb("#757575")
                 };
 
-                ChartGrid.Add(bar, i, 0);
-                ChartGrid.Add(label, i, 1);
+                ChartGrid.Add(columnStack, i, 0);
+                ChartGrid.Add(dayLabel, i, 1);
             }
         }
 

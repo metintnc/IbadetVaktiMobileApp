@@ -194,27 +194,9 @@ namespace hadis
             CitiesCollectionView.ItemsSource = _filteredCities;
         }
 
-        protected override async void OnAppearing()
+        protected override void OnAppearing()
         {
             base.OnAppearing();
-            await LoadBackground();
-        }
-
-        private async Task LoadBackground()
-        {
-            try
-            {
-                if (_imageService != null)
-                {
-                    string imageName = Application.Current.RequestedTheme == AppTheme.Dark ? "bg_dark.jpg" : "bg_light.jpg";
-                    BackgroundImage.Source = await _imageService.GetOptimizedBackgroundImageAsync(imageName);
-                    BackgroundImage.IsVisible = true;
-                }
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine($"SehirSecim Background Load Error: {ex.Message}");
-            }
         }
 
         private void SearchBar_TextChanged(object sender, TextChangedEventArgs e)
@@ -248,6 +230,16 @@ namespace hadis
             {
                 await SelectCity(city);
             }
+        }
+
+        private async void OnBackLabelClicked(object sender, TappedEventArgs e)
+        {
+            await Navigation.PopAsync();
+        }
+
+        private async void OnBackButtonClicked(object sender, EventArgs e)
+        {
+            await Navigation.PopAsync();
         }
 
         private async Task SelectCity(City city)

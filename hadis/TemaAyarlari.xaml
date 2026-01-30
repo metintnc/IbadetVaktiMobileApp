@@ -2,209 +2,262 @@
 <ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              x:Class="hadis.TemaAyarlari"
-             Title="Tema Ayarlari">
+             Title="Tema Ayarlari"
+             BackgroundColor="{AppThemeBinding Light=#F5F5F5, Dark=#121212}">
     
     <Grid>
-        <Image Aspect="AspectFill"
-               HorizontalOptions="FillAndExpand"
-               VerticalOptions="FillAndExpand">
-            <Image.Source>
-                <AppThemeBinding Light="bg_light.jpg" Dark="bg_dark.jpg" />
-            </Image.Source>
-        </Image>
-        
-        <BoxView HorizontalOptions="FillAndExpand"
-                 VerticalOptions="FillAndExpand">
-            <BoxView.Color>
-                <AppThemeBinding Light="White" Dark="Black" />
-            </BoxView.Color>
-            <BoxView.Opacity>
-                <AppThemeBinding Light="0.85" Dark="0.55" />
-            </BoxView.Opacity>
-        </BoxView>
-        
         <ScrollView Padding="20,10">
-            <VerticalStackLayout Spacing="15">
+            <VerticalStackLayout Spacing="20">
                 
-                <Label Text="Tema Ayarlari"
-                       FontSize="24"
-                       FontAttributes="Bold"
-                       Margin="0,10,0,10"
-                       TextColor="{AppThemeBinding Light=#00796B, Dark=#FFFFFF}"/>
-
-                <Frame Style="{StaticResource BorderFrame}" 
-                       Padding="15" 
-                       BackgroundColor="Transparent"
-                       BorderColor="{AppThemeBinding Light=#80009688, Dark=#80FFFFFF}">
-                    <VerticalStackLayout Spacing="10" RadioButtonGroup.GroupName="ThemeGroup">
-                        <Label Text="Tema Secimi" FontSize="18" FontAttributes="Bold"
+                <!-- 1. HEADER CARD -->
+                <Frame CornerRadius="20"
+                       Padding="20"
+                       HasShadow="True"
+                       BorderColor="{AppThemeBinding Light=#E0E0E0, Dark=#333333}"
+                       BackgroundColor="{AppThemeBinding Light=White, Dark=#1E1E1E}">
+                    <VerticalStackLayout Spacing="5" HorizontalOptions="Center">
+                        <Label Text="Tema Ayarları"
+                               FontSize="22"
+                               FontAttributes="Bold"
+                               HorizontalOptions="Center"
                                TextColor="{AppThemeBinding Light=#00796B, Dark=#FFFFFF}"/>
-                        
-                        <RadioButton x:Name="SistemTemaRadio"
-                                     Content="Sistem Temasi" 
-                                     IsChecked="True"
-                                     CheckedChanged="OnThemeChanged"
-                                     TextColor="{AppThemeBinding Light=#00796B, Dark=#FFFFFF}">
-                            <RadioButton.ControlTemplate>
-                                <ControlTemplate>
-                                    <Grid ColumnDefinitions="Auto,*" ColumnSpacing="10">
-                                        <Border Grid.Column="0"
-                                                WidthRequest="22"
-                                                HeightRequest="22"
-                                                VerticalOptions="Center"
-                                                Stroke="{AppThemeBinding Light=#80009688, Dark=#FFFFFF}"
-                                                StrokeThickness="2"
-                                                BackgroundColor="Transparent"
-                                                StrokeShape="RoundRectangle 11">
-                                            <Ellipse x:Name="CheckMark"
-                                                     WidthRequest="12"
-                                                     HeightRequest="12"
-                                                     Fill="{AppThemeBinding Light=#00796B, Dark=#FFFFFF}"
-                                                     HorizontalOptions="Center"
-                                                     VerticalOptions="Center"
-                                                     IsVisible="{TemplateBinding IsChecked}"/>
-                                        </Border>
-                                        <ContentPresenter Grid.Column="1"
-                                                          VerticalOptions="Center"/>
-                                    </Grid>
-                                </ControlTemplate>
-                            </RadioButton.ControlTemplate>
-                        </RadioButton>
-                        <Label Text="Cihazinizin sistem temasini kullanir"
+                        <Label Text="Görünümünüzü Kişiselleştirin"
                                FontSize="12"
-                               Margin="32,0,0,10"
-                               TextColor="{AppThemeBinding Light=#757575, Dark=#BDBDBD}"/>
-                        
-                        <RadioButton x:Name="AcikTemaRadio"
-                                     Content="Acik Tema"
-                                     CheckedChanged="OnThemeChanged"
-                                     TextColor="{AppThemeBinding Light=#00796B, Dark=#FFFFFF}">
-                            <RadioButton.ControlTemplate>
-                                <ControlTemplate>
-                                    <Grid ColumnDefinitions="Auto,*" ColumnSpacing="10">
-                                        <Border Grid.Column="0"
-                                                WidthRequest="22"
-                                                HeightRequest="22"
-                                                VerticalOptions="Center"
-                                                Stroke="{AppThemeBinding Light=#80009688, Dark=#FFFFFF}"
-                                                StrokeThickness="2"
-                                                BackgroundColor="Transparent"
-                                                StrokeShape="RoundRectangle 11">
-                                            <Ellipse x:Name="CheckMark"
-                                                     WidthRequest="12"
-                                                     HeightRequest="12"
-                                                     Fill="{AppThemeBinding Light=#00796B, Dark=#FFFFFF}"
-                                                     HorizontalOptions="Center"
-                                                     VerticalOptions="Center"
-                                                     IsVisible="{TemplateBinding IsChecked}"/>
-                                        </Border>
-                                        <ContentPresenter Grid.Column="1"
-                                                          VerticalOptions="Center"/>
-                                    </Grid>
-                                </ControlTemplate>
-                            </RadioButton.ControlTemplate>
-                        </RadioButton>
-                        <Label Text="Her zaman acik tema kullanilir"
-                               FontSize="12"
-                               Margin="32,0,0,10"
-                               TextColor="{AppThemeBinding Light=#757575, Dark=#BDBDBD}"/>
-                        
-                        <RadioButton x:Name="KoyuTemaRadio"
-                                     Content="Koyu Tema"
-                                     CheckedChanged="OnThemeChanged"
-                                     TextColor="{AppThemeBinding Light=#00796B, Dark=#FFFFFF}">
-                            <RadioButton.ControlTemplate>
-                                <ControlTemplate>
-                                    <Grid ColumnDefinitions="Auto,*" ColumnSpacing="10">
-                                        <Border Grid.Column="0"
-                                                WidthRequest="22"
-                                                HeightRequest="22"
-                                                VerticalOptions="Center"
-                                                Stroke="{AppThemeBinding Light=#80009688, Dark=#FFFFFF}"
-                                                StrokeThickness="2"
-                                                BackgroundColor="Transparent"
-                                                StrokeShape="RoundRectangle 11">
-                                            <Ellipse x:Name="CheckMark"
-                                                     WidthRequest="12"
-                                                     HeightRequest="12"
-                                                     Fill="{AppThemeBinding Light=#00796B, Dark=#FFFFFF}"
-                                                     HorizontalOptions="Center"
-                                                     VerticalOptions="Center"
-                                                     IsVisible="{TemplateBinding IsChecked}"/>
-                                        </Border>
-                                        <ContentPresenter Grid.Column="1"
-                                                          VerticalOptions="Center"/>
-                                    </Grid>
-                                </ControlTemplate>
-                            </RadioButton.ControlTemplate>
-                        </RadioButton>
-                        <Label Text="Her zaman koyu tema kullanilir"
-                               FontSize="12"
-                               Margin="32,0,0,5"
-                               TextColor="{AppThemeBinding Light=#757575, Dark=#BDBDBD}"/>
-                        
-                        <RadioButton x:Name="OzelTemaRadio"
-                                     Content="Ozel Tema"
-                                     CheckedChanged="OnThemeChanged"
-                                     TextColor="{AppThemeBinding Light=#00796B, Dark=#FFFFFF}">
-                            <RadioButton.ControlTemplate>
-                                <ControlTemplate>
-                                    <Grid ColumnDefinitions="Auto,*" ColumnSpacing="10">
-                                        <Border Grid.Column="0"
-                                                WidthRequest="22"
-                                                HeightRequest="22"
-                                                VerticalOptions="Center"
-                                                Stroke="{AppThemeBinding Light=#80009688, Dark=#FFFFFF}"
-                                                StrokeThickness="2"
-                                                BackgroundColor="Transparent"
-                                                StrokeShape="RoundRectangle 11">
-                                            <Ellipse x:Name="CheckMark"
-                                                     WidthRequest="12"
-                                                     HeightRequest="12"
-                                                     Fill="{AppThemeBinding Light=#00796B, Dark=#FFFFFF}"
-                                                     HorizontalOptions="Center"
-                                                     VerticalOptions="Center"
-                                                     IsVisible="{TemplateBinding IsChecked}"/>
-                                        </Border>
-                                        <ContentPresenter Grid.Column="1"
-                                                          VerticalOptions="Center"/>
-                                    </Grid>
-                                </ControlTemplate>
-                            </RadioButton.ControlTemplate>
-                        </RadioButton>
-                        <Label x:Name="OzelTemaAciklama"
-                               Text="Kayitli ozel tema bulunamadi"
-                               FontSize="12"
-                               Margin="32,0,0,5"
+                               HorizontalOptions="Center"
                                TextColor="{AppThemeBinding Light=#757575, Dark=#BDBDBD}"/>
                     </VerticalStackLayout>
                 </Frame>
 
-                <Frame Style="{StaticResource BorderFrame}" 
-                       Padding="15" 
-                       BackgroundColor="Transparent"
-                       BorderColor="{AppThemeBinding Light=#80009688, Dark=#80FFFFFF}">
-                    <VerticalStackLayout Spacing="12">
-                        <Label Text="Ozel Tema"
+                <!-- 2. HAZIR TEMALAR SECTION -->
+                <VerticalStackLayout Spacing="10">
+                    <Grid ColumnDefinitions="*, Auto">
+                        <Label Text="Hazır Temalar"
                                FontSize="18"
                                FontAttributes="Bold"
-                               TextColor="{AppThemeBinding Light=#00796B, Dark=#FFFFFF}"/>
+                               TextColor="{AppThemeBinding Light=#212121, Dark=#FFFFFF}"
+                               VerticalOptions="Center"/>
+                        <Label Grid.Column="1"
+                               Text="❯"
+                               FontSize="18"
+                               TextColor="{AppThemeBinding Light=#757575, Dark=#BDBDBD}"
+                               VerticalOptions="Center"/>
+                    </Grid>
+
+                    <!-- Theme Cards Grid (3 Rows) -->
+                    <Grid ColumnDefinitions="*,*" RowDefinitions="Auto,Auto,Auto" ColumnSpacing="15" RowSpacing="15">
                         
-                        <Label Text="Kendi temanizi olusturun ve renkleri ozelestirin"
-                               FontSize="13"
-                               TextColor="{AppThemeBinding Light=#757575, Dark=#BDBDBD}"/>
+                        <!-- Ana Tema (Açık) (Row 0, Col 0) -->
+                        <Frame x:Name="AnaAcikFrame"
+                               Grid.Row="0" Grid.Column="0"
+                               CornerRadius="15"
+                               Padding="0"
+                               IsClippedToBounds="True"
+                               HasShadow="True"
+                               BorderColor="{AppThemeBinding Light=#00796B, Dark=#80CBC4}"
+                               BackgroundColor="{AppThemeBinding Light=White, Dark=#1E1E1E}">
+                            <Frame.GestureRecognizers>
+                                <TapGestureRecognizer Tapped="OnThemeCardTapped" CommandParameter="MainLight"/>
+                            </Frame.GestureRecognizers>
+                            <Grid RowDefinitions="100, Auto">
+                                <Image x:Name="AnaAcikImage"
+                                       Grid.Row="0"
+                                       Aspect="AspectFill"
+                                       Source="sun_06.png"/>
+                                
+                                <VerticalStackLayout Grid.Row="1" Padding="10" Spacing="5">
+                                    <Label Text="Ana (Açık)"
+                                           FontSize="14"
+                                           FontAttributes="Bold"
+                                           HorizontalOptions="Center"
+                                           TextColor="{AppThemeBinding Light=#212121, Dark=#FFFFFF}"/>
+                                    <Label x:Name="AnaAcikStatus"
+                                           Text="(Seçili)"
+                                           FontSize="10"
+                                           HorizontalOptions="Center"
+                                           TextColor="{AppThemeBinding Light=#00796B, Dark=#80CBC4}"
+                                           IsVisible="False"/>
+                                </VerticalStackLayout>
+                            </Grid>
+                        </Frame>
+
+                        <!-- Ana Tema (Koyu) (Row 0, Col 1) -->
+                        <Frame x:Name="AnaKoyuFrame"
+                               Grid.Row="0" Grid.Column="1"
+                               CornerRadius="15"
+                               Padding="0"
+                               IsClippedToBounds="True"
+                               HasShadow="True"
+                               BorderColor="{AppThemeBinding Light=#E0E0E0, Dark=#333333}"
+                               BackgroundColor="{AppThemeBinding Light=White, Dark=#1E1E1E}">
+                            <Frame.GestureRecognizers>
+                                <TapGestureRecognizer Tapped="OnThemeCardTapped" CommandParameter="MainDark"/>
+                            </Frame.GestureRecognizers>
+                            <Grid RowDefinitions="100, Auto">
+                                <Image x:Name="AnaKoyuImage"
+                                       Grid.Row="0"
+                                       Aspect="AspectFill"
+                                       Source="sun_09.png"/>
+                                
+                                <VerticalStackLayout Grid.Row="1" Padding="10" Spacing="5">
+                                    <Label Text="Ana (Koyu)"
+                                           FontSize="14"
+                                           FontAttributes="Bold"
+                                           HorizontalOptions="Center"
+                                           TextColor="{AppThemeBinding Light=#212121, Dark=#FFFFFF}"/>
+                                    <Label x:Name="AnaKoyuStatus"
+                                           Text=""
+                                           FontSize="10"
+                                           HorizontalOptions="Center"
+                                           TextColor="{AppThemeBinding Light=#00796B, Dark=#80CBC4}"
+                                           IsVisible="False"/>
+                                </VerticalStackLayout>
+                            </Grid>
+                        </Frame>
+
+                        <!-- Açık (Sabit) (Row 1, Col 0) -->
+                        <Frame x:Name="AcikFrame"
+                               Grid.Row="1" Grid.Column="0"
+                               CornerRadius="15"
+                               Padding="0"
+                               IsClippedToBounds="True"
+                               HasShadow="True"
+                               BorderColor="{AppThemeBinding Light=#E0E0E0, Dark=#333333}"
+                               BackgroundColor="{AppThemeBinding Light=White, Dark=#1E1E1E}">
+                            <Frame.GestureRecognizers>
+                                <TapGestureRecognizer Tapped="OnThemeCardTapped" CommandParameter="Light"/>
+                            </Frame.GestureRecognizers>
+                            <Grid RowDefinitions="100, Auto">
+                                <Image Grid.Row="0"
+                                       Aspect="AspectFill"
+                                       Source="bg_light.jpg"/>
+                                
+                                <VerticalStackLayout Grid.Row="1" Padding="10" Spacing="5">
+                                    <Label Text="Açık"
+                                           FontSize="14"
+                                           FontAttributes="Bold"
+                                           HorizontalOptions="Center"
+                                           TextColor="{AppThemeBinding Light=#212121, Dark=#FFFFFF}"/>
+                                    <Label x:Name="AcikStatus"
+                                           Text=""
+                                           FontSize="10"
+                                           HorizontalOptions="Center"
+                                           TextColor="{AppThemeBinding Light=#00796B, Dark=#80CBC4}"
+                                           IsVisible="False"/>
+                                </VerticalStackLayout>
+                            </Grid>
+                        </Frame>
+
+                        <!-- Simsiyah (Sabit) (Row 1, Col 1) -->
+                        <Frame x:Name="SimsiyahFrame"
+                               Grid.Row="1" Grid.Column="1"
+                               CornerRadius="15"
+                               Padding="0"
+                               IsClippedToBounds="True"
+                               HasShadow="True"
+                               BorderColor="{AppThemeBinding Light=#E0E0E0, Dark=#333333}"
+                               BackgroundColor="{AppThemeBinding Light=White, Dark=#1E1E1E}">
+                            <Frame.GestureRecognizers>
+                                <TapGestureRecognizer Tapped="OnThemeCardTapped" CommandParameter="PitchBlack"/>
+                            </Frame.GestureRecognizers>
+                            <Grid RowDefinitions="100, Auto">
+                                <Image Grid.Row="0"
+                                       Aspect="AspectFill"
+                                       Source="bg_dark.jpg"/>
+                                
+                                <VerticalStackLayout Grid.Row="1" Padding="10" Spacing="5">
+                                    <Label Text="Simsiyah"
+                                           FontSize="14"
+                                           FontAttributes="Bold"
+                                           HorizontalOptions="Center"
+                                           TextColor="{AppThemeBinding Light=#212121, Dark=#FFFFFF}"/>
+                                    <Label x:Name="SimsiyahStatus"
+                                           Text=""
+                                           FontSize="10"
+                                           HorizontalOptions="Center"
+                                           TextColor="{AppThemeBinding Light=#00796B, Dark=#80CBC4}"
+                                           IsVisible="False"/>
+                                </VerticalStackLayout>
+                            </Grid>
+                        </Frame>
+
+                        <!-- Özel Tema (Row 2, Col 0, ColSpan 2) -->
+                        <Frame x:Name="OzelFrame"
+                               Grid.Row="2" Grid.Column="0" Grid.ColumnSpan="2"
+                               CornerRadius="15"
+                               Padding="0"
+                               IsClippedToBounds="True"
+                               HasShadow="True"
+                               BorderColor="{AppThemeBinding Light=#E0E0E0, Dark=#333333}"
+                               BackgroundColor="{AppThemeBinding Light=White, Dark=#1E1E1E}"
+                               Opacity="0.5">
+                            <Frame.GestureRecognizers>
+                                <TapGestureRecognizer Tapped="OnThemeCardTapped" CommandParameter="Custom"/>
+                            </Frame.GestureRecognizers>
+                            <Grid RowDefinitions="100, Auto">
+                                <Image x:Name="OzelTemaImage"
+                                       Grid.Row="0"
+                                       Aspect="AspectFill"
+                                       Source="sun_05.png"
+                                       BackgroundColor="Gray"/> 
+                                
+                                <VerticalStackLayout Grid.Row="1" Padding="10" Spacing="5">
+                                    <Label Text="Özel"
+                                           FontSize="14"
+                                           FontAttributes="Bold"
+                                           HorizontalOptions="Center"
+                                           TextColor="{AppThemeBinding Light=#212121, Dark=#FFFFFF}"/>
+                                    <Label x:Name="OzelStatus"
+                                           Text=""
+                                           FontSize="10"
+                                           HorizontalOptions="Center"
+                                           TextColor="{AppThemeBinding Light=#00796B, Dark=#80CBC4}"
+                                           IsVisible="False"/>
+                                </VerticalStackLayout>
+                            </Grid>
+                        </Frame>
+                    </Grid>
+                </VerticalStackLayout>
+
+                <!-- 3. OZEL TEMA SECTION (Large Bottom Card) -->
+                <Frame x:Name="OzelTemaFrame"
+                       CornerRadius="20"
+                       Padding="20"
+                       HasShadow="True"
+                       Margin="0,20,0,0"
+                       BorderColor="{AppThemeBinding Light=#E0E0E0, Dark=#333333}"
+                       BackgroundColor="{AppThemeBinding Light=White, Dark=#1E1E1E}"
+                       HeightRequest="120">
+                    <Frame.GestureRecognizers>
+                        <TapGestureRecognizer Tapped="OzelTemaOlustur_Clicked"/>
+                    </Frame.GestureRecognizers>
+                    <Grid ColumnDefinitions="Auto, *">
+                        <Label Grid.Column="0" 
+                               Text="🎨" 
+                               FontSize="40" 
+                               VerticalOptions="Center"
+                               Margin="0,0,15,0"/>
                         
-                        <Button Text="Ozel Tema Olustur"
-                                Clicked="OzelTemaOlustur_Clicked"
-                                BackgroundColor="{AppThemeBinding Light=#00796B, Dark=#FFFFFF}"
-                                TextColor="{AppThemeBinding Light=#FFFFFF, Dark=#00796B}"
-                                CornerRadius="15"
-                                Padding="15,12"
-                                FontAttributes="Bold"
-                                FontSize="16"
-                                HorizontalOptions="Fill"
-                                Margin="0,5,0,0"/>
-                    </VerticalStackLayout>
+                        <VerticalStackLayout Grid.Column="1" VerticalOptions="Center" Spacing="4">
+                            <Label Text="Özel Tema Oluştur"
+                                   FontSize="18"
+                                   FontAttributes="Bold"
+                                   TextColor="{AppThemeBinding Light=#212121, Dark=#FFFFFF}"/>
+                            <Label Text="Kendi tarzını yarat"
+                                   FontSize="12"
+                                   TextColor="{AppThemeBinding Light=#757575, Dark=#BDBDBD}"/>
+                        </VerticalStackLayout>
+                        
+                        <!-- Optional: Indicate if a custom theme is active -->
+                        <Label x:Name="OzelTemaStatus"
+                               Grid.Column="1"
+                               Text="(Seçili)"
+                               FontSize="12"
+                               FontAttributes="Bold"
+                               TextColor="{AppThemeBinding Light=#00796B, Dark=#80CBC4}"
+                               HorizontalOptions="End"
+                               VerticalOptions="Start"
+                               IsVisible="False"/>
+                    </Grid>
                 </Frame>
 
             </VerticalStackLayout>

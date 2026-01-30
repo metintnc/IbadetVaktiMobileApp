@@ -1,6 +1,6 @@
 using hadis.Models;
 using hadis.Services;
-using System.Text.Json;
+
 using System.Collections.ObjectModel;
 
 namespace hadis
@@ -27,8 +27,15 @@ namespace hadis
         protected override async void OnAppearing()
         {
             base.OnAppearing();
+            Shell.SetTabBarIsVisible(this, false);
             LoadSavedAyahs(); // Refresh list on appearing in case changes occurred
             await LoadBackground();
+        }
+
+        protected override void OnDisappearing()
+        {
+            base.OnDisappearing();
+            Shell.SetTabBarIsVisible(this, true);
         }
 
         private async Task LoadBackground()
@@ -48,12 +55,11 @@ namespace hadis
             }
         }
 
-        private void LoadSavedAyahs()
+        private async void LoadSavedAyahs()
         {
             try
             {
-                string json = Preferences.Default.Get("SavedAyahs", "[]");
-                var list = JsonSerializer.Deserialize<List<SavedAyah>>(json) ?? new List<SavedAyah>();
+                var list = await SavedAyahsService.GetSavedAyahsAsync();
                 
                 // Sort by date descending
                 list = list.OrderByDescending(x => x.SavedDate).ToList();

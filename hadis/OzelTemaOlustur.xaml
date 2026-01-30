@@ -2,26 +2,11 @@
 <ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              x:Class="hadis.OzelTemaOlustur"
-             Title="Ozel Tema Olustur">
+             Title="Ozel Tema Olustur"
+             BackgroundColor="{AppThemeBinding Light=#F5F5F5, Dark=#121212}">
     
     <Grid>
-        <Image Aspect="AspectFill"
-               HorizontalOptions="FillAndExpand"
-               VerticalOptions="FillAndExpand">
-            <Image.Source>
-                <AppThemeBinding Light="bg_light.jpg" Dark="bg_dark.jpg" />
-            </Image.Source>
-        </Image>
-        
-        <BoxView HorizontalOptions="FillAndExpand"
-                 VerticalOptions="FillAndExpand">
-            <BoxView.Color>
-                <AppThemeBinding Light="White" Dark="Black" />
-            </BoxView.Color>
-            <BoxView.Opacity>
-                <AppThemeBinding Light="0.85" Dark="0.55" />
-            </BoxView.Opacity>
-        </BoxView>
+
         
         <ScrollView Padding="20,10">
             <VerticalStackLayout Spacing="15">
@@ -33,7 +18,11 @@
                        TextColor="{AppThemeBinding Light=#00796B, Dark=#81C784}"/>
 
                 <!-- Arkaplan Degistir -->
-                <Frame Style="{StaticResource BorderFrame}" Padding="5" BackgroundColor="Transparent">
+                <Frame CornerRadius="15"
+                       Padding="5"
+                       HasShadow="True"
+                       BorderColor="{AppThemeBinding Light=#E0E0E0, Dark=#333333}"
+                       BackgroundColor="{AppThemeBinding Light=White, Dark=#1E1E1E}">
                     <Button Text="Arkaplan Degistir"
                             Clicked="ArkaplanDegistir_Clicked"
                             BackgroundColor="Transparent"
@@ -45,7 +34,11 @@
                 </Frame>
 
                 <!-- Ana Frame Onizleme ve Ayarlari -->
-                <Frame Style="{StaticResource BorderFrame}" Padding="15" BackgroundColor="Transparent">
+                <Frame CornerRadius="15"
+                       Padding="15"
+                       HasShadow="True"
+                       BorderColor="{AppThemeBinding Light=#E0E0E0, Dark=#333333}"
+                       BackgroundColor="{AppThemeBinding Light=White, Dark=#1E1E1E}">
                     <VerticalStackLayout Spacing="15">
                         <!-- Onizleme Basligi -->
                         <Label Text="Ana Frame Onizleme"
@@ -122,7 +115,11 @@
                 </Frame>
 
                 <!-- Kucuk Frame'ler Onizleme ve Ayarlari -->
-                <Frame Style="{StaticResource BorderFrame}" Padding="15" BackgroundColor="Transparent">
+                <Frame CornerRadius="15"
+                       Padding="15"
+                       HasShadow="True"
+                       BorderColor="{AppThemeBinding Light=#E0E0E0, Dark=#333333}"
+                       BackgroundColor="{AppThemeBinding Light=White, Dark=#1E1E1E}">
                     <VerticalStackLayout Spacing="15">
                         <!-- Onizleme Basligi -->
                         <Label Text="Kucuk Frame'ler Onizleme"
@@ -221,7 +218,11 @@
                 </Frame>
 
                 <!-- Ayet Frame Onizleme ve Ayarlari -->
-                <Frame Style="{StaticResource BorderFrame}" Padding="15" BackgroundColor="Transparent">
+                <Frame CornerRadius="15"
+                       Padding="15"
+                       HasShadow="True"
+                       BorderColor="{AppThemeBinding Light=#E0E0E0, Dark=#333333}"
+                       BackgroundColor="{AppThemeBinding Light=White, Dark=#1E1E1E}">
                     <VerticalStackLayout Spacing="15">
                         <!-- Onizleme Basligi -->
                         <Label Text="Ayet Frame Onizleme"
@@ -284,7 +285,11 @@
                 </Frame>
 
                 <!-- Tema Ismi ve Kaydet -->
-                <Frame Style="{StaticResource BorderFrame}" Padding="15" BackgroundColor="Transparent">
+                <Frame CornerRadius="15"
+                       Padding="15"
+                       HasShadow="True"
+                       BorderColor="{AppThemeBinding Light=#E0E0E0, Dark=#333333}"
+                       BackgroundColor="{AppThemeBinding Light=White, Dark=#1E1E1E}">
                     <VerticalStackLayout Spacing="15">
                         <Label Text="Tema Ismi"
                                FontSize="18"
