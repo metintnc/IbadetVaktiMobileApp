@@ -23,13 +23,54 @@ namespace hadis.Services
         /// </summary>
         public bool SetTimeBasedBackground(Image backgroundImage, Grid backgroundOverlay, string savedTheme)
         {
-            // Sadece Custom tema değilse otomatik arkaplan uygula
-            if (savedTheme == AppConstants.THEME_CUSTOM)
+            // 1. Özel Tema: Otomatik arkaplanı atla
+            if (savedTheme == "Custom")
             {
                 Console.WriteLine("ℹ️ Custom tema aktif - otomatik arkaplan devre dışı");
-                return false; // Default to dark/false
+                return false; 
             }
 
+            // 2. Açık (Sabit) Tema
+            if (savedTheme == "Light")
+            {
+                try
+                {
+                    backgroundImage.Source = "bg_light.jpg";
+                    backgroundImage.IsVisible = true;
+                    backgroundOverlay.IsVisible = false;
+                    
+                    _statusBarService.SetStatusBarColor("#FFFFFF"); // White Status Bar
+                    _tabBarService.SetTabBarColor("#F5F5F5");       // Light Tab Bar
+                    
+                    return true; // Parlak
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine($"❌ Açık tema arkaplan hatası: {ex.Message}");
+                }
+            }
+
+            // 3. Simsiyah (Sabit) Tema
+            if (savedTheme == "PitchBlack")
+            {
+                 try
+                {
+                    backgroundImage.Source = "bg_dark.jpg";
+                    backgroundImage.IsVisible = true;
+                    backgroundOverlay.IsVisible = false;
+                    
+                    _statusBarService.SetStatusBarColor("#000000"); // Black Status Bar
+                    _tabBarService.SetTabBarColor("#000000");       // Black Tab Bar
+                    
+                    return false; // Koyu
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine($"❌ Simsiyah tema arkaplan hatası: {ex.Message}");
+                }
+            }
+
+            // 4. Ana Temalar (MainLight, MainDark, Main, System): Dinamik Arkaplan
             Console.WriteLine("🎨 Zamana göre arkaplan ayarlanıyor...");
 
             DateTime now = DateTime.Now;
@@ -48,9 +89,8 @@ namespace hadis.Services
                 
                 backgroundImage.IsVisible = true;
 
-                // Overlay'i devre dışı bırak (Artık frameler değişecek)
+                // Overlay'i devre dışı bırak
                 backgroundOverlay.IsVisible = false;
-                // ApplyContrastOverlay(backgroundOverlay, backgroundInfo.Image);
 
                 // Status bar rengini ayarla
                 _statusBarService.SetStatusBarColor(backgroundInfo.StatusBarColor);

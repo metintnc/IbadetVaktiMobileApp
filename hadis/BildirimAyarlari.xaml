@@ -2,26 +2,11 @@
 <ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              x:Class="hadis.BildirimAyarlari"
-             Title="Bildirim Ayarlari">
+             Title="Bildirim Ayarlari"
+             BackgroundColor="{AppThemeBinding Light=#F5F5F5, Dark=#121212}">
     
     <Grid>
-        <Image Aspect="AspectFill"
-               HorizontalOptions="FillAndExpand"
-               VerticalOptions="FillAndExpand">
-            <Image.Source>
-                <AppThemeBinding Light="bg_light.jpg" Dark="bg_dark.jpg" />
-            </Image.Source>
-        </Image>
-        
-        <BoxView HorizontalOptions="FillAndExpand"
-                 VerticalOptions="FillAndExpand">
-            <BoxView.Color>
-                <AppThemeBinding Light="White" Dark="Black" />
-            </BoxView.Color>
-            <BoxView.Opacity>
-                <AppThemeBinding Light="0.85" Dark="0.55" />
-            </BoxView.Opacity>
-        </BoxView>
+
         
         <ScrollView Padding="20,10">
             <VerticalStackLayout Spacing="15">
@@ -32,10 +17,11 @@
                        Margin="0,10,0,10"
                        TextColor="{AppThemeBinding Light=#00796B, Dark=#FFFFFF}"/>
 
-                <Frame Style="{StaticResource BorderFrame}" 
-                       Padding="15" 
-                       BackgroundColor="Transparent"
-                       BorderColor="{AppThemeBinding Light=#80009688, Dark=#80FFFFFF}">
+                <Frame CornerRadius="15"
+                       Padding="15"
+                       HasShadow="True"
+                       BorderColor="{AppThemeBinding Light=#E0E0E0, Dark=#333333}"
+                       BackgroundColor="{AppThemeBinding Light=White, Dark=#1E1E1E}">
                     <VerticalStackLayout Spacing="10">
                         <Label Text="Genel Ayarlar" FontSize="18" FontAttributes="Bold"
                                TextColor="{AppThemeBinding Light=#00796B, Dark=#FFFFFF}"/>
@@ -51,10 +37,11 @@
                     </VerticalStackLayout>
                 </Frame>
 
-                <Frame Style="{StaticResource BorderFrame}" 
-                       Padding="15" 
-                       BackgroundColor="Transparent"
-                       BorderColor="{AppThemeBinding Light=#80009688, Dark=#80FFFFFF}">
+                <Frame CornerRadius="15"
+                       Padding="15"
+                       HasShadow="True"
+                       BorderColor="{AppThemeBinding Light=#E0E0E0, Dark=#333333}"
+                       BackgroundColor="{AppThemeBinding Light=White, Dark=#1E1E1E}">
                     <VerticalStackLayout Spacing="10">
                         <Label Text="Namaz Vakitleri" FontSize="18" FontAttributes="Bold"
                                TextColor="{AppThemeBinding Light=#00796B, Dark=#FFFFFF}"/>

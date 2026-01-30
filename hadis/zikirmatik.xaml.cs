@@ -22,28 +22,7 @@ namespace hadis
         public zikirmatik(StatusBarService statusBarService, TabBarService tabBarService, IImageService imageService)
         {
             InitializeComponent();
-            _statusBarService = statusBarService;
-            _tabBarService = tabBarService;
-            _imageService = imageService;
-
-            // Verileri hızlıca yükle
-            sayı = Preferences.Default.Get("sonSayi", 0);
-            toplam = Preferences.Default.Get("Toplam", 0);
-            hedef = Preferences.Default.Get("ZikirHedef", 100);
-            seciliZikir = Preferences.Default.Get("SeciliZikir", "Sübhanallah");
-            sesDurum = Preferences.Default.Get("SesDurum", true);
             
-            // UI'ı güncelle
-            zikirsayisi.Text = sayı.ToString();
-            SeciliZikirLabel.Text = $"Seçili Zikir: {seciliZikir}";
-            HedefLabel.Text = $"Hedef: {hedef}";
-            SesTitresimIcon.Text = sesDurum ? "📳" : "🔕";
-            UpdateProgress();
-            
-            HeaderFrame.SizeChanged += OnHeaderFrameSizeChanged;
-
-            // Arka planı arka planda yüklemeye başla (Fire-and-forget)
-            Task.Run(LoadBackground);
         }
 
         private void OnHeaderFrameSizeChanged(object sender, EventArgs e)

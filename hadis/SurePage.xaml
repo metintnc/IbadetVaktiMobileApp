@@ -66,8 +66,9 @@
                                 </Border>
 
                                 <ImageButton Grid.Column="1"
-                                             HeightRequest="16"
-                                             WidthRequest="16"
+                                             HeightRequest="30"
+                                             WidthRequest="30"
+                                             Padding="10"
                                              HorizontalOptions="End"
                                              VerticalOptions="Center"
                                              BackgroundColor="Transparent"

@@ -20,27 +20,49 @@
             </BoxView.Opacity>
         </BoxView>
         <!-- Header -->
-        <Grid Grid.Row="0"
-              ColumnDefinitions="Auto, *"
-              Padding="10,15,10,10"
-              Margin="0,20,0,0">
-            <ImageButton Source="gerigit.svg"
-                         Grid.Column="0"
-                         BackgroundColor="Transparent"
-                         HeightRequest="40"
-                         WidthRequest="40"
-                         Padding="5"
-                         Clicked="OnBackButtonClicked"
-                         VerticalOptions="Center"
-                         HorizontalOptions="Start" />
-            <Label Grid.Column="1" 
-                   Text="Kaydedilen Ayetler" 
-                   FontSize="22" 
-                   FontAttributes="Bold" 
-                   TextColor="#00796B" 
-                   VerticalOptions="Center"
-                   Margin="10,0,0,0"/>
-        </Grid>
+        <!-- Header Frame -->
+        <Frame Grid.Row="0"
+               CornerRadius="20"
+               Padding="15"
+               Margin="0,10,0,10"
+               HasShadow="True"
+               BorderColor="{AppThemeBinding Light=#80009688, Dark=#80FFFFFF}"
+               BackgroundColor="{AppThemeBinding Light=#EEFFFFFF, Dark=#AA111111}">
+            <Grid ColumnDefinitions="Auto,*" VerticalOptions="Center">
+                 <!-- Geri Butonu (Entegre) -->
+                <ImageButton Grid.Column="0"
+                             Source="{AppThemeBinding Light=back.png, Dark=back_white.png}" 
+                             BackgroundColor="Transparent"
+                             HeightRequest="30"
+                             WidthRequest="30"
+                             VerticalOptions="Center"
+                             HorizontalOptions="Start"
+                             Clicked="OnBackButtonClicked"
+                             IsVisible="False"/>
+                             
+                <!-- Basit Geri Dönüş için Label Button -->
+                 <Label Grid.Column="0"
+                        Text="❮"
+                        FontSize="24"
+                        FontAttributes="Bold"
+                        VerticalOptions="Center"
+                        TextColor="{AppThemeBinding Light=#00796B, Dark=#FFFFFF}"
+                        Margin="0,0,10,0">
+                    <Label.GestureRecognizers>
+                        <TapGestureRecognizer Tapped="OnBackButtonClicked"/>
+                    </Label.GestureRecognizers>
+                </Label>
+
+                <Label Grid.Column="1" 
+                       Text="Kaydedilen Ayetler"
+                       FontSize="20"
+                       FontAttributes="Bold"
+                       HorizontalOptions="Center"
+                       VerticalOptions="Center"
+                       TextColor="{AppThemeBinding Light=#00796B, Dark=#FFFFFF}"
+                       Margin="-30,0,0,0"/>
+            </Grid>
+        </Frame>
 
         <CollectionView x:Name="KaydedilenlerCollection" Grid.Row="1" SelectionMode="None" Margin="0,10,0,0">
             <CollectionView.EmptyView>
