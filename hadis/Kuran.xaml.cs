@@ -28,25 +28,13 @@ namespace hadis
         protected override async void OnAppearing()
         {
             base.OnAppearing();
-            await LoadBackground();
             _statusBarService.SetStatusBarColor("#000000");
             _tabBarService.SetTabBarColor("#000000");
             SonOkunanYukle();
+            CheckDownloadStatus();
         }
 
-        private async Task LoadBackground()
-        {
-            try
-            {
-                string imageName = Application.Current.RequestedTheme == AppTheme.Dark ? "kuranarkaplan.png" : "bg_light.jpg";
-                BackgroundImage.Source = await _imageService.GetOptimizedBackgroundImageAsync(imageName);
-                BackgroundImage.IsVisible = true;
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine($"Kuran Background Load Error: {ex.Message}");
-            }
-        }
+
 
         private void SonOkunanYukle()
         {
@@ -126,6 +114,81 @@ namespace hadis
         private async void KaydedilenlerButonu_Clicked(object sender, TappedEventArgs e)
         {
             await Navigation.PushAsync(new KaydedilenlerPage());
+        }
+
+        private void CheckDownloadStatus()
+        {
+            var service = new QuranApiService();
+            bool isDownloaded = service.CheckCacheStatus();
+            UpdateDownloadUI(isDownloaded);
+        }
+
+        private void UpdateDownloadUI(bool isDownloaded)
+        {
+            MainThread.BeginInvokeOnMainThread(() =>
+            {
+                if (isDownloaded)
+                {
+                    DownloadButton.Text = "İndirildi (İnternetsiz Kullanıma Hazır) ✅";
+                    DownloadButton.IsEnabled = false; // Tekrar indirmeye gerek yok
+                    DownloadButton.BackgroundColor = Colors.Gray;
+                    DownloadStatusLabel.Text = "Tüm sureler cihazınıza kaydedildi.";
+                    DownloadIndicator.IsVisible = false;
+                    DownloadIndicator.IsRunning = false;
+                }
+                else
+                {
+                    DownloadButton.Text = "İnternetsiz Kullanım İçin İndir 📥";
+                    DownloadButton.IsEnabled = true;
+                    DownloadButton.BackgroundColor = Colors.Teal; // Safe fallback
+                    DownloadStatusLabel.Text = "Kur'anı indirerek internetsiz okuyabilirsiniz (~10MB)";
+                    DownloadIndicator.IsVisible = false;
+                    DownloadIndicator.IsRunning = false;
+                }
+            });
+        }
+
+        private async void DownloadButton_Clicked(object sender, EventArgs e)
+        {
+            if (Connectivity.NetworkAccess != NetworkAccess.Internet)
+            {
+                await DisplayAlert("İnternet Yok", "İndirme yapabilmek için internet bağlantısı gereklidir.", "Tamam");
+                return;
+            }
+
+            // Başlangıç Durumu
+            DownloadButton.IsEnabled = false;
+            DownloadButton.Text = "İndiriliyor...";
+            DownloadIndicator.IsVisible = true;
+            DownloadIndicator.IsRunning = true;
+
+            var service = new QuranApiService();
+            var progress = new Progress<string>(message => 
+            {
+                MainThread.BeginInvokeOnMainThread(() => DownloadStatusLabel.Text = message);
+            });
+
+            try
+            {
+                await Task.Run(async () => await service.DownloadAndCacheFullQuranAsync(progress));
+                
+                // Başarılı
+                UpdateDownloadUI(true);
+                await DisplayAlert("Tamamlandı", "Kur'an verileri başarıyla indirildi. Artık internetsiz de okuyabilirsiniz.", "Tamam");
+            }
+            catch (Exception ex)
+            {
+                // Hata
+                MainThread.BeginInvokeOnMainThread(() => 
+                {
+                    DownloadStatusLabel.Text = "Hata oluştu, tekrar deneyin.";
+                    DownloadButton.Text = "Tekrar Dene 📥";
+                    DownloadButton.IsEnabled = true;
+                    DownloadIndicator.IsVisible = false;
+                    DownloadIndicator.IsRunning = false;
+                });
+                await DisplayAlert("Hata", $"İndirme sırasında bir sorun oluştu: {ex.Message}", "Tamam");
+            }
         }
     }
 }

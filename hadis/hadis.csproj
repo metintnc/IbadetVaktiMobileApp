@@ -58,7 +58,7 @@
 		<MauiIcon Include="Resources\AppIcon\appicon.svg" ForegroundFile="Resources\AppIcon\appicon.svg" Color="#1F386E" />
 		
 		<!-- Splash Screen -->
-		<MauiSplashScreen Include="Resources\Splash\gemini3.png" Color="#303030" BaseSize="200,200" />
+		<MauiSplashScreen Include="Resources\Splash\splash.svg" Color="#303030" BaseSize="128,128" />
 		<MauiImage Include="Resources\Images\ayarlararkaplan.png" />
 		
 		<!-- Background Images -->
@@ -70,6 +70,7 @@
 		<MauiImage Include="Resources\Images\kaydet_filled_white.svg" />
 		<MauiImage Include="Resources\Images\kiblearkaplan.png" />
 		<MauiImage Include="Resources\Images\kuranarkaplan.png" />
+		<MauiImage Include="Resources\Images\z.png" />
 		
 		<!-- Sun Images for Time-based Backgrounds -->
 		<MauiImage Include="Resources\Images\sun_01.png" />

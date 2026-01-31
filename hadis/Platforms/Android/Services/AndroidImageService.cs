@@ -34,28 +34,53 @@ namespace hadis.Platforms.Android.Services
                     }
                     else
                     {
-                        // B. Assets Kontrolü (Maui içinde 'Resources/Raw' veya root assets olabilir)
-                        // Genelde Maui 'filename'i olduğu gibi Asset olarak paketler.
+                        // B. Assets Kontrolü
+                        bool assetFound = false;
                         try 
                         {
                             using (var stream = global::Android.App.Application.Context.Assets.Open(filename))
                             {
                                 BitmapFactory.DecodeStream(stream, null, options);
+                                assetFound = true;
                             }
                             
-                            // Stream'i tekrar açmamız lazım (DecodeStream stream'i tüketir)
-                            options.InSampleSize = CalculateInSampleSize(options, reqWidth, reqHeight);
-                            options.InJustDecodeBounds = false;
-                            
-                            using (var stream2 = global::Android.App.Application.Context.Assets.Open(filename))
+                            if (assetFound)
                             {
-                                bitmap = BitmapFactory.DecodeStream(stream2, null, options);
+                                options.InSampleSize = CalculateInSampleSize(options, reqWidth, reqHeight);
+                                options.InJustDecodeBounds = false;
+                                using (var stream2 = global::Android.App.Application.Context.Assets.Open(filename))
+                                {
+                                    bitmap = BitmapFactory.DecodeStream(stream2, null, options);
+                                }
                             }
                         }
-                        catch
+                        catch {}
+
+                        if (!assetFound)
                         {
-                            // Asset'te de yoksa fallback
-                            return ImageSource.FromFile(filename);
+                            // C. Drawable Resource Kontrolü (MAUI Images)
+                            try
+                            {
+                                string resName = System.IO.Path.GetFileNameWithoutExtension(filename).ToLower();
+                                var context = global::Android.App.Application.Context;
+                                int resId = context.Resources.GetIdentifier(resName, "drawable", context.PackageName);
+                                
+                                if (resId != 0)
+                                {
+                                    BitmapFactory.DecodeResource(context.Resources, resId, options);
+                                    options.InSampleSize = CalculateInSampleSize(options, reqWidth, reqHeight);
+                                    options.InJustDecodeBounds = false;
+                                    bitmap = BitmapFactory.DecodeResource(context.Resources, resId, options);
+                                }
+                                else
+                                {
+                                     return ImageSource.FromFile(filename);
+                                }
+                            }
+                            catch
+                            {
+                                return ImageSource.FromFile(filename);
+                            }
                         }
                     }
 
