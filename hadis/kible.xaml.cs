@@ -23,12 +23,10 @@ namespace hadis
             _imageService = imageService;
         }
         
-        protected override async void OnAppearing()
+        protected override void OnAppearing()
         {
             base.OnAppearing();
             
-            await LoadBackground();
-
             // Kıble sayfası için özel StatusBar ve TabBar renkleri
             _statusBarService.SetStatusBarColor("#000000"); // Siyah
             _tabBarService.SetTabBarColor("#19222B"); // Özel kıble rengi
@@ -46,23 +44,7 @@ namespace hadis
             });
         }
 
-        private async Task LoadBackground()
-        {
-            try
-            {
-                string imageName = Application.Current.RequestedTheme == AppTheme.Dark ? "kiblearkaplan.png" : "bg_light.jpg";
-                // Kullanıcı manuel tema seçtiyse ona bakmak gerekebilir ama basitlik için sistem temasını baz alıyoruz 
-                // veya Namaz Vakti uygulamasında genelde ThemeService kullanılır. 
-                // Burada basit AppTheme kontrolü yapıyoruz mevcut kod gibi.
-                
-                BackgroundImage.Source = await _imageService.GetOptimizedBackgroundImageAsync(imageName);
-                BackgroundImage.IsVisible = true;
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine($"Kible Background Load Error: {ex.Message}");
-            }
-        }
+
 
         private void OnCompassAccuracyChanged(CompassAccuracy accuracy)
         {
@@ -142,19 +124,35 @@ namespace hadis
 
         public void KıbleOkunuDondur(double gelenaci)
         {
-            MainThread.BeginInvokeOnMainThread(async () =>
+            MainThread.BeginInvokeOnMainThread(() =>
             {
-                if(gelenaci < 180)
-                {
-                    await kibleoku.RotateTo(gelenaci, 150, Easing.Linear);
-                }
-                else
-                {
-                    await kibleoku.RotateTo(gelenaci -360, 150, Easing.Linear);
-                }
-                AciDegeri.Text = $"{360 - gelenaci:F0}°";
-                int a = Convert.ToInt32(gelenaci);
-                if(360 - a == 0)
+                // Mevcut açı ve hedef açı arasındaki en kısa yolu bul
+                double currentRotation = kibleoku.Rotation;
+                
+                // Hedef açıyı 0-360 arasına normalize et (Gelen açı zaten öyledir ama garanti olsun)
+                double targetRotation = gelenaci % 360; 
+                if (targetRotation < 0) targetRotation += 360;
+
+                // Farkı bul
+                double diff = targetRotation - currentRotation;
+
+                // Farkı -180 ile 180 arasına sıkıştır (En kısa yol)
+                while (diff < -180) diff += 360;
+                while (diff > 180) diff -= 360;
+
+                // Yeni hedef, mevcut + fark (Böylece 350 -> 10 geçişi 350 -> 370 olur, terse dönmez)
+                double finalTarget = currentRotation + diff;
+
+                // Animasyonlu geçiş (Await etmiyoruz, yeni gelen veri eskisini iptal edip devam etsin)
+                // Sensör hızı Game (20ms) olduğu için, 80-100ms arası bir animasyon yumuşaklık sağlar.
+                kibleoku.RotateTo(finalTarget, 100, Easing.Linear);
+
+                // UI Güncelleme
+                double displayAngle = (360 - (gelenaci % 360)) % 360;
+                AciDegeri.Text = $"{displayAngle:F0}°";
+                
+                int a = Convert.ToInt32(displayAngle);
+                if(a == 0 || a == 360)
                 {
                     AciDegeri.TextColor = Colors.Gold;
                 }

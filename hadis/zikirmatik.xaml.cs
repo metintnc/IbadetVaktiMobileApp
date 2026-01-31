@@ -48,13 +48,14 @@ namespace hadis
             _ = AnimateZikirEntry();
         }
 
-        protected override void OnAppearing()
+        protected override async void OnAppearing()
         {
             base.OnAppearing();
             
             // StatusBar rengini ayarla
             _statusBarService.SetStatusBarColor("#000000");
             _tabBarService.SetTabBarColor("#1D1F1E");
+            await LoadBackground();
         }
 
         private async Task LoadBackground()
@@ -64,7 +65,7 @@ namespace hadis
                 // UI thread'i bloklamamak için kısa bir gecikme veya yield
                 await Task.Yield(); 
                 
-                string imageName = Application.Current.RequestedTheme == AppTheme.Dark ? "ayarlararkaplan.png" : "bg_light.jpg";
+                string imageName = Application.Current.RequestedTheme == AppTheme.Dark ? "z.png" : "bg_light.jpg";
                 var imageSource = await _imageService.GetOptimizedBackgroundImageAsync(imageName);
                 
                 // UI güncellemesi MainThread'de olmalı

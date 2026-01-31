@@ -8,8 +8,11 @@
         <Image x:Name="BackgroundImage"
                Aspect="AspectFill"
                HorizontalOptions="FillAndExpand"
-               VerticalOptions="FillAndExpand"
-               IsVisible="False"/>
+               VerticalOptions="FillAndExpand">
+            <Image.Source>
+                <AppThemeBinding Light="bg_light.jpg" Dark="kuranarkaplan.png" />
+            </Image.Source>
+        </Image>
         
         <BoxView HorizontalOptions="FillAndExpand"
                  VerticalOptions="FillAndExpand">
@@ -167,6 +170,32 @@
                                 </Frame>
                             </DataTemplate>
                         </CollectionView.ItemTemplate>
+                        <CollectionView.Footer>
+                            <VerticalStackLayout Padding="0,20,0,80" Spacing="10">
+                                <Button x:Name="DownloadButton"
+                                        Text="İnternetsiz Kullanım İçin İndir 📥"
+                                        Clicked="DownloadButton_Clicked"
+                                        BackgroundColor="{AppThemeBinding Light=#00796B, Dark=#009688}"
+                                        TextColor="White"
+                                        FontAttributes="Bold"
+                                        CornerRadius="10"
+                                        HeightRequest="50"
+                                        Margin="0,10"/>
+                                
+                                <Label x:Name="DownloadStatusLabel"
+                                       Text="Kur'anı indirerek internetsiz okuyabilirsiniz (~10MB)"
+                                       HorizontalOptions="Center"
+                                       TextColor="{AppThemeBinding Light=#757575, Dark=#BDBDBD}"
+                                       FontSize="12"
+                                       HorizontalTextAlignment="Center"/>
+
+                                <ActivityIndicator x:Name="DownloadIndicator"
+                                                   IsRunning="False"
+                                                   IsVisible="False"
+                                                   Color="{AppThemeBinding Light=#00796B, Dark=#009688}"
+                                                   HorizontalOptions="Center"/>
+                            </VerticalStackLayout>
+                        </CollectionView.Footer>
                     </CollectionView>
                 </Grid>
             </Frame>

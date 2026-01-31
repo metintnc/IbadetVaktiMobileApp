@@ -552,9 +552,18 @@ namespace hadis
                 {
                     // Manuel konum göster
                     string manuelSehir = Preferences.Default.Get("ManuelSehir", "");
+                    string manuelIlce = Preferences.Default.Get("ManuelIlce", "");
+
                     if (!string.IsNullOrEmpty(manuelSehir))
                     {
-                        Konum.Text = manuelSehir;
+                        if (!string.IsNullOrEmpty(manuelIlce) && manuelIlce != manuelSehir)
+                        {
+                             Konum.Text = $"{manuelIlce} / {manuelSehir}";
+                        }
+                        else
+                        {
+                             Konum.Text = manuelSehir;
+                        }
                         return;
                     }
                 }
