@@ -12,12 +12,21 @@ namespace hadis
         {
             base.OnCreate(savedInstanceState);
             
+            // Notification tap handling
+            Plugin.LocalNotification.LocalNotificationCenter.NotifyNotificationTapped(Intent);
+
             // Window flag'lerini ayarla - status bar'ın rengini değiştirmek için gerekli
             if (Window != null)
             {
                 Window.AddFlags(WindowManagerFlags.DrawsSystemBarBackgrounds);
                 Window.ClearFlags(WindowManagerFlags.TranslucentStatus);
             }
+        }
+
+        protected override void OnNewIntent(Android.Content.Intent? intent)
+        {
+            Plugin.LocalNotification.LocalNotificationCenter.NotifyNotificationTapped(intent);
+            base.OnNewIntent(intent);
         }
     }
 }

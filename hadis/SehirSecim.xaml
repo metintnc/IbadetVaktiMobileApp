@@ -4,6 +4,7 @@
              x:Class="hadis.SehirSecim"
              Title="Konum Seç"
              NavigationPage.HasNavigationBar="False"
+             Shell.TabBarIsVisible="False"
              BackgroundColor="{AppThemeBinding Light=#F5F5F5, Dark=#121212}">
 
     <Grid>
@@ -20,18 +21,11 @@
                    BackgroundColor="{AppThemeBinding Light=#EEFFFFFF, Dark=#AA111111}">
                 <Grid ColumnDefinitions="Auto,*" VerticalOptions="Center">
                      <!-- Geri Butonu (Entegre) -->
-                    <ImageButton Grid.Column="0"
-                                 Source="{AppThemeBinding Light=back.png, Dark=back_white.png}" 
-                                 BackgroundColor="Transparent"
-                                 HeightRequest="30"
-                                 WidthRequest="30"
-                                 VerticalOptions="Center"
-                                 HorizontalOptions="Start"
-                                 Clicked="OnBackButtonClicked"
-                                 IsVisible="False"/> <!-- Şimdilik gizli, çünkü Navigation Stack yönetimi gerekebilir. -->
+
                                  
                     <!-- Basit Geri Dönüş için Label Button -->
                      <Label Grid.Column="0"
+                            x:Name="BackLabel"
                             Text="❮"
                             FontSize="24"
                             FontAttributes="Bold"
@@ -44,6 +38,7 @@
                     </Label>
 
                     <Label Grid.Column="1" 
+                           x:Name="TitleLabel"
                            Text="Konum Seç"
                            FontSize="20"
                            FontAttributes="Bold"

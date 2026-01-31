@@ -19,6 +19,39 @@
               VerticalOptions="FillAndExpand"
               IsVisible="False" />
 
+        <!-- İnternet Hatası Uyarısı (En Üstte) -->
+        <Grid x:Name="InternetErrorOverlay"
+              BackgroundColor="{AppThemeBinding Light=#DDFFFFFF, Dark=#DD000000}"
+              IsVisible="False"
+              ZIndex="999"
+              HorizontalOptions="FillAndExpand"
+              VerticalOptions="FillAndExpand">
+            <VerticalStackLayout Spacing="20" VerticalOptions="Center" HorizontalOptions="Center">
+                <Image Source="{AppThemeBinding Light=nowifi.png, Dark=nowifi_white.png}"
+                       HeightRequest="100"
+                       WidthRequest="100"
+                       HorizontalOptions="Center"/>
+                <Label Text="İnternet Bağlantısı Yok"
+                       FontSize="22"
+                       FontAttributes="Bold"
+                       HorizontalOptions="Center"
+                       TextColor="{AppThemeBinding Light=#D32F2F, Dark=#EF5350}"/>
+                <Label Text="Namaz vakitlerini güncellemek için lütfen internet bağlantınızı kontrol ediniz."
+                       FontSize="16"
+                       HorizontalOptions="Center"
+                       HorizontalTextAlignment="Center"
+                       TextColor="{AppThemeBinding Light=#616161, Dark=#BDBDBD}"
+                       Padding="40,0"/>
+                <ActivityIndicator IsRunning="True" 
+                                   Color="{AppThemeBinding Light=#00796B, Dark=#009688}"
+                                   HorizontalOptions="Center"/>
+                <Label Text="Bağlantı bekleniyor..."
+                       FontSize="14"
+                       HorizontalOptions="Center"
+                       TextColor="{AppThemeBinding Light=#00796B, Dark=#80CBC4}"/>
+            </VerticalStackLayout>
+        </Grid>
+
         <!-- İçerik - En üstte -->
         <Grid RowDefinitions="Auto,Auto,Auto,*,Auto" 
               ColumnDefinitions="*" 

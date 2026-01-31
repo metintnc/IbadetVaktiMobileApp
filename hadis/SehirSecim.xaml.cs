@@ -1,6 +1,9 @@
 using hadis.Models;
 using hadis.Services;
+using hadis.Data;
 using System.Collections.ObjectModel;
+using Microsoft.Maui.ApplicationModel;
+using Microsoft.Maui.Devices.Sensors;
 
 namespace hadis
 {
@@ -9,6 +12,10 @@ namespace hadis
         private readonly IImageService _imageService;
         private List<City> _allCities;
         private ObservableCollection<City> _filteredCities;
+        
+        // District Selection State
+        private City _selectedCityForDistrict; 
+        private bool _isSelectingDistrict = false;
 
         public SehirSecim()
         {
@@ -29,14 +36,13 @@ namespace hadis
 
                 if (status != PermissionStatus.Granted)
                 {
-                    // İzin verilmezse sessizce kalabiliriz veya çok kısa bir uyarı
-                    // Kullanıcı 'uyarı verme' dediği için hiçbir şey yapmıyoruz veya log atıyoruz.
+                    await DisplayAlert("İzin Gerekli", "Otomatik konum bulma özelliği için konum izni vermeniz gerekmektedir.", "Tamam");
                     return; 
                 }
 
-                // Kullanıcıya işlem yapıldığını hissettirmek için belki bir loading... ama uyarı istemedi.
+                // Basit bir busy indicator veya loading state eklenebilir ama user istemedi.
                 
-                var location = await Geolocation.Default.GetLocationAsync(new GeolocationRequest(GeolocationAccuracy.Medium, TimeSpan.FromSeconds(5)));
+                var location = await Geolocation.Default.GetLocationAsync(new GeolocationRequest(GeolocationAccuracy.Medium, TimeSpan.FromSeconds(10)));
 
                 if (location != null)
                 {
@@ -50,7 +56,10 @@ namespace hadis
                             cityName = placemark.AdminArea;
                         }
                     }
-                    catch { }
+                    catch 
+                    {
+                        // Geocoding başarısız olsa bile koordinatla devam edebiliriz ama şehir ismini bulamayız.
+                    }
 
                     // Şehir isminden listemizde olanı bulmaya çalışalım (Namaz vakitleri servisi için eşleşme önemli olabilir)
                     City foundCity = null;
@@ -73,22 +82,29 @@ namespace hadis
 
                     if (foundCity != null)
                     {
-                        Preferences.Default.Set("ManuelSehir", foundCity.Name);
-                        Preferences.Default.Set("ManuelIlce", "Otomatik Konum"); 
-                        Preferences.Default.Set("ManuelLatitude", location.Latitude);
-                        Preferences.Default.Set("ManuelLongitude", location.Longitude);
-                        Preferences.Default.Set("OtomatikKonum", true);
-
-                        // Cache'i temizle ki yeni konum için veri çekilsin
-                        PrayerTimesService.ClearCache();
-
-                        await Navigation.PopAsync();
+                        await SelectCityFinal(foundCity, "Otomatik Konum", location.Latitude, location.Longitude, true);
+                    }
+                    else
+                    {
+                         await DisplayAlert("Şehir Bulunamadı", "Konumunuz tespit edildi ancak sistemdeki şehirlerle eşleştirilemedi.", "Tamam");
                     }
                 }
+                else
+                {
+                    await DisplayAlert("Konum Bulunamadı", "GPS sinyali alınamıyor. Lütfen açık alanda olduğunuzdan veya GPS servisinizin aktif olduğundan emin olun.", "Tamam");
+                }
             }
-            catch 
+            catch (FeatureNotSupportedException)
             {
-                // Hata durumunda sessiz kal
+                await DisplayAlert("Hata", "Cihazınız bu özelliği desteklemiyor.", "Tamam");
+            }
+            catch (PermissionException)
+            {
+                await DisplayAlert("Hata", "Konum izni alınamadı.", "Tamam");
+            }
+            catch (Exception ex)
+            {
+                await DisplayAlert("Hata", $"Bir hata oluştu: {ex.Message}", "Tamam");
             }
         }
 
@@ -106,8 +122,6 @@ namespace hadis
             _allCities = new List<City>
             {
                 new City("Adana", 37.0000, 35.3213),
-                // ... (other cities)
-
                 new City("Adıyaman", 37.7648, 38.2786),
                 new City("Afyonkarahisar", 38.7507, 30.5567),
                 new City("Ağrı", 39.7191, 43.0503),
@@ -197,12 +211,49 @@ namespace hadis
         protected override void OnAppearing()
         {
             base.OnAppearing();
+#if ANDROID
+            Platform.CurrentActivity?.Window?.SetStatusBarColor(Android.Graphics.Color.Black);
+            // Status bar ikonlarını beyaz yap (Karanlık zemin olduğu için)
+            // Deprecated ama basit çözüm:
+            // View.SystemUiVisibility = (StatusBarVisibility)SystemUiFlags.Visible;
+#endif
+        }
+
+        protected override void OnDisappearing()
+        {
+            base.OnDisappearing();
+#if ANDROID
+            // Eski haline (Şeffaf veya Tema rengi) döndür
+            // Genelde Transparan status bar kullanıyoruz tasarımda
+            Platform.CurrentActivity?.Window?.SetStatusBarColor(Android.Graphics.Color.Transparent);
+#endif
         }
 
         private void SearchBar_TextChanged(object sender, TextChangedEventArgs e)
         {
             var searchTerm = e.NewTextValue?.ToLower();
 
+            if (_isSelectingDistrict && _selectedCityForDistrict != null)
+            {
+                // Filter Districts
+                 if (TurkeyDistricts.All.TryGetValue(_selectedCityForDistrict.Name, out var districts))
+                 {
+                     if (string.IsNullOrWhiteSpace(searchTerm))
+                     {
+                         // Show all districts
+                         CitiesCollectionView.ItemsSource = new ObservableCollection<City>(districts.Select(d => new City(d, 0, 0)));
+                     }
+                     else
+                     {
+                         // Filter districts
+                         var filtered = districts.Where(d => d.ToLower().Contains(searchTerm)).Select(d => new City(d, 0, 0));
+                         CitiesCollectionView.ItemsSource = new ObservableCollection<City>(filtered);
+                     }
+                 }
+                 return;
+            }
+
+            // Filter Cities
             if (string.IsNullOrWhiteSpace(searchTerm))
             {
                 CitiesCollectionView.ItemsSource = new ObservableCollection<City>(_allCities.OrderBy(c => c.Name));
@@ -216,39 +267,114 @@ namespace hadis
 
         private async void CitiesCollectionView_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
-            var selectedCity = e.CurrentSelection.FirstOrDefault() as City;
-            if (selectedCity != null)
+            var selectedItem = e.CurrentSelection.FirstOrDefault() as City;
+            if (selectedItem != null)
             {
-                await SelectCity(selectedCity);
+                if (_isSelectingDistrict)
+                {
+                    // District selected
+                    await SelectCityFinal(_selectedCityForDistrict, selectedItem.Name, _selectedCityForDistrict.Latitude, _selectedCityForDistrict.Longitude, false);
+                }
+                else
+                {
+                    // City selected, go to districts
+                    SwitchToDistricts(selectedItem);
+                }
+                
                 CitiesCollectionView.SelectedItem = null;
             }
         }
 
         private async void OnCityTapped(object sender, TappedEventArgs e)
         {
-            if (sender is Element element && element.BindingContext is City city)
+            if (sender is Element element && element.BindingContext is City cityOrDistrict)
             {
-                await SelectCity(city);
+                if (_isSelectingDistrict)
+                {
+                    await SelectCityFinal(_selectedCityForDistrict, cityOrDistrict.Name, _selectedCityForDistrict.Latitude, _selectedCityForDistrict.Longitude, false);
+                }
+                else
+                {
+                    SwitchToDistricts(cityOrDistrict);
+                }
             }
+        }
+
+        private void SwitchToDistricts(City city)
+        {
+            if (TurkeyDistricts.All.TryGetValue(city.Name, out var districts))
+            {
+                _selectedCityForDistrict = city;
+                _isSelectingDistrict = true;
+                
+                TitleLabel.Text = $"{city.Name} - İlçe Seç";
+                SearchBar.Text = "";
+                SearchBar.Placeholder = "İlçe ara...";
+                
+                // Show Back Button (BackLabel is always visible now, served by HandleBack)
+                BackLabel.IsVisible = true;
+                
+                // Load districts as "City" objects (reuse same model for list)
+                var districtObjs = districts.OrderBy(d => d).Select(d => new City(d, 0, 0)).ToList();
+                
+                CitiesCollectionView.ItemsSource = new ObservableCollection<City>(districtObjs);
+            }
+            else
+            {
+                // No districts found (shouldn't happen with our full list), just select the city
+                SelectCityFinal(city, city.Name, city.Latitude, city.Longitude, false);
+            }
+        }
+
+        private void SwitchToCities()
+        {
+            _isSelectingDistrict = false;
+            _selectedCityForDistrict = null;
+            
+            TitleLabel.Text = "Konum Seç";
+            SearchBar.Text = "";
+            SearchBar.Placeholder = "Şehir ara...";
+            
+            // BackLabel remains visible to allow popping the page
+            BackLabel.IsVisible = true;
+            
+            CitiesCollectionView.ItemsSource = new ObservableCollection<City>(_allCities.OrderBy(c => c.Name));
+        }
+
+        protected override bool OnBackButtonPressed()
+        {
+            if (_isSelectingDistrict)
+            {
+                SwitchToCities();
+                return true; // Geri tuşunu biz yönettik, sayfa kapanmasın
+            }
+            return base.OnBackButtonPressed(); // Standart davranış (sayfa kapanır)
         }
 
         private async void OnBackLabelClicked(object sender, TappedEventArgs e)
         {
-            await Navigation.PopAsync();
+            HandleBack();
         }
 
-        private async void OnBackButtonClicked(object sender, EventArgs e)
+        private async void HandleBack()
         {
-            await Navigation.PopAsync();
+            if (_isSelectingDistrict)
+            {
+                SwitchToCities();
+            }
+            else
+            {
+                await Navigation.PopAsync();
+            }
         }
 
-        private async Task SelectCity(City city)
+        private async Task SelectCityFinal(City city, string district, double lat, double lon, bool isAuto)
         {
             Preferences.Default.Set("ManuelSehir", city.Name);
-            Preferences.Default.Set("ManuelIlce", city.Name);
-            Preferences.Default.Set("ManuelLatitude", city.Latitude);
-            Preferences.Default.Set("ManuelLongitude", city.Longitude);
-            Preferences.Default.Set("OtomatikKonum", false);
+            Preferences.Default.Set("ManuelIlce", district);
+            Preferences.Default.Set("ManuelLatitude", lat);
+            Preferences.Default.Set("ManuelLongitude", lon);
+            Preferences.Default.Set("OtomatikKonum", isAuto);
             
             // Konum değiştiği için cache'i temizle
             PrayerTimesService.ClearCache();

@@ -1,5 +1,5 @@
-using hadis.Models;
-using System.Collections.ObjectModel;
+using Microsoft.Maui.Controls;
+using System;
 
 namespace hadis
 {
@@ -12,27 +12,11 @@ namespace hadis
 
         private async void EkleButton_Clicked(object sender, EventArgs e)
         {
-#if ANDROID
-            try
-            {
-                // Android'de widget ekleme işlemi kullanıcı tarafından yapılır
-                // Uygulama sadece widget'ın mevcut olduğunu gösterir
-                await DisplayAlert("Widget Nasıl Eklenir?", 
-                    "1. Ana ekranınızda boş bir alana uzun basın\n" +
-                    "2. 'Widget'lar' veya 'Araçlar' seçeneğini seçin\n" +
-                    "3. 'NamazVakti' uygulamasını bulun\n" +
-                    "4. 'Namaz Vakti Widget'ını sürükleyip ekleyin\n\n" +
-                    "Widget saat, tarih ve sonraki namaza kalan süreyi gösterir.\n" +
-                    "Arkaplan %100 şeffaftır.", 
-                    "Tamam");
-            }
-            catch (Exception ex)
-            {
-                await DisplayAlert("Hata", $"Bir hata oluştu: {ex.Message}", "Tamam");
-            }
-#else
-            await DisplayAlert("Desteklenmiyor", "Widget özelliği şu anda sadece Android'de desteklenmektedir.", "Tamam");
-#endif
+            // Widget ekleme iÅŸlemi platform spesifik olabilir veya burada basit bir mesaj gÃ¶sterilebilir.
+            // Android widgetlarÄ± genellikle dÄ±ÅŸarÄ±dan (Launcher'dan) eklenir, uygulama iÃ§inden "pin" iÅŸlemi
+            // Android O+ (API 26) gerektirir.
+            
+            bool result = await DisplayAlert("Widget Ekle", "Widget'Ä± ana ekrana eklemek iÃ§in ana ekranÄ±nÄ±zda boÅŸ bir yere basÄ±lÄ± tutun ve 'Widgetlar' menÃ¼sÃ¼nden Hadis uygulamasÄ±nÄ± seÃ§in.", "Tamam", "Ä°ptal");
         }
     }
 }

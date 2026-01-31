@@ -22,7 +22,9 @@ namespace hadis
         public zikirmatik(StatusBarService statusBarService, TabBarService tabBarService, IImageService imageService)
         {
             InitializeComponent();
-            
+            _statusBarService = statusBarService;
+            _tabBarService = tabBarService;
+            _imageService = imageService;
         }
 
         private void OnHeaderFrameSizeChanged(object sender, EventArgs e)

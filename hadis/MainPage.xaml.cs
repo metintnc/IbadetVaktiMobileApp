@@ -1,4 +1,7 @@
-﻿using System.Text.Json;
+﻿using System;
+using System.Collections.Generic;
+using System.Threading.Tasks;
+using System.Text.Json;
 using Microsoft.Maui.Devices.Sensors;
 using hadis.Models;
 using hadis.Services;
@@ -38,6 +41,9 @@ namespace hadis
         {
             base.OnAppearing();
 
+            // Connectivity eventini dinle
+            Connectivity.ConnectivityChanged += Connectivity_ConnectivityChanged;
+
             // Özel tema varsa uygula
             ApplyTheme();
 
@@ -49,6 +55,134 @@ namespace hadis
                 NamazVakitleriniÇek(),
                 ayetgoster()
             );
+        }
+
+        protected override async void OnDisappearing()
+        {
+            base.OnDisappearing();
+            // Event dinlemeyi bırak
+            Connectivity.ConnectivityChanged -= Connectivity_ConnectivityChanged;
+
+            // ... (Other cleanup if needed)
+        }
+
+        private async void Connectivity_ConnectivityChanged(object? sender, ConnectivityChangedEventArgs e)
+        {
+            if (e.NetworkAccess == NetworkAccess.Internet)
+            {
+                // İnternet geldiyse verileri çek
+                await MainThread.InvokeOnMainThreadAsync(async () => 
+                {
+                    // Eğer overlay açıksa kullanıcıya tepki ver
+                    if (InternetErrorOverlay.IsVisible)
+                    {
+                        InternetErrorOverlay.IsVisible = true; // Refresh UI trigger
+                        await Task.Delay(500); // UI flicker önlemek için kısa bekleme
+                    }
+                    await NamazVakitleriniÇek();
+                });
+            }
+            else
+            {
+                // İnternet gittiyse ve veri yoksa uyarı göster
+                if (_namazvakitleri == null || _namazvakitleri.Count == 0)
+                {
+                    MainThread.BeginInvokeOnMainThread(() => InternetErrorOverlay.IsVisible = true);
+                }
+            }
+        }
+
+        public async Task NamazVakitleriniÇek()
+        {
+            try
+            {
+                // İnternet Kontrolü
+                if (Connectivity.NetworkAccess != NetworkAccess.Internet)
+                {
+                     // Eğer önbellekte veri yoksa engelleyici ekranı göster
+                     if (_namazvakitleri == null || _namazvakitleri.Count == 0)
+                     {
+                         InternetErrorOverlay.IsVisible = true;
+                         return;
+                     }
+                     // Veri varsa, internet olmasa da devam edebiliriz (cache varsa)
+                }
+
+                string ilce = "";
+                string sehir = "";
+                bool otomatikKonum = Preferences.Default.Get("OtomatikKonum", true);
+                
+                // ... (Konum alma kodları aynı)
+                if (!otomatikKonum)
+                {
+                    sehir = Preferences.Default.Get("ManuelSehir", "");
+                    ilce = Preferences.Default.Get("ManuelIlce", "");
+                }
+                else
+                {
+                    var konum = await Geolocation.GetLastKnownLocationAsync();
+                    if (konum == null)
+                    {
+                        var request = new GeolocationRequest(GeolocationAccuracy.Medium, TimeSpan.FromSeconds(10));
+                        konum = await Geolocation.GetLocationAsync(request);
+                    }
+
+                    if (konum != null)
+                    {
+                        var placemarks = await Geocoding.Default.GetPlacemarksAsync(konum.Latitude, konum.Longitude);
+                        var placemark = placemarks?.FirstOrDefault();
+                        if (placemark != null)
+                        {
+                            sehir = placemark.AdminArea ?? "";
+                            ilce = placemark.SubAdminArea ?? placemark.Locality ?? "";
+                        }
+                    }
+                }
+
+                if (string.IsNullOrEmpty(sehir) || string.IsNullOrEmpty(ilce))
+                {
+                    ResetPrayerTimes();
+                    return;
+                }
+
+                // Yeni Servisi Kullan
+                var vakitler = await PrayerTimesService.GetPrayerTimesForDateAsync(DateTime.Now, ilce, sehir);
+
+                if (vakitler != null)
+                {
+                    _namazvakitleri = vakitler;
+                    
+                    // Veriler geldi, overlay'i gizle
+                    MainThread.BeginInvokeOnMainThread(() => 
+                    {
+                        InternetErrorOverlay.IsVisible = false;
+                        UpdateAllPrayerTimes();
+                    });
+                }
+                else
+                {
+                    // Vakitler null ise
+                    Console.WriteLine("❌ Namaz vakitleri alınamadı.");
+                    ResetPrayerTimes();
+                    
+                    // Eski veriyi temizle ki overlay açılsın (çünkü artık eski konumun verisi geçersiz)
+                    _namazvakitleri = null;
+
+                    if (_namazvakitleri == null || _namazvakitleri.Count == 0)
+                    {
+                         InternetErrorOverlay.IsVisible = true;
+                    }
+                }
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine($"❌ Namaz vakitleri çekme hatası: {e.Message}");
+                ResetPrayerTimes();
+                 if (_namazvakitleri == null || _namazvakitleri.Count == 0)
+                 {
+                     InternetErrorOverlay.IsVisible = true;
+                 }
+            }
         }
 
         private void SetTimeBasedBackground()
@@ -211,85 +345,99 @@ namespace hadis
 
         public async Task ayetgoster()
         {
-            string[] ayetler = new string[]
+            try
             {
-                "Hiç bilenlerle bilmeyenler bir olur mu? (Zümer, 9)",
-                "Şüphesiz Allah sabredenlerle beraberdir. (Bakara, 153)",
-                "Gerçekten güçlükle beraber bir kolaylık vardır. (İnşirah, 6)",
-                "Allah, kullarına karşı çok şefkatlidir. (Şura, 19)",
-                "Ey iman edenler! Sabır ve namazla Allah'tan yardım isteyin. (Bakara, 45)",
-                "Göklerde ve yerde ne varsa hepsi Allah'ındır. (Bakara, 284)",
-                "Zorlukla beraber bir kolaylık vardır. (İnşirah, 5)",
-                "Kıyamet günü herkese amel defteri verilecektir. (İsra, 13)",
-                "İyilik ve takva üzerine yardımlaşın. (Maide, 2)",
-                "Şüphesiz dönüş ancak Allah'adır. (Bakara, 156)"
-            };
+                string[] ayetler = new string[]
+                {
+                    "Hiç bilenlerle bilmeyenler bir olur mu? (Zümer, 9)",
+                    "Şüphesiz Allah sabredenlerle beraberdir. (Bakara, 153)",
+                    "Gerçekten güçlükle beraber bir kolaylık vardır. (İnşirah, 6)",
+                    "Allah, kullarına karşı çok şefkatlidir. (Şura, 19)",
+                    "Ey iman edenler! Sabır ve namazla Allah'tan yardım isteyin. (Bakara, 45)",
+                    "Göklerde ve yerde ne varsa hepsi Allah'ındır. (Bakara, 284)",
+                    "Zorlukla beraber bir kolaylık vardır. (İnşirah, 5)",
+                    "Kıyamet günü herkese amel defteri verilecektir. (İsra, 13)",
+                    "İyilik ve takva üzerine yardımlaşın. (Maide, 2)",
+                    "Şüphesiz dönüş ancak Allah'adır. (Bakara, 156)"
+                };
 
-            int gunIndex = DateTime.Now.DayOfYear % ayetler.Length;
-            string bugununAyeti = ayetler[gunIndex];
-            gununayeti.Text = bugununAyeti;
+                int gunIndex = DateTime.Now.DayOfYear % ayetler.Length;
+                string bugununAyeti = ayetler[gunIndex];
+                if (gununayeti != null)
+                {
+                    gununayeti.Text = bugununAyeti;
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"❌ Ayet gösterme hatası: {ex.Message}");
+            }
         }
 
         public void GeriSayımıGüncelle()
         {
-            if (_namazvakitleri == null || _namazvakitleri.Count == 0)
+            try
             {
-                return;
-            }
+                if (_namazvakitleri == null || _namazvakitleri.Count == 0)
+                {
+                    return;
+                }
 
-            DateTime simdi = DateTime.Now;
-            TimeSpan kalansure;
-            string sonraki;
+                DateTime simdi = DateTime.Now;
+                TimeSpan kalansure;
+                string sonraki;
 
-            if (_namazvakitleri["İmsak"] > simdi)
-            {
-                kalansure = _namazvakitleri["İmsak"] - simdi;
-                sonraki = "İmsak Vaktine";
-                UpdatePrayerTimeColors(imsakvakit, yatsıvakit);
-            }
-            else if (_namazvakitleri["gunes"] > simdi)
-            {
-                kalansure = _namazvakitleri["gunes"] - simdi;
-                sonraki = "Güneşin Doğmasına";
-                UpdatePrayerTimeColors(gunesvakit, imsakvakit);
-            }
-            else if (_namazvakitleri["Ogle"] > simdi)
-            {
-                kalansure = _namazvakitleri["Ogle"] - simdi;
-                sonraki = "Öğle Namazına";
-                UpdatePrayerTimeColors(oglevakit, gunesvakit);
-            }
-            else if (_namazvakitleri["İkindi"] > simdi)
-            {
-                kalansure = _namazvakitleri["İkindi"] - simdi;
-                sonraki = "İkindi Namazına";
-                UpdatePrayerTimeColors(ikindivakit, oglevakit);
-            }
-            else if (_namazvakitleri["Aksam"] > simdi)
-            {
-                kalansure = _namazvakitleri["Aksam"] - simdi;
-                sonraki = "Akşam Namazına";
-                UpdatePrayerTimeColors(aksamvakit, ikindivakit);
-            }
-            else if (_namazvakitleri["Yatsi"] > simdi)
-            {
-                kalansure = _namazvakitleri["Yatsi"] - simdi;
-                sonraki = "Yatsı Namazına";
-                UpdatePrayerTimeColors(yatsıvakit, aksamvakit);
-            }
-            else
-            {
-                _namazvakitleri["İmsak"] = _namazvakitleri["İmsak"].AddDays(1);
-                kalansure = _namazvakitleri["İmsak"] - simdi;
-                sonraki = "İmsak Vaktine";
-                UpdatePrayerTimeColors(imsakvakit, yatsıvakit);
-            }
+                if (_namazvakitleri["İmsak"] > simdi)
+                {
+                    kalansure = _namazvakitleri["İmsak"] - simdi;
+                    sonraki = "İmsak Vaktine";
+                    UpdatePrayerTimeColors(imsakvakit, yatsıvakit);
+                }
+                else if (_namazvakitleri["gunes"] > simdi)
+                {
+                    kalansure = _namazvakitleri["gunes"] - simdi;
+                    sonraki = "Güneşin Doğmasına";
+                    UpdatePrayerTimeColors(gunesvakit, imsakvakit);
+                }
+                else if (_namazvakitleri["Ogle"] > simdi)
+                {
+                    kalansure = _namazvakitleri["Ogle"] - simdi;
+                    sonraki = "Öğle Namazına";
+                    UpdatePrayerTimeColors(oglevakit, gunesvakit);
+                }
+                else if (_namazvakitleri["İkindi"] > simdi)
+                {
+                    kalansure = _namazvakitleri["İkindi"] - simdi;
+                    sonraki = "İkindi Namazına";
+                    UpdatePrayerTimeColors(ikindivakit, oglevakit);
+                }
+                else if (_namazvakitleri["Aksam"] > simdi)
+                {
+                    kalansure = _namazvakitleri["Aksam"] - simdi;
+                    sonraki = "Akşam Namazına";
+                    UpdatePrayerTimeColors(aksamvakit, ikindivakit);
+                }
+                else if (_namazvakitleri["Yatsi"] > simdi)
+                {
+                    kalansure = _namazvakitleri["Yatsi"] - simdi;
+                    sonraki = "Yatsı Namazına";
+                    UpdatePrayerTimeColors(yatsıvakit, aksamvakit);
+                }
+                else
+                {
+                    _namazvakitleri["İmsak"] = _namazvakitleri["İmsak"].AddDays(1);
+                    kalansure = _namazvakitleri["İmsak"] - simdi;
+                    sonraki = "İmsak Vaktine";
+                    UpdatePrayerTimeColors(imsakvakit, yatsıvakit);
+                }
 
-            namazismi.Text = sonraki;
-            kalan.Text = $"{kalansure.Hours:D2} : {kalansure.Minutes:D2} : {kalansure.Seconds:D2}";
-
-            // Tüm vakitleri güncelle (Gereksiz CPU kullanımı için timer'dan kaldırıldı)
-            // UpdateAllPrayerTimes();
+                namazismi.Text = sonraki;
+                kalan.Text = $"{kalansure.Hours:D2} : {kalansure.Minutes:D2} : {kalansure.Seconds:D2}";
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"❌ Geri sayım güncelleme hatası: {ex.Message}");
+            }
         }
 
         private void UpdatePrayerTimeColors(Label current, Label previous)
@@ -310,71 +458,7 @@ namespace hadis
             imsakvakit.Text = $"{_namazvakitleri["İmsak"].Hour:D2}:{_namazvakitleri["İmsak"].Minute:D2}";
         }
 
-        public async Task NamazVakitleriniÇek()
-        {
-            try
-            {
-                string ilce = "";
-                string sehir = "";
-                bool otomatikKonum = Preferences.Default.Get("OtomatikKonum", true);
 
-                if (!otomatikKonum)
-                {
-                    // Manuel konum
-                    sehir = Preferences.Default.Get("ManuelSehir", "");
-                    ilce = Preferences.Default.Get("ManuelIlce", "");
-                }
-                else
-                {
-                    // Otomatik konum
-                    var konum = await Geolocation.GetLastKnownLocationAsync();
-                    if (konum == null)
-                    {
-                        var request = new GeolocationRequest(GeolocationAccuracy.Medium, TimeSpan.FromSeconds(10));
-                        konum = await Geolocation.GetLocationAsync(request);
-                    }
-
-                    if (konum != null)
-                    {
-                        var placemarks = await Geocoding.Default.GetPlacemarksAsync(konum.Latitude, konum.Longitude);
-                        var placemark = placemarks?.FirstOrDefault();
-                        if (placemark != null)
-                        {
-                            sehir = placemark.AdminArea ?? "";
-                            ilce = placemark.SubAdminArea ?? placemark.Locality ?? "";
-                        }
-                    }
-                }
-
-                if (string.IsNullOrEmpty(sehir) || string.IsNullOrEmpty(ilce))
-                {
-                    ResetPrayerTimes();
-                    return;
-                }
-
-                // Yeni Servisi Kullan
-                var vakitler = await PrayerTimesService.GetPrayerTimesForDateAsync(DateTime.Now, ilce, sehir);
-
-                if (vakitler != null)
-                {
-                    _namazvakitleri = vakitler;
-                    // Veriler geldiğinde UI'ı güncelle (Timer yerine burası daha verimli)
-                    MainThread.BeginInvokeOnMainThread(UpdateAllPrayerTimes);
-                }
-                else
-                {
-                    Console.WriteLine("❌ Namaz vakitleri alınamadı (Hem cache boş hem internet yok veya API hatası).");
-                    // Eski cache'de var mıydı acaba? Belki bir önceki task'ta buna bakmıştık.
-                    // Şimdilik boş bırakıyoruz, kullanıcıya belki bir uyarı gösterilebilir.
-                    ResetPrayerTimes();
-                }
-            }
-            catch (Exception e)
-            {
-                Console.WriteLine($"❌ Namaz vakitleri çekme hatası: {e.Message}");
-                ResetPrayerTimes();
-            }
-        }
 
         private void ResetPrayerTimes()
         {
@@ -560,11 +644,5 @@ namespace hadis
             await Navigation.PushAsync(new SehirSecim());
         }
 
-        // IDisposable implementation for timer cleanup
-        ~MainPage()
-        {
-            _timer?.Stop();
-            _timer?.Dispose();
-        }
     }
 }

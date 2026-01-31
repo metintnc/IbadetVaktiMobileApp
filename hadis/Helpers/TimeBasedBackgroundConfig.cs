@@ -167,8 +167,7 @@ namespace hadis.Helpers
                 backgroundValue.Contains("sun_05") || 
                 backgroundValue.Contains("sun_06") || 
                 backgroundValue.Contains("sun_07") || 
-                backgroundValue.Contains("sun_08") || 
-                backgroundValue.Contains("sun_09"))
+                backgroundValue.Contains("sun_08"))
             {
                 return true;
             }
