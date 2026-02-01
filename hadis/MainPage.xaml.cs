@@ -284,8 +284,8 @@ namespace hadis
                 _currentImageName = result.ImageName;
             }
 
-            // Custom tema değilse, adaptif cam efektini uygula
-            if (savedTheme != AppConstants.THEME_CUSTOM)
+            // Custom veya Simsiyah tema değilse, adaptif cam efektini uygula
+            if (savedTheme != AppConstants.THEME_CUSTOM && savedTheme != "PitchBlack")
             {
                 _themeService.ApplyAdaptiveGlassTheme(isBright,
                     MainCountdownFrame, namazismi, kalan, Konum,

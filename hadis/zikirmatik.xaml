@@ -11,7 +11,7 @@
                 HorizontalOptions="FillAndExpand"
                 VerticalOptions="FillAndExpand">
             <Image.Source>
-                <AppThemeBinding Light="bg_light.jpg" Dark="z.png" />
+                <AppThemeBinding Light="z_light.png" Dark="z.png" />
             </Image.Source>
         </Image>
         
@@ -21,7 +21,7 @@
                 <AppThemeBinding Light="White" Dark="Black" />
             </BoxView.Color>
             <BoxView.Opacity>
-                <AppThemeBinding Light="0.75" Dark="0.45" />
+                <AppThemeBinding Light="0" Dark="0.45" />
             </BoxView.Opacity>
         </BoxView>
 
