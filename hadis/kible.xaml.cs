@@ -25,14 +25,35 @@ namespace hadis
             _imageService = imageService;
         }
         
+        private bool _inInitialWarningPeriod = false;
+        private CompassAccuracy _currentAccuracy = CompassAccuracy.Unreliable;
+
         protected override async void OnAppearing()
         {
             base.OnAppearing();
             
             // Kıble sayfası için özel StatusBar ve TabBar renkleri
             _statusBarService.SetStatusBarColor("#000000"); // Siyah
-            _tabBarService.SetTabBarColor("#19222B"); // Özel kıble rengi
+            _tabBarService.SetTabBarColor("#000000"); // Siyah
             
+             // Her açılışta 5 saniye kalibrasyon uyarısını göster
+            _inInitialWarningPeriod = true;
+            if (CalibrationWarningFrame != null)
+                CalibrationWarningFrame.IsVisible = true;
+
+            // 5 saniye sonra normal akışa dön
+            _ = Task.Run(async () => 
+            {
+                await Task.Delay(5000);
+                _inInitialWarningPeriod = false;
+                
+                // Süre bitince mevcut duruma göre güncelle
+                MainThread.BeginInvokeOnMainThread(() =>
+                {
+                    OnCompassAccuracyChanged(_currentAccuracy);
+                });
+            });
+
             await CheckAndStartCompass();
         }
 
@@ -89,6 +110,9 @@ namespace hadis
             _nativeCompassService.AccuracyChanged -= OnCompassAccuracyChanged;
         }
 
+        // ... (Permission methods excluded for brevity if not changing) ...
+
+        // ... Existing permission methods ...
         private Action _onPermissionConfirm;
 
         private async void OnRequestLocationPermission_Clicked(object sender, EventArgs e)
@@ -159,31 +183,54 @@ namespace hadis
         }
 
 
-
         private void OnCompassAccuracyChanged(CompassAccuracy accuracy)
         {
-            MainThread.BeginInvokeOnMainThread(() =>
-            {
-                bool showWarning = false;
+            _currentAccuracy = accuracy;
 
-                switch (accuracy)
+            MainThread.BeginInvokeOnMainThread(async () =>
+            {
+                bool shouldBeVisible = false;
+
+                if (_inInitialWarningPeriod)
                 {
-                    case CompassAccuracy.High:
-                    case CompassAccuracy.Medium:
-                        showWarning = false;
-                        break;
-                    case CompassAccuracy.Low:
-                    case CompassAccuracy.Unreliable:
-                        showWarning = true;
-                        break;
-                    default:
-                        showWarning = false;
-                        break;
+                    shouldBeVisible = true;
+                }
+                else
+                {
+                    switch (accuracy)
+                    {
+                        case CompassAccuracy.High:
+                        case CompassAccuracy.Medium:
+                            shouldBeVisible = false;
+                            break;
+                        default:
+                            shouldBeVisible = true;
+                            break;
+                    }
                 }
 
                 if (CalibrationWarningFrame != null)
                 {
-                    CalibrationWarningFrame.IsVisible = showWarning;
+                    if (shouldBeVisible)
+                    {
+                        // Görünür olması gerekiyorsa ve görünür değilse veya sönükse
+                        if (!CalibrationWarningFrame.IsVisible || CalibrationWarningFrame.Opacity < 1)
+                        {
+                            CalibrationWarningFrame.IsVisible = true;
+                            // Hızlıca gelsin (varsa bir önceki animasyonu da ezer)
+                            await CalibrationWarningFrame.FadeTo(1, 250);
+                        }
+                    }
+                    else
+                    {
+                        // Gizlenmesi gerekiyorsa ve şu an görünürse
+                        if (CalibrationWarningFrame.IsVisible && CalibrationWarningFrame.Opacity > 0)
+                        {
+                            // Yavaş yavaş gitsin (1.5 saniye)
+                            await CalibrationWarningFrame.FadeTo(0, 1500);
+                            CalibrationWarningFrame.IsVisible = false;
+                        }
+                    }
                 }
             });
         }
@@ -265,19 +312,51 @@ namespace hadis
                 kibleoku.RotateTo(finalTarget, 100, Easing.Linear);
 
                 // UI Güncelleme
-                double displayAngle = (360 - (gelenaci % 360)) % 360;
-                AciDegeri.Text = $"{displayAngle:F0}°";
+                double rawAngle = (360 - (gelenaci % 360)) % 360;
+                int displayAngle = (int)Math.Round(rawAngle);
                 
-                int a = Convert.ToInt32(displayAngle);
-                if(a == 0 || a == 360)
+                if (displayAngle == 360) displayAngle = 0;
+
+                AciDegeri.Text = $"{displayAngle}°";
+                
+                if(displayAngle == 0)
                 {
-                    AciDegeri.TextColor = Colors.Gold;
+                    AciDegeri.TextColor = Colors.Green;
                 }
                 else
                 {
                     AciDegeri.ClearValue(Label.TextColorProperty);
                 }
+
+                // Kıble yönü doğrulama (355 - 5 arası)
+                // displayAngle 0 ise, 355-5 aralığına girer (çünkü 0 <= 5)
+                if ((displayAngle >= 355 || displayAngle <= 5) && QiblaCheckmark != null)
+                {
+                    // Zaten görünür değilse göster (Fade To)
+                    if (QiblaCheckmark.Opacity == 0)
+                    {
+                        QiblaCheckmark.FadeTo(1, 200);
+                    }
+                }
+                else if (QiblaCheckmark != null)
+                {
+                    // Görünürse gizle
+                    if (QiblaCheckmark.Opacity > 0)
+                    {
+                        QiblaCheckmark.FadeTo(0, 200);
+                    }
+                }
             });
+        }
+        
+        protected override bool OnBackButtonPressed()
+        {
+            // Geri tuşuna basıldığında Ana Sayfaya (Vakitler Sekmesine) git
+            MainThread.BeginInvokeOnMainThread(async () =>
+            {
+                await Shell.Current.GoToAsync("//MainPage");
+            });
+            return true; // Olayı biz yönettik
         }
     }
 }
