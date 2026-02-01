@@ -12,10 +12,9 @@
                HorizontalOptions="FillAndExpand"
                VerticalOptions="FillAndExpand">
             <Image.Source>
-                <AppThemeBinding Light="bg_light.jpg" Dark="z.png" />
+                <AppThemeBinding Light="kuran_light.png" Dark="kuranarkaplan.png" />
             </Image.Source>
         </Image>
-        
         <!-- Arkaplan Overlay - Ortada -->
         <Grid x:Name="BackgroundOverlay"
               HorizontalOptions="FillAndExpand"
@@ -121,7 +120,7 @@
                                 <Shadow Brush="Black" Offset="1,1" Radius="2" Opacity="0.5" />
                             </Label.Shadow>
                         </Label>
-                        <Label Style="{StaticResource AnaLabel}" Text="Kaldı" HorizontalOptions="Center">
+                        <Label Style="{StaticResource AnaLabel}" Text="Kaldı" TextColor="White" HorizontalOptions="Center">
                             <Label.Shadow>
                                 <Shadow Brush="Black" Offset="1,1" Radius="2" Opacity="0.5" />
                             </Label.Shadow>

@@ -8,7 +8,7 @@
                HorizontalOptions="FillAndExpand"
                VerticalOptions="FillAndExpand">
             <Image.Source>
-                <AppThemeBinding Light="bg_light.jpg" Dark="z.png" />
+                <AppThemeBinding Light="z_light.png" Dark="z.png" />
             </Image.Source>
         </Image>
         <BoxView HorizontalOptions="FillAndExpand"
@@ -17,7 +17,7 @@
                 <AppThemeBinding Light="White" Dark="Black" />
             </BoxView.Color>
             <BoxView.Opacity>
-                <AppThemeBinding Light="0.65" Dark="0.3" />
+                <AppThemeBinding Light="0" Dark="0.3" />
             </BoxView.Opacity>
         </BoxView>
         <Grid RowDefinitions="Auto,*"  Style="{StaticResource Background}" >

@@ -70,6 +70,7 @@
 		<MauiImage Include="Resources\Images\kaydet_filled_white.svg" />
 		<MauiImage Include="Resources\Images\kiblearkaplan.png" />
 		<MauiImage Include="Resources\Images\kuranarkaplan.png" />
+		<MauiImage Include="Resources\Images\kuran_light.png" />
 		<MauiImage Include="Resources\Images\z.png" />
 		
 		<!-- Sun Images for Time-based Backgrounds -->
@@ -93,6 +94,7 @@
 		<MauiImage Include="Resources\Images\kuran.svg" />
 		<MauiImage Include="Resources\Images\vakitler.svg" />
 		<MauiImage Include="Resources\Images\zikirmatik.svg" />
+		<MauiImage Include="Resources\Images\z_light.png" />
 
 		<!-- Custom Fonts -->
 		<MauiFont Include="Resources\Fonts\*" />
@@ -117,6 +119,7 @@
 	  <None Remove="Resources\Images\kibleoklight.svg" />
 	  <None Remove="Resources\Images\kiblesekme.svg" />
 	  <None Remove="Resources\Images\kuranarkaplan.png" />
+	  <None Remove="Resources\Images\kuran_light.png" />
 	  <None Remove="Resources\Images\sun_01.png" />
 	  <None Remove="Resources\Images\sun_02.png" />
 	  <None Remove="Resources\Images\sun_03.png" />
@@ -127,6 +130,7 @@
 	  <None Remove="Resources\Images\sun_08.png" />
 	  <None Remove="Resources\Images\sun_09.png" />
 	  <None Remove="Resources\Images\sun_10.png" />
+	  <None Remove="Resources\Images\z_light.png" />
 	</ItemGroup>
 
 	<ItemGroup>

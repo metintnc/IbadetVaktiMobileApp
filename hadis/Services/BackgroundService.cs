@@ -35,7 +35,7 @@ namespace hadis.Services
             {
                 try
                 {
-                    string targetImage = "bg_light.jpg";
+                    string targetImage = "kuran_light.png";
                     if (currentImageName != targetImage)
                     {
                         backgroundImage.Source = targetImage;
@@ -51,7 +51,7 @@ namespace hadis.Services
                 catch (Exception ex)
                 {
                     Console.WriteLine($"❌ Açık tema arkaplan hatası: {ex.Message}");
-                    return (true, "bg_light.jpg");
+                    return (true, "kuran_light.png");
                 }
             }
 
@@ -60,13 +60,16 @@ namespace hadis.Services
             {
                  try
                 {
-                    string targetImage = "bg_dark.jpg";
+                    string targetImage = "kuranarkaplan.png";
                     if (currentImageName != targetImage)
                     {
                         backgroundImage.Source = targetImage;
                         backgroundImage.IsVisible = true;
                     }
-                    backgroundOverlay.IsVisible = false;
+                    
+                    // Kuran sayfasındaki siyah overlay efekti (Opacity 0.45)
+                    backgroundOverlay.IsVisible = true;
+                    backgroundOverlay.Background = new SolidColorBrush(Colors.Black.WithAlpha(0.45f));
                     
                     _statusBarService.SetStatusBarColor("#000000"); // Black Status Bar
                     _tabBarService.SetTabBarColor("#000000");       // Black Tab Bar
@@ -76,7 +79,7 @@ namespace hadis.Services
                 catch (Exception ex)
                 {
                     Console.WriteLine($"❌ Simsiyah tema arkaplan hatası: {ex.Message}");
-                    return (false, "bg_dark.jpg");
+                    return (false, "kuranarkaplan.png");
                 }
             }
 
