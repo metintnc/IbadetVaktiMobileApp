@@ -65,5 +65,16 @@ namespace hadis
                 await DisplayAlert("Başarılı", "Ayarlar sıfırlandı.", "Tamam");
             }
         }
+        
+
+        protected override bool OnBackButtonPressed()
+        {
+            // Geri tuşuna basıldığında Ana Sayfaya (Vakitler Sekmesine) git
+            MainThread.BeginInvokeOnMainThread(async () =>
+            {
+                await Shell.Current.GoToAsync("//MainPage");
+            });
+            return true; // Olayı biz yönettik
+        }
     }
 }

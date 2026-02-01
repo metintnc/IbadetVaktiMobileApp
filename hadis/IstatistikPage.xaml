@@ -3,10 +3,29 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              x:Class="hadis.IstatistikPage"
              Title="İstatistikler"
+             Shell.TabBarIsVisible="False"
              BackgroundColor="{AppThemeBinding Light=#F5F5F5, Dark=#121212}">
 
     <ScrollView>
         <VerticalStackLayout Padding="20" Spacing="25">
+            
+            <!-- Header Frame -->
+            <Frame CornerRadius="20"
+                   Padding="15"
+                   HasShadow="True"
+                   BorderColor="{AppThemeBinding Light=#80009688, Dark=#80FFFFFF}"
+                   BackgroundColor="{AppThemeBinding Light=#22FFFFFF, Dark=#33000000}">
+                 <VerticalStackLayout Spacing="5" HorizontalOptions="Center">
+                    <Label Text="📊"
+                           FontSize="24"
+                           HorizontalOptions="Center"/>
+                    <Label Text="Zikirmatik İstatistikleri"
+                           FontSize="22"
+                           FontAttributes="Bold"
+                           HorizontalOptions="Center"
+                           TextColor="{AppThemeBinding Light=#00796B, Dark=#FFFFFF}"/>
+                 </VerticalStackLayout>
+            </Frame>
             
             <!-- Özet İstatistikler Grid'i -->
             <Grid ColumnDefinitions="*,*" RowDefinitions="Auto, Auto" ColumnSpacing="15" RowSpacing="15">

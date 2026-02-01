@@ -54,7 +54,7 @@ namespace hadis
             
             // StatusBar rengini ayarla
             _statusBarService.SetStatusBarColor("#000000");
-            _tabBarService.SetTabBarColor("#1D1F1E");
+            _tabBarService.SetTabBarColor("#000000");
         }
 
         private void ApplyCustomTheme()
@@ -355,7 +355,12 @@ namespace hadis
                 ResetConfirmationOverlay.IsVisible = false;
                 return true;
             }
-            return base.OnBackButtonPressed();
+            // Geri tuşuna basıldığında Ana Sayfaya (Vakitler Sekmesine) git
+            MainThread.BeginInvokeOnMainThread(async () =>
+            {
+                await Shell.Current.GoToAsync("//MainPage");
+            });
+            return true; // Olayı biz yönettik
         }
 
         private async void OnSaveTarget_Clicked(object sender, EventArgs e)

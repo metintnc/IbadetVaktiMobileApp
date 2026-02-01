@@ -230,7 +230,7 @@
                                FontSize="24"
                                HorizontalOptions="Center"/>
                         <Label x:Name="HedefAyarlaLabel"
-                               Text="Hedef"
+                               Text="Hedef Seç"
                                FontSize="10"
                                FontAttributes="Bold"
                                HorizontalOptions="Center"
@@ -254,7 +254,7 @@
                                FontSize="24"
                                HorizontalOptions="Center"/>
                         <Label x:Name="ZikirSecLabel"
-                               Text="Seç"
+                               Text="Zikir Seç"
                                FontSize="10"
                                FontAttributes="Bold"
                                HorizontalOptions="Center"

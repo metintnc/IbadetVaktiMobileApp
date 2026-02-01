@@ -20,7 +20,7 @@
                 <AppThemeBinding Light="0.65" Dark="0.3" />
             </BoxView.Opacity>
         </BoxView>
-        <Grid RowDefinitions="Auto,Auto,*"  Style="{StaticResource Background}" >
+        <Grid RowDefinitions="Auto,*"  Style="{StaticResource Background}" >
         <!-- Header - Kuran Page Style -->
         <Label Grid.Row="0"
                Text="Kıble Pusulası"
@@ -31,38 +31,41 @@
                Margin="0,50,0,10"
                TextColor="{AppThemeBinding Light=#00796B, Dark=#FFFFFF}"/>
 
-        <!-- Açı ve Tik - Row 1 (Pusulanın Hemen Üzerinde) -->
-        <VerticalStackLayout Grid.Row="1" 
-                             HorizontalOptions="Center" 
-                             VerticalOptions="Center" 
-                             Margin="0,0,0,10"
-                             Spacing="0"
-                             ZIndex="50">
-            <Label Text="0°" 
-                   x:Name="AciDegeri" 
-                   HorizontalOptions="Center"
-                   FontSize="35" 
-                   Style="{StaticResource AnaLabel}"/>
+        <!-- Main Content Group - Row 1 (Centered vertically in available space) -->
+        <VerticalStackLayout Grid.Row="1"
+                             VerticalOptions="Center"
+                             HorizontalOptions="Fill"
+                             Spacing="0">
             
-            <Label x:Name="QiblaCheckmark"
-                   Text="✅"
-                   FontSize="24"
-                   HorizontalOptions="Center"
-                   Opacity="0"
-                   TextColor="{AppThemeBinding Light=#00796B, Dark=#80CBC4}"/>
+            <!-- Açı ve Tik Wrapper -->
+            <VerticalStackLayout Spacing="0"
+                                 HorizontalOptions="Center"
+                                 ZIndex="50">
+                <Label Text="0°" 
+                       x:Name="AciDegeri" 
+                       HorizontalOptions="Center"
+                       FontSize="35" 
+                       Style="{StaticResource AnaLabel}"/>
+                
+                <Label x:Name="QiblaCheckmark"
+                       Text="✅"
+                       FontSize="24"
+                       HorizontalOptions="Center"
+                       Opacity="0"
+                       TextColor="{AppThemeBinding Light=#00796B, Dark=#80CBC4}"/>
+            </VerticalStackLayout>
+
+            <!-- Kıble Oku -->
+            <Image x:Name="kibleoku" 
+                   Style="{StaticResource KibleOk}" 
+                   Aspect="AspectFit" 
+                   VerticalOptions="Start"
+                   HorizontalOptions="Fill"
+                   Margin="20,0,20,0"/>
         </VerticalStackLayout>
 
-        <!-- Kıble Oku - Row 2 -->
-        <Image Grid.Row="2" 
-               x:Name="kibleoku" 
-               Style="{StaticResource KibleOk}" 
-               Aspect="AspectFit" 
-               VerticalOptions="Fill" 
-               HorizontalOptions="Fill"
-               Margin="20"/>
-
-        <!-- Kalibrasyon Uyarısı - Row 2 Overlay -->
-        <Frame Grid.Row="2"
+        <!-- Kalibrasyon Uyarısı - Row 1 Overlay Bottom -->
+        <Frame Grid.Row="1"
                x:Name="CalibrationWarningFrame"
                BackgroundColor="#CCFF5252"
                Padding="15,10"
