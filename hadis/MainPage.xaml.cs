@@ -21,6 +21,7 @@ namespace hadis
         private readonly BackgroundService _backgroundService;
         private readonly ThemeService _themeService;
         private readonly StatusBarService _statusBarService;
+        private string _currentImageName;
 
         public MainPage(BackgroundService backgroundService,ThemeService themeService,StatusBarService statusBarService)
         {
@@ -34,7 +35,41 @@ namespace hadis
             _timer.Elapsed += async (s, e) => await MainThread.InvokeOnMainThreadAsync(GeriSayımıGüncelle);
             _timer.Start();
 
-            // İlk yüklemeleri yap (Gereksiz çift çağrı kaldırıldı - OnAppearing halledecek)
+            // İlk yüklemeleri SYNCHRONOUS olarak yap (Flicker önlemek için)
+            InitializeBackgroundSync();
+        }
+
+        private void InitializeBackgroundSync()
+        {
+             try
+             {
+                 string savedTheme = Preferences.Default.Get(AppConstants.PREF_APP_THEME, AppConstants.THEME_SYSTEM);
+                 
+                 // Eğer tema "System" veya "Main" ise zaman bazlı resmi hemen hesapla ve ata
+                 if (savedTheme == AppConstants.THEME_SYSTEM || savedTheme.StartsWith("Main"))
+                 {
+                     var now = DateTime.Now;
+                     var info = TimeBasedBackgroundConfig.GetBackgroundForTime(now.Hour, now.Minute);
+                     
+                     // String olarak ata (Hızlı)
+                     BackgroundImage.Source = info.Image;
+                     _currentImageName = info.Image;
+                     
+                     // Renkleri de hemen ayarla
+                     _statusBarService.SetStatusBarColor(info.StatusBarColor);
+                     // TabBar rengi AppShell tarafından yönetiliyor olabilir ama yine de servisi çağırabiliriz
+                     // Ancak BackgroundService tam ayarı zaten yapacak, burada kritik olan Görseli koymak.
+                 }
+                 
+                 // Arkaplan servisini çağır (validasyon ve diğer ayarlar için)
+                 // currentImageName gönderdiğimiz için tekrar yükleme yapmayacak
+                 SetTimeBasedBackground();
+             }
+             catch(Exception ex)
+             {
+                 Console.WriteLine($"Init Background Error: {ex.Message}");
+                 SetTimeBasedBackground();
+             }
         }
 
         protected override async void OnAppearing()
@@ -62,8 +97,6 @@ namespace hadis
             base.OnDisappearing();
             // Event dinlemeyi bırak
             Connectivity.ConnectivityChanged -= Connectivity_ConnectivityChanged;
-
-            // ... (Other cleanup if needed)
         }
 
         private async void Connectivity_ConnectivityChanged(object? sender, ConnectivityChangedEventArgs e)
@@ -96,7 +129,90 @@ namespace hadis
         {
             try
             {
-                // İnternet Kontrolü
+                // 1. Önce Konum Durumunu Kontrol Et
+                string ilce = "";
+                string sehir = "";
+                bool otomatikKonum = Preferences.Default.Get("OtomatikKonum", true);
+
+                bool manuelKonumVar = !otomatikKonum && !string.IsNullOrEmpty(Preferences.Default.Get("ManuelSehir", ""));
+                
+                // Eğer manuel konum yoksa, GPS iznine ve verisine bak
+                if (!manuelKonumVar)
+                {
+                    var status = await Permissions.CheckStatusAsync<Permissions.LocationWhenInUse>();
+                    if (status != PermissionStatus.Granted)
+                    {
+                        // İzin yok -> Konum Yok Hatası Göster
+                         MainThread.BeginInvokeOnMainThread(() => 
+                         {
+                             LocationErrorOverlay.IsVisible = true;
+                             InternetErrorOverlay.IsVisible = false;
+                         });
+                         return;
+                    }
+                }
+                
+                // Konum izni var veya manuel seçili, şimdi verileri almayı dene
+                if (!otomatikKonum)
+                {
+                    sehir = Preferences.Default.Get("ManuelSehir", "");
+                    ilce = Preferences.Default.Get("ManuelIlce", "");
+                }
+                else
+                {
+                    var konum = await Geolocation.GetLastKnownLocationAsync();
+                    if (konum == null)
+                    {
+                        var request = new GeolocationRequest(GeolocationAccuracy.Medium, TimeSpan.FromSeconds(3));
+                        konum = await Geolocation.GetLocationAsync(request);
+                    }
+
+                    if (konum != null)
+                    {
+                        try
+                        {
+                            var placemarks = await Geocoding.Default.GetPlacemarksAsync(konum.Latitude, konum.Longitude);
+                            var placemark = placemarks?.FirstOrDefault();
+                            if (placemark != null)
+                            {
+                                sehir = placemark.AdminArea ?? "";
+                                ilce = placemark.SubAdminArea ?? placemark.Locality ?? "";
+                            }
+                        }
+                        catch
+                        {
+                             // Geocoding hatası, koordinat var ama isim yok, yine de devam edilebilir ama bizim API isim istiyor.
+                             // Şimdilik boş geçelim, aşağıda yakalanır.
+                        }
+                    }
+                    else
+                    {
+                        // Konum alınamadı (GPS kapalı veya bina içi) -> Konum Hatası Göster
+                         MainThread.BeginInvokeOnMainThread(() => 
+                         {
+                             LocationErrorOverlay.IsVisible = true;
+                             InternetErrorOverlay.IsVisible = false;
+                         });
+                         return;
+                    }
+                }
+
+                if (string.IsNullOrEmpty(sehir) || string.IsNullOrEmpty(ilce))
+                {
+                    // Şehir/İlçe bulunamadı -> Konum Hatası
+                     MainThread.BeginInvokeOnMainThread(() => 
+                     {
+                         LocationErrorOverlay.IsVisible = true;
+                         InternetErrorOverlay.IsVisible = false;
+                     });
+                    ResetPrayerTimes();
+                    return;
+                }
+
+                // Konum OK, şimdi İnternet ve Veri Kontrolü
+                // Konum hatası overlay'ini gizle (çünkü konum var)
+                MainThread.BeginInvokeOnMainThread(() => LocationErrorOverlay.IsVisible = false);
+
                 if (Connectivity.NetworkAccess != NetworkAccess.Internet)
                 {
                      // Eğer önbellekte veri yoksa engelleyici ekranı göster
@@ -108,43 +224,6 @@ namespace hadis
                      // Veri varsa, internet olmasa da devam edebiliriz (cache varsa)
                 }
 
-                string ilce = "";
-                string sehir = "";
-                bool otomatikKonum = Preferences.Default.Get("OtomatikKonum", true);
-                
-                // ... (Konum alma kodları aynı)
-                if (!otomatikKonum)
-                {
-                    sehir = Preferences.Default.Get("ManuelSehir", "");
-                    ilce = Preferences.Default.Get("ManuelIlce", "");
-                }
-                else
-                {
-                    var konum = await Geolocation.GetLastKnownLocationAsync();
-                    if (konum == null)
-                    {
-                        var request = new GeolocationRequest(GeolocationAccuracy.Medium, TimeSpan.FromSeconds(10));
-                        konum = await Geolocation.GetLocationAsync(request);
-                    }
-
-                    if (konum != null)
-                    {
-                        var placemarks = await Geocoding.Default.GetPlacemarksAsync(konum.Latitude, konum.Longitude);
-                        var placemark = placemarks?.FirstOrDefault();
-                        if (placemark != null)
-                        {
-                            sehir = placemark.AdminArea ?? "";
-                            ilce = placemark.SubAdminArea ?? placemark.Locality ?? "";
-                        }
-                    }
-                }
-
-                if (string.IsNullOrEmpty(sehir) || string.IsNullOrEmpty(ilce))
-                {
-                    ResetPrayerTimes();
-                    return;
-                }
-
                 // Yeni Servisi Kullan
                 var vakitler = await PrayerTimesService.GetPrayerTimesForDateAsync(DateTime.Now, ilce, sehir);
 
@@ -152,10 +231,11 @@ namespace hadis
                 {
                     _namazvakitleri = vakitler;
                     
-                    // Veriler geldi, overlay'i gizle
+                    // Veriler geldi, overlayleri gizle
                     MainThread.BeginInvokeOnMainThread(() => 
                     {
                         InternetErrorOverlay.IsVisible = false;
+                        LocationErrorOverlay.IsVisible = false;
                         UpdateAllPrayerTimes();
                     });
                 }
@@ -165,7 +245,6 @@ namespace hadis
                     Console.WriteLine("❌ Namaz vakitleri alınamadı.");
                     ResetPrayerTimes();
                     
-                    // Eski veriyi temizle ki overlay açılsın (çünkü artık eski konumun verisi geçersiz)
                     _namazvakitleri = null;
 
                     if (_namazvakitleri == null || _namazvakitleri.Count == 0)
@@ -180,17 +259,30 @@ namespace hadis
                 ResetPrayerTimes();
                  if (_namazvakitleri == null || _namazvakitleri.Count == 0)
                  {
+                     // Genel hata durumunda internet hatası gösterilebilir veya özel bir hata
                      InternetErrorOverlay.IsVisible = true;
                  }
             }
+        }
+        
+        private async void OnLocationErrorRetry_Clicked(object sender, EventArgs e)
+        {
+            // Şehir seçim sayfasına git
+            await Navigation.PushAsync(new SehirSecim());
         }
 
         private void SetTimeBasedBackground()
         {
             string savedTheme = Preferences.Default.Get(AppConstants.PREF_APP_THEME, AppConstants.THEME_SYSTEM);
             
-            // BackgroundService artık bool isBright dönüyor
-            bool isBright = _backgroundService.SetTimeBasedBackground(BackgroundImage, BackgroundOverlay, savedTheme);
+            // BackgroundService artık (bool, string) dönüyor
+            var result = _backgroundService.SetTimeBasedBackground(BackgroundImage, BackgroundOverlay, savedTheme, _currentImageName);
+            
+            bool isBright = result.IsBright;
+            if (!string.IsNullOrEmpty(result.ImageName))
+            {
+                _currentImageName = result.ImageName;
+            }
 
             // Custom tema değilse, adaptif cam efektini uygula
             if (savedTheme != AppConstants.THEME_CUSTOM)

@@ -16,7 +16,7 @@ namespace hadis.Services
 
         public QuranApiService()
         {
-            _cacheDir = Path.Combine(FileSystem.AppDataDirectory, "quran_cache");
+            _cacheDir = Path.Combine(FileSystem.AppDataDirectory, "quran_cache_v2"); // New cache dir for new API
             if (!Directory.Exists(_cacheDir))
             {
                 Directory.CreateDirectory(_cacheDir);
@@ -25,103 +25,120 @@ namespace hadis.Services
 
         public bool CheckCacheStatus()
         {
-            // Basit kontrol: Fatiha (1) ve Nas (114) hem Türkçe hem Arapça var mı?
-            // İsterseniz daha detaylı kontrol yapılabilir (114 dosya x 2)
-            bool fatihaAr = File.Exists(Path.Combine(_cacheDir, "surah_1_ar.json"));
-            bool nasAr = File.Exists(Path.Combine(_cacheDir, "surah_114_ar.json"));
-            bool fatihaTr = File.Exists(Path.Combine(_cacheDir, "surah_1_tr.json"));
+            // Check if Fatiha (1) and Nas (114) exist in new format
+            bool fatiha = File.Exists(Path.Combine(_cacheDir, "surah_1.json"));
+            bool nas = File.Exists(Path.Combine(_cacheDir, "surah_114.json"));
             
-            return fatihaAr && nasAr && fatihaTr;
+            return fatiha && nas;
         }
 
-        public async Task<List<AlQuranAyah>> GetSurahAsync(int surahNo, string lang = "tr.diyanet")
+        public async Task<List<Ayah>> GetSurahAsync(int surahNo)
         {
-            // Cache dosya ismini belirle
-            string cacheKey = lang == "ar" ? "ar" : "tr"; // Basitleştirme: tr.diyanet -> tr, ar -> ar
-            string fileName = $"surah_{surahNo}_{cacheKey}.json";
+            string fileName = $"surah_{surahNo}.json";
             string filePath = Path.Combine(_cacheDir, fileName);
 
-            // 1. Cache Kontrol
+            AcikKuranData surahData = null;
+
+            // 1. Check Cache
             if (File.Exists(filePath))
             {
                 try
                 {
                     string json = await File.ReadAllTextAsync(filePath);
-                    var cachedSurah = JsonSerializer.Deserialize<AlQuranData>(json);
-                    if (cachedSurah?.Ayahs != null)
+                    var response = JsonSerializer.Deserialize<AcikKuranData>(json);
+                    if (response != null)
                     {
-                        return cachedSurah.Ayahs;
+                        surahData = response;
                     }
                 }
                 catch (Exception ex)
                 {
-                    Console.WriteLine($"Cache okuma hatası ({fileName}): {ex.Message}");
+                    Console.WriteLine($"Cache read error ({fileName}): {ex.Message}");
                 }
             }
 
-            // 2. İnternet Kontrol ve API İsteği
-            if (Connectivity.NetworkAccess != NetworkAccess.Internet)
+            // 2. Fetch from API if not in cache
+            if (surahData == null)
             {
-                // İnternet yok ve cache de yok -> Boş dön
-                return new List<AlQuranAyah>();
+                if (Connectivity.NetworkAccess != NetworkAccess.Internet)
+                {
+                    return new List<Ayah>();
+                }
+
+                try
+                {
+                    // author=11 (Diyanet İşleri)
+                    var url = $"https://api.acikkuran.com/surah/{surahNo}?author=11";
+                    var responseString = await _client.GetStringAsync(url);
+                    var apiResponse = JsonSerializer.Deserialize<AcikKuranResponse>(responseString);
+                    
+                    if (apiResponse?.Data != null)
+                    {
+                        surahData = apiResponse.Data;
+                        
+                        // Cache it immediately (saving per-surah usage is fine)
+                        string jsonToSave = JsonSerializer.Serialize(surahData);
+                        await File.WriteAllTextAsync(filePath, jsonToSave);
+                    }
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine($"API Request error: {ex.Message}");
+                    return new List<Ayah>();
+                }
             }
 
-            try
+            // 3. Map to Ayah Model
+            var ayahs = new List<Ayah>();
+            if (surahData?.Verses != null)
             {
-                var url = $"https://api.alquran.cloud/v1/surah/{surahNo}/{lang}";
-                var response = await _client.GetStringAsync(url);
-                var result = JsonSerializer.Deserialize<AlQuranResponse>(response);
+                foreach (var v in surahData.Verses)
+                {
+                    ayahs.Add(new Ayah
+                    {
+                        Number = v.VerseNumber,
+                        ArabicText = v.Verse,
+                        Translation = v.Translation?.Text ?? "",
+                        Transliteration = v.Transcription ?? "",
+                        IsSaved = false // Will be set by ViewModel
+                    });
+                }
+            }
 
-                // İsteğe bağlı: Tekil de olsa cache'e atılabilir ama "Tam İndir" mantığı ile çakışmasın diye şimdilik ellemiyoruz.
-                // Veya: Kullanıcı okudukça da kaydetsin? 
-                // Şimdilik sadece "Tam İndir" ile full offline yapalım. 
-                
-                return result?.Data?.Ayahs ?? new List<AlQuranAyah>();
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine($"API İsteği hatası: {ex.Message}");
-                return new List<AlQuranAyah>();
-            }
+            return ayahs;
         }
 
         public async Task DownloadAndCacheFullQuranAsync(IProgress<string> progress)
         {
             try
             {
-                // 1. Arapça
-                progress?.Report("Arapça Kur'an indiriliyor...");
-                string arUrl = "https://api.alquran.cloud/v1/quran/quran-uthmani";
-                var arResponse = await _client.GetStringAsync(arUrl);
-                var arResult = JsonSerializer.Deserialize<AlQuranFullResponse>(arResponse);
+                progress?.Report("Kur'an verileri indiriliyor...");
                 
-                if (arResult?.Data?.Surahs != null)
+                // AcikKuran API is per-surah. We need to fetch 114 surahs.
+                // To be nice to the API and efficient, we can do it in batches or sequentially.
+                // 114 is small enough for sequential with progress updates, ensuring order and less timeout risk.
+                
+                int totalSurahs = 114;
+                for (int i = 1; i <= totalSurahs; i++)
                 {
-                    progress?.Report("Arapça sureler kaydediliyor...");
-                    foreach (var surah in arResult.Data.Surahs)
+                    progress?.Report($"Sureler indiriliyor... ({i}/{totalSurahs})");
+                    
+                    // Reuse GetSurahAsync which allows logic for fetching and caching
+                    // BUT GetSurahAsync returns mapped list. We want to ensure it fetches from NET if not cached.
+                    // Actually GetSurahAsync logic "Check Cache -> If Null -> Fetch & Cache" is exactly what we want.
+                    // If the user already visited some surahs, they are cached. We just fill the gaps.
+                    // However, we want to force download if we are "Downloading Full Quran"? 
+                    // Usually "Download" implies "Ensure Offline Availability". Relying on CheckCacheStatus logic is fine.
+                    
+                    // Optimization: We could check File.Exists here to skip 'await' overhead if we want.
+                    string fileName = $"surah_{i}.json";
+                    string filePath = Path.Combine(_cacheDir, fileName);
+                    
+                    if (!File.Exists(filePath))
                     {
-                        string fileName = $"surah_{surah.Number}_ar.json";
-                        string filePath = Path.Combine(_cacheDir, fileName);
-                        string json = JsonSerializer.Serialize(surah);
-                        await File.WriteAllTextAsync(filePath, json);
-                    }
-                }
-
-                // 2. Türkçe (Diyanet)
-                progress?.Report("Türkçe Meali indiriliyor...");
-                string trUrl = "https://api.alquran.cloud/v1/quran/tr.diyanet";
-                var trResponse = await _client.GetStringAsync(trUrl);
-                var trResult = JsonSerializer.Deserialize<AlQuranFullResponse>(trResponse);
-
-                if (trResult?.Data?.Surahs != null)
-                {
-                    progress?.Report("Türkçe sureler kaydediliyor...");
-                    foreach (var surah in trResult.Data.Surahs)
-                    {
-                        string fileName = $"surah_{surah.Number}_tr.json"; // tr.diyanet -> tr
-                        string filePath = Path.Combine(_cacheDir, fileName);
-                        string json = JsonSerializer.Serialize(surah);
-                        await File.WriteAllTextAsync(filePath, json);
+                        await GetSurahAsync(i);
+                        // Add a small delay to be polite to the API
+                        await Task.Delay(50);
                     }
                 }
 
@@ -129,8 +146,8 @@ namespace hadis.Services
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"İndirme Hatası: {ex.Message}");
-                throw; // UI tarafında yakalamak için fırlat
+                Console.WriteLine($"Download Error: {ex.Message}");
+                throw;
             }
         }
     }

@@ -32,27 +32,19 @@ namespace hadis.ViewModels
             try
             {
                 var service = new QuranApiService();
-                var arabicAyahs = await service.GetSurahAsync(_sureNo, "ar");
-                var turkishAyahs = await service.GetSurahAsync(_sureNo, "tr.diyanet");
+                // AcikKuran API returns mapped Ayah list directly (Arabic + Turkish + Transliteration)
+                var fetchedAyahs = await service.GetSurahAsync(_sureNo);
                 
                 // Kaydedilenleri al
                 var savedAyahs = await SavedAyahsService.GetSavedAyahsAsync();
                 var savedSet = new HashSet<int>(savedAyahs.Where(x => x.SureNo == _sureNo).Select(x => x.Number));
 
                 Ayahs.Clear();
-                int localNumber = 1;
-                foreach (var a in arabicAyahs)
+                foreach (var a in fetchedAyahs)
                 {
-                    var translation = turkishAyahs.FirstOrDefault(t => t.Number == a.Number)?.Text ?? string.Empty;
-                    Ayahs.Add(new Ayah
-                    {
-                        Number = localNumber, // Her surede 1'den başlayıp artacak
-                        ArabicText = a.Text,
-                        Translation = translation,
-                        Transliteration = string.Empty,
-                        IsSaved = savedSet.Contains(localNumber)
-                    });
-                    localNumber++;
+                    // Update IsSaved status
+                    a.IsSaved = savedSet.Contains(a.Number);
+                    Ayahs.Add(a);
                 }
             }
             finally

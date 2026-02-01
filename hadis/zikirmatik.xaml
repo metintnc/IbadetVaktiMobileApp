@@ -9,8 +9,11 @@
         <Image x:Name="BackgroundImage"
                 Aspect="AspectFill"
                 HorizontalOptions="FillAndExpand"
-                VerticalOptions="FillAndExpand" 
-                IsVisible="False"/>
+                VerticalOptions="FillAndExpand">
+            <Image.Source>
+                <AppThemeBinding Light="bg_light.jpg" Dark="z.png" />
+            </Image.Source>
+        </Image>
         
         <BoxView HorizontalOptions="FillAndExpand"
                  VerticalOptions="FillAndExpand">

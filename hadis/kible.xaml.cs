@@ -2,6 +2,8 @@ using System;
 using System.Threading.Tasks;
 using hadis.Services;
 
+using Microsoft.Maui.ApplicationModel;
+
 namespace hadis
 {
     public partial class kible : ContentPage
@@ -23,7 +25,7 @@ namespace hadis
             _imageService = imageService;
         }
         
-        protected override void OnAppearing()
+        protected override async void OnAppearing()
         {
             base.OnAppearing();
             
@@ -31,6 +33,39 @@ namespace hadis
             _statusBarService.SetStatusBarColor("#000000"); // Siyah
             _tabBarService.SetTabBarColor("#19222B"); // Özel kıble rengi
             
+            await CheckAndStartCompass();
+        }
+
+        private async Task CheckAndStartCompass()
+        {
+            var status = await Permissions.CheckStatusAsync<Permissions.LocationWhenInUse>();
+            
+            if (status != PermissionStatus.Granted)
+            {
+                // İzin yoksa uyarıyı göster, diğer her şeyi gizle
+                LocationWarningFrame.IsVisible = true;
+                kibleoku.IsVisible = false;
+                AciDegeri.IsVisible = false;
+                CalibrationWarningFrame.IsVisible = false;
+                
+                // Arka planda çalışmaması için durdur
+                StopCompassLogic();
+            }
+            else
+            {
+                // İzin varsa normal akış
+                LocationWarningFrame.IsVisible = false;
+                kibleoku.IsVisible = true;
+                AciDegeri.IsVisible = true;
+                
+                StartCompassLogic();
+            }
+        }
+
+        private void StartCompassLogic()
+        {
+            // Zaten çalışıyorsa tekrar başlatma (basit kontrol)
+            _nativeCompassService.AccuracyChanged -= OnCompassAccuracyChanged;
             _nativeCompassService.AccuracyChanged += OnCompassAccuracyChanged;
             _nativeCompassService.Start();
 
@@ -39,9 +74,88 @@ namespace hadis
                 await compass.KontrolEt();
                 MainThread.BeginInvokeOnMainThread(() =>
                 {
+                    compass.AciDegisti -= KıbleOkunuDondur; // Çift eklemeyi önle
                     compass.AciDegisti += KıbleOkunuDondur;
                 });
             });
+        }
+        
+        private void StopCompassLogic()
+        {
+            compass.PusulaDurdur();
+            compass.AciDegisti -= KıbleOkunuDondur;
+            
+            _nativeCompassService.Stop();
+            _nativeCompassService.AccuracyChanged -= OnCompassAccuracyChanged;
+        }
+
+        private Action _onPermissionConfirm;
+
+        private async void OnRequestLocationPermission_Clicked(object sender, EventArgs e)
+        {
+            var status = await Permissions.CheckStatusAsync<Permissions.LocationWhenInUse>();
+
+            if (status == PermissionStatus.Granted)
+            {
+                await CheckAndStartCompass();
+                return;
+            }
+
+            if (Permissions.ShouldShowRationale<Permissions.LocationWhenInUse>())
+            {
+                ShowPermissionOverlay(
+                    "Konum İzni", 
+                    "Kıble yönünü doğru hesaplayabilmek için konum iznine ihtiyacımız var.", 
+                    "Tamam",
+                    async () => 
+                    {
+                        var s = await Permissions.RequestAsync<Permissions.LocationWhenInUse>();
+                        if (s == PermissionStatus.Granted) await CheckAndStartCompass();
+                    });
+                return;
+            }
+
+            status = await Permissions.RequestAsync<Permissions.LocationWhenInUse>();
+
+            if (status == PermissionStatus.Granted)
+            {
+                await CheckAndStartCompass();
+            }
+            else
+            {
+                // Eğer izin reddedildiyse ve rasyonel gösterilmiyorsa (kalıcı ret durumu olabilir)
+                ShowPermissionOverlay(
+                    "İzin Gerekli", 
+                    "Konum izni verilmediği için kıble yönü hesaplanamıyor. Ayarlardan izin vermek ister misiniz?", 
+                    "Ayarlara Git",
+                    () => { AppInfo.ShowSettingsUI(); },
+                    "İptal");
+            }
+        }
+
+        private void ShowPermissionOverlay(string title, string message, string confirmText, Action onConfirm, string cancelText = "İptal")
+        {
+            PermissionOverlayTitle.Text = title;
+            PermissionOverlayMessage.Text = message;
+            PermissionOverlayConfirmButton.Text = confirmText;
+            PermissionOverlayCancelButton.Text = cancelText;
+            
+            _onPermissionConfirm = onConfirm;
+            
+            PermissionOverlayCancelButton.IsVisible = !string.IsNullOrEmpty(cancelText);
+            
+            PermissionOverlay.IsVisible = true;
+        }
+
+        private void OnPermissionOverlayConfirm_Clicked(object sender, EventArgs e)
+        {
+            PermissionOverlay.IsVisible = false;
+            _onPermissionConfirm?.Invoke();
+        }
+
+        private void OnPermissionOverlayCancel_Clicked(object sender, EventArgs e)
+        {
+            PermissionOverlay.IsVisible = false;
         }
 
 
@@ -61,6 +175,9 @@ namespace hadis
                     case CompassAccuracy.Low:
                     case CompassAccuracy.Unreliable:
                         showWarning = true;
+                        break;
+                    default:
+                        showWarning = false;
                         break;
                 }
 
