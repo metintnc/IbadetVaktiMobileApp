@@ -48,39 +48,13 @@ namespace hadis
             _ = AnimateZikirEntry();
         }
 
-        protected override async void OnAppearing()
+        protected override void OnAppearing()
         {
             base.OnAppearing();
             
             // StatusBar rengini ayarla
             _statusBarService.SetStatusBarColor("#000000");
             _tabBarService.SetTabBarColor("#1D1F1E");
-            await LoadBackground();
-        }
-
-        private async Task LoadBackground()
-        {
-            try
-            {
-                // UI thread'i bloklamamak için kısa bir gecikme veya yield
-                await Task.Yield(); 
-                
-                string imageName = Application.Current.RequestedTheme == AppTheme.Dark ? "z.png" : "bg_light.jpg";
-                var imageSource = await _imageService.GetOptimizedBackgroundImageAsync(imageName);
-                
-                // UI güncellemesi MainThread'de olmalı
-                MainThread.BeginInvokeOnMainThread(() =>
-                {
-                    BackgroundImage.Source = imageSource;
-                    BackgroundImage.IsVisible = true;
-                    // Opacity animasyonu ile yumuşak geçiş
-                    BackgroundImage.FadeTo(1, 500); 
-                });
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine($"Zikirmatik Background Load Error: {ex.Message}");
-            }
         }
 
         private void ApplyCustomTheme()

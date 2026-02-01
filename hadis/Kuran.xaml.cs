@@ -135,6 +135,10 @@ namespace hadis
                     DownloadStatusLabel.Text = "Tüm sureler cihazınıza kaydedildi.";
                     DownloadIndicator.IsVisible = false;
                     DownloadIndicator.IsRunning = false;
+                    
+                    // İndirme tamamlandığında kısayol ikonunu gizle
+                    if (ScrollToBottomIcon != null)
+                        ScrollToBottomIcon.IsVisible = false;
                 }
                 else
                 {
@@ -144,8 +148,21 @@ namespace hadis
                     DownloadStatusLabel.Text = "Kur'anı indirerek internetsiz okuyabilirsiniz (~10MB)";
                     DownloadIndicator.IsVisible = false;
                     DownloadIndicator.IsRunning = false;
+                    
+                    if (ScrollToBottomIcon != null)
+                        ScrollToBottomIcon.IsVisible = true;
                 }
             });
+        }
+
+        private async void ScrollToBottom_Clicked(object sender, EventArgs e)
+        {
+            if (_filtreSureler != null && _filtreSureler.Count > 0)
+            {
+                // Listeyi en sona kaydır (Footer'ı görmek için son elemana kaydırıyoruz)
+                // Position.Start son elemanı en üste alır, böylece altındaki footer görünür olur.
+                SureListesi.ScrollTo(_filtreSureler.Count - 1, position: ScrollToPosition.Start, animate: true);
+            }
         }
 
         private async void DownloadButton_Clicked(object sender, EventArgs e)

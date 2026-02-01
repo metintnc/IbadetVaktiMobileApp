@@ -21,13 +21,13 @@ namespace hadis.Services
         /// <summary>
         /// Saate göre otomatik arkaplan ayarlar
         /// </summary>
-        public bool SetTimeBasedBackground(Image backgroundImage, Grid backgroundOverlay, string savedTheme)
+        public (bool IsBright, string ImageName) SetTimeBasedBackground(Image backgroundImage, Grid backgroundOverlay, string savedTheme, string? currentImageName = null)
         {
             // 1. Özel Tema: Otomatik arkaplanı atla
             if (savedTheme == "Custom")
             {
                 Console.WriteLine("ℹ️ Custom tema aktif - otomatik arkaplan devre dışı");
-                return false; 
+                return (false, string.Empty); 
             }
 
             // 2. Açık (Sabit) Tema
@@ -35,18 +35,23 @@ namespace hadis.Services
             {
                 try
                 {
-                    backgroundImage.Source = "bg_light.jpg";
-                    backgroundImage.IsVisible = true;
+                    string targetImage = "bg_light.jpg";
+                    if (currentImageName != targetImage)
+                    {
+                        backgroundImage.Source = targetImage;
+                        backgroundImage.IsVisible = true;
+                    }
                     backgroundOverlay.IsVisible = false;
                     
                     _statusBarService.SetStatusBarColor("#FFFFFF"); // White Status Bar
                     _tabBarService.SetTabBarColor("#F5F5F5");       // Light Tab Bar
                     
-                    return true; // Parlak
+                    return (true, targetImage); // Parlak
                 }
                 catch (Exception ex)
                 {
                     Console.WriteLine($"❌ Açık tema arkaplan hatası: {ex.Message}");
+                    return (true, "bg_light.jpg");
                 }
             }
 
@@ -55,18 +60,23 @@ namespace hadis.Services
             {
                  try
                 {
-                    backgroundImage.Source = "bg_dark.jpg";
-                    backgroundImage.IsVisible = true;
+                    string targetImage = "bg_dark.jpg";
+                    if (currentImageName != targetImage)
+                    {
+                        backgroundImage.Source = targetImage;
+                        backgroundImage.IsVisible = true;
+                    }
                     backgroundOverlay.IsVisible = false;
                     
                     _statusBarService.SetStatusBarColor("#000000"); // Black Status Bar
                     _tabBarService.SetTabBarColor("#000000");       // Black Tab Bar
                     
-                    return false; // Koyu
+                    return (false, targetImage); // Koyu
                 }
                 catch (Exception ex)
                 {
                     Console.WriteLine($"❌ Simsiyah tema arkaplan hatası: {ex.Message}");
+                    return (false, "bg_dark.jpg");
                 }
             }
 
@@ -81,14 +91,21 @@ namespace hadis.Services
 
             try
             {
-                // Arkaplanı uygula (Optimize edilmiş)
-                MainThread.BeginInvokeOnMainThread(async () => 
+                // Arkaplanı uygula (Eğer değiştiyse)
+                if (currentImageName != backgroundInfo.Image)
                 {
-                    backgroundImage.Source = await _imageService.GetOptimizedBackgroundImageAsync(backgroundInfo.Image);
-                });
+                    MainThread.BeginInvokeOnMainThread(async () => 
+                    {
+                        backgroundImage.Source = await _imageService.GetOptimizedBackgroundImageAsync(backgroundInfo.Image);
+                        backgroundImage.IsVisible = true;
+                    });
+                }
+                else
+                {
+                     Console.WriteLine("ℹ️ Arkaplan resmi aynı, güncelleme atlandı.");
+                     backgroundImage.IsVisible = true;
+                }
                 
-                backgroundImage.IsVisible = true;
-
                 // Overlay'i devre dışı bırak
                 backgroundOverlay.IsVisible = false;
 
@@ -101,12 +118,13 @@ namespace hadis.Services
                 Console.WriteLine("✅ Arkaplan, status bar ve TabBar başarıyla ayarlandı!");
 
                 // Arkaplan parlak mı?
-                return TimeBasedBackgroundConfig.IsBackgroundBright(backgroundInfo.Image);
+                bool isBright = TimeBasedBackgroundConfig.IsBackgroundBright(backgroundInfo.Image);
+                return (isBright, backgroundInfo.Image);
             }
             catch (Exception ex)
             {
                 Console.WriteLine($"❌ Arkaplan ayarlama hatası: {ex.Message}");
-                return false;
+                return (false, backgroundInfo.Image);
             }
         }
 

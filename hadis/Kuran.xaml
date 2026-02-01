@@ -112,12 +112,27 @@
                    BorderColor="{AppThemeBinding Light=#80009688, Dark=#80FFFFFF}"
                    BackgroundColor="{AppThemeBinding Light=#22FFFFFF, Dark=#33000000}">
                 <Grid RowDefinitions="Auto,Auto,*" RowSpacing="15">
-                    <Label Grid.Row="0"
-                           Text="Sûre Listesi"
-                           FontSize="20"
-                           FontAttributes="Bold"
-                           HorizontalOptions="Center"
-                           TextColor="{AppThemeBinding Light=#00796B, Dark=#FFFFFF}"/>
+                    <Grid Grid.Row="0" ColumnDefinitions="*, Auto" Padding="10,0">
+                        <Label Grid.Column="0"
+                               Text="Sûre Listesi"
+                               FontSize="20"
+                               FontAttributes="Bold"
+                               TextColor="{AppThemeBinding Light=#00796B, Dark=#FFFFFF}"
+                               VerticalOptions="Center"
+                               HorizontalOptions="Center"/>
+                        
+                        <Label Grid.Column="1"
+                               x:Name="ScrollToBottomIcon"
+                               Text="📥"
+                               FontSize="24"
+                               TextColor="{AppThemeBinding Light=#00796B, Dark=#80CBC4}"
+                               VerticalOptions="Center"
+                               ToolTipProperties.Text="Aşağı Kaydır">
+                            <Label.GestureRecognizers>
+                                <TapGestureRecognizer Tapped="ScrollToBottom_Clicked"/>
+                            </Label.GestureRecognizers>
+                        </Label>
+                    </Grid>
                     
                     <SearchBar Grid.Row="1"
                                x:Name="SearchBar"

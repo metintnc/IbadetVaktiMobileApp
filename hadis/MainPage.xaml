@@ -10,8 +10,11 @@
         <Image x:Name="BackgroundImage"
                Aspect="AspectFill"
                HorizontalOptions="FillAndExpand"
-               VerticalOptions="FillAndExpand"
-               IsVisible="False" />
+               VerticalOptions="FillAndExpand">
+            <Image.Source>
+                <AppThemeBinding Light="bg_light.jpg" Dark="z.png" />
+            </Image.Source>
+        </Image>
         
         <!-- Arkaplan Overlay - Ortada -->
         <Grid x:Name="BackgroundOverlay"
@@ -49,6 +52,39 @@
                        FontSize="14"
                        HorizontalOptions="Center"
                        TextColor="{AppThemeBinding Light=#00796B, Dark=#80CBC4}"/>
+            </VerticalStackLayout>
+        </Grid>
+
+        <!-- Konum Hatası Uyarısı (İnternet Uyarısı ile aynı seviyede) -->
+        <Grid x:Name="LocationErrorOverlay"
+              BackgroundColor="{AppThemeBinding Light=#DDFFFFFF, Dark=#DD000000}"
+              IsVisible="False"
+              ZIndex="999"
+              HorizontalOptions="FillAndExpand"
+              VerticalOptions="FillAndExpand">
+            <VerticalStackLayout Spacing="20" VerticalOptions="Center" HorizontalOptions="Center">
+                <Label Text="📍"
+                       FontSize="60"
+                       HorizontalOptions="Center"/>
+                <Label Text="Konum Seçimi Gerekli"
+                       FontSize="22"
+                       FontAttributes="Bold"
+                       HorizontalOptions="Center"
+                       TextColor="{AppThemeBinding Light=#00796B, Dark=#80CBC4}"/>
+                <Label Text="Namaz vakitlerini hesaplayabilmek için bir şehir seçmelisiniz veya konum izni vermelisiniz."
+                       FontSize="16"
+                       HorizontalOptions="Center"
+                       HorizontalTextAlignment="Center"
+                       TextColor="{AppThemeBinding Light=#616161, Dark=#BDBDBD}"
+                       Padding="40,0"/>
+                
+                <Button Text="Şehir Seç / Konum İzni"
+                        BackgroundColor="{AppThemeBinding Light=#00796B, Dark=#009688}"
+                        TextColor="White"
+                        FontAttributes="Bold"
+                        CornerRadius="20"
+                        Padding="30,15"
+                        Clicked="OnLocationErrorRetry_Clicked"/>
             </VerticalStackLayout>
         </Grid>
 

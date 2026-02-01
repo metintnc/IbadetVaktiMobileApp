@@ -13,24 +13,9 @@ namespace hadis
             UpdateVersionInfo();
         }
 
-        protected override async void OnAppearing()
+        protected override void OnAppearing()
         {
             base.OnAppearing();
-            await LoadBackground();
-        }
-
-        private async Task LoadBackground()
-        {
-            try
-            {
-                string imageName = Application.Current.RequestedTheme == AppTheme.Dark ? "ayarlararkaplan.png" : "bg_light.jpg";
-                BackgroundImage.Source = await _imageService.GetOptimizedBackgroundImageAsync(imageName);
-                BackgroundImage.IsVisible = true;
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine($"Ayarlar Background Load Error: {ex.Message}");
-            }
         }
 
         private void UpdateVersionInfo()
