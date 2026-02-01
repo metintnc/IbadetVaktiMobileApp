@@ -20,18 +20,40 @@
                 <AppThemeBinding Light="0.65" Dark="0.3" />
             </BoxView.Opacity>
         </BoxView>
-        <Grid RowDefinitions="Auto,*"  Style="{StaticResource Background}" >
-        <Label Grid.Row="0" 
-               Text="0°" 
-               HorizontalOptions="Center" 
-               VerticalOptions="End" 
-               Margin="0,0,0,10"
-               x:Name="AciDegeri" 
-               FontSize="35" 
-               Style="{StaticResource AnaLabel}"/>
+        <Grid RowDefinitions="Auto,Auto,*"  Style="{StaticResource Background}" >
+        <!-- Header - Kuran Page Style -->
+        <Label Grid.Row="0"
+               Text="Kıble Pusulası"
+               FontSize="36"
+               FontAttributes="Bold"
+               HorizontalOptions="Center"
+               VerticalOptions="Center"
+               Margin="0,50,0,10"
+               TextColor="{AppThemeBinding Light=#00796B, Dark=#FFFFFF}"/>
 
-        <!-- Kıble Oku -->
-        <Image Grid.Row="1" 
+        <!-- Açı ve Tik - Row 1 (Pusulanın Hemen Üzerinde) -->
+        <VerticalStackLayout Grid.Row="1" 
+                             HorizontalOptions="Center" 
+                             VerticalOptions="Center" 
+                             Margin="0,0,0,10"
+                             Spacing="0"
+                             ZIndex="50">
+            <Label Text="0°" 
+                   x:Name="AciDegeri" 
+                   HorizontalOptions="Center"
+                   FontSize="35" 
+                   Style="{StaticResource AnaLabel}"/>
+            
+            <Label x:Name="QiblaCheckmark"
+                   Text="✅"
+                   FontSize="24"
+                   HorizontalOptions="Center"
+                   Opacity="0"
+                   TextColor="{AppThemeBinding Light=#00796B, Dark=#80CBC4}"/>
+        </VerticalStackLayout>
+
+        <!-- Kıble Oku - Row 2 -->
+        <Image Grid.Row="2" 
                x:Name="kibleoku" 
                Style="{StaticResource KibleOk}" 
                Aspect="AspectFit" 
@@ -39,15 +61,15 @@
                HorizontalOptions="Fill"
                Margin="20"/>
 
-        <!-- Kalibrasyon Uyarısı - Overlay (Oku etkilemeden üstte çıkar) -->
-        <Frame Grid.Row="1"
+        <!-- Kalibrasyon Uyarısı - Row 2 Overlay -->
+        <Frame Grid.Row="2"
                x:Name="CalibrationWarningFrame"
                BackgroundColor="#CCFF5252"
                Padding="15,10"
                CornerRadius="15"
                HorizontalOptions="Center"
-               VerticalOptions="Start"
-               Margin="20,10,20,0"
+               VerticalOptions="End"
+               Margin="20,10,20,50"
                IsVisible="False"
                HasShadow="False"
                ZIndex="99">
@@ -56,7 +78,7 @@
                        FontSize="24" 
                        VerticalOptions="Center"/>
                 <VerticalStackLayout Spacing="2">
-                    <Label Text="Pusula Hatalı!" 
+                    <Label Text="Pusula Kalibrasyonu" 
                            FontAttributes="Bold"
                            TextColor="White"
                            FontSize="16"/>

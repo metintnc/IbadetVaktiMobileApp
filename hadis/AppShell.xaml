@@ -14,7 +14,7 @@
     <TabBar>
         
         <Tab Title="Vakitler" Icon="vakitler.png">
-            <ShellContent ContentTemplate="{DataTemplate local:MainPage}" />
+            <ShellContent Route="MainPage" ContentTemplate="{DataTemplate local:MainPage}" />
         </Tab>
         <Tab Title="Kuran" Icon="kuran.png">
             <ShellContent ContentTemplate="{DataTemplate local:Kuran}"  />
