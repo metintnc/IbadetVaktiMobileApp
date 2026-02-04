@@ -2,6 +2,7 @@
 using Android.Content.PM;
 using Android.OS;
 using Android.Views;
+using Android.Content;
 
 namespace hadis
 {
@@ -20,6 +21,37 @@ namespace hadis
             {
                 Window.AddFlags(WindowManagerFlags.DrawsSystemBarBackgrounds);
                 Window.ClearFlags(WindowManagerFlags.TranslucentStatus);
+            }
+
+            // Android 12+ için exact alarm izni kontrol et
+            RequestExactAlarmPermission();
+        }
+
+        private void RequestExactAlarmPermission()
+        {
+            if (Build.VERSION.SdkInt >= BuildVersionCodes.S)
+            {
+                try
+                {
+                    var alarmManager = (AlarmManager?)GetSystemService(AlarmService);
+                    if (alarmManager != null && !alarmManager.CanScheduleExactAlarms())
+                    {
+                        System.Console.WriteLine("⚠️ SCHEDULE_EXACT_ALARM izni yok, izin sayfasına yönlendiriliyor...");
+                        
+                        // Kullanıcıyı ayarlar sayfasına yönlendir
+                        var intent = new Intent(Android.Provider.Settings.ActionRequestScheduleExactAlarm);
+                        intent.SetData(Android.Net.Uri.Parse($"package:{PackageName}"));
+                        StartActivity(intent);
+                    }
+                    else
+                    {
+                        System.Console.WriteLine("✅ SCHEDULE_EXACT_ALARM izni mevcut");
+                    }
+                }
+                catch (Exception ex)
+                {
+                    System.Console.WriteLine($"⚠️ Exact alarm izin kontrolü hatası: {ex.Message}");
+                }
             }
         }
 

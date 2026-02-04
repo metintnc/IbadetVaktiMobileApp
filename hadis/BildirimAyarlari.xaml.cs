@@ -1,4 +1,5 @@
 using hadis.Models;
+using hadis.Services;
 using System.Collections.ObjectModel;
 
 namespace hadis
@@ -44,8 +45,78 @@ namespace hadis
             SwitchAksam.IsToggled = Preferences.Default.Get("Notification_Aksam", true);
             SwitchYatsi.IsToggled = Preferences.Default.Get("Notification_Yatsi", true);
 
+
+            UpdateOffsetLabels();
             UpdateUIState();
             _isInitialized = true;
+        }
+
+        private void UpdateOffsetLabels()
+        {
+            LabelOffsetImsak.Text = $"{Preferences.Default.Get("NotificationOffset_Imsak", 0)} dk";
+            LabelOffsetGunes.Text = $"{Preferences.Default.Get("NotificationOffset_Gunes", 0)} dk";
+            LabelOffsetOgle.Text = $"{Preferences.Default.Get("NotificationOffset_Ogle", 0)} dk";
+            LabelOffsetIkindi.Text = $"{Preferences.Default.Get("NotificationOffset_Ikindi", 0)} dk";
+            LabelOffsetAksam.Text = $"{Preferences.Default.Get("NotificationOffset_Aksam", 0)} dk";
+            LabelOffsetYatsi.Text = $"{Preferences.Default.Get("NotificationOffset_Yatsi", 0)} dk";
+        }
+
+        private async void OffsetMinus_Clicked(object sender, EventArgs e)
+        {
+            if (!_isInitialized) return;
+            if (sender is Button btn && btn.CommandParameter is string keyPart)
+            {
+                string key = $"NotificationOffset_{keyPart}";
+                int currentOffset = Preferences.Default.Get(key, 0);
+                currentOffset--;
+                Preferences.Default.Set(key, currentOffset);
+                UpdateOffsetLabels();
+                await RescheduleNotificationsAsync();
+            }
+        }
+
+        private async void OffsetPlus_Clicked(object sender, EventArgs e)
+        {
+            if (!_isInitialized) return;
+            if (sender is Button btn && btn.CommandParameter is string keyPart)
+            {
+                string key = $"NotificationOffset_{keyPart}";
+                int currentOffset = Preferences.Default.Get(key, 0);
+                currentOffset++;
+                Preferences.Default.Set(key, currentOffset);
+                UpdateOffsetLabels();
+                await RescheduleNotificationsAsync();
+            }
+        }
+
+        private async Task RescheduleNotificationsAsync()
+        {
+            try
+            {
+                // Konum bilgilerini al
+                bool otomatikKonum = Preferences.Default.Get("OtomatikKonum", true);
+                string sehir = Preferences.Default.Get("ManuelSehir", "");
+                string ilce = Preferences.Default.Get("ManuelIlce", "");
+
+                if (string.IsNullOrEmpty(sehir) || string.IsNullOrEmpty(ilce))
+                {
+                    Console.WriteLine("⚠️ Bildirim yeniden zamanlanamadı: Konum bilgisi yok");
+                    return;
+                }
+
+                // Bugünün vakitlerini al
+                var vakitler = await PrayerTimesService.GetPrayerTimesForDateAsync(DateTime.Now, ilce, sehir);
+                
+                if (vakitler != null)
+                {
+                    await _notificationService.ScheduleNotificationsAsync(vakitler);
+                    Console.WriteLine("✅ Bildirimler yeniden zamanlandı");
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"⚠️ Bildirim yeniden zamanlama hatası: {ex.Message}");
+            }
         }
 
         private void UpdateUIState()
@@ -69,11 +140,7 @@ namespace hadis
             }
             else
             {
-                // Re-schedule based on existing preferences
-                // For now, we rely on the periodic scheduler or app start. 
-                // But we can trigger a refresh if we had data suitable for it.
-                // Since NotificationService.RescheduleAllAsync logic is limited currently, let's just ensure state is saved.
-                await _notificationService.RescheduleAllAsync();
+                await RescheduleNotificationsAsync();
             }
         }
 
@@ -97,7 +164,7 @@ namespace hadis
             }
         }
 
-        private void Switch_Toggled(object sender, ToggledEventArgs e)
+        private async void Switch_Toggled(object sender, ToggledEventArgs e)
         {
             if (!_isInitialized) return;
 
@@ -114,10 +181,7 @@ namespace hadis
                 if (!string.IsNullOrEmpty(key))
                 {
                     Preferences.Default.Set(key, e.Value);
-                    
-                    // We should also trigger a rescheduling or cancellation for this specific item
-                    // But for simplicity in this pass, we rely on next schedule cycle or RescheduleAll
-                    _notificationService.RescheduleAllAsync(); 
+                    await RescheduleNotificationsAsync();
                 }
             }
         }

@@ -44,7 +44,7 @@ namespace hadis.Services
                     backgroundOverlay.IsVisible = false;
                     
                     _statusBarService.SetStatusBarColor("#FFFFFF"); // White Status Bar
-                    _tabBarService.SetTabBarColor("#F5F5F5");       // Light Tab Bar
+                    _tabBarService.SetTabBarColor("#FFFFFF");       // Light Tab Bar
                     
                     return (true, targetImage); // Parlak
                 }

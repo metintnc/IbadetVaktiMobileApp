@@ -61,60 +61,144 @@
                         <Label Text="Namaz Vakitleri" FontSize="18" FontAttributes="Bold"
                                TextColor="{AppThemeBinding Light=#00796B, Dark=#FFFFFF}"/>
                         
-                        <Grid ColumnDefinitions="*,Auto">
-                            <Label Text="Imsak" VerticalOptions="Center"
+                        <Grid ColumnDefinitions="*,Auto,Auto,Auto,Auto" ColumnSpacing="10">
+                            <Label Text="Imsak" VerticalOptions="Center" Grid.Column="0"
                                    TextColor="{AppThemeBinding Light=#00796B, Dark=#FFFFFF}"/>
-                            <Switch Grid.Column="1" 
+
+                            <Button Text="-" Clicked="OffsetMinus_Clicked" CommandParameter="Imsak" 
+                                    Grid.Column="1" HeightRequest="40" WidthRequest="40" Padding="0" CornerRadius="20"
+                                    BackgroundColor="{AppThemeBinding Light=#E0E0E0, Dark=#333333}"
+                                    TextColor="{AppThemeBinding Light=#00796B, Dark=#FFFFFF}"/>
+
+                            <Label x:Name="LabelOffsetImsak" Text="0 dk" VerticalOptions="Center" HorizontalTextAlignment="Center" WidthRequest="50"
+                                   Grid.Column="2" TextColor="{AppThemeBinding Light=#00796B, Dark=#FFFFFF}"/>
+
+                            <Button Text="+" Clicked="OffsetPlus_Clicked" CommandParameter="Imsak" 
+                                    Grid.Column="3" HeightRequest="40" WidthRequest="40" Padding="0" CornerRadius="20"
+                                    BackgroundColor="{AppThemeBinding Light=#E0E0E0, Dark=#333333}"
+                                    TextColor="{AppThemeBinding Light=#00796B, Dark=#FFFFFF}"/>
+
+                            <Switch Grid.Column="4" 
                                     x:Name="SwitchImsak"
                                     Toggled="Switch_Toggled"
                                     OnColor="{AppThemeBinding Light=#00796B, Dark=#FFFFFF}"
                                     ThumbColor="White"/>
                         </Grid>
                         
-                        <Grid ColumnDefinitions="*,Auto">
-                            <Label Text="Gunes" VerticalOptions="Center"
+                        <Grid ColumnDefinitions="*,Auto,Auto,Auto,Auto" ColumnSpacing="10">
+                            <Label Text="Gunes" VerticalOptions="Center" Grid.Column="0"
                                    TextColor="{AppThemeBinding Light=#00796B, Dark=#FFFFFF}"/>
-                            <Switch Grid.Column="1" 
+
+                            <Button Text="-" Clicked="OffsetMinus_Clicked" CommandParameter="Gunes" 
+                                    Grid.Column="1" HeightRequest="40" WidthRequest="40" Padding="0" CornerRadius="20"
+                                    BackgroundColor="{AppThemeBinding Light=#E0E0E0, Dark=#333333}"
+                                    TextColor="{AppThemeBinding Light=#00796B, Dark=#FFFFFF}"/>
+
+                            <Label x:Name="LabelOffsetGunes" Text="0 dk" VerticalOptions="Center" HorizontalTextAlignment="Center" WidthRequest="50"
+                                   Grid.Column="2" TextColor="{AppThemeBinding Light=#00796B, Dark=#FFFFFF}"/>
+
+                            <Button Text="+" Clicked="OffsetPlus_Clicked" CommandParameter="Gunes" 
+                                    Grid.Column="3" HeightRequest="40" WidthRequest="40" Padding="0" CornerRadius="20"
+                                    BackgroundColor="{AppThemeBinding Light=#E0E0E0, Dark=#333333}"
+                                    TextColor="{AppThemeBinding Light=#00796B, Dark=#FFFFFF}"/>
+
+                            <Switch Grid.Column="4" 
                                     x:Name="SwitchGunes"
                                     Toggled="Switch_Toggled"
                                     OnColor="{AppThemeBinding Light=#00796B, Dark=#FFFFFF}"
                                     ThumbColor="White"/>
                         </Grid>
                         
-                        <Grid ColumnDefinitions="*,Auto">
-                            <Label Text="Ogle" VerticalOptions="Center"
+                        <Grid ColumnDefinitions="*,Auto,Auto,Auto,Auto" ColumnSpacing="10">
+                            <Label Text="Ogle" VerticalOptions="Center" Grid.Column="0"
                                    TextColor="{AppThemeBinding Light=#00796B, Dark=#FFFFFF}"/>
-                            <Switch Grid.Column="1" 
+
+                            <Button Text="-" Clicked="OffsetMinus_Clicked" CommandParameter="Ogle" 
+                                    Grid.Column="1" HeightRequest="40" WidthRequest="40" Padding="0" CornerRadius="20"
+                                    BackgroundColor="{AppThemeBinding Light=#E0E0E0, Dark=#333333}"
+                                    TextColor="{AppThemeBinding Light=#00796B, Dark=#FFFFFF}"/>
+
+                            <Label x:Name="LabelOffsetOgle" Text="0 dk" VerticalOptions="Center" HorizontalTextAlignment="Center" WidthRequest="50"
+                                   Grid.Column="2" TextColor="{AppThemeBinding Light=#00796B, Dark=#FFFFFF}"/>
+
+                            <Button Text="+" Clicked="OffsetPlus_Clicked" CommandParameter="Ogle" 
+                                    Grid.Column="3" HeightRequest="40" WidthRequest="40" Padding="0" CornerRadius="20"
+                                    BackgroundColor="{AppThemeBinding Light=#E0E0E0, Dark=#333333}"
+                                    TextColor="{AppThemeBinding Light=#00796B, Dark=#FFFFFF}"/>
+
+                            <Switch Grid.Column="4" 
                                     x:Name="SwitchOgle"
                                     Toggled="Switch_Toggled"
                                     OnColor="{AppThemeBinding Light=#00796B, Dark=#FFFFFF}"
                                     ThumbColor="White"/>
                         </Grid>
                         
-                        <Grid ColumnDefinitions="*,Auto">
-                            <Label Text="Ikindi" VerticalOptions="Center"
+                        <Grid ColumnDefinitions="*,Auto,Auto,Auto,Auto" ColumnSpacing="10">
+                            <Label Text="Ikindi" VerticalOptions="Center" Grid.Column="0"
                                    TextColor="{AppThemeBinding Light=#00796B, Dark=#FFFFFF}"/>
-                            <Switch Grid.Column="1" 
+
+                            <Button Text="-" Clicked="OffsetMinus_Clicked" CommandParameter="Ikindi" 
+                                    Grid.Column="1" HeightRequest="40" WidthRequest="40" Padding="0" CornerRadius="20"
+                                    BackgroundColor="{AppThemeBinding Light=#E0E0E0, Dark=#333333}"
+                                    TextColor="{AppThemeBinding Light=#00796B, Dark=#FFFFFF}"/>
+
+                            <Label x:Name="LabelOffsetIkindi" Text="0 dk" VerticalOptions="Center" HorizontalTextAlignment="Center" WidthRequest="50"
+                                   Grid.Column="2" TextColor="{AppThemeBinding Light=#00796B, Dark=#FFFFFF}"/>
+
+                            <Button Text="+" Clicked="OffsetPlus_Clicked" CommandParameter="Ikindi" 
+                                    Grid.Column="3" HeightRequest="40" WidthRequest="40" Padding="0" CornerRadius="20"
+                                    BackgroundColor="{AppThemeBinding Light=#E0E0E0, Dark=#333333}"
+                                    TextColor="{AppThemeBinding Light=#00796B, Dark=#FFFFFF}"/>
+
+                            <Switch Grid.Column="4" 
                                     x:Name="SwitchIkindi"
                                     Toggled="Switch_Toggled"
                                     OnColor="{AppThemeBinding Light=#00796B, Dark=#FFFFFF}"
                                     ThumbColor="White"/>
                         </Grid>
                         
-                        <Grid ColumnDefinitions="*,Auto">
-                            <Label Text="Aksam" VerticalOptions="Center"
+                        <Grid ColumnDefinitions="*,Auto,Auto,Auto,Auto" ColumnSpacing="10">
+                            <Label Text="Aksam" VerticalOptions="Center" Grid.Column="0"
                                    TextColor="{AppThemeBinding Light=#00796B, Dark=#FFFFFF}"/>
-                            <Switch Grid.Column="1" 
+
+                            <Button Text="-" Clicked="OffsetMinus_Clicked" CommandParameter="Aksam" 
+                                    Grid.Column="1" HeightRequest="40" WidthRequest="40" Padding="0" CornerRadius="20"
+                                    BackgroundColor="{AppThemeBinding Light=#E0E0E0, Dark=#333333}"
+                                    TextColor="{AppThemeBinding Light=#00796B, Dark=#FFFFFF}"/>
+
+                            <Label x:Name="LabelOffsetAksam" Text="0 dk" VerticalOptions="Center" HorizontalTextAlignment="Center" WidthRequest="50"
+                                   Grid.Column="2" TextColor="{AppThemeBinding Light=#00796B, Dark=#FFFFFF}"/>
+
+                            <Button Text="+" Clicked="OffsetPlus_Clicked" CommandParameter="Aksam" 
+                                    Grid.Column="3" HeightRequest="40" WidthRequest="40" Padding="0" CornerRadius="20"
+                                    BackgroundColor="{AppThemeBinding Light=#E0E0E0, Dark=#333333}"
+                                    TextColor="{AppThemeBinding Light=#00796B, Dark=#FFFFFF}"/>
+
+                            <Switch Grid.Column="4" 
                                     x:Name="SwitchAksam"
                                     Toggled="Switch_Toggled"
                                     OnColor="{AppThemeBinding Light=#00796B, Dark=#FFFFFF}"
                                     ThumbColor="White"/>
                         </Grid>
                         
-                        <Grid ColumnDefinitions="*,Auto">
-                            <Label Text="Yatsi" VerticalOptions="Center"
+                        <Grid ColumnDefinitions="*,Auto,Auto,Auto,Auto" ColumnSpacing="10">
+                            <Label Text="Yatsi" VerticalOptions="Center" Grid.Column="0"
                                    TextColor="{AppThemeBinding Light=#00796B, Dark=#FFFFFF}"/>
-                            <Switch Grid.Column="1" 
+
+                            <Button Text="-" Clicked="OffsetMinus_Clicked" CommandParameter="Yatsi" 
+                                    Grid.Column="1" HeightRequest="40" WidthRequest="40" Padding="0" CornerRadius="20"
+                                    BackgroundColor="{AppThemeBinding Light=#E0E0E0, Dark=#333333}"
+                                    TextColor="{AppThemeBinding Light=#00796B, Dark=#FFFFFF}"/>
+
+                            <Label x:Name="LabelOffsetYatsi" Text="0 dk" VerticalOptions="Center" HorizontalTextAlignment="Center" WidthRequest="50"
+                                   Grid.Column="2" TextColor="{AppThemeBinding Light=#00796B, Dark=#FFFFFF}"/>
+
+                            <Button Text="+" Clicked="OffsetPlus_Clicked" CommandParameter="Yatsi" 
+                                    Grid.Column="3" HeightRequest="40" WidthRequest="40" Padding="0" CornerRadius="20"
+                                    BackgroundColor="{AppThemeBinding Light=#E0E0E0, Dark=#333333}"
+                                    TextColor="{AppThemeBinding Light=#00796B, Dark=#FFFFFF}"/>
+
+                            <Switch Grid.Column="4" 
                                     x:Name="SwitchYatsi"
                                     Toggled="Switch_Toggled"
                                     OnColor="{AppThemeBinding Light=#00796B, Dark=#FFFFFF}"

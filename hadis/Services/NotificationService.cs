@@ -23,6 +23,7 @@ namespace hadis.Services
                 {
                     await LocalNotificationCenter.Current.RequestNotificationPermission();
                 }
+                Console.WriteLine("✅ Bildirim izinleri kontrol edildi.");
 #endif
             }
             catch (Exception ex)
@@ -33,8 +34,11 @@ namespace hadis.Services
 
         public async Task ScheduleNotificationsAsync(Dictionary<string, DateTime> prayerTimes)
         {
+            Console.WriteLine("📢 ScheduleNotificationsAsync çağrıldı");
+            
             if (!Preferences.Default.Get("NotificationsEnabled", true))
             {
+                Console.WriteLine("⚠️ Bildirimler kapalı (NotificationsEnabled = false)");
                 CancelAllNotifications();
                 return;
             }
@@ -45,6 +49,7 @@ namespace hadis.Services
                 // Ensure permissions
                 if (await LocalNotificationCenter.Current.AreNotificationsEnabled() == false)
                 {
+                    Console.WriteLine("⚠️ Bildirim izni yok, izin isteniyor...");
                     await LocalNotificationCenter.Current.RequestNotificationPermission();
                 }
 #endif
@@ -54,86 +59,117 @@ namespace hadis.Services
                 Console.WriteLine($"⚠️ Notification Permission Hatası: {ex.Message}");
             }
 
+            int scheduledCount = 0;
+            int skippedCount = 0;
+
             foreach (var prayer in prayerTimes)
             {
                 string key = prayer.Key; // "İmsak", "Gunes", etc.
                 DateTime time = prayer.Value;
                 
+                Console.WriteLine($"🕌 {key} vakti: {time:HH:mm}");
+                
                 // Map key to ID and Preference Check
                 int notificationId = GetNotificationId(key);
-                string prefKey = $"Notification_{key}"; // Need to ensure keys match what we use in settings
-                
-                // If ID is 0, skip (unknown key)
-                if (notificationId == 0) continue;
-
-                // Check if specific notification is enabled
-                if (!Preferences.Default.Get(prefKey, true))
+                if (notificationId == 0)
                 {
-                    LocalNotificationCenter.Current.Cancel(notificationId);
+                    Console.WriteLine($"⚠️ {key} için ID bulunamadı, atlanıyor");
                     continue;
                 }
 
-                // If time has passed today, maybe schedule for tomorrow? 
-                // For now, let's assume we are scheduling for the date provided in prayerTimes.
-                // If logic is "schedule for today", check if time is in future.
-                if (time < DateTime.Now)
+                // Determine canonical key for Preferences (matches Settings keys)
+                string canonicalKey = GetCanonicalKey(notificationId);
+                string prefKey = $"Notification_{canonicalKey}";
+                string offsetKey = $"NotificationOffset_{canonicalKey}";
+
+                // Check if specific notification is enabled
+                bool isEnabled = Preferences.Default.Get(prefKey, true);
+                Console.WriteLine($"   📌 {canonicalKey} bildirimi: {(isEnabled ? "AÇIK" : "KAPALI")}\n");
+                
+                if (!isEnabled)
                 {
-                   // time = time.AddDays(1); // Optional: logic to handle next day, but let's stick to what's passed
-                   continue; 
+                    LocalNotificationCenter.Current.Cancel(notificationId);
+                    skippedCount++;
+                    continue;
+                }
+
+                // Apply Offset (negatif olarak uygula - vakitten önce bildirim için)
+                int offsetMinutes = Preferences.Default.Get(offsetKey, 0);
+                DateTime notifyTime = time.AddMinutes(-offsetMinutes);
+                
+                Console.WriteLine($"   ⏰ Offset: {offsetMinutes} dk, Bildirim zamanı: {notifyTime:HH:mm:ss}");
+
+                // If time has passed today, skip
+                if (notifyTime < DateTime.Now)
+                {
+                    Console.WriteLine($"   ⏭️ Zaman geçmiş, atlanıyor (Şimdi: {DateTime.Now:HH:mm:ss})");
+                    skippedCount++;
+                    continue; 
+                }
+
+                // Bildirim mesajını oluştur
+                string description;
+                if (offsetMinutes > 0)
+                {
+                    description = $"{key} vaktine {offsetMinutes} dakika kaldı.";
+                }
+                else if (offsetMinutes < 0)
+                {
+                    description = $"{key} vaktinden {Math.Abs(offsetMinutes)} dakika geçti.";
+                }
+                else
+                {
+                    description = $"{key} vakti girdi.";
                 }
 
                 var request = new NotificationRequest
                 {
                     NotificationId = notificationId,
                     Title = "Namaz Vakti",
-                    Description = $"{key} vakti girdi.",
-                    ReturningData = key, // Pass data if needed
+                    Description = description,
+                    ReturningData = key,
                     Schedule = new NotificationRequestSchedule
                     {
-                        NotifyTime = time,
-                        RepeatType = NotificationRepeat.Daily // Repeat daily at this time? 
-                        // Note: Prayer times change daily, so Repeat.Daily might not be accurate enough for long term without daily rescheduling.
-                        // For MVP/First pass, let's schedule one-shot for the specific DateTime provided by the service.
+                        NotifyTime = notifyTime,
+                        RepeatType = NotificationRepeat.No
+                    },
+#if ANDROID
+                    Android = new Plugin.LocalNotification.AndroidOption.AndroidOptions
+                    {
+                        ChannelId = "prayer_times_channel",
+                        Priority = Plugin.LocalNotification.AndroidOption.AndroidPriority.High,
+                        AutoCancel = true
                     }
+#endif
                 };
 
                 try
                 {
                     await LocalNotificationCenter.Current.Show(request);
+                    scheduledCount++;
+                    Console.WriteLine($"   ✅ Bildirim zamanlandı: ID={notificationId}, Zaman={notifyTime:HH:mm:ss}");
                 }
                 catch (Exception ex)
                 {
-                    Console.WriteLine($"⚠️ Notification Show Hatası ({key}): {ex.Message}");
+                    Console.WriteLine($"   ❌ Notification Show Hatası ({key}): {ex.Message}");
                 }
             }
+
+            Console.WriteLine($"📊 Toplam: {scheduledCount} bildirim zamanlandı, {skippedCount} atlandı");
         }
 
         public void CancelAllNotifications()
         {
             LocalNotificationCenter.Current.CancelAll();
+            Console.WriteLine("🗑️ Tüm bildirimler iptal edildi");
         }
 
         public async Task RescheduleAllAsync()
         {
-            // logic to re-fetch today's timings and schedule
-            // This requires access to PrayerTimesService to get data.
-            // Since this service might be called from UI, better to let UI or a background job drive the data fetching
-            // Or better: inject PrayerTimesService here? 
-            // For now, simpler: UI calls Schedule with data.
-            // But for "RescheduleAll" from Settings toggle, we might not have data handy.
-            
-            // Let's implement a simple version that just checks the master switch
              if (!Preferences.Default.Get("NotificationsEnabled", true))
             {
                 CancelAllNotifications();
             }
-             else
-             {
-                 // We need data to reschedule. 
-                 // If we don't have it, we can't schedule.
-                 // A proper implementation would fetch today's times here using PrayerTimesService.
-                 // Let's assume for now the caller will call ScheduleNotificationsAsync with data if needed.
-             }
         }
 
         public async Task ShowPersistentNotificationAsync(string title, string message)
@@ -154,7 +190,7 @@ namespace hadis.Services
                     Description = message,
                     Android = new Plugin.LocalNotification.AndroidOption.AndroidOptions
                     {
-                        ChannelId = "PersistentChannel",
+                        ChannelId = "persistent_channel",
                         Ongoing = true,
                         AutoCancel = false,
                         Priority = Plugin.LocalNotification.AndroidOption.AndroidPriority.Low,
@@ -177,19 +213,29 @@ namespace hadis.Services
 
         private int GetNotificationId(string prayerName)
         {
-            // Normalize keys if needed. Keys from PrayerTimeService: "İmsak", "gunes", "Ogle", "İkindi", "Aksam", "Yatsi"
-            // Note: Case sensitivity and exact naming matter.
-            // "gunes" vs "Gunes"
-            
             var lower = prayerName.ToLower();
-            if (lower.Contains("imsak")) return ID_IMSAK;
+            if (lower.Contains("imsak") || lower.Contains("İmsak")) return ID_IMSAK;
             if (lower.Contains("gunes") || lower.Contains("güneş")) return ID_GUNES;
             if (lower.Contains("ogle") || lower.Contains("öğle")) return ID_OGLE;
-            if (lower.Contains("ikindi")) return ID_IKINDI;
+            if (lower.Contains("ikindi") || lower.Contains("İkindi")) return ID_IKINDI;
             if (lower.Contains("aksam") || lower.Contains("akşam")) return ID_AKSAM;
             if (lower.Contains("yatsi") || lower.Contains("yatsı")) return ID_YATSI;
             
             return 0;
+        }
+
+        private string GetCanonicalKey(int notificationId)
+        {
+            switch (notificationId)
+            {
+                case ID_IMSAK: return "Imsak";
+                case ID_GUNES: return "Gunes";
+                case ID_OGLE: return "Ogle";
+                case ID_IKINDI: return "Ikindi";
+                case ID_AKSAM: return "Aksam";
+                case ID_YATSI: return "Yatsi";
+                default: return "";
+            }
         }
     }
 }

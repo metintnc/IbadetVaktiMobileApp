@@ -101,19 +101,29 @@
         
         private void LoadThemePreference()
         {
-            string savedTheme = Preferences.Default.Get("AppTheme", "System");
+            // AppConstants kullanarak tema tercihini al
+            string savedTheme = Preferences.Default.Get(Helpers.AppConstants.PREF_APP_THEME, "MainDark");
             
             switch (savedTheme)
             {
-                case "Light":
+                case "MainLight": // Ana Tema (Açık) - Dynamic
                     UserAppTheme = AppTheme.Light;
                     break;
-                case "Dark":
+                case "MainDark": // Ana Tema (Koyu) - Dynamic
                     UserAppTheme = AppTheme.Dark;
                     break;
-                case "System":
+                case "Light": // Açık (Sabit)
+                    UserAppTheme = AppTheme.Light;
+                    break;
+                case "PitchBlack": // Simsiyah (Sabit)
+                    UserAppTheme = AppTheme.Dark;
+                    break;
+                case "Custom": // Özel Tema
+                    UserAppTheme = AppTheme.Dark;
+                    break;
                 default:
-                    UserAppTheme = AppTheme.Unspecified;
+                    // Fallback - Ana Koyu
+                    UserAppTheme = AppTheme.Dark;
                     break;
             }
         }

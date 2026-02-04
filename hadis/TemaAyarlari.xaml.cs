@@ -6,7 +6,7 @@ namespace hadis
 {
     public partial class TemaAyarlari : ContentPage
     {
-        private const string ThemePreferenceKey = "AppTheme";
+        private const string ThemePreferenceKey = AppConstants.PREF_APP_THEME;
 
         public TemaAyarlari()
         {
@@ -39,7 +39,7 @@ namespace hadis
         private void LoadCustomThemeInfo()
         {
             // Kayitli ozel tema var mi kontrol et
-            string customThemeJson = Preferences.Default.Get("CustomTheme", string.Empty);
+            string customThemeJson = Preferences.Default.Get(AppConstants.PREF_CUSTOM_THEME, string.Empty);
             bool hasCustomTheme = false;
             
             if (!string.IsNullOrEmpty(customThemeJson))
@@ -83,7 +83,7 @@ namespace hadis
                      // Ozel tema secildiyse ve kayitli tema yoksa uyari ver
                      if (theme == "Custom")
                      {
-                         string customThemeJson = Preferences.Default.Get("CustomTheme", string.Empty);
+                         string customThemeJson = Preferences.Default.Get(AppConstants.PREF_CUSTOM_THEME, string.Empty);
                          if (string.IsNullOrEmpty(customThemeJson))
                          {
                              DisplayAlert("Uyarı", "Önce özel bir tema oluşturmalısınız.", "Tamam");

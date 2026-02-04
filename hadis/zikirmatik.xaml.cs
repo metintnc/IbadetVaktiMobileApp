@@ -54,7 +54,7 @@ namespace hadis
             
             // StatusBar rengini ayarla
             _statusBarService.SetStatusBarColor("#000000");
-            _tabBarService.SetTabBarColor("#000000");
+
         }
 
         private void ApplyCustomTheme()

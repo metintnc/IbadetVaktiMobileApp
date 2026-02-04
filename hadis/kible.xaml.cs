@@ -34,7 +34,7 @@ namespace hadis
             
             // Kıble sayfası için özel StatusBar ve TabBar renkleri
             _statusBarService.SetStatusBarColor("#000000"); // Siyah
-            _tabBarService.SetTabBarColor("#000000"); // Siyah
+
             
              // Her açılışta 5 saniye kalibrasyon uyarısını göster
             _inInitialWarningPeriod = true;
