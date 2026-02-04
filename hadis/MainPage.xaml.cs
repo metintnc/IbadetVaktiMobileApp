@@ -21,14 +21,16 @@ namespace hadis
         private readonly BackgroundService _backgroundService;
         private readonly ThemeService _themeService;
         private readonly StatusBarService _statusBarService;
+        private readonly IAppNotificationService _notificationService;
         private string _currentImageName;
 
-        public MainPage(BackgroundService backgroundService,ThemeService themeService,StatusBarService statusBarService)
+        public MainPage(BackgroundService backgroundService, ThemeService themeService, StatusBarService statusBarService, IAppNotificationService notificationService)
         {
             InitializeComponent();
             _backgroundService = backgroundService;
             _themeService = themeService;
             _statusBarService = statusBarService;
+            _notificationService = notificationService;
 
             // Timer'ı başlat
             _timer = new System.Timers.Timer(AppConstants.TIMER_INTERVAL_MS);
@@ -238,6 +240,17 @@ namespace hadis
                         LocationErrorOverlay.IsVisible = false;
                         UpdateAllPrayerTimes();
                     });
+
+                    // Bildirimleri zamanla
+                    try
+                    {
+                        await _notificationService.ScheduleNotificationsAsync(vakitler);
+                        Console.WriteLine("✅ Bildirimler başarıyla zamanlandı.");
+                    }
+                    catch (Exception notifEx)
+                    {
+                        Console.WriteLine($"⚠️ Bildirim zamanlama hatası: {notifEx.Message}");
+                    }
                 }
                 else
                 {

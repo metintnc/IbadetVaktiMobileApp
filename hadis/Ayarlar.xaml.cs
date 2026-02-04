@@ -65,7 +65,7 @@ namespace hadis
                 await DisplayAlert("Başarılı", "Ayarlar sıfırlandı.", "Tamam");
             }
         }
-        
+            
 
         protected override bool OnBackButtonPressed()
         {

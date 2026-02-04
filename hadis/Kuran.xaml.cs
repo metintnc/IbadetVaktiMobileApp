@@ -29,7 +29,7 @@ namespace hadis
         {
             base.OnAppearing();
             _statusBarService.SetStatusBarColor("#000000");
-            _tabBarService.SetTabBarColor("#000000");
+
             SonOkunanYukle();
             CheckDownloadStatus();
         }

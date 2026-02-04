@@ -20,7 +20,7 @@
                 <AppThemeBinding Light="White" Dark="Black" />
             </BoxView.Color>
             <BoxView.Opacity>
-                <AppThemeBinding Light="0.75" Dark="0.45" />
+                <AppThemeBinding Light="0" Dark="0.45" />
             </BoxView.Opacity>
         </BoxView>
         

@@ -6,10 +6,10 @@
     Title="hadis"
     
     Shell.NavBarIsVisible="False"
-    Shell.TabBarBackgroundColor="{AppThemeBinding Light=#1A1A1A, Dark=#1A1A1A}"
+    Shell.TabBarBackgroundColor="{AppThemeBinding Light=White, Dark=Black}"
     Shell.TabBarForegroundColor="{AppThemeBinding Light=#00BCD4, Dark=#00BCD4}"
-    Shell.TabBarUnselectedColor="{AppThemeBinding Light=#666666, Dark=#666666}"
-    Shell.TabBarTitleColor="{AppThemeBinding Light=#666666, Dark=#666666}">
+    Shell.TabBarTitleColor="{AppThemeBinding Light=#00BCD4, Dark=#666666}"
+    Shell.TabBarUnselectedColor="{AppThemeBinding Light=#757575, Dark=#666666}">
     
     <TabBar>
         
