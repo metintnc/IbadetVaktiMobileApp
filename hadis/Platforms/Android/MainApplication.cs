@@ -34,16 +34,18 @@ namespace hadis
                 prayerChannel.EnableVibration(true);
                 prayerChannel.EnableLights(true);
 
-                // Persistent Notification Channel
+                // Persistent Notification Channel - SILINEMEZ
                 var persistentChannel = new NotificationChannel(
                     "persistent_channel",
                     "Sürekli Bildirim",
                     NotificationImportance.Low)
                 {
-                    Description = "Vakitleri gösteren sürekli bildirim"
+                    Description = "Vakitleri gösteren sürekli bildirim - Silinemez",
+                    LockscreenVisibility = NotificationVisibility.Public
                 };
                 persistentChannel.EnableVibration(false);
                 persistentChannel.SetSound(null, null);
+                persistentChannel.SetShowBadge(false);
 
                 var notificationManager = (NotificationManager?)GetSystemService(NotificationService);
                 notificationManager?.CreateNotificationChannel(prayerChannel);

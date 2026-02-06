@@ -33,12 +33,14 @@
                        HeightRequest="100"
                        WidthRequest="100"
                        HorizontalOptions="Center"/>
-                <Label Text="İnternet Bağlantısı Yok"
+                <Label x:Name="ErrorTitleLabel"
+                       Text="İnternet Bağlantısı Yok"
                        FontSize="22"
                        FontAttributes="Bold"
                        HorizontalOptions="Center"
                        TextColor="{AppThemeBinding Light=#D32F2F, Dark=#EF5350}"/>
-                <Label Text="Namaz vakitlerini güncellemek için lütfen internet bağlantınızı kontrol ediniz."
+                <Label x:Name="ErrorDescriptionLabel"
+                       Text="Namaz vakitlerini güncellemek için lütfen internet bağlantınızı kontrol ediniz."
                        FontSize="16"
                        HorizontalOptions="Center"
                        HorizontalTextAlignment="Center"

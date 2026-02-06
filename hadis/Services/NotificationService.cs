@@ -14,6 +14,8 @@ namespace hadis.Services
         private const int ID_YATSI = 1006;
         private const int ID_PERSISTENT = 9999;
 
+        private static Dictionary<string, DateTime>? _cachedPrayerTimes;
+
         public async Task InitializeAsync()
         {
             try
@@ -35,6 +37,9 @@ namespace hadis.Services
         public async Task ScheduleNotificationsAsync(Dictionary<string, DateTime> prayerTimes)
         {
             Console.WriteLine("📢 ScheduleNotificationsAsync çağrıldı");
+            
+            // Vakitleri cache'le
+            _cachedPrayerTimes = prayerTimes;
             
             if (!Preferences.Default.Get("NotificationsEnabled", true))
             {
@@ -64,12 +69,11 @@ namespace hadis.Services
 
             foreach (var prayer in prayerTimes)
             {
-                string key = prayer.Key; // "İmsak", "Gunes", etc.
+                string key = prayer.Key;
                 DateTime time = prayer.Value;
                 
                 Console.WriteLine($"🕌 {key} vakti: {time:HH:mm}");
                 
-                // Map key to ID and Preference Check
                 int notificationId = GetNotificationId(key);
                 if (notificationId == 0)
                 {
@@ -77,12 +81,10 @@ namespace hadis.Services
                     continue;
                 }
 
-                // Determine canonical key for Preferences (matches Settings keys)
                 string canonicalKey = GetCanonicalKey(notificationId);
                 string prefKey = $"Notification_{canonicalKey}";
                 string offsetKey = $"NotificationOffset_{canonicalKey}";
 
-                // Check if specific notification is enabled
                 bool isEnabled = Preferences.Default.Get(prefKey, true);
                 Console.WriteLine($"   📌 {canonicalKey} bildirimi: {(isEnabled ? "AÇIK" : "KAPALI")}\n");
                 
@@ -93,13 +95,11 @@ namespace hadis.Services
                     continue;
                 }
 
-                // Apply Offset (negatif olarak uygula - vakitten önce bildirim için)
                 int offsetMinutes = Preferences.Default.Get(offsetKey, 0);
                 DateTime notifyTime = time.AddMinutes(-offsetMinutes);
                 
                 Console.WriteLine($"   ⏰ Offset: {offsetMinutes} dk, Bildirim zamanı: {notifyTime:HH:mm:ss}");
 
-                // If time has passed today, skip
                 if (notifyTime < DateTime.Now)
                 {
                     Console.WriteLine($"   ⏭️ Zaman geçmiş, atlanıyor (Şimdi: {DateTime.Now:HH:mm:ss})");
@@ -107,7 +107,6 @@ namespace hadis.Services
                     continue; 
                 }
 
-                // Bildirim mesajını oluştur
                 string description;
                 if (offsetMinutes > 0)
                 {
@@ -156,6 +155,75 @@ namespace hadis.Services
             }
 
             Console.WriteLine($"📊 Toplam: {scheduledCount} bildirim zamanlandı, {skippedCount} atlandı");
+            
+            // Persistent notification'ı güncelle
+            if (Preferences.Default.Get("PersistentNotificationEnabled", false))
+            {
+                await UpdatePersistentNotification(prayerTimes);
+            }
+        }
+
+        private async Task UpdatePersistentNotification(Dictionary<string, DateTime> prayerTimes)
+        {
+            try
+            {
+                var now = DateTime.Now;
+                string nextPrayerName = "";
+                TimeSpan timeRemaining = TimeSpan.Zero;
+
+                // Bir sonraki namazı bul
+                if (prayerTimes["İmsak"] > now)
+                {
+                    nextPrayerName = "İmsak";
+                    timeRemaining = prayerTimes["İmsak"] - now;
+                }
+                else if (prayerTimes["gunes"] > now)
+                {
+                    nextPrayerName = "Güneş";
+                    timeRemaining = prayerTimes["gunes"] - now;
+                }
+                else if (prayerTimes["Ogle"] > now)
+                {
+                    nextPrayerName = "Öğle";
+                    timeRemaining = prayerTimes["Ogle"] - now;
+                }
+                else if (prayerTimes["İkindi"] > now)
+                {
+                    nextPrayerName = "İkindi";
+                    timeRemaining = prayerTimes["İkindi"] - now;
+                }
+                else if (prayerTimes["Aksam"] > now)
+                {
+                    nextPrayerName = "Akşam";
+                    timeRemaining = prayerTimes["Aksam"] - now;
+                }
+                else if (prayerTimes["Yatsi"] > now)
+                {
+                    nextPrayerName = "Yatsı";
+                    timeRemaining = prayerTimes["Yatsi"] - now;
+                }
+                else
+                {
+                    nextPrayerName = "İmsak";
+                    timeRemaining = prayerTimes["İmsak"].AddDays(1) - now;
+                }
+
+                string title = "Namaz Vakitleri";
+                string message = $"{nextPrayerName}: {timeRemaining.Hours:D2}:{timeRemaining.Minutes:D2} | " +
+                                $"İmsak {prayerTimes["İmsak"]:HH:mm} | " +
+                                $"Güneş {prayerTimes["gunes"]:HH:mm} | " +
+                                $"Öğle {prayerTimes["Ogle"]:HH:mm} | " +
+                                $"İkindi {prayerTimes["İkindi"]:HH:mm} | " +
+                                $"Akşam {prayerTimes["Aksam"]:HH:mm} | " +
+                                $"Yatsı {prayerTimes["Yatsi"]:HH:mm}";
+
+                await ShowPersistentNotificationAsync(title, message);
+                Console.WriteLine($"📌 Sürekli bildirim güncellendi: {nextPrayerName} vaktine {timeRemaining.Hours:D2}:{timeRemaining.Minutes:D2}");
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"⚠️ Persistent notification güncelleme hatası: {ex.Message}");
+            }
         }
 
         public void CancelAllNotifications()
@@ -176,29 +244,38 @@ namespace hadis.Services
         {
             try
             {
-#if ANDROID || IOS
+#if ANDROID
+                var context = global::Android.App.Application.Context;
+                var intent = new global::Android.Content.Intent(context, typeof(Platforms.Android.Services.PersistentNotificationService));
+                intent.PutExtra("title", title);
+                intent.PutExtra("message", message);
+                
+                if (global::Android.OS.Build.VERSION.SdkInt >= global::Android.OS.BuildVersionCodes.O)
+                {
+                    context.StartForegroundService(intent);
+                }
+                else
+                {
+                    context.StartService(intent);
+                }
+                
+                Console.WriteLine($"📌 Foreground service başlatıldı: {title}");
+#elif IOS
                 if (await LocalNotificationCenter.Current.AreNotificationsEnabled() == false)
                 {
                     await LocalNotificationCenter.Current.RequestNotificationPermission();
                 }
-#endif
 
                 var request = new NotificationRequest
                 {
                     NotificationId = ID_PERSISTENT,
                     Title = title,
                     Description = message,
-                    Android = new Plugin.LocalNotification.AndroidOption.AndroidOptions
-                    {
-                        ChannelId = "persistent_channel",
-                        Ongoing = true,
-                        AutoCancel = false,
-                        Priority = Plugin.LocalNotification.AndroidOption.AndroidPriority.Low,
-                    },
                     Sound = null,
                 };
 
                 await LocalNotificationCenter.Current.Show(request);
+#endif
             }
             catch (Exception ex)
             {
@@ -208,7 +285,23 @@ namespace hadis.Services
 
         public void CancelPersistentNotification()
         {
+#if ANDROID
+            try
+            {
+                var context = global::Android.App.Application.Context;
+                var intent = new global::Android.Content.Intent(context, typeof(Platforms.Android.Services.PersistentNotificationService));
+                intent.SetAction("STOP_SERVICE");
+                context.StartService(intent);
+                Console.WriteLine("🗑️ Foreground service durduruldu");
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"⚠️ Service durdurma hatası: {ex.Message}");
+            }
+#else
             LocalNotificationCenter.Current.Cancel(ID_PERSISTENT);
+            Console.WriteLine("🗑️ Sürekli bildirim iptal edildi");
+#endif
         }
 
         private int GetNotificationId(string prayerName)
