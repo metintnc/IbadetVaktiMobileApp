@@ -17,7 +17,7 @@ namespace hadis
                 {
                     fonts.AddFont("OpenSans-Regular.ttf", "OpenSansRegular");
                     fonts.AddFont("OpenSans-Semibold.ttf", "OpenSansSemibold");
-                    fonts.AddFont("Amiri-Regular.ttf", "ArabicFontFamily");
+                    // fonts.AddFont("Amiri-Regular.ttf", "ArabicFontFamily"); // Font dosyası eksik olduğu için geçici olarak kapatıldı
                 });
 
             // Servisleri kaydet

@@ -103,9 +103,9 @@ namespace hadis
 
         private async void Connectivity_ConnectivityChanged(object? sender, ConnectivityChangedEventArgs e)
         {
-            if (e.NetworkAccess == NetworkAccess.Internet)
+            if (e.NetworkAccess != NetworkAccess.None)
             {
-                // İnternet geldiyse verileri çek
+                // İnternet geldiyse (veya kısıtlıysa) verileri çek
                 await MainThread.InvokeOnMainThreadAsync(async () => 
                 {
                     // Eğer overlay açıksa kullanıcıya tepki ver
@@ -119,10 +119,10 @@ namespace hadis
             }
             else
             {
-                // İnternet gittiyse ve veri yoksa uyarı göster
+                // İnternet tamamen yoksa ve veri yoksa uyarı göster
                 if (_namazvakitleri == null || _namazvakitleri.Count == 0)
                 {
-                    MainThread.BeginInvokeOnMainThread(() => InternetErrorOverlay.IsVisible = true);
+                    MainThread.BeginInvokeOnMainThread(() => ShowInternetError(true));
                 }
             }
         }
@@ -215,12 +215,12 @@ namespace hadis
                 // Konum hatası overlay'ini gizle (çünkü konum var)
                 MainThread.BeginInvokeOnMainThread(() => LocationErrorOverlay.IsVisible = false);
 
-                if (Connectivity.NetworkAccess != NetworkAccess.Internet)
+                if (Connectivity.NetworkAccess == NetworkAccess.None)
                 {
                      // Eğer önbellekte veri yoksa engelleyici ekranı göster
                      if (_namazvakitleri == null || _namazvakitleri.Count == 0)
                      {
-                         InternetErrorOverlay.IsVisible = true;
+                         ShowInternetError(true);
                          return;
                      }
                      // Veri varsa, internet olmasa da devam edebiliriz (cache varsa)
@@ -246,6 +246,13 @@ namespace hadis
                     {
                         await _notificationService.ScheduleNotificationsAsync(vakitler);
                         Console.WriteLine("✅ Bildirimler başarıyla zamanlandı.");
+                        
+                        // Persistent notification updater'ı başlat veya güncelle
+                        if (Preferences.Default.Get("PersistentNotificationEnabled", false))
+                        {
+                            Services.PersistentNotificationUpdater.UpdatePrayerTimes(vakitler);
+                            Services.PersistentNotificationUpdater.StartUpdating(_notificationService, vakitler);
+                        }
                     }
                     catch (Exception notifEx)
                     {
@@ -262,7 +269,7 @@ namespace hadis
 
                     if (_namazvakitleri == null || _namazvakitleri.Count == 0)
                     {
-                         InternetErrorOverlay.IsVisible = true;
+                         ShowInternetError(false); // Veri hatası (Internet var ama API fail)
                     }
                 }
             }
@@ -270,12 +277,28 @@ namespace hadis
             {
                 Console.WriteLine($"❌ Namaz vakitleri çekme hatası: {e.Message}");
                 ResetPrayerTimes();
-                 if (_namazvakitleri == null || _namazvakitleri.Count == 0)
-                 {
                      // Genel hata durumunda internet hatası gösterilebilir veya özel bir hata
-                     InternetErrorOverlay.IsVisible = true;
+                     ShowInternetError(false);
                  }
             }
+        
+
+        private void ShowInternetError(bool isNoInternet)
+        {
+            MainThread.BeginInvokeOnMainThread(() =>
+            {
+                if (isNoInternet)
+                {
+                    ErrorTitleLabel.Text = "İnternet Bağlantısı Yok";
+                    ErrorDescriptionLabel.Text = "Namaz vakitlerini güncellemek için lütfen internet bağlantınızı kontrol ediniz.";
+                }
+                else
+                {
+                    ErrorTitleLabel.Text = "Veri Alınamadı";
+                    ErrorDescriptionLabel.Text = "Sunucu ile bağlantı kurulamadı. Lütfen daha sonra tekrar deneyiniz.";
+                }
+                InternetErrorOverlay.IsVisible = true;
+            });
         }
         
         private async void OnLocationErrorRetry_Clicked(object sender, EventArgs e)

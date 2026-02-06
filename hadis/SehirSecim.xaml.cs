@@ -46,6 +46,7 @@ namespace hadis
 
                 if (location != null)
                 {
+                    // Şehir ismini arkaplanda bulabiliriz, sorun yok
                     string cityName = null;
                     try
                     {
@@ -80,14 +81,18 @@ namespace hadis
                             .FirstOrDefault();
                     }
 
-                    if (foundCity != null)
+                    // UI Güncelleme kısmını kesinlikle MainThread'e alıyoruz
+                    MainThread.BeginInvokeOnMainThread(async () =>
                     {
-                        await SelectCityFinal(foundCity, "Otomatik Konum", location.Latitude, location.Longitude, true);
-                    }
-                    else
-                    {
-                         await DisplayAlert("Şehir Bulunamadı", "Konumunuz tespit edildi ancak sistemdeki şehirlerle eşleştirilemedi.", "Tamam");
-                    }
+                       if (foundCity != null)
+                       {
+                           await SelectCityFinal(foundCity, "Otomatik Konum", location.Latitude, location.Longitude, true);
+                       }
+                       else
+                       {
+                            await DisplayAlert("Şehir Bulunamadı", "Konumunuz tespit edildi ancak sistemdeki şehirlerle eşleştirilemedi.", "Tamam");
+                       }
+                    });
                 }
                 else
                 {
