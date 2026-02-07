@@ -1,4 +1,4 @@
-using Android.App;
+ï»¿using Android.App;
 using Android.Content;
 using Android.OS;
 using AndroidX.Core.App;
@@ -29,7 +29,7 @@ namespace hadis.Platforms.Android.Services
             
             var notification = CreateNotification(
                 intent?.GetStringExtra("title") ?? "Namaz Vakitleri",
-                intent?.GetStringExtra("message") ?? "Vakitler yükleniyor..."
+                intent?.GetStringExtra("message") ?? "Vakitler yÃ¼kleniyor..."
             );
 
             StartForeground(NOTIFICATION_ID, notification);
@@ -43,10 +43,10 @@ namespace hadis.Platforms.Android.Services
             {
                 var channel = new NotificationChannel(
                     CHANNEL_ID,
-                    "Sürekli Bildirim",
+                    "SÃ¼rekli Bildirim",
                     NotificationImportance.Low)
                 {
-                    Description = "Namaz vakitlerini gösteren sürekli bildirim",
+                    Description = "Namaz vakitlerini gÃ¶steren sÃ¼rekli bildirim",
                     LockscreenVisibility = NotificationVisibility.Public
                 };
                 channel.SetSound(null, null);
@@ -96,3 +96,4 @@ namespace hadis.Platforms.Android.Services
         }
     }
 }
+

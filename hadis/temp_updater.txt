@@ -1,4 +1,4 @@
-ï»¿using System.Timers;
+using System.Timers;
 
 namespace hadis.Services
 {
@@ -13,13 +13,13 @@ namespace hadis.Services
             _notificationService = notificationService;
             _prayerTimes = prayerTimes;
 
-            // Her dakika gÃ¼ncelle
+            // Her dakika güncelle
             _updateTimer = new System.Timers.Timer(60000); // 60 saniye
             _updateTimer.Elapsed += OnTimerElapsed;
             _updateTimer.AutoReset = true;
             _updateTimer.Start();
 
-            Console.WriteLine("?? SÃ¼rekli bildirim gÃ¼ncelleyici baÅŸlatÄ±ldÄ± (60 saniye aralÄ±kla)");
+            Console.WriteLine("?? Sürekli bildirim güncelleyici baþlatýldý (60 saniye aralýkla)");
         }
 
         public static void StopUpdating()
@@ -27,13 +27,13 @@ namespace hadis.Services
             _updateTimer?.Stop();
             _updateTimer?.Dispose();
             _updateTimer = null;
-            Console.WriteLine("?? SÃ¼rekli bildirim gÃ¼ncelleyici durduruldu");
+            Console.WriteLine("?? Sürekli bildirim güncelleyici durduruldu");
         }
 
         public static void UpdatePrayerTimes(Dictionary<string, DateTime> prayerTimes)
         {
             _prayerTimes = prayerTimes;
-            Console.WriteLine("?? SÃ¼rekli bildirim iÃ§in vakitler gÃ¼ncellendi");
+            Console.WriteLine("?? Sürekli bildirim için vakitler güncellendi");
         }
 
         private static async void OnTimerElapsed(object? sender, ElapsedEventArgs e)
@@ -50,58 +50,58 @@ namespace hadis.Services
                 string nextPrayerName = "";
                 TimeSpan timeRemaining = TimeSpan.Zero;
 
-                // Bir sonraki namazÄ± bul
-                if (_prayerTimes["Ä°msak"] > now)
+                // Bir sonraki namazý bul
+                if (_prayerTimes["Ýmsak"] > now)
                 {
-                    nextPrayerName = "Ä°msak";
-                    timeRemaining = _prayerTimes["Ä°msak"] - now;
+                    nextPrayerName = "Ýmsak";
+                    timeRemaining = _prayerTimes["Ýmsak"] - now;
                 }
                 else if (_prayerTimes["gunes"] > now)
                 {
-                    nextPrayerName = "GÃ¼neÅŸ";
+                    nextPrayerName = "Güneþ";
                     timeRemaining = _prayerTimes["gunes"] - now;
                 }
                 else if (_prayerTimes["Ogle"] > now)
                 {
-                    nextPrayerName = "Ã–ÄŸle";
+                    nextPrayerName = "Öðle";
                     timeRemaining = _prayerTimes["Ogle"] - now;
                 }
-                else if (_prayerTimes["Ä°kindi"] > now)
+                else if (_prayerTimes["Ýkindi"] > now)
                 {
-                    nextPrayerName = "Ä°kindi";
-                    timeRemaining = _prayerTimes["Ä°kindi"] - now;
+                    nextPrayerName = "Ýkindi";
+                    timeRemaining = _prayerTimes["Ýkindi"] - now;
                 }
                 else if (_prayerTimes["Aksam"] > now)
                 {
-                    nextPrayerName = "AkÅŸam";
+                    nextPrayerName = "Akþam";
                     timeRemaining = _prayerTimes["Aksam"] - now;
                 }
                 else if (_prayerTimes["Yatsi"] > now)
                 {
-                    nextPrayerName = "YatsÄ±";
+                    nextPrayerName = "Yatsý";
                     timeRemaining = _prayerTimes["Yatsi"] - now;
                 }
                 else
                 {
-                    nextPrayerName = "Ä°msak";
-                    timeRemaining = _prayerTimes["Ä°msak"].AddDays(1) - now;
+                    nextPrayerName = "Ýmsak";
+                    timeRemaining = _prayerTimes["Ýmsak"].AddDays(1) - now;
                 }
 
-                string title = $"{nextPrayerName} vaktine {timeRemaining.Hours:D2}:{timeRemaining.Minutes:D2} kaldÄ±";
-                string message = $"Ä°msak {_prayerTimes["Ä°msak"]:HH:mm} | " +
-                                $"GÃ¼neÅŸ {_prayerTimes["gunes"]:HH:mm} | " +
-                                $"Ã–ÄŸle {_prayerTimes["Ogle"]:HH:mm} | " +
-                                $"Ä°kindi {_prayerTimes["Ä°kindi"]:HH:mm} | " +
-                                $"AkÅŸam {_prayerTimes["Aksam"]:HH:mm} | " +
-                                $"YatsÄ± {_prayerTimes["Yatsi"]:HH:mm}";
+                string title = "Namaz Vakitleri";
+                string message = $"{nextPrayerName}: {timeRemaining.Hours:D2}:{timeRemaining.Minutes:D2} | " +
+                                $"Ýmsak {_prayerTimes["Ýmsak"]:HH:mm} | " +
+                                $"Güneþ {_prayerTimes["gunes"]:HH:mm} | " +
+                                $"Öðle {_prayerTimes["Ogle"]:HH:mm} | " +
+                                $"Ýkindi {_prayerTimes["Ýkindi"]:HH:mm} | " +
+                                $"Akþam {_prayerTimes["Aksam"]:HH:mm} | " +
+                                $"Yatsý {_prayerTimes["Yatsi"]:HH:mm}";
 
                 await _notificationService.ShowPersistentNotificationAsync(title, message);
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"?? SÃ¼rekli bildirim gÃ¼ncelleme hatasÄ±: {ex.Message}");
+                Console.WriteLine($"?? Sürekli bildirim güncelleme hatasý: {ex.Message}");
             }
         }
     }
 }
-
