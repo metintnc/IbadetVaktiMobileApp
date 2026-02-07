@@ -29,10 +29,6 @@
               HorizontalOptions="FillAndExpand"
               VerticalOptions="FillAndExpand">
             <VerticalStackLayout Spacing="20" VerticalOptions="Center" HorizontalOptions="Center">
-                <Image Source="{AppThemeBinding Light=nowifi.png, Dark=nowifi_white.png}"
-                       HeightRequest="100"
-                       WidthRequest="100"
-                       HorizontalOptions="Center"/>
                 <Label x:Name="ErrorTitleLabel"
                        Text="İnternet Bağlantısı Yok"
                        FontSize="22"

@@ -13,14 +13,14 @@
 		<Nullable>enable</Nullable>
 
 		<!-- Display name -->
-		<ApplicationTitle>hadis</ApplicationTitle>
+		<ApplicationTitle>NamazVakti</ApplicationTitle>
 
 		<!-- App Identifier -->
-		<ApplicationId>com.companyname.hadis</ApplicationId>
+		<ApplicationId>com.metintnc.beginning</ApplicationId>
 
 		<!-- Versions -->
-		<ApplicationDisplayVersion>1.0</ApplicationDisplayVersion>
-		<ApplicationVersion>1</ApplicationVersion>
+		<ApplicationDisplayVersion>0.4.8</ApplicationDisplayVersion>
+		<ApplicationVersion>4</ApplicationVersion>
 
 		<WindowsPackageType>None</WindowsPackageType>
 
@@ -40,7 +40,6 @@
 
 	<PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Debug|net9.0-android|ARM64'">
 	  <AndroidKeyStore>False</AndroidKeyStore>
-	  <AndroidSigningStorePass>***</AndroidSigningStorePass>
 	</PropertyGroup>
 
 	<PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Release|net9.0-android|AnyCPU'">
