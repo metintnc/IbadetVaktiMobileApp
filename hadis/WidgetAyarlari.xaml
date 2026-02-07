@@ -2,7 +2,7 @@
 <ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              x:Class="hadis.WidgetAyarlari"
-             Title="Widget Ayarlari"
+             Title="Widget Ayarları"
              BackgroundColor="{AppThemeBinding Light=#F5F5F5, Dark=#121212}">
     
     <Grid>
@@ -11,7 +11,7 @@
         <ScrollView Padding="20,10">
             <VerticalStackLayout Spacing="15">
                 
-                <Label Text="Widget Ayarlari"
+                <Label Text="Widget Ayarları"
                        FontSize="24"
                        FontAttributes="Bold"
                        Margin="0,10,0,10"
@@ -46,7 +46,7 @@
                         <Label Text="Widget Boyutu" FontSize="18" FontAttributes="Bold"
                                TextColor="{AppThemeBinding Light=#00796B, Dark=#FFFFFF}"/>
                         
-                        <RadioButton Content="Kucuk (2x2)" 
+                        <RadioButton Content="Küçük (2x2)" 
                                      IsChecked="True"
                                      TextColor="{AppThemeBinding Light=#00796B, Dark=#FFFFFF}">
                             <RadioButton.ControlTemplate>
@@ -102,7 +102,7 @@
                             </RadioButton.ControlTemplate>
                         </RadioButton>
                         
-                        <RadioButton Content="Buyuk (4x4)"
+                        <RadioButton Content="Büyük (4x4)"
                                      TextColor="{AppThemeBinding Light=#00796B, Dark=#FFFFFF}">
                             <RadioButton.ControlTemplate>
                                 <ControlTemplate>
@@ -165,7 +165,7 @@
                                 
                                 <!-- Sag: Namaz Vakti -->
                                 <VerticalStackLayout Grid.Column="1" Spacing="4" VerticalOptions="Center" HorizontalOptions="End">
-                                    <Label Text="Imsak"
+                                    <Label Text="İmsak"
                                            FontSize="12"
                                            TextColor="White"
                                            HorizontalOptions="End"/>
