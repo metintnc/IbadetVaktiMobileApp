@@ -66,7 +66,7 @@
                                    FontSize="48"
                                    HorizontalOptions="Center"/>
                             <Label x:Name="TemaTitle"
-                                   Text="Tema Ayarlari"
+                                   Text="Tema Ayarları"
                                    FontSize="16"
                                    FontAttributes="Bold"
                                    HorizontalOptions="Center"
@@ -97,14 +97,14 @@
                                    FontSize="48"
                                    HorizontalOptions="Center"/>
                             <Label x:Name="BildirimTitle"
-                                   Text="Bildirim Ayarlari"
+                                   Text="Bildirim Ayarları"
                                    FontSize="16"
                                    FontAttributes="Bold"
                                    HorizontalOptions="Center"
                                    HorizontalTextAlignment="Center"
                                    TextColor="{AppThemeBinding Light=#00796B, Dark=#FFFFFF}"/>
                             <Label x:Name="BildirimSubtitle"
-                                   Text="Ezan ve Hatirlaticilar"
+                                   Text="Ezan ve Hatırlatıcılar"
                                    FontSize="12"
                                    HorizontalOptions="Center"
                                    HorizontalTextAlignment="Center"
@@ -128,14 +128,14 @@
                                    FontSize="48"
                                    HorizontalOptions="Center"/>
                             <Label x:Name="WidgetTitle"
-                                   Text="Widget Ayarlari"
+                                   Text="Widget Ayarları"
                                    FontSize="16"
                                    FontAttributes="Bold"
                                    HorizontalOptions="Center"
                                    HorizontalTextAlignment="Center"
                                    TextColor="{AppThemeBinding Light=#00796B, Dark=#FFFFFF}"/>
                             <Label x:Name="WidgetSubtitle"
-                                   Text="Ana Ekran Araçlari"
+                                   Text="Ana Ekran Araçları"
                                    FontSize="12"
                                    HorizontalOptions="Center"
                                    HorizontalTextAlignment="Center"
@@ -159,7 +159,7 @@
                                    FontSize="48"
                                    HorizontalOptions="Center"/>
                             <Label x:Name="KonumTitle"
-                                   Text="Konum Ayarlari"
+                                   Text="Konum Ayarları"
                                    FontSize="16"
                                    FontAttributes="Bold"
                                    HorizontalOptions="Center"
@@ -176,45 +176,6 @@
                     
                 </Grid>
 
-                <!-- Genel Ayarlar -->
-                <Frame x:Name="VeriYonetimiFrame"
-                       CornerRadius="20"
-                       Padding="20"
-                       HasShadow="True"
-                       BorderColor="{AppThemeBinding Light=#80009688, Dark=#80FFFFFF}"
-                       BackgroundColor="{AppThemeBinding Light=#22FFFFFF, Dark=#33000000}">
-                    <VerticalStackLayout Spacing="15">
-                        <Label x:Name="VeriYonetimiTitle"
-                               Text="Genel Ayarlar"
-                               FontSize="20"
-                               FontAttributes="Bold"
-                               HorizontalOptions="Center"
-                               TextColor="{AppThemeBinding Light=#00796B, Dark=#FFFFFF}"/>
-                        
-                        <Button x:Name="ClearCacheButton"
-                                Text="Önbelleği Temizle" 
-                                Clicked="ClearCacheButton_Clicked"
-                                BackgroundColor="{AppThemeBinding Light=#F57C00, Dark=#FF9800}"
-                                TextColor="White"
-                                CornerRadius="15"
-                                Padding="15,12"
-                                FontAttributes="Bold"
-                                FontSize="15"
-                                HorizontalOptions="Fill"/>
-                        
-                        <Button x:Name="ResetButton"
-                                Text="Ayarlari Sifirla" 
-                                Clicked="ResetSettingsButton_Clicked"
-                                BackgroundColor="{AppThemeBinding Light=#D32F2F, Dark=#F44336}"
-                                TextColor="White"
-                                CornerRadius="15"
-                                Padding="15,12"
-                                FontAttributes="Bold"
-                                FontSize="15"
-                                HorizontalOptions="Fill"/>
-                    </VerticalStackLayout>
-                </Frame>
-
                 <!-- Hakkinda -->
                 <Frame x:Name="HakkindaFrame"
                        CornerRadius="20"
@@ -224,7 +185,7 @@
                        BackgroundColor="{AppThemeBinding Light=#22FFFFFF, Dark=#33000000}">
                     <VerticalStackLayout Spacing="10">
                         <Label x:Name="HakkindaTitle"
-                               Text="Hakkinda"
+                               Text="Hakkında"
                                FontSize="20"
                                FontAttributes="Bold"
                                HorizontalOptions="Center"
@@ -236,7 +197,7 @@
                                HorizontalOptions="Center"
                                TextColor="{AppThemeBinding Light=#757575, Dark=#BDBDBD}"/>
                         <Label x:Name="CopyrightLabel"
-                               Text="2024 Namaz Vakti Uygulamasi" 
+                               Text="2024 Namaz Vakti Uygulaması" 
                                FontSize="12"
                                HorizontalOptions="Center"
                                TextColor="{AppThemeBinding Light=#9E9E9E, Dark=#757575}"/>

@@ -25,7 +25,7 @@
         <Tab Title="Zikir" Icon="zikirmatik.png">
             <ShellContent ContentTemplate="{DataTemplate local:zikirmatik}" />
         </Tab>
-        <Tab Title="Ayarlar" Icon="dotnet_bot.png"> 
+        <Tab Title="Ayarlar" Icon="ayarlar.svg"> 
             <ShellContent ContentTemplate="{DataTemplate local:Ayarlar}" />
         </Tab>
 

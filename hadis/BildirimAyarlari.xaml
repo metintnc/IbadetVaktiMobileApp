@@ -2,14 +2,14 @@
 <ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              x:Class="hadis.BildirimAyarlari"
-             Title="Bildirim Ayarlari"
+             Title="Bildirim Ayarları"
              BackgroundColor="{AppThemeBinding Light=#F5F5F5, Dark=#121212}">
     
     <Grid RowDefinitions="Auto,*">
         
         <!-- Header & Master Switch Area -->
         <VerticalStackLayout Grid.Row="0" Padding="20,10,20,0" Spacing="10">
-            <Label Text="Bildirim Ayarlari"
+            <Label Text="Bildirim Ayarları"
                    FontSize="24"
                    FontAttributes="Bold"
                    Margin="0,10,0,5"
@@ -22,7 +22,7 @@
                    BackgroundColor="{AppThemeBinding Light=White, Dark=#1E1E1E}">
                 <Grid ColumnDefinitions="*,Auto" RowDefinitions="Auto,Auto" RowSpacing="10">
                     <!-- Master Switch -->
-                    <Label Text="Tum Bildirimleri Ac" 
+                    <Label Text="Tüm Bildirimleri Aç" 
                            VerticalOptions="Center"
                            FontSize="16"
                            FontAttributes="Bold"
@@ -35,7 +35,7 @@
                     
                     <!-- Persistent Notification -->
                     <Label Grid.Row="1" Grid.Column="0"
-                           Text="Surekli Bildirim (Bildirim Cubugu)" 
+                           Text="Sürekli Bildirim (Bildirim Çubuğu)" 
                            VerticalOptions="Center"
                            FontSize="14"
                            TextColor="{AppThemeBinding Light=#00796B, Dark=#FFFFFF}"/>
@@ -62,7 +62,7 @@
                                TextColor="{AppThemeBinding Light=#00796B, Dark=#FFFFFF}"/>
                         
                         <Grid ColumnDefinitions="*,Auto,Auto,Auto,Auto" ColumnSpacing="10">
-                            <Label Text="Imsak" VerticalOptions="Center" Grid.Column="0"
+                            <Label Text="İmsak" VerticalOptions="Center" Grid.Column="0"
                                    TextColor="{AppThemeBinding Light=#00796B, Dark=#FFFFFF}"/>
 
                             <Button Text="-" Clicked="OffsetMinus_Clicked" CommandParameter="Imsak" 
@@ -86,7 +86,7 @@
                         </Grid>
                         
                         <Grid ColumnDefinitions="*,Auto,Auto,Auto,Auto" ColumnSpacing="10">
-                            <Label Text="Gunes" VerticalOptions="Center" Grid.Column="0"
+                            <Label Text="Güneş" VerticalOptions="Center" Grid.Column="0"
                                    TextColor="{AppThemeBinding Light=#00796B, Dark=#FFFFFF}"/>
 
                             <Button Text="-" Clicked="OffsetMinus_Clicked" CommandParameter="Gunes" 
@@ -110,7 +110,7 @@
                         </Grid>
                         
                         <Grid ColumnDefinitions="*,Auto,Auto,Auto,Auto" ColumnSpacing="10">
-                            <Label Text="Ogle" VerticalOptions="Center" Grid.Column="0"
+                            <Label Text="Öğle" VerticalOptions="Center" Grid.Column="0"
                                    TextColor="{AppThemeBinding Light=#00796B, Dark=#FFFFFF}"/>
 
                             <Button Text="-" Clicked="OffsetMinus_Clicked" CommandParameter="Ogle" 
@@ -134,7 +134,7 @@
                         </Grid>
                         
                         <Grid ColumnDefinitions="*,Auto,Auto,Auto,Auto" ColumnSpacing="10">
-                            <Label Text="Ikindi" VerticalOptions="Center" Grid.Column="0"
+                            <Label Text="İkindi" VerticalOptions="Center" Grid.Column="0"
                                    TextColor="{AppThemeBinding Light=#00796B, Dark=#FFFFFF}"/>
 
                             <Button Text="-" Clicked="OffsetMinus_Clicked" CommandParameter="Ikindi" 
@@ -158,7 +158,7 @@
                         </Grid>
                         
                         <Grid ColumnDefinitions="*,Auto,Auto,Auto,Auto" ColumnSpacing="10">
-                            <Label Text="Aksam" VerticalOptions="Center" Grid.Column="0"
+                            <Label Text="Akşam" VerticalOptions="Center" Grid.Column="0"
                                    TextColor="{AppThemeBinding Light=#00796B, Dark=#FFFFFF}"/>
 
                             <Button Text="-" Clicked="OffsetMinus_Clicked" CommandParameter="Aksam" 
@@ -182,7 +182,7 @@
                         </Grid>
                         
                         <Grid ColumnDefinitions="*,Auto,Auto,Auto,Auto" ColumnSpacing="10">
-                            <Label Text="Yatsi" VerticalOptions="Center" Grid.Column="0"
+                            <Label Text="Yatsı" VerticalOptions="Center" Grid.Column="0"
                                    TextColor="{AppThemeBinding Light=#00796B, Dark=#FFFFFF}"/>
 
                             <Button Text="-" Clicked="OffsetMinus_Clicked" CommandParameter="Yatsi" 

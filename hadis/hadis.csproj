@@ -3,7 +3,7 @@
 	<PropertyGroup>
 		<TargetFrameworks>net9.0-android;net9.0-ios;net9.0-maccatalyst</TargetFrameworks>
 		<TargetFrameworks Condition="$([MSBuild]::IsOSPlatform('windows'))">$(TargetFrameworks);net9.0-windows10.0.19041.0</TargetFrameworks>
-		<AndroidPackageFormat>apk</AndroidPackageFormat>
+		<AndroidPackageFormat>aab</AndroidPackageFormat>
 
 		<OutputType>Exe</OutputType>
 		<RootNamespace>hadis</RootNamespace>
@@ -16,11 +16,11 @@
 		<ApplicationTitle>NamazVakti</ApplicationTitle>
 
 		<!-- App Identifier -->
-		<ApplicationId>com.metintnc.beginning</ApplicationId>
+		<ApplicationId>com.metintnc.namazvakti</ApplicationId>
 
 		<!-- Versions -->
-		<ApplicationDisplayVersion>0.4.8</ApplicationDisplayVersion>
-		<ApplicationVersion>4</ApplicationVersion>
+		<ApplicationDisplayVersion>1.0.0</ApplicationDisplayVersion>
+		<ApplicationVersion>1</ApplicationVersion>
 
 		<WindowsPackageType>None</WindowsPackageType>
 
@@ -43,13 +43,19 @@
 	</PropertyGroup>
 
 	<PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Release|net9.0-android|AnyCPU'">
-	  <AndroidKeyStore>False</AndroidKeyStore>
-	  <AndroidSigningStorePass>***</AndroidSigningStorePass>
+	  <AndroidKeyStore>True</AndroidKeyStore>
+	  <AndroidSigningKeyStore>my-release-key.keystore</AndroidSigningKeyStore>
+	  <AndroidSigningKeyAlias>my-key-alias</AndroidSigningKeyAlias>
+      <AndroidSigningKeyPass>***</AndroidSigningKeyPass>
+      <AndroidSigningStorePass>***</AndroidSigningStorePass>
 	</PropertyGroup>
 
 	<PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Release|net9.0-android|ARM64'">
-	  <AndroidKeyStore>False</AndroidKeyStore>
-	  <AndroidSigningStorePass>***</AndroidSigningStorePass>
+	  <AndroidKeyStore>True</AndroidKeyStore>
+	  <AndroidSigningKeyStore>my-release-key.keystore</AndroidSigningKeyStore>
+	  <AndroidSigningKeyAlias>my-key-alias</AndroidSigningKeyAlias>
+      <AndroidSigningKeyPass>***</AndroidSigningKeyPass>
+      <AndroidSigningStorePass>***</AndroidSigningStorePass>
 	</PropertyGroup>
 
 	<ItemGroup>
@@ -90,6 +96,7 @@
 		<MauiImage Include="Resources\Images\kiblesekme.svg" />
 
 		<!-- Tab Images -->
+		<MauiImage Include="Resources\Images\ayarlar.svg" />
 		<MauiImage Include="Resources\Images\kuran.svg" />
 		<MauiImage Include="Resources\Images\vakitler.svg" />
 		<MauiImage Include="Resources\Images\zikirmatik.svg" />
