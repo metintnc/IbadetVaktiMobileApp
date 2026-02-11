@@ -10,6 +10,10 @@
 *.user
 *.apk
 
+# Güvenlik - Keystore dosyaları
+*.keystore
+*.jks
+
 # İşletim sistemi dosyaları
 .DS_Store
 Thumbs.db

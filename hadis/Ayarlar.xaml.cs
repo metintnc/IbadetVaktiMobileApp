@@ -1,4 +1,6 @@
 using hadis.Helpers;
+using Microsoft.Maui.ApplicationModel;
+using Microsoft.Maui.Devices.Sensors;
 
 namespace hadis
 {
@@ -36,12 +38,31 @@ namespace hadis
 
         private async void WidgetButton_Clicked(object sender, TappedEventArgs e)
         {
-            await Navigation.PushAsync(new WidgetAyarlari());
+            await DisplayAlert("Bilgi", "Widget özelliği yapım aşamasındadır. Yakında eklenecektir!", "Tamam");
         }
 
         private async void KonumButton_Clicked(object sender, TappedEventArgs e)
         {
             await Navigation.PushAsync(new SehirSecim());
+        }
+
+        private async void GizlilikPolitikasi_Tapped(object sender, TappedEventArgs e)
+        {
+            // TODO: Kendi gizlilik politikası URL'nizi buraya ekleyin
+            string privacyUrl = "https://metintnc.github.io/namazvakti-privacy";
+            try
+            {
+                await Browser.Default.OpenAsync(privacyUrl, BrowserLaunchMode.SystemPreferred);
+            }
+            catch (Exception ex)
+            {
+                await DisplayAlert("Hata", "Gizlilik politikası sayfası açılamadı.", "Tamam");
+            }
+        }
+
+        private async void YakinCamilerButton_Clicked(object sender, TappedEventArgs e)
+        {
+            await Navigation.PushAsync(new YakindakiCamiler());
         }
 
         protected override bool OnBackButtonPressed()

@@ -51,14 +51,20 @@ namespace hadis
             _isInitialized = true;
         }
 
+        private string FormatOffset(int offset)
+        {
+            if (offset == 0) return "0 dk";
+            return offset > 0 ? $"{offset} dk önce" : $"{Math.Abs(offset)} dk sonra";
+        }
+
         private void UpdateOffsetLabels()
         {
-            LabelOffsetImsak.Text = $"{Preferences.Default.Get("NotificationOffset_Imsak", 0)} dk";
-            LabelOffsetGunes.Text = $"{Preferences.Default.Get("NotificationOffset_Gunes", 0)} dk";
-            LabelOffsetOgle.Text = $"{Preferences.Default.Get("NotificationOffset_Ogle", 0)} dk";
-            LabelOffsetIkindi.Text = $"{Preferences.Default.Get("NotificationOffset_Ikindi", 0)} dk";
-            LabelOffsetAksam.Text = $"{Preferences.Default.Get("NotificationOffset_Aksam", 0)} dk";
-            LabelOffsetYatsi.Text = $"{Preferences.Default.Get("NotificationOffset_Yatsi", 0)} dk";
+            LabelOffsetImsak.Text = FormatOffset(Preferences.Default.Get("NotificationOffset_Imsak", 0));
+            LabelOffsetGunes.Text = FormatOffset(Preferences.Default.Get("NotificationOffset_Gunes", 0));
+            LabelOffsetOgle.Text = FormatOffset(Preferences.Default.Get("NotificationOffset_Ogle", 0));
+            LabelOffsetIkindi.Text = FormatOffset(Preferences.Default.Get("NotificationOffset_Ikindi", 0));
+            LabelOffsetAksam.Text = FormatOffset(Preferences.Default.Get("NotificationOffset_Aksam", 0));
+            LabelOffsetYatsi.Text = FormatOffset(Preferences.Default.Get("NotificationOffset_Yatsi", 0));
         }
 
         private async void OffsetMinus_Clicked(object sender, EventArgs e)

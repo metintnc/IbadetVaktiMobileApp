@@ -80,7 +80,7 @@
                     <VerticalStackLayout Spacing="5">
                         <Grid ColumnDefinitions="Auto, *">
                             <Label Grid.Column="0" Text="🔥 " FontSize="16" VerticalOptions="Center"/>
-                            <Label Grid.Column="1" Text="Zincir" 
+                            <Label Grid.Column="1" Text="Seri" 
                                    FontSize="12" 
                                    VerticalOptions="Center"
                                    TextColor="{AppThemeBinding Light=#757575, Dark=#BDBDBD}"/>
