@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             x:Class="hadis.YakindakiCamiler"
+             Title="Yakındaki Camiler"
+             BackgroundColor="{AppThemeBinding Light=#F5F5F5, Dark=#121212}">
+    
+    <Grid RowDefinitions="Auto,*">
+        
+        <!-- Header -->
+        <Grid Grid.Row="0" Padding="15,10" ColumnDefinitions="Auto,*">
+            <Label Text="←" 
+                   FontSize="28" 
+                   VerticalOptions="Center"
+                   TextColor="{AppThemeBinding Light=#00796B, Dark=#FFFFFF}">
+                <Label.GestureRecognizers>
+                    <TapGestureRecognizer Tapped="OnBackTapped"/>
+                </Label.GestureRecognizers>
+            </Label>
+            <Label Grid.Column="1" 
+                   Text="🕌 Yakındaki Camiler" 
+                   FontSize="22" 
+                   FontAttributes="Bold"
+                   VerticalOptions="Center"
+                   Margin="10,0,0,0"
+                   TextColor="{AppThemeBinding Light=#00796B, Dark=#FFFFFF}"/>
+        </Grid>
+
+        <!-- Map WebView -->
+        <Grid Grid.Row="1">
+            <WebView x:Name="MapWebView"
+                     HorizontalOptions="FillAndExpand"
+                     VerticalOptions="FillAndExpand"/>
+            
+            <!-- Loading Overlay -->
+            <Grid x:Name="LoadingOverlay"
+                  BackgroundColor="{AppThemeBinding Light=#CCFFFFFF, Dark=#CC000000}"
+                  IsVisible="True">
+                <VerticalStackLayout VerticalOptions="Center" HorizontalOptions="Center" Spacing="15">
+                    <ActivityIndicator IsRunning="True" 
+                                       Color="{AppThemeBinding Light=#00796B, Dark=#80CBC4}"
+                                       HeightRequest="50" WidthRequest="50"/>
+                    <Label x:Name="LoadingLabel"
+                           Text="Konum alınıyor..."
+                           FontSize="16"
+                           HorizontalOptions="Center"
+                           TextColor="{AppThemeBinding Light=#00796B, Dark=#FFFFFF}"/>
+                </VerticalStackLayout>
+            </Grid>
+        </Grid>
+        
+    </Grid>
+</ContentPage>

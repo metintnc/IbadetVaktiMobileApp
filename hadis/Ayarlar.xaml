@@ -45,7 +45,7 @@
                 </Frame>
 
                 <!-- Grid for main settings cards -->
-                <Grid RowDefinitions="Auto,Auto" 
+                <Grid RowDefinitions="Auto,Auto,Auto" 
                       ColumnDefinitions="*,*"
                       RowSpacing="15"
                       ColumnSpacing="15">
@@ -118,6 +118,7 @@
                            CornerRadius="20"
                            Padding="20"
                            HasShadow="True"
+                           Opacity="0.6"
                            BorderColor="{AppThemeBinding Light=#80009688, Dark=#80FFFFFF}"
                            BackgroundColor="{AppThemeBinding Light=#22FFFFFF, Dark=#33000000}">
                         <Frame.GestureRecognizers>
@@ -134,12 +135,18 @@
                                    HorizontalOptions="Center"
                                    HorizontalTextAlignment="Center"
                                    TextColor="{AppThemeBinding Light=#00796B, Dark=#FFFFFF}"/>
-                            <Label x:Name="WidgetSubtitle"
-                                   Text="Ana Ekran Araçları"
-                                   FontSize="12"
-                                   HorizontalOptions="Center"
-                                   HorizontalTextAlignment="Center"
-                                   TextColor="{AppThemeBinding Light=#757575, Dark=#BDBDBD}"/>
+                            <Frame CornerRadius="10" 
+                                   Padding="6,3"
+                                   HasShadow="False"
+                                   BackgroundColor="{AppThemeBinding Light=#FFF3E0, Dark=#3E2723}"
+                                   BorderColor="{AppThemeBinding Light=#FFB74D, Dark=#FF8A65}"
+                                   HorizontalOptions="Center">
+                                <Label Text="🚧 Yakında"
+                                       FontSize="11"
+                                       FontAttributes="Bold"
+                                       HorizontalOptions="Center"
+                                       TextColor="{AppThemeBinding Light=#E65100, Dark=#FFAB91}"/>
+                            </Frame>
                         </VerticalStackLayout>
                     </Frame>
                     
@@ -174,6 +181,37 @@
                         </VerticalStackLayout>
                     </Frame>
                     
+                    <!-- Yakindaki Camiler Card -->
+                    <Frame Grid.Row="2" Grid.Column="0"
+                           x:Name="CamilerFrame"
+                           CornerRadius="20"
+                           Padding="20"
+                           HasShadow="True"
+                           BorderColor="{AppThemeBinding Light=#80009688, Dark=#80FFFFFF}"
+                           BackgroundColor="{AppThemeBinding Light=#22FFFFFF, Dark=#33000000}">
+                        <Frame.GestureRecognizers>
+                            <TapGestureRecognizer Tapped="YakinCamilerButton_Clicked"/>
+                        </Frame.GestureRecognizers>
+                        <VerticalStackLayout Spacing="10" HorizontalOptions="Center">
+                            <Label Text="🕌"
+                                   FontSize="48"
+                                   HorizontalOptions="Center"/>
+                            <Label x:Name="CamilerTitle"
+                                   Text="Yakındaki Camiler"
+                                   FontSize="16"
+                                   FontAttributes="Bold"
+                                   HorizontalOptions="Center"
+                                   HorizontalTextAlignment="Center"
+                                   TextColor="{AppThemeBinding Light=#00796B, Dark=#FFFFFF}"/>
+                            <Label x:Name="CamilerSubtitle"
+                                   Text="Haritada Görüntüle"
+                                   FontSize="12"
+                                   HorizontalOptions="Center"
+                                   HorizontalTextAlignment="Center"
+                                   TextColor="{AppThemeBinding Light=#757575, Dark=#BDBDBD}"/>
+                        </VerticalStackLayout>
+                    </Frame>
+                    
                 </Grid>
 
                 <!-- Hakkinda -->
@@ -197,10 +235,23 @@
                                HorizontalOptions="Center"
                                TextColor="{AppThemeBinding Light=#757575, Dark=#BDBDBD}"/>
                         <Label x:Name="CopyrightLabel"
-                               Text="2024 Namaz Vakti Uygulaması" 
+                               Text="© 2025 Namaz Vakti Uygulaması" 
                                FontSize="12"
                                HorizontalOptions="Center"
                                TextColor="{AppThemeBinding Light=#9E9E9E, Dark=#757575}"/>
+                        
+                        <Label x:Name="GizlilikPolitikasiLabel"
+                               Text="Gizlilik Politikası"
+                               FontSize="14"
+                               FontAttributes="Italic"
+                               TextDecorations="Underline"
+                               HorizontalOptions="Center"
+                               Margin="0,10,0,0"
+                               TextColor="{AppThemeBinding Light=#00796B, Dark=#80CBC4}">
+                            <Label.GestureRecognizers>
+                                <TapGestureRecognizer Tapped="GizlilikPolitikasi_Tapped"/>
+                            </Label.GestureRecognizers>
+                        </Label>
                     </VerticalStackLayout>
                 </Frame>
 

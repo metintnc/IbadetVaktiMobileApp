@@ -260,6 +260,15 @@
                     </Grid>
                 </Frame>
 
+
+                <Label Text="⚠️ Tema özelliği beta aşamasındadır. Bazı hatalarla karşılaşabilirsiniz."
+                       FontSize="12"
+                       FontAttributes="Italic"
+                       HorizontalOptions="Center"
+                       HorizontalTextAlignment="Center"
+                       Margin="0,10,0,0"
+                       TextColor="{AppThemeBinding Light=#9E9E9E, Dark=#757575}"/>
+
             </VerticalStackLayout>
         </ScrollView>
     </Grid>
