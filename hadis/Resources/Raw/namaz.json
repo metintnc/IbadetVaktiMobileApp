@@ -1,0 +1,287 @@
+[
+  {
+    "Emoji": "🌅",
+    "Baslik": "Sabah Namazı",
+    "RekatBilgisi": "2 Rekât Sünnet + 2 Rekât Farz = 4 Rekât",
+    "Adimlar": [
+      {
+        "Baslik": "Niyet",
+        "Aciklama": "Niyet ettim Allah rızası için sabah namazının sünnetini (veya farzını) kılmaya."
+      },
+      {
+        "Baslik": "İftitah Tekbiri",
+        "Aciklama": "Eller kulaklara kaldırılarak 'Allahü Ekber' denir ve namaza başlanır. Eller göbek altında bağlanır (erkekler) veya göğüs üzerinde bağlanır (kadınlar).",
+        "Dua": "اللّٰهُ أَكْبَرُ",
+        "Okunusu": "Allâhü Ekber"
+      },
+      {
+        "Baslik": "Sübhaneke Duası",
+        "Aciklama": "Namaza başlarken okunan dua.",
+        "Dua": "سُبْحَانَكَ اللّٰهُمَّ وَبِحَمْدِكَ وَتَبَارَكَ اسْمُكَ وَتَعَالَى جَدُّكَ وَلَا إِلٰهَ غَيْرُكَ",
+        "Okunusu": "Sübhânekellâhümme ve bihamdik ve tebârekesmük ve teâlâ ceddük ve lâ ilâhe ğayrük."
+      },
+      {
+        "Baslik": "Eûzü-Besmele ve Fâtiha",
+        "Aciklama": "Eûzü billahi mine'ş-şeytâni'r-racîm, Bismillâhi'r-rahmâni'r-rahîm diyerek Fâtiha sûresi okunur.",
+        "Dua": "بِسْمِ اللّٰهِ الرَّحْمٰنِ الرَّحِيمِ ﴿١﴾ اَلْحَمْدُ لِلّٰهِ رَبِّ الْعَالَمِينَ",
+        "Okunusu": "Elhamdü lillâhi rabbi'l-âlemîn..."
+      },
+      {
+        "Baslik": "Zamm-ı Sûre",
+        "Aciklama": "Fâtiha'dan sonra Kur'an'dan bir sûre veya birkaç ayet okunur."
+      },
+      {
+        "Baslik": "Rükû",
+        "Aciklama": "'Allahü Ekber' diyerek eğilinir. Eller dizlere konur. Sırt düz tutulur. 3 kez 'Sübhâne Rabbiye'l-Azîm' denir.",
+        "Dua": "سُبْحَانَ رَبِّيَ الْعَظِيمِ",
+        "Okunusu": "Sübhâne Rabbiye'l-Azîm (3 kez)"
+      },
+      {
+        "Baslik": "Rükûdan Kalkış",
+        "Aciklama": "'Semiallahü limen hamideh' diyerek doğrulunur, ardından 'Rabbenâ leke'l-hamd' denir.",
+        "Okunusu": "Semiallâhü limen hamideh — Rabbenâ leke'l-hamd"
+      },
+      {
+        "Baslik": "Birinci Secde",
+        "Aciklama": "'Allahü Ekber' diyerek secdeye gidilir. Alın, burun, iki el, iki diz ve ayak parmakları yere değer. 3 kez 'Sübhâne Rabbiye'l-A'lâ' denir.",
+        "Dua": "سُبْحَانَ رَبِّيَ الْأَعْلَى",
+        "Okunusu": "Sübhâne Rabbiye'l-A'lâ (3 kez)"
+      },
+      {
+        "Baslik": "Celse (İki Secde Arası Oturuş)",
+        "Aciklama": "'Allahü Ekber' diyerek doğrulunur ve kısa bir süre oturulur."
+      },
+      {
+        "Baslik": "İkinci Secde",
+        "Aciklama": "'Allahü Ekber' diyerek tekrar secdeye gidilir. Yine 3 kez 'Sübhâne Rabbiye'l-A'lâ' denir.",
+        "Dua": "سُبْحَانَ رَبِّيَ الْأَعْلَى",
+        "Okunusu": "Sübhâne Rabbiye'l-A'lâ (3 kez)"
+      },
+      {
+        "Baslik": "İkinci Rekât",
+        "Aciklama": "'Allahü Ekber' diyerek ayağa kalkılır. Besmele, Fâtiha ve zamm-ı sûre okunur. Rükû ve secdeler tekrarlanır."
+      },
+      {
+        "Baslik": "Ka'de (Son Oturuş)",
+        "Aciklama": "İkinci secdeden sonra oturulur. Ettehiyyâtü, Allâhümme salli, Allâhümme bârik ve Rabbenâ duaları okunur.",
+        "Dua": "اَلتَّحِيَّاتُ لِلّٰهِ وَالصَّلَوَاتُ وَالطَّيِّبَاتُ",
+        "Okunusu": "Ettehiyyâtü lillâhi ve's-salavâtü ve't-tayyibât..."
+      },
+      {
+        "Baslik": "Selâm",
+        "Aciklama": "Önce sağa sonra sola başınızı çevirerek 'Es-selâmü aleyküm ve rahmetullâh' dersiniz.",
+        "Dua": "اَلسَّلَامُ عَلَيْكُمْ وَرَحْمَةُ اللّٰهِ",
+        "Okunusu": "Es-selâmü aleyküm ve rahmetullâh"
+      }
+    ]
+  },
+  {
+    "Emoji": "☀️",
+    "Baslik": "Öğle Namazı",
+    "RekatBilgisi": "4 İlk Sünnet + 4 Farz + 2 Son Sünnet = 10 Rekât",
+    "Adimlar": [
+      {
+        "Baslik": "İlk Sünnet (4 Rekât)",
+        "Aciklama": "İlk iki rekâtta Fâtiha ve zamm-ı sûre okunur. İkinci rekâtın sonunda oturulup sadece Ettehiyyâtü okunur. Üçüncü rekâtta tekrar kalkılarak Fâtiha ve zamm-ı sûre okunur. Dördüncü rekâtta da aynısı yapılır. Son oturuşta tüm dualar okunup selâm verilir."
+      },
+      {
+        "Baslik": "Farz (4 Rekât)",
+        "Aciklama": "İlk iki rekâtta Fâtiha ve zamm-ı sûre okunur. İkinci rekâtın sonunda oturulup Ettehiyyâtü okunur. Üçüncü ve dördüncü rekâtlarda sadece Fâtiha okunur. Son oturuşta tüm dualar okunup selâm verilir."
+      },
+      {
+        "Baslik": "Son Sünnet (2 Rekât)",
+        "Aciklama": "Sabah namazının sünneti gibi 2 rekât kılınır. Her iki rekâtta da Fâtiha ve zamm-ı sûre okunur."
+      }
+    ]
+  },
+  {
+    "Emoji": "🌤️",
+    "Baslik": "İkindi Namazı",
+    "RekatBilgisi": "4 Sünnet + 4 Farz = 8 Rekât",
+    "Adimlar": [
+      {
+        "Baslik": "Sünnet (4 Rekât)",
+        "Aciklama": "Öğle namazının ilk sünneti gibi kılınır. Her rekâtta Fâtiha ve zamm-ı sûre okunur. İkinci rekâtın sonunda Ettehiyyâtü okunur, üçüncü ve dördüncü rekâtlarda da Fâtiha ve zamm-ı sûre okunur."
+      },
+      {
+        "Baslik": "Farz (4 Rekât)",
+        "Aciklama": "Öğle namazının farzı gibi kılınır. İlk iki rekâtta Fâtiha ve zamm-ı sûre, son iki rekâtta sadece Fâtiha okunur."
+      }
+    ]
+  },
+  {
+    "Emoji": "🌅",
+    "Baslik": "Akşam Namazı",
+    "RekatBilgisi": "3 Farz + 2 Sünnet = 5 Rekât",
+    "Adimlar": [
+      {
+        "Baslik": "Farz (3 Rekât)",
+        "Aciklama": "İlk iki rekâtta Fâtiha ve zamm-ı sûre okunur. İkinci rekâtın sonunda oturulup Ettehiyyâtü okunur. Üçüncü rekâtta ayağa kalkılarak sadece Fâtiha okunur. Son oturuşta tüm dualar okunup selâm verilir."
+      },
+      {
+        "Baslik": "Sünnet (2 Rekât)",
+        "Aciklama": "Sabah namazının sünneti gibi 2 rekât kılınır."
+      }
+    ]
+  },
+  {
+    "Emoji": "🌙",
+    "Baslik": "Yatsı Namazı",
+    "RekatBilgisi": "4 İlk Sünnet + 4 Farz + 2 Son Sünnet + 3 Vitir = 13 Rekât",
+    "Adimlar": [
+      {
+        "Baslik": "İlk Sünnet (4 Rekât)",
+        "Aciklama": "İkindi namazının sünneti gibi kılınır."
+      },
+      {
+        "Baslik": "Farz (4 Rekât)",
+        "Aciklama": "Öğle namazının farzı gibi kılınır."
+      },
+      {
+        "Baslik": "Son Sünnet (2 Rekât)",
+        "Aciklama": "Sabah namazının sünneti gibi 2 rekât kılınır."
+      },
+      {
+        "Baslik": "Vitir Namazı (3 Rekât)",
+        "Aciklama": "Her üç rekâtta da Fâtiha ve zamm-ı sûre okunur. Üçüncü rekâtta zamm-ı sûreden sonra 'Allahü Ekber' diyerek eller kaldırılıp Kunut duaları okunur, sonra rükûya gidilir.",
+        "Dua": "اَللّٰهُمَّ إِنَّا نَسْتَعِينُكَ وَنَسْتَغْفِرُكَ",
+        "Okunusu": "Allâhümme innâ nesteînüke ve nestağfiruke ve nestehdîke..."
+      }
+    ]
+  },
+  {
+    "Emoji": "🕌",
+    "Baslik": "Cuma Namazı",
+    "RekatBilgisi": "4 İlk Sünnet + 2 Farz + 4 Son Sünnet = 10 Rekât",
+    "Adimlar": [
+      {
+        "Baslik": "İlk Sünnet (4 Rekât)",
+        "Aciklama": "Öğle namazının ilk sünneti gibi kılınır. Niyet: 'Niyet ettim Allah rızası için Cuma namazının ilk sünnetini kılmaya.'"
+      },
+      {
+        "Baslik": "Hutbe",
+        "Aciklama": "İmam hutbeye çıkar. Cemaat sessizce hutbeyi dinler. Hutbe okunurken konuşulmaz, namaz kılınmaz."
+      },
+      {
+        "Baslik": "Farz (2 Rekât)",
+        "Aciklama": "İmamla birlikte cemaatle kılınır. Sabah namazının farzı gibi 2 rekâttır. Niyet: 'Niyet ettim Allah rızası için Cuma namazının farzını kılmaya, uydum hazı olan imama.'"
+      },
+      {
+        "Baslik": "Son Sünnet (4 Rekât)",
+        "Aciklama": "Öğle namazının ilk sünneti gibi kılınır. Niyet: 'Niyet ettim Allah rızası için Cuma namazının son sünnetini kılmaya.'"
+      }
+    ]
+  },
+  {
+    "Emoji": "🎉",
+    "Baslik": "Bayram Namazı",
+    "RekatBilgisi": "2 Rekât (Cemaatle kılınır)",
+    "Adimlar": [
+      {
+        "Baslik": "Niyet",
+        "Aciklama": "Niyet ettim Allah rızası için Ramazan (veya Kurban) Bayramı namazını kılmaya, uydum hazır olan imama."
+      },
+      {
+        "Baslik": "İftitah Tekbiri",
+        "Aciklama": "İmamla birlikte 'Allahü Ekber' denir ve eller bağlanır. Sübhaneke okunur."
+      },
+      {
+        "Baslik": "Zevâid Tekbirleri (1. Rekât)",
+        "Aciklama": "İmamla birlikte 3 kez 'Allahü Ekber' denir. İlk ikisinde eller yana salınır, üçüncüde bağlanır. Sonra Fâtiha ve zamm-ı sûre okunur, rükû ve secde yapılır."
+      },
+      {
+        "Baslik": "İkinci Rekât",
+        "Aciklama": "Ayağa kalkılır, besmele, Fâtiha ve zamm-ı sûre okunur."
+      },
+      {
+        "Baslik": "Zevâid Tekbirleri (2. Rekât)",
+        "Aciklama": "Rükûya gitmeden önce imamla birlikte 3 kez 'Allahü Ekber' denir ve eller yana salınır. 4. tekbirde rükûya gidilir."
+      },
+      {
+        "Baslik": "Hutbe",
+        "Aciklama": "Namazdan sonra imam hutbeye çıkar. Bayram hutbesi sünnettir, dinlenmesi faziletlidir."
+      }
+    ]
+  },
+  {
+    "Emoji": "🌙",
+    "Baslik": "Teravih Namazı",
+    "RekatBilgisi": "20 Rekât (Genellikle 2'şer veya 4'er rekât kılınır)",
+    "Adimlar": [
+      {
+        "Baslik": "Genel Bilgi",
+        "Aciklama": "Ramazan ayında yatsı namazının farzı ve son sünnetinden sonra kılınır. Vitir namazından öncedir. 2 rekâtta bir selâm verilerek kılınması sünnettir."
+      },
+      {
+        "Baslik": "Niyet",
+        "Aciklama": "Niyet ettim Allah rızası için teravih namazını kılmaya, uydum hazır olan imama (cemaatle ise)."
+      },
+      {
+        "Baslik": "Kılınışı",
+        "Aciklama": "Sünnet namazlar gibi kılınır. Her 4 rekâtta bir (veya her selâm verişte) Salavat-ı Şerife getirilir.",
+        "Dua": "اللّٰهُمَّ صَلِّ عَلَى سَيِّدِنَا مُحَمَّدٍ",
+        "Okunusu": "Allâhümme salli alâ seyyidinâ Muhammed"
+      }
+    ]
+  },
+  {
+    "Emoji": "⚰️",
+    "Baslik": "Cenaze Namazı",
+    "RekatBilgisi": "4 Tekbirle kılınır (Rükû ve secde yoktur)",
+    "Adimlar": [
+      {
+        "Baslik": "Niyet",
+        "Aciklama": "İmam: 'Allah için namaza, meyyit için duaya, er kişi (veya hatun) niyetine...' Cemaat: 'Uydum hazır olan imama...'"
+      },
+      {
+        "Baslik": "1. Tekbir",
+        "Aciklama": "Allahü Ekber denir, eller bağlanır ve Sübhaneke 've celle senâük' ilavesiyle okunur.",
+        "Dua": "وَجَلَّ ثَنَاؤُكَ",
+        "Okunusu": "Ve celle senâük"
+      },
+      {
+        "Baslik": "2. Tekbir",
+        "Aciklama": "Eller kaldırılmadan 'Allahü Ekber' denir. Salli ve Bârik duaları okunur."
+      },
+      {
+        "Baslik": "3. Tekbir",
+        "Aciklama": "Eller kaldırılmadan 'Allahü Ekber' denir. Cenaze duası okunur (bilmeyenler Fâtiha veya dua niyetiyle 'Kunut' okuyabilir)."
+      },
+      {
+        "Baslik": "4. Tekbir ve Selâm",
+        "Aciklama": "Eller kaldırılmadan 'Allahü Ekber' denir. Önce sağa sonra sola selâm verilir."
+      }
+    ]
+  },
+  {
+    "Emoji": "📿",
+    "Baslik": "Namaz Sonrası Tesbihat",
+    "RekatBilgisi": "Her farz namazdan sonra yapılır",
+    "Adimlar": [
+      {
+        "Baslik": "Sübhânallah",
+        "Aciklama": "33 kez 'Sübhânallah' denir. (Allah'ı tüm eksikliklerden tenzih ederim)",
+        "Dua": "سُبْحَانَ اللّٰهِ",
+        "Okunusu": "Sübhânallah (33 kez)"
+      },
+      {
+        "Baslik": "Elhamdülillah",
+        "Aciklama": "33 kez 'Elhamdülillah' denir. (Hamd Allah'a mahsustur)",
+        "Dua": "اَلْحَمْدُ لِلّٰهِ",
+        "Okunusu": "Elhamdülillâh (33 kez)"
+      },
+      {
+        "Baslik": "Allahü Ekber",
+        "Aciklama": "33 kez 'Allahü Ekber' denir. (Allah en büyüktür)",
+        "Dua": "اللّٰهُ أَكْبَرُ",
+        "Okunusu": "Allâhü Ekber (33 kez)"
+      },
+      {
+        "Baslik": "Kelime-i Tevhid",
+        "Aciklama": "1 kez okunur.",
+        "Dua": "لَا إِلٰهَ إِلَّا اللّٰهُ وَحْدَهُ لَا شَرِيكَ لَهُ لَهُ الْمُلْكُ وَلَهُ الْحَمْدُ وَهُوَ عَلَى كُلِّ شَيْءٍ قَدِيرٌ",
+        "Okunusu": "Lâ ilâhe illallâhü vahdehû lâ şerîke leh, lehü'l-mülkü ve lehü'l-hamdü ve hüve alâ külli şey'in kadîr."
+      }
+    ]
+  }
+]
