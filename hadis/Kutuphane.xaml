@@ -1,0 +1,172 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             x:Class="hadis.Kutuphane"
+             Title="Kütüphane">
+    
+    <Grid>
+        <Image x:Name="BackgroundImage"
+               Aspect="AspectFill"
+               HorizontalOptions="FillAndExpand"
+               VerticalOptions="FillAndExpand">
+            <Image.Source>
+                <AppThemeBinding Light="bg_light.jpg" Dark="ayarlararkaplan.png" />
+            </Image.Source>
+        </Image>
+        
+        <BoxView HorizontalOptions="FillAndExpand"
+                 VerticalOptions="FillAndExpand">
+            <BoxView.Color>
+                <AppThemeBinding Light="White" Dark="Black" />
+            </BoxView.Color>
+            <BoxView.Opacity>
+                <AppThemeBinding Light="0.75" Dark="0.45" />
+            </BoxView.Opacity>
+        </BoxView>
+        
+        <ScrollView VerticalScrollBarVisibility="Never"
+                    HorizontalScrollBarVisibility="Never"
+                    Padding="20">
+            <VerticalStackLayout Spacing="20">
+                
+                <!-- Header -->
+                <Frame x:Name="HeaderFrame"
+                       CornerRadius="20"
+                       Padding="20,25"
+                       HasShadow="True"
+                       BorderColor="{AppThemeBinding Light=#80009688, Dark=#80FFFFFF}"
+                       BackgroundColor="{AppThemeBinding Light=#22FFFFFF, Dark=#33000000}">
+                    <VerticalStackLayout Spacing="5" HorizontalOptions="Center">
+                        <Label Text="📚" 
+                               FontSize="42" 
+                               HorizontalOptions="Center"/>
+                        <Label Text="Kütüphane"
+                               FontSize="32"
+                               FontAttributes="Bold"
+                               HorizontalOptions="Center"
+                               TextColor="{AppThemeBinding Light=#00796B, Dark=#FFFFFF}"/>
+                        <Label Text="İslami Kaynaklar"
+                               FontSize="14"
+                               HorizontalOptions="Center"
+                               TextColor="{AppThemeBinding Light=#757575, Dark=#BDBDBD}"/>
+                    </VerticalStackLayout>
+                </Frame>
+
+                <!-- Arapça Kur'an Card -->
+                <Frame x:Name="ArapcaKuranFrame"
+                       CornerRadius="20"
+                       Padding="25"
+                       HasShadow="True"
+                       BorderColor="{AppThemeBinding Light=#80009688, Dark=#80FFFFFF}"
+                       BackgroundColor="{AppThemeBinding Light=#22FFFFFF, Dark=#33000000}">
+                    <Frame.GestureRecognizers>
+                        <TapGestureRecognizer Tapped="ArapcaKuranButton_Clicked"/>
+                    </Frame.GestureRecognizers>
+                    <Grid ColumnDefinitions="Auto,*,Auto" ColumnSpacing="15">
+                        <Label Grid.Column="0"
+                               Text="📖"
+                               FontSize="48"
+                               VerticalOptions="Center"/>
+                        <VerticalStackLayout Grid.Column="1" Spacing="5" VerticalOptions="Center">
+                            <Label Text="Arapça Kur'an-ı Kerim"
+                                   FontSize="18"
+                                   FontAttributes="Bold"
+                                   TextColor="{AppThemeBinding Light=#00796B, Dark=#FFFFFF}"/>
+                            <Label Text="Kur'an-ı Kerim'i Arapça olarak okuyun"
+                                   FontSize="12"
+                                   TextColor="{AppThemeBinding Light=#757575, Dark=#BDBDBD}"/>
+                            <Label Text="114 Sûre"
+                                   FontSize="11"
+                                   FontAttributes="Bold"
+                                   TextColor="{AppThemeBinding Light=#009688, Dark=#80CBC4}"/>
+                        </VerticalStackLayout>
+                        <Image Grid.Column="2"
+                               Source="gerigit.svg"
+                               Rotation="180"
+                               HeightRequest="24"
+                               WidthRequest="24"
+                               VerticalOptions="Center" />
+                    </Grid>
+                </Frame>
+
+                <!-- İlmihal Card -->
+                <Frame x:Name="IlmihalFrame"
+                       CornerRadius="20"
+                       Padding="25"
+                       HasShadow="True"
+                       BorderColor="{AppThemeBinding Light=#80009688, Dark=#80FFFFFF}"
+                       BackgroundColor="{AppThemeBinding Light=#22FFFFFF, Dark=#33000000}">
+                    <Frame.GestureRecognizers>
+                        <TapGestureRecognizer Tapped="IlmihalButton_Clicked"/>
+                    </Frame.GestureRecognizers>
+                    <Grid ColumnDefinitions="Auto,*,Auto" ColumnSpacing="15">
+                        <Label Grid.Column="0"
+                               Text="📜"
+                               FontSize="48"
+                               VerticalOptions="Center"/>
+                        <VerticalStackLayout Grid.Column="1" Spacing="5" VerticalOptions="Center">
+                            <Label Text="İlmihal"
+                                   FontSize="18"
+                                   FontAttributes="Bold"
+                                   TextColor="{AppThemeBinding Light=#00796B, Dark=#FFFFFF}"/>
+                            <Label Text="Temel İslami bilgiler ve ibadet rehberi"
+                                   FontSize="12"
+                                   TextColor="{AppThemeBinding Light=#757575, Dark=#BDBDBD}"/>
+                            <Label Text="İman, İbadet, Ahlâk"
+                                   FontSize="11"
+                                   FontAttributes="Bold"
+                                   TextColor="{AppThemeBinding Light=#009688, Dark=#80CBC4}"/>
+                        </VerticalStackLayout>
+                        <Image Grid.Column="2"
+                               Source="gerigit.svg"
+                               Rotation="180"
+                               HeightRequest="24"
+                               WidthRequest="24"
+                               VerticalOptions="Center" />
+                    </Grid>
+                </Frame>
+
+                <!-- Namaz Hocası Card -->
+                <Frame x:Name="NamazHocasiFrame"
+                       CornerRadius="20"
+                       Padding="25"
+                       HasShadow="True"
+                       BorderColor="{AppThemeBinding Light=#80009688, Dark=#80FFFFFF}"
+                       BackgroundColor="{AppThemeBinding Light=#22FFFFFF, Dark=#33000000}">
+                    <Frame.GestureRecognizers>
+                        <TapGestureRecognizer Tapped="NamazHocasiButton_Clicked"/>
+                    </Frame.GestureRecognizers>
+                    <Grid ColumnDefinitions="Auto,*,Auto" ColumnSpacing="15">
+                        <Label Grid.Column="0"
+                               Text="🕌"
+                               FontSize="48"
+                               VerticalOptions="Center"/>
+                        <VerticalStackLayout Grid.Column="1" Spacing="5" VerticalOptions="Center">
+                            <Label Text="Namaz Hocası"
+                                   FontSize="18"
+                                   FontAttributes="Bold"
+                                   TextColor="{AppThemeBinding Light=#00796B, Dark=#FFFFFF}"/>
+                            <Label Text="Adım adım namaz kılmayı öğrenin"
+                                   FontSize="12"
+                                   TextColor="{AppThemeBinding Light=#757575, Dark=#BDBDBD}"/>
+                            <Label Text="Farz, Sünnet, Vitir"
+                                   FontSize="11"
+                                   FontAttributes="Bold"
+                                   TextColor="{AppThemeBinding Light=#009688, Dark=#80CBC4}"/>
+                        </VerticalStackLayout>
+                        <Image Grid.Column="2"
+                               Source="gerigit.svg"
+                               Rotation="180"
+                               HeightRequest="24"
+                               WidthRequest="24"
+                               VerticalOptions="Center" />
+                    </Grid>
+                </Frame>
+
+                <!-- Bottom spacing -->
+                <BoxView HeightRequest="40" Color="Transparent" />
+
+            </VerticalStackLayout>
+        </ScrollView>
+    </Grid>
+</ContentPage>

@@ -45,7 +45,7 @@
                 </Frame>
 
                 <!-- Grid for main settings cards -->
-                <Grid RowDefinitions="Auto,Auto,Auto" 
+                <Grid RowDefinitions="Auto,Auto,Auto,Auto" 
                       ColumnDefinitions="*,*"
                       RowSpacing="15"
                       ColumnSpacing="15">
@@ -210,6 +210,73 @@
                                    HorizontalTextAlignment="Center"
                                    TextColor="{AppThemeBinding Light=#757575, Dark=#BDBDBD}"/>
                         </VerticalStackLayout>
+                    </Frame>
+
+                    <!-- Hicri Takvim Card -->
+                    <Frame Grid.Row="2" Grid.Column="1"
+                           x:Name="HicriTakvimFrame"
+                           CornerRadius="20"
+                           Padding="20"
+                           HasShadow="True"
+                           BorderColor="{AppThemeBinding Light=#80009688, Dark=#80FFFFFF}"
+                           BackgroundColor="{AppThemeBinding Light=#22FFFFFF, Dark=#33000000}">
+                        <Frame.GestureRecognizers>
+                            <TapGestureRecognizer Tapped="HicriTakvimButton_Clicked"/>
+                        </Frame.GestureRecognizers>
+                        <VerticalStackLayout Spacing="10" HorizontalOptions="Center">
+                            <Label Text="📅"
+                                   FontSize="48"
+                                   HorizontalOptions="Center"/>
+                            <Label x:Name="HicriTakvimTitle"
+                                   Text="Hicri Takvim"
+                                   FontSize="16"
+                                   FontAttributes="Bold"
+                                   HorizontalOptions="Center"
+                                   HorizontalTextAlignment="Center"
+                                   TextColor="{AppThemeBinding Light=#00796B, Dark=#FFFFFF}"/>
+                            <Label x:Name="HicriTakvimSubtitle"
+                                   Text="İslami Takvim"
+                                   FontSize="12"
+                                   HorizontalOptions="Center"
+                                   HorizontalTextAlignment="Center"
+                                   TextColor="{AppThemeBinding Light=#757575, Dark=#BDBDBD}"/>
+                        </VerticalStackLayout>
+                    </Frame>
+                    
+                    <!-- Kütüphane Card -->
+                    <Frame Grid.Row="3" Grid.Column="0" Grid.ColumnSpan="2"
+                           x:Name="KutuphaneFrame"
+                           CornerRadius="20"
+                           Padding="20"
+                           HasShadow="True"
+                           BorderColor="{AppThemeBinding Light=#80009688, Dark=#80FFFFFF}"
+                           BackgroundColor="{AppThemeBinding Light=#22FFFFFF, Dark=#33000000}">
+                        <Frame.GestureRecognizers>
+                            <TapGestureRecognizer Tapped="KutuphaneButton_Clicked"/>
+                        </Frame.GestureRecognizers>
+                        <Grid ColumnDefinitions="Auto,*,Auto" ColumnSpacing="15">
+                            <Label Grid.Column="0"
+                                   Text="📚"
+                                   FontSize="48"
+                                   VerticalOptions="Center"/>
+                            <VerticalStackLayout Grid.Column="1" Spacing="5" VerticalOptions="Center">
+                                <Label x:Name="KutuphaneTitle"
+                                       Text="Kütüphane"
+                                       FontSize="18"
+                                       FontAttributes="Bold"
+                                       TextColor="{AppThemeBinding Light=#00796B, Dark=#FFFFFF}"/>
+                                <Label x:Name="KutuphaneSubtitle"
+                                       Text="Kur'an, İlmihal, Namaz Hocası"
+                                       FontSize="12"
+                                       TextColor="{AppThemeBinding Light=#757575, Dark=#BDBDBD}"/>
+                            </VerticalStackLayout>
+                            <Image Grid.Column="2"
+                                   Source="gerigit.svg"
+                                   Rotation="180"
+                                   HeightRequest="24"
+                                   WidthRequest="24"
+                                   VerticalOptions="Center" />
+                        </Grid>
                     </Frame>
                     
                 </Grid>

@@ -65,6 +65,16 @@ namespace hadis
             await Navigation.PushAsync(new YakindakiCamiler());
         }
 
+        private async void HicriTakvimButton_Clicked(object sender, TappedEventArgs e)
+        {
+            await Navigation.PushAsync(new HicriTakvim());
+        }
+
+        private async void KutuphaneButton_Clicked(object sender, TappedEventArgs e)
+        {
+            await Navigation.PushAsync(new Kutuphane());
+        }
+
         protected override bool OnBackButtonPressed()
         {
             // Geri tuşuna basıldığında Ana Sayfaya (Vakitler Sekmesine) git

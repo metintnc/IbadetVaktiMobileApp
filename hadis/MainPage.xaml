@@ -131,6 +131,11 @@
                                 <TapGestureRecognizer Tapped="Konum_Tapped"/>
                             </Label.GestureRecognizers>
                         </Label>
+                        <Label Style="{StaticResource AnaLabel}" x:Name="HicriTarihLabel" Text="" HorizontalOptions="Center" FontSize="13" Margin="0,5,0,0">
+                            <Label.Shadow>
+                                <Shadow Brush="Black" Offset="1,1" Radius="1" Opacity="0.4" />
+                            </Label.Shadow>
+                        </Label>
                     </StackLayout>
                 </Frame>
             </StackLayout>

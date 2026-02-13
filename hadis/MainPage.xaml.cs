@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Threading.Tasks;
 using System.Text.Json;
 using Microsoft.Maui.Devices.Sensors;
@@ -86,6 +87,9 @@ namespace hadis
 
             SetTimeBasedBackground();
             
+            // Hicri tarihi göster
+            HicriTarihGoster();
+
             // Sayfa her gösterildiğinde gerekli verileri güncelle
             await Task.WhenAll(
                 KonumBilgisiniGoster(),
@@ -773,6 +777,33 @@ namespace hadis
             {
                 Console.WriteLine($"❌ Konum Bilgisi Hatası: {ex.Message}");
                 Konum.Text = "Konum Hatası";
+            }
+        }
+
+        private void HicriTarihGoster()
+        {
+            try
+            {
+                var hicriTakvim = new UmAlQuraCalendar();
+                var bugun = DateTime.Now;
+
+                int hicriGun = hicriTakvim.GetDayOfMonth(bugun);
+                int hicriAy = hicriTakvim.GetMonth(bugun);
+                int hicriYil = hicriTakvim.GetYear(bugun);
+
+                string[] hicriAylar = {
+                    "Muharrem", "Safer", "Rebiülevvel", "Rebiülahir",
+                    "Cemaziyelevvel", "Cemaziyelahir", "Recep", "Şaban",
+                    "Ramazan", "Şevval", "Zilkade", "Zilhicce"
+                };
+
+                string ayAdi = hicriAylar[hicriAy - 1];
+                HicriTarihLabel.Text = $"🌙 {hicriGun} {ayAdi} {hicriYil}";
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"❌ Hicri tarih hatası: {ex.Message}");
+                HicriTarihLabel.Text = "";
             }
         }
 

@@ -1,0 +1,140 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             x:Class="hadis.HicriTakvim"
+             Title="Hicri Takvim"
+             BackgroundColor="{AppThemeBinding Light=#F5F5F5, Dark=#121212}">
+
+    <ScrollView VerticalScrollBarVisibility="Never" Padding="16">
+        <VerticalStackLayout Spacing="15">
+
+            <!-- Header -->
+            <Frame CornerRadius="20"
+                   Padding="20,15"
+                   HasShadow="True"
+                   BorderColor="{AppThemeBinding Light=#80009688, Dark=#80FFFFFF}"
+                   BackgroundColor="{AppThemeBinding Light=#22FFFFFF, Dark=#33000000}">
+                <Label Text="🌙 Hicri Takvim"
+                       FontSize="28"
+                       FontAttributes="Bold"
+                       HorizontalOptions="Center"
+                       TextColor="{AppThemeBinding Light=#00796B, Dark=#FFFFFF}"/>
+            </Frame>
+
+            <!-- Bugünün Tarihi -->
+            <Frame CornerRadius="15"
+                   Padding="15"
+                   HasShadow="True"
+                   BorderColor="{AppThemeBinding Light=#E0E0E0, Dark=#333333}"
+                   BackgroundColor="{AppThemeBinding Light=White, Dark=#1E1E1E}">
+                <VerticalStackLayout Spacing="5" HorizontalOptions="Center">
+                    <Label x:Name="MiladiTarihLabel"
+                           Text=""
+                           FontSize="14"
+                           HorizontalOptions="Center"
+                           TextColor="{AppThemeBinding Light=#757575, Dark=#BDBDBD}"/>
+                    <Label x:Name="HicriTarihLabel"
+                           Text=""
+                           FontSize="20"
+                           FontAttributes="Bold"
+                           HorizontalOptions="Center"
+                           TextColor="{AppThemeBinding Light=#00796B, Dark=#80CBC4}"/>
+                </VerticalStackLayout>
+            </Frame>
+
+            <!-- Ay Navigasyonu -->
+            <Frame CornerRadius="15"
+                   Padding="10"
+                   HasShadow="True"
+                   BorderColor="{AppThemeBinding Light=#E0E0E0, Dark=#333333}"
+                   BackgroundColor="{AppThemeBinding Light=White, Dark=#1E1E1E}">
+                <Grid ColumnDefinitions="Auto,*,Auto">
+                    <Button x:Name="OncekiAyBtn"
+                            Text="◀"
+                            Grid.Column="0"
+                            Clicked="OncekiAy_Clicked"
+                            BackgroundColor="Transparent"
+                            TextColor="{AppThemeBinding Light=#00796B, Dark=#80CBC4}"
+                            FontSize="24"
+                            WidthRequest="50"/>
+                    <Label x:Name="AyBaslikLabel"
+                           Text=""
+                           Grid.Column="1"
+                           FontSize="18"
+                           FontAttributes="Bold"
+                           HorizontalOptions="Center"
+                           VerticalOptions="Center"
+                           TextColor="{AppThemeBinding Light=#00796B, Dark=#FFFFFF}"/>
+                    <Button x:Name="SonrakiAyBtn"
+                            Text="▶"
+                            Grid.Column="2"
+                            Clicked="SonrakiAy_Clicked"
+                            BackgroundColor="Transparent"
+                            TextColor="{AppThemeBinding Light=#00796B, Dark=#80CBC4}"
+                            FontSize="24"
+                            WidthRequest="50"/>
+                </Grid>
+            </Frame>
+
+            <!-- Takvim Günleri -->
+            <Frame CornerRadius="15"
+                   Padding="10"
+                   HasShadow="True"
+                   BorderColor="{AppThemeBinding Light=#E0E0E0, Dark=#333333}"
+                   BackgroundColor="{AppThemeBinding Light=White, Dark=#1E1E1E}">
+                <VerticalStackLayout Spacing="5">
+                    <!-- Gün Başlıkları -->
+                    <Grid x:Name="GunBasliklariGrid"
+                          ColumnDefinitions="*,*,*,*,*,*,*"
+                          Padding="0,5">
+                        <Label Text="Pzt" Grid.Column="0" HorizontalOptions="Center" FontSize="12" FontAttributes="Bold"
+                               TextColor="{AppThemeBinding Light=#757575, Dark=#BDBDBD}"/>
+                        <Label Text="Sal" Grid.Column="1" HorizontalOptions="Center" FontSize="12" FontAttributes="Bold"
+                               TextColor="{AppThemeBinding Light=#757575, Dark=#BDBDBD}"/>
+                        <Label Text="Çar" Grid.Column="2" HorizontalOptions="Center" FontSize="12" FontAttributes="Bold"
+                               TextColor="{AppThemeBinding Light=#757575, Dark=#BDBDBD}"/>
+                        <Label Text="Per" Grid.Column="3" HorizontalOptions="Center" FontSize="12" FontAttributes="Bold"
+                               TextColor="{AppThemeBinding Light=#757575, Dark=#BDBDBD}"/>
+                        <Label Text="Cum" Grid.Column="4" HorizontalOptions="Center" FontSize="12" FontAttributes="Bold"
+                               TextColor="{AppThemeBinding Light=#00796B, Dark=#80CBC4}"/>
+                        <Label Text="Cmt" Grid.Column="5" HorizontalOptions="Center" FontSize="12" FontAttributes="Bold"
+                               TextColor="{AppThemeBinding Light=#757575, Dark=#BDBDBD}"/>
+                        <Label Text="Paz" Grid.Column="6" HorizontalOptions="Center" FontSize="12" FontAttributes="Bold"
+                               TextColor="{AppThemeBinding Light=#757575, Dark=#BDBDBD}"/>
+                    </Grid>
+
+                    <!-- Takvim Grid'i (Programatik olarak doldurulacak) -->
+                    <Grid x:Name="TakvimGrid"
+                          ColumnDefinitions="*,*,*,*,*,*,*"
+                          RowSpacing="2"
+                          ColumnSpacing="2"/>
+                </VerticalStackLayout>
+            </Frame>
+
+            <!-- Önemli Günler -->
+            <Frame CornerRadius="15"
+                   Padding="15"
+                   HasShadow="True"
+                   BorderColor="{AppThemeBinding Light=#E0E0E0, Dark=#333333}"
+                   BackgroundColor="{AppThemeBinding Light=White, Dark=#1E1E1E}">
+                <VerticalStackLayout Spacing="10">
+                    <Label Text="📌 Bu Aydaki Önemli Günler"
+                           FontSize="18"
+                           FontAttributes="Bold"
+                           TextColor="{AppThemeBinding Light=#00796B, Dark=#FFFFFF}"/>
+                    <VerticalStackLayout x:Name="OnemliGunlerStack" Spacing="8">
+                        <Label x:Name="OnemliGunYokLabel"
+                               Text="Bu ayda önemli bir gün bulunmamaktadır."
+                               FontSize="14"
+                               FontAttributes="Italic"
+                               TextColor="{AppThemeBinding Light=#9E9E9E, Dark=#757575}"/>
+                    </VerticalStackLayout>
+                </VerticalStackLayout>
+            </Frame>
+
+            <!-- Spacing at bottom -->
+            <BoxView HeightRequest="20" Color="Transparent"/>
+
+        </VerticalStackLayout>
+    </ScrollView>
+</ContentPage>

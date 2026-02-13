@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             x:Class="hadis.KuranOkumaPage"
+             Title="Kur'an-ı Kerim"
+             BackgroundColor="Black">
+
+    <Grid>
+        <CarouselView x:Name="PageCarousel"
+                      Loop="False"
+                      PositionChanged="OnPositionChanged">
+            <CarouselView.ItemTemplate>
+                <DataTemplate>
+                    <Image Aspect="AspectFit"
+                           Source="{Binding .}"
+                           BackgroundColor="White">
+                        <Image.GestureRecognizers>
+                            <TapGestureRecognizer Tapped="OnPageTapped"/>
+                        </Image.GestureRecognizers>
+                    </Image>
+                </DataTemplate>
+            </CarouselView.ItemTemplate>
+        </CarouselView>
+
+        <!-- Overlay Controls (Hidden by default, shown on tap) -->
+        <Grid x:Name="OverlayGrid"
+              RowDefinitions="Auto,*,Auto"
+              IsVisible="False"
+              InputTransparent="True"
+              CascadeInputTransparent="False">
+            
+            <BoxView Grid.Row="0" Color="Black" Opacity="0.7" HeightRequest="80" VerticalOptions="Start"/>
+            <BoxView Grid.Row="2" Color="Black" Opacity="0.7" HeightRequest="60" VerticalOptions="End"/>
+
+            <Label x:Name="PageNumberLabel"
+                   Grid.Row="2"
+                   TextColor="White"
+                   FontSize="18"
+                   HorizontalOptions="Center"
+                   VerticalOptions="Center"
+                   Text="Sayfa 1"/>
+            
+            <Grid Grid.Row="0" ColumnDefinitions="Auto,*,Auto" Padding="15,0">
+                <ImageButton Grid.Column="0"
+                             Source="gerigit.svg"
+                             BackgroundColor="Transparent"
+                             Clicked="OnBackClicked"
+                             HeightRequest="40"
+                             WidthRequest="40"
+                             InputTransparent="False"/>
+
+                <VerticalStackLayout Grid.Column="1" 
+                                     VerticalOptions="Center" 
+                                     HorizontalOptions="Center"
+                                     Spacing="2">
+                    <Label x:Name="SurahNameLabel"
+                           TextColor="White"
+                           FontSize="18"
+                           FontAttributes="Bold"
+                           HorizontalOptions="Center"/>
+                    <Label x:Name="JuzLabel"
+                           TextColor="#DDDDDD"
+                           FontSize="14"
+                           HorizontalOptions="Center"/>
+                </VerticalStackLayout>
+            </Grid>
+            
+        </Grid>
+    </Grid>
+</ContentPage>
