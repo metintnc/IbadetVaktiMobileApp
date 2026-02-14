@@ -12,10 +12,17 @@ namespace hadis
             InitializeComponent();
             InitializePages();
             
+            // If starting from default (1), try to load last saved page
+            int targetPage = startPage;
+            if (startPage == 1 && Preferences.ContainsKey("LastReadPage"))
+            {
+                targetPage = Preferences.Get("LastReadPage", 1);
+            }
+
             // Set initial position (0-indexed)
-            PageCarousel.Position = startPage - 1;
-            UpdatePageLabel(startPage);
-            UpdateTitle(startPage);
+            PageCarousel.Position = targetPage - 1;
+            UpdatePageLabel(targetPage);
+            UpdateTitle(targetPage);
         }
 
         private void InitializePages()
@@ -36,6 +43,9 @@ namespace hadis
             int pageNumber = e.CurrentPosition + 1;
             UpdatePageLabel(pageNumber);
             UpdateTitle(pageNumber);
+            
+            // Save progress
+            Preferences.Set("LastReadPage", pageNumber);
         }
 
         private void UpdatePageLabel(int pageNumber)

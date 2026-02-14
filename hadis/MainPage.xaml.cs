@@ -138,6 +138,8 @@ namespace hadis
                 // 1. Önce Konum Durumunu Kontrol Et
                 string ilce = "";
                 string sehir = "";
+                double? latitude = null;
+                double? longitude = null;
                 bool otomatikKonum = Preferences.Default.Get("OtomatikKonum", true);
 
                 bool manuelKonumVar = !otomatikKonum && !string.IsNullOrEmpty(Preferences.Default.Get("ManuelSehir", ""));
@@ -163,6 +165,23 @@ namespace hadis
                 {
                     sehir = Preferences.Default.Get("ManuelSehir", "");
                     ilce = Preferences.Default.Get("ManuelIlce", "");
+                    
+                    // Manuel koordinatları al (Double olarak saklanıyor, ama eski string kaydı varsa diye önlem)
+                    try
+                    {
+                        latitude = Preferences.Default.Get("ManuelLatitude", 0.0);
+                        longitude = Preferences.Default.Get("ManuelLongitude", 0.0);
+                    }
+                    catch
+                    {
+                        // Double okuma hatası olursa String olarak dene
+                        if (double.TryParse(Preferences.Default.Get("ManuelLatitude", "0"), System.Globalization.NumberStyles.Any, System.Globalization.CultureInfo.InvariantCulture, out double l1) &&
+                            double.TryParse(Preferences.Default.Get("ManuelLongitude", "0"), System.Globalization.NumberStyles.Any, System.Globalization.CultureInfo.InvariantCulture, out double l2))
+                        {
+                            latitude = l1;
+                            longitude = l2;
+                        }
+                    }
                 }
                 else
                 {
@@ -175,6 +194,24 @@ namespace hadis
 
                     if (konum != null)
                     {
+                        // Widget ve diger servisler icin son konumu kaydet (Widget icin ozel sharedName)
+                        var sharedName = $"{AppInfo.PackageName}.xamarinessentials";
+                        Preferences.Set("ManuelLatitude", konum.Latitude.ToString(System.Globalization.CultureInfo.InvariantCulture), sharedName);
+                        Preferences.Set("ManuelLongitude", konum.Longitude.ToString(System.Globalization.CultureInfo.InvariantCulture), sharedName);
+                        
+                        // Standart Preferences da guncelle (Uygulama ici kullanim icin - Double olarak kaydet)
+                        Preferences.Default.Set("ManuelLatitude", konum.Latitude);
+                        Preferences.Default.Set("ManuelLongitude", konum.Longitude);
+                        
+                        // Bellekteki değerleri de set et
+                        latitude = konum.Latitude;
+                        longitude = konum.Longitude;
+
+                        // Widget'ı güncellemeye zorla
+#if ANDROID
+                        UpdateAndroidWidget();
+#endif
+
                         try
                         {
                             var placemarks = await Geocoding.Default.GetPlacemarksAsync(konum.Latitude, konum.Longitude);
@@ -187,8 +224,7 @@ namespace hadis
                         }
                         catch
                         {
-                             // Geocoding hatası, koordinat var ama isim yok, yine de devam edilebilir ama bizim API isim istiyor.
-                             // Şimdilik boş geçelim, aşağıda yakalanır.
+                             // Geocoding hatası
                         }
                     }
                     else
@@ -230,8 +266,8 @@ namespace hadis
                      // Veri varsa, internet olmasa da devam edebiliriz (cache varsa)
                 }
 
-                // Yeni Servisi Kullan
-                var vakitler = await PrayerTimesService.GetPrayerTimesForDateAsync(DateTime.Now, ilce, sehir);
+                // Yeni Servisi Kullan (Enlem/Boylam ile)
+                var vakitler = await PrayerTimesService.GetPrayerTimesForDateAsync(DateTime.Now, ilce, sehir, latitude, longitude);
 
                 if (vakitler != null)
                 {
@@ -812,5 +848,29 @@ namespace hadis
             await Navigation.PushAsync(new SehirSecim());
         }
 
+#if ANDROID
+        private void UpdateAndroidWidget()
+        {
+            try
+            {
+                var context = Android.App.Application.Context;
+                var appWidgetManager = Android.Appwidget.AppWidgetManager.GetInstance(context);
+                var componentName = new Android.Content.ComponentName(context, Java.Lang.Class.FromType(typeof(hadis.Platforms.Android.ClockWeatherWidget)));
+                var appWidgetIds = appWidgetManager?.GetAppWidgetIds(componentName);
+
+                if (appWidgetIds != null && appWidgetIds.Length > 0)
+                {
+                    var intent = new Android.Content.Intent(context, typeof(hadis.Platforms.Android.ClockWeatherWidget));
+                    intent.SetAction(Android.Appwidget.AppWidgetManager.ActionAppwidgetUpdate);
+                    intent.PutExtra(Android.Appwidget.AppWidgetManager.ExtraAppwidgetIds, appWidgetIds);
+                    context.SendBroadcast(intent);
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Widget update trigger error: {ex.Message}");
+            }
+        }
+#endif
     }
 }

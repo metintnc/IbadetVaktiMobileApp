@@ -375,16 +375,53 @@ namespace hadis
 
         private async Task SelectCityFinal(City city, string district, double lat, double lon, bool isAuto)
         {
+            // Standart Preferences Kaydi
             Preferences.Default.Set("ManuelSehir", city.Name);
             Preferences.Default.Set("ManuelIlce", district);
             Preferences.Default.Set("ManuelLatitude", lat);
             Preferences.Default.Set("ManuelLongitude", lon);
             Preferences.Default.Set("OtomatikKonum", isAuto);
             
+            // Widget icin ozel kayit (SharedName ile)
+            var sharedName = $"{AppInfo.PackageName}.xamarinessentials";
+            Preferences.Set("ManuelLatitude", lat.ToString(System.Globalization.CultureInfo.InvariantCulture), sharedName);
+            Preferences.Set("ManuelLongitude", lon.ToString(System.Globalization.CultureInfo.InvariantCulture), sharedName);
+            Preferences.Set("OtomatikKonum", isAuto, sharedName);
+
             // Konum değiştiği için cache'i temizle
             PrayerTimesService.ClearCache();
 
+            // Widget'i guncelle
+#if ANDROID
+            UpdateAndroidWidget();
+#endif
+
             await Navigation.PopAsync();
         }
+
+#if ANDROID
+        private void UpdateAndroidWidget()
+        {
+            try
+            {
+                var context = Android.App.Application.Context;
+                var appWidgetManager = Android.Appwidget.AppWidgetManager.GetInstance(context);
+                var componentName = new Android.Content.ComponentName(context, Java.Lang.Class.FromType(typeof(hadis.Platforms.Android.ClockWeatherWidget)));
+                var appWidgetIds = appWidgetManager?.GetAppWidgetIds(componentName);
+
+                if (appWidgetIds != null && appWidgetIds.Length > 0)
+                {
+                    var intent = new Android.Content.Intent(context, typeof(hadis.Platforms.Android.ClockWeatherWidget));
+                    intent.SetAction(Android.Appwidget.AppWidgetManager.ActionAppwidgetUpdate);
+                    intent.PutExtra(Android.Appwidget.AppWidgetManager.ExtraAppwidgetIds, appWidgetIds);
+                    context.SendBroadcast(intent);
+                }
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine($"Widget update trigger error: {ex.Message}");
+            }
+        }
+#endif
     }
 }

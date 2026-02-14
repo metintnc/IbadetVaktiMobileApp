@@ -16,12 +16,11 @@
         android:orientation="vertical"
         android:gravity="start">
 
-        <TextClock
+        <TextView
             android:id="@+id/widget_time"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:format12Hour="HH:mm"
-            android:format24Hour="HH:mm"
+            android:text="21:31"
             android:textSize="48sp"
             android:textColor="#FFFFFF"
             android:fontFamily="sans-serif-light"
@@ -30,12 +29,11 @@
             android:shadowDy="2"
             android:shadowRadius="4"/>
 
-        <TextClock
+        <TextView
             android:id="@+id/widget_date"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:format12Hour="dd MMMM, EEE"
-            android:format24Hour="dd MMMM, EEE"
+            android:text="13 Ocak, Sal"
             android:textSize="14sp"
             android:textColor="#FFFFFF"
             android:layout_marginTop="2dp"
@@ -65,10 +63,11 @@
             android:shadowDy="1"
             android:shadowRadius="3"/>
 
-        <Chronometer
+        <TextView
             android:id="@+id/widget_kalan_sure"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:text="3s 45d"
             android:textSize="32sp"
             android:textColor="#FFFFFF"
             android:fontFamily="sans-serif-medium"

@@ -1,6 +1,3 @@
-using System;
-using System.Collections.Generic;
-using System.Threading.Tasks;
 using Android.App;
 using Android.Appwidget;
 using Android.Content;
@@ -8,7 +5,6 @@ using Android.Widget;
 using System.Globalization;
 using System.Text.Json;
 using Android.Locations;
-using System.Net.Http;
 
 namespace hadis.Platforms.Android
 {
@@ -22,6 +18,8 @@ namespace hadis.Platforms.Android
     [MetaData("android.appwidget.provider", Resource = "@xml/clock_weather_widget_info")]
     public class ClockWeatherWidget : AppWidgetProvider
     {
+        private const string ActionAutoUpdate = "AUTO_UPDATE_WIDGET";
+
         public override void OnUpdate(Context? context, AppWidgetManager? appWidgetManager, int[]? appWidgetIds)
         {
             if (context == null || appWidgetManager == null || appWidgetIds == null)
@@ -31,6 +29,8 @@ namespace hadis.Platforms.Android
             {
                 _ = UpdateAppWidgetAsync(context, appWidgetManager, appWidgetId);
             }
+
+            SetupAutoUpdate(context);
         }
 
         public override void OnReceive(Context? context, Intent? intent)
@@ -42,9 +42,10 @@ namespace hadis.Platforms.Android
 
             var action = intent.Action;
             
-            // Only update on standard widget events
-            if (action == AppWidgetManager.ActionAppwidgetUpdate ||
-                action == Intent.ActionTimezoneChanged) 
+            if (action == Intent.ActionTimeChanged || 
+                action == Intent.ActionTimeTick || 
+                action == Intent.ActionTimezoneChanged ||
+                action == ActionAutoUpdate)
             {
                 var appWidgetManager = AppWidgetManager.GetInstance(context);
                 var componentName = new ComponentName(context, Java.Lang.Class.FromType(typeof(ClockWeatherWidget)));
@@ -69,42 +70,29 @@ namespace hadis.Platforms.Android
 
                 var views = new RemoteViews(packageName, layoutId);
 
-                // Time/Date is handled by TextClock automatically!
-                // We only update Prayer Times
+                // Saat ve tarih
+                var now = DateTime.Now;
+                var timeText = now.ToString("HH:mm");
+                var dateText = now.ToString("dd MMMM, ddd", new CultureInfo("tr-TR"));
 
+                var timeId = context.Resources?.GetIdentifier("widget_time", "id", packageName) ?? 0;
+                var dateId = context.Resources?.GetIdentifier("widget_date", "id", packageName) ?? 0;
                 var namazAdiId = context.Resources?.GetIdentifier("widget_namaz_adi", "id", packageName) ?? 0;
                 var kalanSureId = context.Resources?.GetIdentifier("widget_kalan_sure", "id", packageName) ?? 0;
                 var containerId = context.Resources?.GetIdentifier("widget_container", "id", packageName) ?? 0;
 
+                if (timeId != 0)
+                    views.SetTextViewText(timeId, timeText);
+                if (dateId != 0)
+                    views.SetTextViewText(dateId, dateText);
+
                 // Namaz vakti bilgisini al
-                var (namazAdi, kalanSureSpan) = await GetNextPrayerTimeAsync(context);
+                var (namazAdi, kalanSure) = await GetNextPrayerTimeAsync(context);
                 
                 if (namazAdiId != 0)
                     views.SetTextViewText(namazAdiId, namazAdi);
-                
                 if (kalanSureId != 0)
-                {
-                    // Chronometer'i ayarla
-                    long remainingMillis = (long)kalanSureSpan.TotalMilliseconds;
-                    // Eğer süre pozitifse (gelecekteyse)
-                    if (remainingMillis > 0)
-                    {
-                        var elapsedRealtime = global::Android.OS.SystemClock.ElapsedRealtime();
-                        var baseTime = elapsedRealtime + remainingMillis;
-                        views.SetChronometer(kalanSureId, baseTime, null, true);
-                        
-                        // API 24+ için countdown özelliği
-                        if (global::Android.OS.Build.VERSION.SdkInt >= global::Android.OS.BuildVersionCodes.N)
-                        {
-                            views.SetChronometerCountDown(kalanSureId, true);
-                        }
-                    }
-                    else
-                    {
-                        // Negatif veya 0 ise "--" göster (fallback olarak TextView olmasa da Chronometer 00:00 gösterebilir)
-                        views.SetTextViewText(kalanSureId, "--");
-                    }
-                }
+                    views.SetTextViewText(kalanSureId, kalanSure);
 
                 // Tiklama olayi
                 var intent = new Intent(context, typeof(MainActivity));
@@ -122,7 +110,7 @@ namespace hadis.Platforms.Android
             }
         }
 
-        private static async Task<(string namazAdi, TimeSpan kalanSure)> GetNextPrayerTimeAsync(Context context)
+        private static async Task<(string namazAdi, string kalanSure)> GetNextPrayerTimeAsync(Context context)
         {
             try
             {
@@ -130,111 +118,79 @@ namespace hadis.Platforms.Android
                 var (latitude, longitude) = await GetLocationAsync(context);
                 
                 if (latitude == 0 && longitude == 0)
-                    return ("Konum Yok", TimeSpan.Zero);
+                    return ("Konum Yok", "--");
 
-                // 1. Once Uygulama Cache'ine bak (Ayni veriyi kullanmak icin)
-                var cachedVakitler = await TryLoadFromAppCache(context);
-                if (cachedVakitler != null)
-                {
-                    return FindNextPrayer(cachedVakitler);
-                }
-
-                // 2. Cache yoksa API'den namaz vakitlerini cek
+                // API'den namaz vakitlerini cek
                 using var httpClient = new HttpClient();
                 httpClient.Timeout = TimeSpan.FromSeconds(5);
                 
-                string url = $"https://api.aladhan.com/v1/timings?latitude={latitude.ToString(System.Globalization.CultureInfo.InvariantCulture)}&longitude={longitude.ToString(System.Globalization.CultureInfo.InvariantCulture)}&method=13";
+                string url = $"https://api.aladhan.com/v1/timings?latitude={latitude}&longitude={longitude}&method=13";
                 var response = await httpClient.GetAsync(url);
                 
                 if (!response.IsSuccessStatusCode)
-                    return ("API Hatasi", TimeSpan.Zero);
+                    return ("API Hatasi", "--");
 
                 var content = await response.Content.ReadAsStringAsync();
                 var jsonDoc = JsonDocument.Parse(content);
                 var timings = jsonDoc.RootElement.GetProperty("data").GetProperty("timings");
 
-                // Namaz vakitlerini al
+                // Namaz vakitlerini al - MainPage ile ayni key'leri kullan
                 var namazVakitleri = new Dictionary<string, DateTime>
                 {
-                    { "Imsak", ParsePrayerTime(timings.GetProperty("Fajr").GetString()) },
-                    { "Gunes", ParsePrayerTime(timings.GetProperty("Sunrise").GetString()) },
+                    { "?msak", ParsePrayerTime(timings.GetProperty("Fajr").GetString()) },
+                    { "gunes", ParsePrayerTime(timings.GetProperty("Sunrise").GetString()) },
                     { "Ogle", ParsePrayerTime(timings.GetProperty("Dhuhr").GetString()) },
-                    { "Ikindi", ParsePrayerTime(timings.GetProperty("Asr").GetString()) },
+                    { "?kindi", ParsePrayerTime(timings.GetProperty("Asr").GetString()) },
                     { "Aksam", ParsePrayerTime(timings.GetProperty("Maghrib").GetString()) },
                     { "Yatsi", ParsePrayerTime(timings.GetProperty("Isha").GetString()) }
                 };
 
-                return FindNextPrayer(namazVakitleri);
-            }
-            catch (Exception ex)
-            {
-                System.Diagnostics.Debug.WriteLine($"Prayer time error: {ex.Message}");
-                return ("Hata", TimeSpan.Zero);
-            }
-        }
-
-        private static (string namazAdi, TimeSpan kalanSure) FindNextPrayer(Dictionary<string, DateTime> namazVakitleri)
-        {
-             var now = DateTime.Now;
+                // Sonraki namazi bul - MainPage'deki mantikla ayni
+                var now = DateTime.Now;
                 
-             if (namazVakitleri["Imsak"] > now) return ("Imsak", namazVakitleri["Imsak"] - now);
-             else if (namazVakitleri["Gunes"] > now) return ("Gunes", namazVakitleri["Gunes"] - now);
-             else if (namazVakitleri["Ogle"] > now) return ("Ogle", namazVakitleri["Ogle"] - now);
-             else if (namazVakitleri["Ikindi"] > now) return ("Ikindi", namazVakitleri["Ikindi"] - now);
-             else if (namazVakitleri["Aksam"] > now) return ("Aksam", namazVakitleri["Aksam"] - now);
-             else if (namazVakitleri["Yatsi"] > now) return ("Yatsi", namazVakitleri["Yatsi"] - now);
-             else
-             {
-                 var yarinImsak = namazVakitleri["Imsak"].AddDays(1);
-                 return ("Imsak", yarinImsak - now);
-             }
-        }
-
-        // Cache dosyasini okumaya calis (Uygulama ile ayni veriyi kullanmak icin)
-        private static async Task<Dictionary<string, DateTime>> TryLoadFromAppCache(Context context)
-        {
-            try
-            {
-                // FileSystem.AppDataDirectory karsiligi Context.FilesDir
-                var cachePath = System.IO.Path.Combine(context.FilesDir.AbsolutePath, "prayer_times_cache_v2.json");
-                
-                if (System.IO.File.Exists(cachePath))
+                if (namazVakitleri["?msak"] > now)
                 {
-                    var json = await System.IO.File.ReadAllTextAsync(cachePath);
-                    // CalendarData modelini burada parse etmek yerine JsonDocument ile manuel bakalim
-                    // Cunku Models namespace erisimi zor olabilir veya farkli assembly sorunu cikabilir
-                    
-                    using var doc = JsonDocument.Parse(json);
-                    var root = doc.RootElement;
-                    var dateStr = DateTime.Now.ToString("dd-MM-yyyy"); // API Formati
-                    
-                    foreach (var item in root.EnumerateArray())
-                    {
-                        var dateProp = item.GetProperty("date").GetProperty("gregorian").GetProperty("date").GetString();
-                        if (dateProp == dateStr)
-                        {
-                             var t = item.GetProperty("timings");
-                             
-                             DateTime ParseTime(string s) => DateTime.Today + TimeSpan.Parse(s.Split(' ')[0]);
-
-                             return new Dictionary<string, DateTime>
-                             {
-                                { "Imsak", ParseTime(t.GetProperty("Fajr").GetString()) },
-                                { "Gunes", ParseTime(t.GetProperty("Sunrise").GetString()) },
-                                { "Ogle", ParseTime(t.GetProperty("Dhuhr").GetString()) },
-                                { "Ikindi", ParseTime(t.GetProperty("Asr").GetString()) },
-                                { "Aksam", ParseTime(t.GetProperty("Maghrib").GetString()) },
-                                { "Yatsi", ParseTime(t.GetProperty("Isha").GetString()) }
-                             };
-                        }
-                    }
+                    var kalan = namazVakitleri["?msak"] - now;
+                    return ("Imsak", FormatKalanSure(kalan));
+                }
+                else if (namazVakitleri["gunes"] > now)
+                {
+                    var kalan = namazVakitleri["gunes"] - now;
+                    return ("Gunes", FormatKalanSure(kalan));
+                }
+                else if (namazVakitleri["Ogle"] > now)
+                {
+                    var kalan = namazVakitleri["Ogle"] - now;
+                    return ("Ogle", FormatKalanSure(kalan));
+                }
+                else if (namazVakitleri["?kindi"] > now)
+                {
+                    var kalan = namazVakitleri["?kindi"] - now;
+                    return ("Ikindi", FormatKalanSure(kalan));
+                }
+                else if (namazVakitleri["Aksam"] > now)
+                {
+                    var kalan = namazVakitleri["Aksam"] - now;
+                    return ("Aksam", FormatKalanSure(kalan));
+                }
+                else if (namazVakitleri["Yatsi"] > now)
+                {
+                    var kalan = namazVakitleri["Yatsi"] - now;
+                    return ("Yatsi", FormatKalanSure(kalan));
+                }
+                else
+                {
+                    // Yarin imsak
+                    var yarinImsak = namazVakitleri["?msak"].AddDays(1);
+                    var kalan = yarinImsak - now;
+                    return ("Imsak", FormatKalanSure(kalan));
                 }
             }
             catch (Exception ex)
             {
-                System.Diagnostics.Debug.WriteLine($"Widget Cache Load Error: {ex.Message}");
+                System.Diagnostics.Debug.WriteLine($"Prayer time error: {ex.Message}");
+                return ("Hata", "--");
             }
-            return null;
         }
 
         private static string FormatKalanSure(TimeSpan kalan)
@@ -262,6 +218,7 @@ namespace hadis.Platforms.Android
             try
             {
                 // .NET MAUI Preferences klasor adi: PackageName + ".xamarinessentials"
+                // Ama daha iyi yontem: Dogrudan Preferences.Default kullan
                 
                 // OtomatikKonum kontrolu
                 bool otomatikKonum = true;
@@ -296,14 +253,18 @@ namespace hadis.Platforms.Android
                             manuelLon = parsedLon;
                         }
                     }
+                    
+                    System.Diagnostics.Debug.WriteLine($"Widget konum: otomatik={otomatikKonum}, lat={manuelLat}, lon={manuelLon}");
                 }
 
-                if (manuelLat != 0 && manuelLon != 0)
+                if (!otomatikKonum && manuelLat != 0 && manuelLon != 0)
                 {
+                    System.Diagnostics.Debug.WriteLine($"Manuel konum kullaniliyor: {manuelLat}, {manuelLon}");
                     return (manuelLat, manuelLon);
                 }
 
                 // Varsayilan konum (Istanbul)
+                System.Diagnostics.Debug.WriteLine("Varsayilan konum kullaniliyor: Istanbul");
                 return (41.0082, 28.9784);
             }
             catch (Exception ex)
@@ -313,14 +274,70 @@ namespace hadis.Platforms.Android
             }
         }
 
+        private void SetupAutoUpdate(Context? context)
+        {
+            if (context == null)
+                return;
+
+            try
+            {
+                var alarmManager = context.GetSystemService(Context.AlarmService) as AlarmManager;
+                if (alarmManager == null)
+                    return;
+
+                var intent = new Intent(context, typeof(ClockWeatherWidget));
+                intent.SetAction(ActionAutoUpdate);
+                
+                var pendingIntent = PendingIntent.GetBroadcast(
+                    context, 
+                    0, 
+                    intent, 
+                    PendingIntentFlags.UpdateCurrent | PendingIntentFlags.Immutable);
+
+                var triggerTime = Java.Lang.JavaSystem.CurrentTimeMillis() + 60000;
+                
+                alarmManager.SetRepeating(
+                    AlarmType.RtcWakeup,
+                    triggerTime,
+                    60000,
+                    pendingIntent);
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine($"Setup alarm error: {ex.Message}");
+            }
+        }
+
         public override void OnEnabled(Context? context)
         {
             base.OnEnabled(context);
+            SetupAutoUpdate(context);
         }
 
         public override void OnDisabled(Context? context)
         {
             base.OnDisabled(context);
+            
+            if (context != null)
+            {
+                try
+                {
+                    var alarmManager = context.GetSystemService(Context.AlarmService) as AlarmManager;
+                    var intent = new Intent(context, typeof(ClockWeatherWidget));
+                    intent.SetAction(ActionAutoUpdate);
+                    var pendingIntent = PendingIntent.GetBroadcast(
+                        context, 
+                        0, 
+                        intent, 
+                        PendingIntentFlags.UpdateCurrent | PendingIntentFlags.Immutable);
+                        
+                    alarmManager?.Cancel(pendingIntent);
+                }
+                catch (Exception ex)
+                {
+                    System.Diagnostics.Debug.WriteLine($"Cancel alarm error: {ex.Message}");
+                }
+            }
         }
     }
 }
