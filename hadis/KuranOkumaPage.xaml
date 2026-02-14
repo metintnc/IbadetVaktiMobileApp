@@ -8,6 +8,7 @@
     <Grid>
         <CarouselView x:Name="PageCarousel"
                       Loop="False"
+                      FlowDirection="RightToLeft"
                       PositionChanged="OnPositionChanged">
             <CarouselView.ItemTemplate>
                 <DataTemplate>

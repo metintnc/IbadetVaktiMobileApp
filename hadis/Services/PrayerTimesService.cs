@@ -5,7 +5,8 @@ namespace hadis.Services
 {
     public static class PrayerTimesService
     {
-        private static readonly string CacheFile = Path.Combine(FileSystem.AppDataDirectory, "prayer_times_cache_v1.json");
+        // Cache dosya adini degistirdik (v2) ki eski (adres bazli) cache kullanilmasin
+        private static readonly string CacheFile = Path.Combine(FileSystem.AppDataDirectory, "prayer_times_cache_v2.json");
 
         public static void ClearCache()
         {
@@ -19,7 +20,7 @@ namespace hadis.Services
             catch { }
         }
 
-        public static async Task<Dictionary<string, DateTime>> GetPrayerTimesForDateAsync(DateTime date, string ilce, string sehir)
+        public static async Task<Dictionary<string, DateTime>> GetPrayerTimesForDateAsync(DateTime date, string ilce, string sehir, double? lat = null, double? lon = null)
         {
             // 1. Önbelleğe bak
             var cachedData = await LoadFromCacheAsync();
@@ -36,7 +37,7 @@ namespace hadis.Services
             // 2. Yoksa API'den çek (Tüm ayı çekiyoruz)
             try
             {
-                var freshData = await FetchMonthlyDataAsync(date, ilce, sehir);
+                var freshData = await FetchMonthlyDataAsync(date, ilce, sehir, lat, lon);
                 if (freshData != null && freshData.Count > 0)
                 {
                     // Cache'i güncelle
@@ -52,9 +53,7 @@ namespace hadis.Services
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"API Hatası: {ex.Message}");
-                // API hata verirse ve elimizde eski cache varsa belki bir gün sonrasını vs bulabiliriz?
-                // Şimdilik null dönelim, UI hata göstersin.
+                System.Diagnostics.Debug.WriteLine($"API Hatası: {ex.Message}");
             }
 
             return null;
@@ -83,17 +82,28 @@ namespace hadis.Services
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"Cache Yazma Hatası: {ex.Message}");
+                System.Diagnostics.Debug.WriteLine($"Cache Yazma Hatası: {ex.Message}");
             }
         }
 
-        private static async Task<List<CalendarData>> FetchMonthlyDataAsync(DateTime date, string ilce, string sehir)
+        private static async Task<List<CalendarData>> FetchMonthlyDataAsync(DateTime date, string ilce, string sehir, double? lat, double? lon)
         {
             try
             {
                 using HttpClient http = new HttpClient();
-                // Aladhan Calendar API: month ve year parametreleri ile tüm ayı çeker
-                string url = $"https://api.aladhan.com/v1/calendarByAddress?address={ilce},{sehir},Turkey&method=13&month={date.Month}&year={date.Year}";
+                string url;
+
+                // Koordinat varsa ve 0 degilse koordinat bazlı çek
+                if (lat.HasValue && lon.HasValue && Math.Abs(lat.Value) > 0.0001 && Math.Abs(lon.Value) > 0.0001)
+                {
+                    // Aladhan Calendar API (Coordinates)
+                    url = $"https://api.aladhan.com/v1/calendar?latitude={lat.Value.ToString(System.Globalization.CultureInfo.InvariantCulture)}&longitude={lon.Value.ToString(System.Globalization.CultureInfo.InvariantCulture)}&method=13&month={date.Month}&year={date.Year}";
+                }
+                else
+                {
+                    // Koordinat yoksa Adres bazlı (Eski yöntem)
+                    url = $"https://api.aladhan.com/v1/calendarByAddress?address={ilce},{sehir},Turkey&method=13&month={date.Month}&year={date.Year}";
+                }
                 
                 HttpResponseMessage response = await http.GetAsync(url);
                 if (!response.IsSuccessStatusCode) return null;
@@ -105,7 +115,7 @@ namespace hadis.Services
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"Fetch Hatası: {ex.Message}");
+                System.Diagnostics.Debug.WriteLine($"Fetch Hatası: {ex.Message}");
                 return null;
             }
         }
