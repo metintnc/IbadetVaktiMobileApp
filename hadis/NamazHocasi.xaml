@@ -57,13 +57,11 @@
                           IndicatorView="indicatorView">
                 <CarouselView.ItemTemplate>
                     <DataTemplate>
-                        <Frame Margin="20,10,20,10"
-                               CornerRadius="25"
-                               HasShadow="True"
+                        <Border Margin="20,10,20,10"
+                               StrokeShape="RoundRectangle 25"
                                Padding="0"
-                               BorderColor="{AppThemeBinding Light=#80009688, Dark=#80FFFFFF}"
-                               BackgroundColor="{AppThemeBinding Light=#F5F5F5, Dark=#212121}"
-                               IsClippedToBounds="True">
+                               Stroke="{AppThemeBinding Light=#80009688, Dark=#80FFFFFF}"
+                               BackgroundColor="{AppThemeBinding Light=#F5F5F5, Dark=#212121}">
                             
                             <Grid RowDefinitions="Auto,*">
                                 <!-- Card Header -->
@@ -119,7 +117,7 @@
                                     </VerticalStackLayout>
                                 </ScrollView>
                             </Grid>
-                        </Frame>
+                        </Border>
                     </DataTemplate>
                 </CarouselView.ItemTemplate>
             </CarouselView>

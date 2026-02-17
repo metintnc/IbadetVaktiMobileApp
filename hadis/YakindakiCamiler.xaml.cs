@@ -36,9 +36,16 @@ namespace hadis
         protected override async void OnAppearing()
         {
             base.OnAppearing();
-            if (!_isLoaded)
+            try
             {
-                await LoadMapAsync();
+                if (!_isLoaded)
+                {
+                    await LoadMapAsync();
+                }
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine($"YakindakiCamiler OnAppearing hatası: {ex.Message}");
             }
         }
 
@@ -277,7 +284,14 @@ namespace hadis
 
         private async void OnBackTapped(object sender, TappedEventArgs e)
         {
-            await Navigation.PopAsync();
+            try
+            {
+                await Navigation.PopAsync();
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine($"OnBackTapped hatası: {ex.Message}");
+            }
         }
     }
 }

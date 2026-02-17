@@ -37,17 +37,16 @@
                    TextColor="{AppThemeBinding Light=#00796B, Dark=#FFFFFF}"/>
 
             <!-- Son Okunan - Sabit -->
-            <Frame Grid.Row="1"
+            <Border Grid.Row="1"
                    x:Name="SonOkunanFrame"
-                   CornerRadius="20"
+                   StrokeShape="RoundRectangle 20"
                    Padding="20"
-                   HasShadow="True"
-                   BorderColor="{AppThemeBinding Light=#80009688, Dark=#80FFFFFF}"
+                   Stroke="{AppThemeBinding Light=#80009688, Dark=#80FFFFFF}"
                    BackgroundColor="{AppThemeBinding Light=#22FFFFFF, Dark=#33000000}"
                    IsVisible="False">
-                <Frame.GestureRecognizers>
+                <Border.GestureRecognizers>
                     <TapGestureRecognizer Tapped="OkumayaDevamEt_Clicked"/>
-                </Frame.GestureRecognizers>
+                </Border.GestureRecognizers>
                 <VerticalStackLayout Spacing="15">
                     <Label Text="Son Okunan"
                            FontSize="20"
@@ -75,19 +74,18 @@
                                HorizontalOptions="End"/>
                     </HorizontalStackLayout>
                 </VerticalStackLayout>
-            </Frame>
+            </Border>
 
             <!-- Kaydedilenler Butonu -->
-            <Frame Grid.Row="2"
-                   CornerRadius="15"
+            <Border Grid.Row="2"
+                   StrokeShape="RoundRectangle 15"
                    Padding="15"
                    Margin="0,0,0,0"
-                   HasShadow="True"
-                   BorderColor="{AppThemeBinding Light=#80009688, Dark=#80FFFFFF}"
+                   Stroke="{AppThemeBinding Light=#80009688, Dark=#80FFFFFF}"
                    BackgroundColor="{AppThemeBinding Light=#22FFFFFF, Dark=#33000000}">
-                <Frame.GestureRecognizers>
+                <Border.GestureRecognizers>
                     <TapGestureRecognizer Tapped="KaydedilenlerButonu_Clicked"/>
-                </Frame.GestureRecognizers>
+                </Border.GestureRecognizers>
                 <Grid ColumnDefinitions="*, Auto">
                     <Label Grid.Column="0"
                            Text="Kaydedilen Ayetlerim"
@@ -102,14 +100,13 @@
                            WidthRequest="24"
                            VerticalOptions="Center" />
                </Grid>
-            </Frame>
+            </Border>
 
             <!-- Sure Listesi - Frame sabit, sadece liste kayıyor -->
-            <Frame Grid.Row="3"
-                   CornerRadius="20"
+            <Border Grid.Row="3"
+                   StrokeShape="RoundRectangle 20"
                    Padding="20"
-                   HasShadow="True"
-                   BorderColor="{AppThemeBinding Light=#80009688, Dark=#80FFFFFF}"
+                   Stroke="{AppThemeBinding Light=#80009688, Dark=#80FFFFFF}"
                    BackgroundColor="{AppThemeBinding Light=#22FFFFFF, Dark=#33000000}">
                 <Grid RowDefinitions="Auto,Auto,*" RowSpacing="15">
                     <Grid Grid.Row="0" ColumnDefinitions="*, Auto" Padding="10,0">
@@ -147,15 +144,15 @@
                                     SelectionMode="None">
                         <CollectionView.ItemTemplate>
                             <DataTemplate>
-                                <Frame CornerRadius="15"
+                                <Border StrokeShape="RoundRectangle 15"
                                        Padding="15"
                                        Margin="0,5"
-                                       BorderColor="{AppThemeBinding Light=#80009688, Dark=#80FFFFFF}"
+                                       Stroke="{AppThemeBinding Light=#80009688, Dark=#80FFFFFF}"
                                        BackgroundColor="{AppThemeBinding Light=#22FFFFFF, Dark=#33000000}">
-                                    <Frame.GestureRecognizers>
+                                    <Border.GestureRecognizers>
                                         <TapGestureRecognizer Tapped="SureItem_Tapped"
                                                              CommandParameter="{Binding SureNo}"/>
-                                    </Frame.GestureRecognizers>
+                                    </Border.GestureRecognizers>
                                     <Grid ColumnDefinitions="Auto,*">
                                         <Label Grid.Column="0"
                                                Text="{Binding SureNo}"
@@ -182,7 +179,7 @@
                                             </Label>
                                         </VerticalStackLayout>
                                     </Grid>
-                                </Frame>
+                                </Border>
                             </DataTemplate>
                         </CollectionView.ItemTemplate>
                         <CollectionView.Footer>
@@ -213,7 +210,7 @@
                         </CollectionView.Footer>
                     </CollectionView>
                 </Grid>
-            </Frame>
+            </Border>
             
         </Grid>
     </Grid>

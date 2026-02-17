@@ -38,7 +38,7 @@
                        TextColor="{AppThemeBinding Light=#757575, Dark=#BDBDBD}"/>
 
                 <!-- Opacity Slider -->
-                <Frame Style="{StaticResource BorderFrame}" Padding="15" BackgroundColor="Transparent">
+                <Border Style="{StaticResource BorderFrameStyle}" StrokeShape="RoundRectangle 15" Padding="15" BackgroundColor="Transparent">
                     <VerticalStackLayout Spacing="10">
                         <Label x:Name="OpacityLabel"
                                Text="Arkaplan Seffafligi: 30%"
@@ -59,10 +59,10 @@
                                FontSize="11"
                                TextColor="{AppThemeBinding Light=#9E9E9E, Dark=#757575}"/>
                     </VerticalStackLayout>
-                </Frame>
+                </Border>
 
                 <!-- Arkaplan 1 -->
-                <Frame Style="{StaticResource BorderFrame}" Padding="0" BackgroundColor="Transparent" HasShadow="True">
+                <Border Style="{StaticResource BorderFrameStyle}" StrokeShape="RoundRectangle 15" Padding="0" BackgroundColor="Transparent">
                     <Grid>
                         <Image Source="bg_dark.jpg"
                                Aspect="AspectFill"
@@ -77,10 +77,10 @@
                                 VerticalOptions="Center"
                                 HorizontalOptions="Center"/>
                     </Grid>
-                </Frame>
+                </Border>
 
                 <!-- Arkaplan 2 -->
-                <Frame Style="{StaticResource BorderFrame}" Padding="0" BackgroundColor="Transparent" HasShadow="True">
+                <Border Style="{StaticResource BorderFrameStyle}" StrokeShape="RoundRectangle 15" Padding="0" BackgroundColor="Transparent">
                     <Grid>
                         <Image Source="bg_light.jpg"
                                Aspect="AspectFill"
@@ -95,7 +95,7 @@
                                 VerticalOptions="Center"
                                 HorizontalOptions="Center"/>
                     </Grid>
-                </Frame>
+                </Border>
 
             </VerticalStackLayout>
         </ScrollView>

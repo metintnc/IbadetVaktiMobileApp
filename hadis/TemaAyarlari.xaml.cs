@@ -170,14 +170,14 @@ namespace hadis
             }
         }
 
-        private void SetFrameState(Frame frame, Label statusLabel, bool isSelected)
+        private void SetFrameState(Border frame, Label statusLabel, bool isSelected)
         {
             if (frame == null) return;
 
             if (isSelected)
             {
                 // Highlight: Primary Color
-                frame.SetAppThemeColor(Microsoft.Maui.Controls.Frame.BorderColorProperty, 
+                frame.SetAppThemeColor(Microsoft.Maui.Controls.Border.StrokeProperty, 
                     Color.FromArgb("#00796B"), Color.FromArgb("#80CBC4"));
                 
                 // Show Status Label
@@ -186,7 +186,7 @@ namespace hadis
             else
             {
                 // Default: Gray
-                frame.SetAppThemeColor(Microsoft.Maui.Controls.Frame.BorderColorProperty, 
+                frame.SetAppThemeColor(Microsoft.Maui.Controls.Border.StrokeProperty, 
                     Color.FromArgb("#E0E0E0"), Color.FromArgb("#333333"));
                 
                 // Hide Status Label

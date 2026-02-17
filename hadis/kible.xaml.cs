@@ -32,29 +32,36 @@ namespace hadis
         {
             base.OnAppearing();
             
-            // Kıble sayfası için özel StatusBar ve TabBar renkleri
-            _statusBarService.SetStatusBarColor("#000000"); // Siyah
-
-            
-             // Her açılışta 5 saniye kalibrasyon uyarısını göster
-            _inInitialWarningPeriod = true;
-            if (CalibrationWarningFrame != null)
-                CalibrationWarningFrame.IsVisible = true;
-
-            // 5 saniye sonra normal akışa dön
-            _ = Task.Run(async () => 
+            try
             {
-                await Task.Delay(5000);
-                _inInitialWarningPeriod = false;
-                
-                // Süre bitince mevcut duruma göre güncelle
-                MainThread.BeginInvokeOnMainThread(() =>
-                {
-                    OnCompassAccuracyChanged(_currentAccuracy);
-                });
-            });
+                // Kıble sayfası için özel StatusBar ve TabBar renkleri
+                _statusBarService.SetStatusBarColor("#000000"); // Siyah
 
-            await CheckAndStartCompass();
+                
+                 // Her açılışta 5 saniye kalibrasyon uyarısını göster
+                _inInitialWarningPeriod = true;
+                if (CalibrationWarningFrame != null)
+                    CalibrationWarningFrame.IsVisible = true;
+
+                // 5 saniye sonra normal akışa dön
+                _ = Task.Run(async () => 
+                {
+                    await Task.Delay(5000);
+                    _inInitialWarningPeriod = false;
+                    
+                    // Süre bitince mevcut duruma göre güncelle
+                    MainThread.BeginInvokeOnMainThread(() =>
+                    {
+                        OnCompassAccuracyChanged(_currentAccuracy);
+                    });
+                });
+
+                await CheckAndStartCompass();
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine($"Kible OnAppearing hatası: {ex.Message}");
+            }
         }
 
         private async Task CheckAndStartCompass()

@@ -17,30 +17,30 @@ namespace hadis.Services
         }
 
         /// <summary>
-        /// Özel temayı tüm frame'lere uygular
+        /// Özel temayı tüm border'lara uygular
         /// </summary>
         public void ApplyCustomTheme(
-            Frame mainFrame, Label namazIsmi, Label kalan, Label konum,
-            Frame imsakFrame, Label imsakYazi, Label imsakVakit,
-            Frame gunesFrame, Label gunesYazi, Label gunesVakit,
-            Frame ogleFrame, Label ogleYazi, Label ogleVakit,
-            Frame ikindiFrame, Label ikindiYazi, Label ikindiVakit,
-            Frame aksamFrame, Label aksamYazi, Label aksamVakit,
-            Frame yatsiFrame, Label yatsiYazi, Label yatsiVakit,
-            Frame ayetFrame, Label gununAyeti)
+            Border mainBorder, Label namazIsmi, Label kalan, Label konum,
+            Border imsakBorder, Label imsakYazi, Label imsakVakit,
+            Border gunesBorder, Label gunesYazi, Label gunesVakit,
+            Border ogleBorder, Label ogleYazi, Label ogleVakit,
+            Border ikindiBorder, Label ikindiYazi, Label ikindiVakit,
+            Border aksamBorder, Label aksamYazi, Label aksamVakit,
+            Border yatsiBorder, Label yatsiYazi, Label yatsiVakit,
+            Border ayetBorder, Label gununAyeti)
         {
             string customThemeJson = Preferences.Default.Get(AppConstants.PREF_CUSTOM_THEME, string.Empty);
 
             if (string.IsNullOrEmpty(customThemeJson))
             {
-                ResetToDefaultStyles(mainFrame, namazIsmi, kalan, konum,
-                    imsakFrame, imsakYazi, imsakVakit,
-                    gunesFrame, gunesYazi, gunesVakit,
-                    ogleFrame, ogleYazi, ogleVakit,
-                    ikindiFrame, ikindiYazi, ikindiVakit,
-                    aksamFrame, aksamYazi, aksamVakit,
-                    yatsiFrame, yatsiYazi, yatsiVakit,
-                    ayetFrame, gununAyeti);
+                ResetToDefaultStyles(mainBorder, namazIsmi, kalan, konum,
+                    imsakBorder, imsakYazi, imsakVakit,
+                    gunesBorder, gunesYazi, gunesVakit,
+                    ogleBorder, ogleYazi, ogleVakit,
+                    ikindiBorder, ikindiYazi, ikindiVakit,
+                    aksamBorder, aksamYazi, aksamVakit,
+                    yatsiBorder, yatsiYazi, yatsiVakit,
+                    ayetBorder, gununAyeti);
                 return;
             }
 
@@ -49,23 +49,23 @@ namespace hadis.Services
                 var theme = JsonSerializer.Deserialize<CustomTheme>(customThemeJson);
                 if (theme != null)
                 {
-                    // Ana Frame
-                    ApplyMainFrameTheme(mainFrame, namazIsmi, kalan, konum, theme);
+                    // Ana Border
+                    ApplyMainFrameTheme(mainBorder, namazIsmi, kalan, konum, theme);
 
-                    // Namaz vakitleri frame'leri
+                    // Namaz vakitleri border'ları
                     var smallBaseColor = Color.FromArgb(theme.SmallFrameBackground);
                     var smallBorderColor = Color.FromArgb(theme.SmallFrameBorder);
                     var smallTextColor = Color.FromArgb(theme.SmallFrameText);
 
-                    imsakFrame.ApplyPrayerTimeStyle(imsakYazi, imsakVakit, smallBorderColor, smallTextColor, smallBaseColor);
-                    gunesFrame.ApplyPrayerTimeStyle(gunesYazi, gunesVakit, smallBorderColor, smallTextColor, smallBaseColor);
-                    ogleFrame.ApplyPrayerTimeStyle(ogleYazi, ogleVakit, smallBorderColor, smallTextColor, smallBaseColor);
-                    ikindiFrame.ApplyPrayerTimeStyle(ikindiYazi, ikindiVakit, smallBorderColor, smallTextColor, smallBaseColor);
-                    aksamFrame.ApplyPrayerTimeStyle(aksamYazi, aksamVakit, smallBorderColor, smallTextColor, smallBaseColor);
-                    yatsiFrame.ApplyPrayerTimeStyle(yatsiYazi, yatsiVakit, smallBorderColor, smallTextColor, smallBaseColor);
+                    imsakBorder.ApplyPrayerTimeStyle(imsakYazi, imsakVakit, smallBorderColor, smallTextColor, smallBaseColor);
+                    gunesBorder.ApplyPrayerTimeStyle(gunesYazi, gunesVakit, smallBorderColor, smallTextColor, smallBaseColor);
+                    ogleBorder.ApplyPrayerTimeStyle(ogleYazi, ogleVakit, smallBorderColor, smallTextColor, smallBaseColor);
+                    ikindiBorder.ApplyPrayerTimeStyle(ikindiYazi, ikindiVakit, smallBorderColor, smallTextColor, smallBaseColor);
+                    aksamBorder.ApplyPrayerTimeStyle(aksamYazi, aksamVakit, smallBorderColor, smallTextColor, smallBaseColor);
+                    yatsiBorder.ApplyPrayerTimeStyle(yatsiYazi, yatsiVakit, smallBorderColor, smallTextColor, smallBaseColor);
 
-                    // Ayet Frame
-                    ApplyAyetFrameTheme(ayetFrame, gununAyeti, theme);
+                    // Ayet Border
+                    ApplyAyetFrameTheme(ayetBorder, gununAyeti, theme);
 
                     Console.WriteLine("✅ Özel tema başarıyla uygulandı");
                 }
@@ -73,25 +73,25 @@ namespace hadis.Services
             catch (Exception ex)
             {
                 Console.WriteLine($"❌ Özel tema uygulama hatası: {ex.Message}");
-                ResetToDefaultStyles(mainFrame, namazIsmi, kalan, konum,
-                    imsakFrame, imsakYazi, imsakVakit,
-                    gunesFrame, gunesYazi, gunesVakit,
-                    ogleFrame, ogleYazi, ogleVakit,
-                    ikindiFrame, ikindiYazi, ikindiVakit,
-                    aksamFrame, aksamYazi, aksamVakit,
-                    yatsiFrame, yatsiYazi, yatsiVakit,
-                    ayetFrame, gununAyeti);
+                ResetToDefaultStyles(mainBorder, namazIsmi, kalan, konum,
+                    imsakBorder, imsakYazi, imsakVakit,
+                    gunesBorder, gunesYazi, gunesVakit,
+                    ogleBorder, ogleYazi, ogleVakit,
+                    ikindiBorder, ikindiYazi, ikindiVakit,
+                    aksamBorder, aksamYazi, aksamVakit,
+                    yatsiBorder, yatsiYazi, yatsiVakit,
+                    ayetBorder, gununAyeti);
             }
         }
 
         /// <summary>
-        /// Ana frame'e tema uygular
+        /// Ana border'a tema uygular
         /// </summary>
-        private void ApplyMainFrameTheme(Frame mainFrame, Label namazIsmi, Label kalan, Label konum, CustomTheme theme)
+        private void ApplyMainFrameTheme(Border mainBorder, Label namazIsmi, Label kalan, Label konum, CustomTheme theme)
         {
-            mainFrame.BorderColor = Color.FromArgb(theme.MainFrameBorder);
+            mainBorder.Stroke = Color.FromArgb(theme.MainFrameBorder);
             var mainBaseColor = Color.FromArgb(theme.MainFrameBackground);
-            mainFrame.ApplyGlassmorphism(mainBaseColor, Color.FromArgb(theme.MainFrameBorder));
+            mainBorder.ApplyGlassmorphism(mainBaseColor, Color.FromArgb(theme.MainFrameBorder));
 
             var mainTextColor = Color.FromArgb(theme.MainFrameText);
             namazIsmi.TextColor = mainTextColor;
@@ -100,13 +100,13 @@ namespace hadis.Services
         }
 
         /// <summary>
-        /// Ayet frame'ine tema uygular
+        /// Ayet border'ına tema uygular
         /// </summary>
-        private void ApplyAyetFrameTheme(Frame ayetFrame, Label gununAyeti, CustomTheme theme)
+        private void ApplyAyetFrameTheme(Border ayetBorder, Label gununAyeti, CustomTheme theme)
         {
-            ayetFrame.BorderColor = Color.FromArgb(theme.AyetFrameBorder);
+            ayetBorder.Stroke = Color.FromArgb(theme.AyetFrameBorder);
             var baseColor = Color.FromArgb(theme.AyetFrameBackground);
-            ayetFrame.ApplyGlassmorphism(baseColor, Color.FromArgb(theme.AyetFrameBorder));
+            ayetBorder.ApplyGlassmorphism(baseColor, Color.FromArgb(theme.AyetFrameBorder));
             gununAyeti.TextColor = Color.FromArgb(theme.AyetFrameText);
         }
 
@@ -114,14 +114,14 @@ namespace hadis.Services
         /// Varsayılan (sistem) tema stillerini uygular
         /// </summary>
         public void ResetToDefaultStyles(
-            Frame mainFrame, Label namazIsmi, Label kalan, Label konum,
-            Frame imsakFrame, Label imsakYazi, Label imsakVakit,
-            Frame gunesFrame, Label gunesYazi, Label gunesVakit,
-            Frame ogleFrame, Label ogleYazi, Label ogleVakit,
-            Frame ikindiFrame, Label ikindiYazi, Label ikindiVakit,
-            Frame aksamFrame, Label aksamYazi, Label aksamVakit,
-            Frame yatsiFrame, Label yatsiYazi, Label yatsiVakit,
-            Frame ayetFrame, Label gununAyeti)
+            Border mainBorder, Label namazIsmi, Label kalan, Label konum,
+            Border imsakBorder, Label imsakYazi, Label imsakVakit,
+            Border gunesBorder, Label gunesYazi, Label gunesVakit,
+            Border ogleBorder, Label ogleYazi, Label ogleVakit,
+            Border ikindiBorder, Label ikindiYazi, Label ikindiVakit,
+            Border aksamBorder, Label aksamYazi, Label aksamVakit,
+            Border yatsiBorder, Label yatsiYazi, Label yatsiVakit,
+            Border ayetBorder, Label gununAyeti)
         {
             var currentTheme = Application.Current?.UserAppTheme == AppTheme.Unspecified
                 ? Application.Current?.RequestedTheme ?? AppTheme.Light
@@ -129,25 +129,25 @@ namespace hadis.Services
 
             if (currentTheme == AppTheme.Dark)
             {
-                ApplyDarkTheme(mainFrame, namazIsmi, kalan, konum,
-                    imsakFrame, imsakYazi, imsakVakit,
-                    gunesFrame, gunesYazi, gunesVakit,
-                    ogleFrame, ogleYazi, ogleVakit,
-                    ikindiFrame, ikindiYazi, ikindiVakit,
-                    aksamFrame, aksamYazi, aksamVakit,
-                    yatsiFrame, yatsiYazi, yatsiVakit,
-                    ayetFrame, gununAyeti);
+                ApplyDarkTheme(mainBorder, namazIsmi, kalan, konum,
+                    imsakBorder, imsakYazi, imsakVakit,
+                    gunesBorder, gunesYazi, gunesVakit,
+                    ogleBorder, ogleYazi, ogleVakit,
+                    ikindiBorder, ikindiYazi, ikindiVakit,
+                    aksamBorder, aksamYazi, aksamVakit,
+                    yatsiBorder, yatsiYazi, yatsiVakit,
+                    ayetBorder, gununAyeti);
             }
             else
             {
-                ApplyLightTheme(mainFrame, namazIsmi, kalan, konum,
-                    imsakFrame, imsakYazi, imsakVakit,
-                    gunesFrame, gunesYazi, gunesVakit,
-                    ogleFrame, ogleYazi, ogleVakit,
-                    ikindiFrame, ikindiYazi, ikindiVakit,
-                    aksamFrame, aksamYazi, aksamVakit,
-                    yatsiFrame, yatsiYazi, yatsiVakit,
-                    ayetFrame, gununAyeti);
+                ApplyLightTheme(mainBorder, namazIsmi, kalan, konum,
+                    imsakBorder, imsakYazi, imsakVakit,
+                    gunesBorder, gunesYazi, gunesVakit,
+                    ogleBorder, ogleYazi, ogleVakit,
+                    ikindiBorder, ikindiYazi, ikindiVakit,
+                    aksamBorder, aksamYazi, aksamVakit,
+                    yatsiBorder, yatsiYazi, yatsiVakit,
+                    ayetBorder, gununAyeti);
             }
         }
 
@@ -155,35 +155,35 @@ namespace hadis.Services
         /// Koyu tema stillerini uygular
         /// </summary>
         private void ApplyDarkTheme(
-            Frame mainFrame, Label namazIsmi, Label kalan, Label konum,
-            Frame imsakFrame, Label imsakYazi, Label imsakVakit,
-            Frame gunesFrame, Label gunesYazi, Label gunesVakit,
-            Frame ogleFrame, Label ogleYazi, Label ogleVakit,
-            Frame ikindiFrame, Label ikindiYazi, Label ikindiVakit,
-            Frame aksamFrame, Label aksamYazi, Label aksamVakit,
-            Frame yatsiFrame, Label yatsiYazi, Label yatsiVakit,
-            Frame ayetFrame, Label gununAyeti)
+            Border mainBorder, Label namazIsmi, Label kalan, Label konum,
+            Border imsakBorder, Label imsakYazi, Label imsakVakit,
+            Border gunesBorder, Label gunesYazi, Label gunesVakit,
+            Border ogleBorder, Label ogleYazi, Label ogleVakit,
+            Border ikindiBorder, Label ikindiYazi, Label ikindiVakit,
+            Border aksamBorder, Label aksamYazi, Label aksamVakit,
+            Border yatsiBorder, Label yatsiYazi, Label yatsiVakit,
+            Border ayetBorder, Label gununAyeti)
         {
             var borderColor = Color.FromArgb("#80FFFFFF");
             var baseColor = Color.FromArgb("#30FFFFFF");
             var textColor = Colors.White;
 
-            // Ana frame
-            mainFrame.ApplyGlassmorphism(baseColor, borderColor);
+            // Ana border
+            mainBorder.ApplyGlassmorphism(baseColor, borderColor);
             namazIsmi.TextColor = textColor;
             kalan.TextColor = textColor;
             konum.TextColor = textColor;
 
-            // Namaz vakitleri frame'leri
-            imsakFrame.ApplyPrayerTimeStyle(imsakYazi, imsakVakit, borderColor, textColor, baseColor);
-            gunesFrame.ApplyPrayerTimeStyle(gunesYazi, gunesVakit, borderColor, textColor, baseColor);
-            ogleFrame.ApplyPrayerTimeStyle(ogleYazi, ogleVakit, borderColor, textColor, baseColor);
-            ikindiFrame.ApplyPrayerTimeStyle(ikindiYazi, ikindiVakit, borderColor, textColor, baseColor);
-            aksamFrame.ApplyPrayerTimeStyle(aksamYazi, aksamVakit, borderColor, textColor, baseColor);
-            yatsiFrame.ApplyPrayerTimeStyle(yatsiYazi, yatsiVakit, borderColor, textColor, baseColor);
+            // Namaz vakitleri border'ları
+            imsakBorder.ApplyPrayerTimeStyle(imsakYazi, imsakVakit, borderColor, textColor, baseColor);
+            gunesBorder.ApplyPrayerTimeStyle(gunesYazi, gunesVakit, borderColor, textColor, baseColor);
+            ogleBorder.ApplyPrayerTimeStyle(ogleYazi, ogleVakit, borderColor, textColor, baseColor);
+            ikindiBorder.ApplyPrayerTimeStyle(ikindiYazi, ikindiVakit, borderColor, textColor, baseColor);
+            aksamBorder.ApplyPrayerTimeStyle(aksamYazi, aksamVakit, borderColor, textColor, baseColor);
+            yatsiBorder.ApplyPrayerTimeStyle(yatsiYazi, yatsiVakit, borderColor, textColor, baseColor);
 
-            // Ayet frame
-            ayetFrame.ApplyGlassmorphism(baseColor, borderColor);
+            // Ayet border
+            ayetBorder.ApplyGlassmorphism(baseColor, borderColor);
             gununAyeti.TextColor = textColor;
         }
 
@@ -191,51 +191,51 @@ namespace hadis.Services
         /// Açık tema stillerini uygular
         /// </summary>
         private void ApplyLightTheme(
-            Frame mainFrame, Label namazIsmi, Label kalan, Label konum,
-            Frame imsakFrame, Label imsakYazi, Label imsakVakit,
-            Frame gunesFrame, Label gunesYazi, Label gunesVakit,
-            Frame ogleFrame, Label ogleYazi, Label ogleVakit,
-            Frame ikindiFrame, Label ikindiYazi, Label ikindiVakit,
-            Frame aksamFrame, Label aksamYazi, Label aksamVakit,
-            Frame yatsiFrame, Label yatsiYazi, Label yatsiVakit,
-            Frame ayetFrame, Label gununAyeti)
+            Border mainBorder, Label namazIsmi, Label kalan, Label konum,
+            Border imsakBorder, Label imsakYazi, Label imsakVakit,
+            Border gunesBorder, Label gunesYazi, Label gunesVakit,
+            Border ogleBorder, Label ogleYazi, Label ogleVakit,
+            Border ikindiBorder, Label ikindiYazi, Label ikindiVakit,
+            Border aksamBorder, Label aksamYazi, Label aksamVakit,
+            Border yatsiBorder, Label yatsiYazi, Label yatsiVakit,
+            Border ayetBorder, Label gununAyeti)
         {
             var borderColor = Color.FromArgb("#80009688");
             var baseColor = Color.FromArgb("#40FFFFFF");
             var textColor = Color.FromArgb("#00796B");
 
-            // Ana frame
-            mainFrame.ApplyGlassmorphism(baseColor, borderColor);
+            // Ana border
+            mainBorder.ApplyGlassmorphism(baseColor, borderColor);
             namazIsmi.TextColor = textColor;
             kalan.TextColor = textColor;
             konum.TextColor = textColor;
 
-            // Namaz vakitleri frame'leri
-            imsakFrame.ApplyPrayerTimeStyle(imsakYazi, imsakVakit, borderColor, textColor, baseColor);
-            gunesFrame.ApplyPrayerTimeStyle(gunesYazi, gunesVakit, borderColor, textColor, baseColor);
-            ogleFrame.ApplyPrayerTimeStyle(ogleYazi, ogleVakit, borderColor, textColor, baseColor);
-            ikindiFrame.ApplyPrayerTimeStyle(ikindiYazi, ikindiVakit, borderColor, textColor, baseColor);
-            aksamFrame.ApplyPrayerTimeStyle(aksamYazi, aksamVakit, borderColor, textColor, baseColor);
-            yatsiFrame.ApplyPrayerTimeStyle(yatsiYazi, yatsiVakit, borderColor, textColor, baseColor);
+            // Namaz vakitleri border'ları
+            imsakBorder.ApplyPrayerTimeStyle(imsakYazi, imsakVakit, borderColor, textColor, baseColor);
+            gunesBorder.ApplyPrayerTimeStyle(gunesYazi, gunesVakit, borderColor, textColor, baseColor);
+            ogleBorder.ApplyPrayerTimeStyle(ogleYazi, ogleVakit, borderColor, textColor, baseColor);
+            ikindiBorder.ApplyPrayerTimeStyle(ikindiYazi, ikindiVakit, borderColor, textColor, baseColor);
+            aksamBorder.ApplyPrayerTimeStyle(aksamYazi, aksamVakit, borderColor, textColor, baseColor);
+            yatsiBorder.ApplyPrayerTimeStyle(yatsiYazi, yatsiVakit, borderColor, textColor, baseColor);
 
-            // Ayet frame
-            ayetFrame.BorderColor = Color.FromArgb("#8000796B");
-            ayetFrame.ApplyGlassmorphism(baseColor, Color.FromArgb("#8000796B"));
+            // Ayet border
+            ayetBorder.Stroke = Color.FromArgb("#8000796B");
+            ayetBorder.ApplyGlassmorphism(baseColor, Color.FromArgb("#8000796B"));
             gununAyeti.TextColor = textColor;
         }
         /// <summary>
-        /// Arkaplan parlaklığına göre framelere adaptif cam efekti uygular
+        /// Arkaplan parlaklığına göre borderlara adaptif cam efekti uygular
         /// </summary>
         public void ApplyAdaptiveGlassTheme(
             bool isBrightBackground,
-            Frame mainFrame, Label namazIsmi, Label kalan, Label konum,
-            Frame imsakFrame, Label imsakYazi, Label imsakVakit,
-            Frame gunesFrame, Label gunesYazi, Label gunesVakit,
-            Frame ogleFrame, Label ogleYazi, Label ogleVakit,
-            Frame ikindiFrame, Label ikindiYazi, Label ikindiVakit,
-            Frame aksamFrame, Label aksamYazi, Label aksamVakit,
-            Frame yatsiFrame, Label yatsiYazi, Label yatsiVakit,
-            Frame ayetFrame, Label gununAyeti)
+            Border mainBorder, Label namazIsmi, Label kalan, Label konum,
+            Border imsakBorder, Label imsakYazi, Label imsakVakit,
+            Border gunesBorder, Label gunesYazi, Label gunesVakit,
+            Border ogleBorder, Label ogleYazi, Label ogleVakit,
+            Border ikindiBorder, Label ikindiYazi, Label ikindiVakit,
+            Border aksamBorder, Label aksamYazi, Label aksamVakit,
+            Border yatsiBorder, Label yatsiYazi, Label yatsiVakit,
+            Border ayetBorder, Label gununAyeti)
         {
             Color baseColor;
             Color borderColor;
@@ -272,29 +272,29 @@ namespace hadis.Services
                 textColor = Colors.White;
             }
 
-            // Ana frame
-            mainFrame.ApplyGlassmorphism(baseColor, borderColor);
+            // Ana border
+            mainBorder.ApplyGlassmorphism(baseColor, borderColor);
             namazIsmi.TextColor = textColor;
             kalan.TextColor = textColor;
             konum.TextColor = textColor;
 
             // Namaz vakitleri
-            void ApplyStyle(Frame f, Label l1, Label l2)
+            void ApplyStyle(Border b, Label l1, Label l2)
             {
-                f.ApplyGlassmorphism(baseColor, borderColor);
+                b.ApplyGlassmorphism(baseColor, borderColor);
                 l1.TextColor = textColor;
                 l2.TextColor = textColor;
             }
 
-            ApplyStyle(imsakFrame, imsakYazi, imsakVakit);
-            ApplyStyle(gunesFrame, gunesYazi, gunesVakit);
-            ApplyStyle(ogleFrame, ogleYazi, ogleVakit);
-            ApplyStyle(ikindiFrame, ikindiYazi, ikindiVakit);
-            ApplyStyle(aksamFrame, aksamYazi, aksamVakit);
-            ApplyStyle(yatsiFrame, yatsiYazi, yatsiVakit);
+            ApplyStyle(imsakBorder, imsakYazi, imsakVakit);
+            ApplyStyle(gunesBorder, gunesYazi, gunesVakit);
+            ApplyStyle(ogleBorder, ogleYazi, ogleVakit);
+            ApplyStyle(ikindiBorder, ikindiYazi, ikindiVakit);
+            ApplyStyle(aksamBorder, aksamYazi, aksamVakit);
+            ApplyStyle(yatsiBorder, yatsiYazi, yatsiVakit);
 
-            // Ayet Frame
-            ayetFrame.ApplyGlassmorphism(baseColor, borderColor);
+            // Ayet Border
+            ayetBorder.ApplyGlassmorphism(baseColor, borderColor);
             gununAyeti.TextColor = textColor;
         }
     }

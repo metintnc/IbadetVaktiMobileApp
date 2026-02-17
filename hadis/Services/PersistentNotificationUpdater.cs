@@ -7,38 +7,65 @@ namespace hadis.Services
         private static System.Timers.Timer? _updateTimer;
         private static IAppNotificationService? _notificationService;
         private static Dictionary<string, DateTime>? _prayerTimes;
+        private static readonly object _lock = new object();
 
         public static void StartUpdating(IAppNotificationService notificationService, Dictionary<string, DateTime> prayerTimes)
         {
-            _notificationService = notificationService;
-            _prayerTimes = prayerTimes;
+            lock (_lock)
+            {
+                // Önceki timer'ı temizle
+                StopUpdating();
 
-            // Her dakika güncelle
-            _updateTimer = new System.Timers.Timer(60000); // 60 saniye
-            _updateTimer.Elapsed += OnTimerElapsed;
-            _updateTimer.AutoReset = true;
-            _updateTimer.Start();
+                _notificationService = notificationService;
+                _prayerTimes = prayerTimes;
 
-            Console.WriteLine("?? Sürekli bildirim güncelleyici başlatıldı (60 saniye aralıkla)");
+                // Her dakika güncelle
+                _updateTimer = new System.Timers.Timer(60000); // 60 saniye
+                _updateTimer.Elapsed += OnTimerElapsed;
+                _updateTimer.AutoReset = true;
+                _updateTimer.Start();
+
+                System.Diagnostics.Debug.WriteLine("📢 Sürekli bildirim güncelleyici başlatıldı (60 saniye aralıkla)");
+            }
         }
 
         public static void StopUpdating()
         {
-            _updateTimer?.Stop();
-            _updateTimer?.Dispose();
-            _updateTimer = null;
-            Console.WriteLine("?? Sürekli bildirim güncelleyici durduruldu");
+            lock (_lock)
+            {
+                if (_updateTimer != null)
+                {
+                    _updateTimer.Stop();
+                    _updateTimer.Elapsed -= OnTimerElapsed;
+                    _updateTimer.Dispose();
+                    _updateTimer = null;
+                    System.Diagnostics.Debug.WriteLine("🛑 Sürekli bildirim güncelleyici durduruldu");
+                }
+            }
         }
 
         public static void UpdatePrayerTimes(Dictionary<string, DateTime> prayerTimes)
         {
-            _prayerTimes = prayerTimes;
-            Console.WriteLine("?? Sürekli bildirim için vakitler güncellendi");
+            lock (_lock)
+            {
+                _prayerTimes = prayerTimes;
+                System.Diagnostics.Debug.WriteLine("🔄 Sürekli bildirim için vakitler güncellendi");
+            }
         }
 
         private static async void OnTimerElapsed(object? sender, ElapsedEventArgs e)
         {
-            if (_notificationService == null || _prayerTimes == null)
+            IAppNotificationService? service;
+            Dictionary<string, DateTime>? times;
+
+            // Thread-safe copy
+            lock (_lock)
+            {
+                service = _notificationService;
+                times = _prayerTimes;
+            }
+
+            if (service == null || times == null)
                 return;
 
             if (!Preferences.Default.Get("PersistentNotificationEnabled", false))
@@ -46,60 +73,13 @@ namespace hadis.Services
 
             try
             {
-                var now = DateTime.Now;
-                string nextPrayerName = "";
-                TimeSpan timeRemaining = TimeSpan.Zero;
+                var (title, message) = hadis.Helpers.PrayerTimeHelper.BuildPersistentNotificationContent(times);
 
-                // Bir sonraki namazı bul
-                if (_prayerTimes["İmsak"] > now)
-                {
-                    nextPrayerName = "İmsak";
-                    timeRemaining = _prayerTimes["İmsak"] - now;
-                }
-                else if (_prayerTimes["gunes"] > now)
-                {
-                    nextPrayerName = "Güneş";
-                    timeRemaining = _prayerTimes["gunes"] - now;
-                }
-                else if (_prayerTimes["Ogle"] > now)
-                {
-                    nextPrayerName = "Öğle";
-                    timeRemaining = _prayerTimes["Ogle"] - now;
-                }
-                else if (_prayerTimes["İkindi"] > now)
-                {
-                    nextPrayerName = "İkindi";
-                    timeRemaining = _prayerTimes["İkindi"] - now;
-                }
-                else if (_prayerTimes["Aksam"] > now)
-                {
-                    nextPrayerName = "Akşam";
-                    timeRemaining = _prayerTimes["Aksam"] - now;
-                }
-                else if (_prayerTimes["Yatsi"] > now)
-                {
-                    nextPrayerName = "Yatsı";
-                    timeRemaining = _prayerTimes["Yatsi"] - now;
-                }
-                else
-                {
-                    nextPrayerName = "İmsak";
-                    timeRemaining = _prayerTimes["İmsak"].AddDays(1) - now;
-                }
-
-                string title = $"{nextPrayerName} vaktine {timeRemaining.Hours:D2}:{timeRemaining.Minutes:D2} kaldı";
-                string message = $"İmsak {_prayerTimes["İmsak"]:HH:mm} | " +
-                                $"Güneş {_prayerTimes["gunes"]:HH:mm} | " +
-                                $"Öğle {_prayerTimes["Ogle"]:HH:mm} | " +
-                                $"İkindi {_prayerTimes["İkindi"]:HH:mm} | " +
-                                $"Akşam {_prayerTimes["Aksam"]:HH:mm} | " +
-                                $"Yatsı {_prayerTimes["Yatsi"]:HH:mm}";
-
-                await _notificationService.ShowPersistentNotificationAsync(title, message);
+                await service.ShowPersistentNotificationAsync(title, message);
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"?? Sürekli bildirim güncelleme hatası: {ex.Message}");
+                System.Diagnostics.Debug.WriteLine($"⚠️ Sürekli bildirim güncelleme hatası: {ex.Message}");
             }
         }
     }

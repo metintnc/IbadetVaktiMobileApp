@@ -29,7 +29,7 @@ namespace hadis
 
         private void OnHeaderFrameSizeChanged(object sender, EventArgs e)
         {
-            if (sender is Frame frame)
+            if (sender is Border frame)
             {
                 double availableWidth = frame.Width - 48;
                 if (availableWidth > 0)
@@ -78,7 +78,7 @@ namespace hadis
                 {
                     zikirsayisi.TextColor = Color.FromArgb(theme.MainFrameText);
                     ZikirBaslik.TextColor = Color.FromArgb(theme.MainFrameText);
-                    zikirbutton.BorderColor = Color.FromArgb(theme.MainFrameBorder);
+                    zikirbutton.Stroke = Color.FromArgb(theme.MainFrameBorder);
                 }
             }
             catch (Exception ex)
@@ -98,13 +98,13 @@ namespace hadis
             {
                 zikirsayisi.TextColor = Colors.White;
                 ZikirBaslik.TextColor = Colors.White;
-                zikirbutton.BorderColor = Color.FromArgb("#80FFFFFF");
+                zikirbutton.Stroke = Color.FromArgb("#80FFFFFF");
             }
             else
             {
                 zikirsayisi.TextColor = Color.FromArgb("#00796B");
                 ZikirBaslik.TextColor = Color.FromArgb("#00796B");
-                zikirbutton.BorderColor = Color.FromArgb("#80009688");
+                zikirbutton.Stroke = Color.FromArgb("#80009688");
             }
         }
         
