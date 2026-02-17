@@ -10,10 +10,9 @@
             <VerticalStackLayout Spacing="20">
                 
                 <!-- 1. HEADER CARD -->
-                <Frame CornerRadius="20"
+                <Border StrokeShape="RoundRectangle 20"
                        Padding="20"
-                       HasShadow="True"
-                       BorderColor="{AppThemeBinding Light=#E0E0E0, Dark=#333333}"
+                       Stroke="{AppThemeBinding Light=#E0E0E0, Dark=#333333}"
                        BackgroundColor="{AppThemeBinding Light=White, Dark=#1E1E1E}">
                     <VerticalStackLayout Spacing="5" HorizontalOptions="Center">
                         <Label Text="Tema Ayarları"
@@ -26,7 +25,7 @@
                                HorizontalOptions="Center"
                                TextColor="{AppThemeBinding Light=#757575, Dark=#BDBDBD}"/>
                     </VerticalStackLayout>
-                </Frame>
+                </Border>
 
                 <!-- 2. HAZIR TEMALAR SECTION -->
                 <VerticalStackLayout Spacing="10">
@@ -47,17 +46,15 @@
                     <Grid ColumnDefinitions="*,*" RowDefinitions="Auto,Auto,Auto" ColumnSpacing="15" RowSpacing="15">
                         
                         <!-- Ana Tema (Açık) (Row 0, Col 0) -->
-                        <Frame x:Name="AnaAcikFrame"
+                        <Border x:Name="AnaAcikFrame"
                                Grid.Row="0" Grid.Column="0"
-                               CornerRadius="15"
+                               StrokeShape="RoundRectangle 15"
                                Padding="0"
-                               IsClippedToBounds="True"
-                               HasShadow="True"
-                               BorderColor="{AppThemeBinding Light=#00796B, Dark=#80CBC4}"
+                               Stroke="{AppThemeBinding Light=#00796B, Dark=#80CBC4}"
                                BackgroundColor="{AppThemeBinding Light=White, Dark=#1E1E1E}">
-                            <Frame.GestureRecognizers>
+                            <Border.GestureRecognizers>
                                 <TapGestureRecognizer Tapped="OnThemeCardTapped" CommandParameter="MainLight"/>
-                            </Frame.GestureRecognizers>
+                            </Border.GestureRecognizers>
                             <Grid RowDefinitions="100, Auto">
                                 <Image x:Name="AnaAcikImage"
                                        Grid.Row="0"
@@ -78,20 +75,18 @@
                                            IsVisible="False"/>
                                 </VerticalStackLayout>
                             </Grid>
-                        </Frame>
+                        </Border>
 
                         <!-- Ana Tema (Koyu) (Row 0, Col 1) -->
-                        <Frame x:Name="AnaKoyuFrame"
+                        <Border x:Name="AnaKoyuFrame"
                                Grid.Row="0" Grid.Column="1"
-                               CornerRadius="15"
+                               StrokeShape="RoundRectangle 15"
                                Padding="0"
-                               IsClippedToBounds="True"
-                               HasShadow="True"
-                               BorderColor="{AppThemeBinding Light=#E0E0E0, Dark=#333333}"
+                               Stroke="{AppThemeBinding Light=#E0E0E0, Dark=#333333}"
                                BackgroundColor="{AppThemeBinding Light=White, Dark=#1E1E1E}">
-                            <Frame.GestureRecognizers>
+                            <Border.GestureRecognizers>
                                 <TapGestureRecognizer Tapped="OnThemeCardTapped" CommandParameter="MainDark"/>
-                            </Frame.GestureRecognizers>
+                            </Border.GestureRecognizers>
                             <Grid RowDefinitions="100, Auto">
                                 <Image x:Name="AnaKoyuImage"
                                        Grid.Row="0"
@@ -112,20 +107,18 @@
                                            IsVisible="False"/>
                                 </VerticalStackLayout>
                             </Grid>
-                        </Frame>
+                        </Border>
 
                         <!-- Açık (Sabit) (Row 1, Col 0) -->
-                        <Frame x:Name="AcikFrame"
+                        <Border x:Name="AcikFrame"
                                Grid.Row="1" Grid.Column="0"
-                               CornerRadius="15"
+                               StrokeShape="RoundRectangle 15"
                                Padding="0"
-                               IsClippedToBounds="True"
-                               HasShadow="True"
-                               BorderColor="{AppThemeBinding Light=#E0E0E0, Dark=#333333}"
+                               Stroke="{AppThemeBinding Light=#E0E0E0, Dark=#333333}"
                                BackgroundColor="{AppThemeBinding Light=White, Dark=#1E1E1E}">
-                            <Frame.GestureRecognizers>
+                            <Border.GestureRecognizers>
                                 <TapGestureRecognizer Tapped="OnThemeCardTapped" CommandParameter="Light"/>
-                            </Frame.GestureRecognizers>
+                            </Border.GestureRecognizers>
                             <Grid RowDefinitions="100, Auto">
                                 <Image Grid.Row="0"
                                        Aspect="AspectFill"
@@ -145,20 +138,18 @@
                                            IsVisible="False"/>
                                 </VerticalStackLayout>
                             </Grid>
-                        </Frame>
+                        </Border>
 
                         <!-- Simsiyah (Sabit) (Row 1, Col 1) -->
-                        <Frame x:Name="SimsiyahFrame"
+                        <Border x:Name="SimsiyahFrame"
                                Grid.Row="1" Grid.Column="1"
-                               CornerRadius="15"
+                               StrokeShape="RoundRectangle 15"
                                Padding="0"
-                               IsClippedToBounds="True"
-                               HasShadow="True"
-                               BorderColor="{AppThemeBinding Light=#E0E0E0, Dark=#333333}"
+                               Stroke="{AppThemeBinding Light=#E0E0E0, Dark=#333333}"
                                BackgroundColor="{AppThemeBinding Light=White, Dark=#1E1E1E}">
-                            <Frame.GestureRecognizers>
+                            <Border.GestureRecognizers>
                                 <TapGestureRecognizer Tapped="OnThemeCardTapped" CommandParameter="PitchBlack"/>
-                            </Frame.GestureRecognizers>
+                            </Border.GestureRecognizers>
                             <Grid RowDefinitions="100, Auto">
                                 <Image Grid.Row="0"
                                        Aspect="AspectFill"
@@ -178,21 +169,19 @@
                                            IsVisible="False"/>
                                 </VerticalStackLayout>
                             </Grid>
-                        </Frame>
+                        </Border>
 
                         <!-- Özel Tema (Row 2, Col 0, ColSpan 2) -->
-                        <Frame x:Name="OzelFrame"
+                        <Border x:Name="OzelFrame"
                                Grid.Row="2" Grid.Column="0" Grid.ColumnSpan="2"
-                               CornerRadius="15"
+                               StrokeShape="RoundRectangle 15"
                                Padding="0"
-                               IsClippedToBounds="True"
-                               HasShadow="True"
-                               BorderColor="{AppThemeBinding Light=#E0E0E0, Dark=#333333}"
+                               Stroke="{AppThemeBinding Light=#E0E0E0, Dark=#333333}"
                                BackgroundColor="{AppThemeBinding Light=White, Dark=#1E1E1E}"
                                Opacity="0.5">
-                            <Frame.GestureRecognizers>
+                            <Border.GestureRecognizers>
                                 <TapGestureRecognizer Tapped="OnThemeCardTapped" CommandParameter="Custom"/>
-                            </Frame.GestureRecognizers>
+                            </Border.GestureRecognizers>
                             <Grid RowDefinitions="100, Auto">
                                 <Image x:Name="OzelTemaImage"
                                        Grid.Row="0"
@@ -214,22 +203,21 @@
                                            IsVisible="False"/>
                                 </VerticalStackLayout>
                             </Grid>
-                        </Frame>
+                        </Border>
                     </Grid>
                 </VerticalStackLayout>
 
                 <!-- 3. OZEL TEMA SECTION (Large Bottom Card) -->
-                <Frame x:Name="OzelTemaFrame"
-                       CornerRadius="20"
+                <Border x:Name="OzelTemaFrame"
+                       StrokeShape="RoundRectangle 20"
                        Padding="20"
-                       HasShadow="True"
                        Margin="0,20,0,0"
-                       BorderColor="{AppThemeBinding Light=#E0E0E0, Dark=#333333}"
+                       Stroke="{AppThemeBinding Light=#E0E0E0, Dark=#333333}"
                        BackgroundColor="{AppThemeBinding Light=White, Dark=#1E1E1E}"
                        HeightRequest="120">
-                    <Frame.GestureRecognizers>
+                    <Border.GestureRecognizers>
                         <TapGestureRecognizer Tapped="OzelTemaOlustur_Clicked"/>
-                    </Frame.GestureRecognizers>
+                    </Border.GestureRecognizers>
                     <Grid ColumnDefinitions="Auto, *">
                         <Label Grid.Column="0" 
                                Text="🎨" 
@@ -258,7 +246,7 @@
                                VerticalOptions="Start"
                                IsVisible="False"/>
                     </Grid>
-                </Frame>
+                </Border>
 
 
                 <Label Text="⚠️ Tema özelliği beta aşamasındadır. Bazı hatalarla karşılaşabilirsiniz."

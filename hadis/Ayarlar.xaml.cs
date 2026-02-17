@@ -1,17 +1,20 @@
 using hadis.Helpers;
 using Microsoft.Maui.ApplicationModel;
 using Microsoft.Maui.Devices.Sensors;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace hadis
 {
     public partial class Ayarlar : ContentPage
     {
         private readonly hadis.Services.IImageService _imageService;
+        private readonly IServiceProvider _serviceProvider;
 
-        public Ayarlar(hadis.Services.IImageService imageService)
+        public Ayarlar(hadis.Services.IImageService imageService, IServiceProvider serviceProvider)
         {
             InitializeComponent();
             _imageService = imageService;
+            _serviceProvider = serviceProvider;
             UpdateVersionInfo();
         }
 
@@ -28,12 +31,14 @@ namespace hadis
 
         private async void TemaButton_Clicked(object sender, TappedEventArgs e)
         {
-            await Navigation.PushAsync(new TemaAyarlari());
+            var page = _serviceProvider.GetRequiredService<TemaAyarlari>();
+            await Navigation.PushAsync(page);
         }
 
         private async void BildirimButton_Clicked(object sender, TappedEventArgs e)
         {
-            await Navigation.PushAsync(new BildirimAyarlari());
+            var page = _serviceProvider.GetRequiredService<BildirimAyarlari>();
+            await Navigation.PushAsync(page);
         }
 
         private async void WidgetButton_Clicked(object sender, TappedEventArgs e)
@@ -43,7 +48,8 @@ namespace hadis
 
         private async void KonumButton_Clicked(object sender, TappedEventArgs e)
         {
-            await Navigation.PushAsync(new SehirSecim());
+            var page = _serviceProvider.GetRequiredService<SehirSecim>();
+            await Navigation.PushAsync(page);
         }
 
         private async void GizlilikPolitikasi_Tapped(object sender, TappedEventArgs e)
@@ -62,17 +68,20 @@ namespace hadis
 
         private async void YakinCamilerButton_Clicked(object sender, TappedEventArgs e)
         {
-            await Navigation.PushAsync(new YakindakiCamiler());
+            var page = _serviceProvider.GetRequiredService<YakindakiCamiler>();
+            await Navigation.PushAsync(page);
         }
 
         private async void HicriTakvimButton_Clicked(object sender, TappedEventArgs e)
         {
-            await Navigation.PushAsync(new HicriTakvim());
+            var page = _serviceProvider.GetRequiredService<HicriTakvim>();
+            await Navigation.PushAsync(page);
         }
 
         private async void KutuphaneButton_Clicked(object sender, TappedEventArgs e)
         {
-            await Navigation.PushAsync(new Kutuphane());
+            var page = _serviceProvider.GetRequiredService<Kutuphane>();
+            await Navigation.PushAsync(page);
         }
 
         protected override bool OnBackButtonPressed()

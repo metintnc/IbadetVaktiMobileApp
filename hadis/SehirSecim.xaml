@@ -1,7 +1,8 @@
-<?xml version="1.0" encoding="utf-8" ?>
 <ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:viewmodels="clr-namespace:hadis.ViewModels"
              x:Class="hadis.SehirSecim"
+             x:DataType="viewmodels:SehirSecimViewModel"
              Title="Konum Seç"
              NavigationPage.HasNavigationBar="False"
              Shell.TabBarIsVisible="False"
@@ -12,16 +13,15 @@
         <Grid RowDefinitions="Auto,Auto,*" Padding="20,10">
             
             <!-- 1. Header Frame (Özel Üst Bar) -->
-            <Frame Grid.Row="0"
-                   CornerRadius="20"
+            <Border Grid.Row="0"
+                   StrokeShape="RoundRectangle 20"
                    Padding="15"
                    Margin="0,10,0,10"
-                   HasShadow="True"
-                   BorderColor="{AppThemeBinding Light=#80009688, Dark=#80FFFFFF}"
+                   Stroke="{AppThemeBinding Light=#80009688, Dark=#80FFFFFF}"
                    BackgroundColor="{AppThemeBinding Light=#EEFFFFFF, Dark=#AA111111}">
                 <Grid ColumnDefinitions="Auto,*" VerticalOptions="Center">
                      <!-- Geri Butonu (Entegre) -->
-
+ 
                                  
                     <!-- Basit Geri Dönüş için Label Button -->
                      <Label Grid.Column="0"
@@ -31,15 +31,16 @@
                             FontAttributes="Bold"
                             VerticalOptions="Center"
                             TextColor="{AppThemeBinding Light=#00796B, Dark=#FFFFFF}"
-                            Margin="0,0,10,0">
+                            Margin="0,0,10,0"
+                            IsVisible="{Binding IsBackVisible}">
                         <Label.GestureRecognizers>
-                            <TapGestureRecognizer Tapped="OnBackLabelClicked"/>
+                            <TapGestureRecognizer Command="{Binding GoBackCommand}"/>
                         </Label.GestureRecognizers>
                     </Label>
 
                     <Label Grid.Column="1" 
                            x:Name="TitleLabel"
-                           Text="Konum Seç"
+                           Text="{Binding Title}"
                            FontSize="20"
                            FontAttributes="Bold"
                            HorizontalOptions="Center"
@@ -47,34 +48,32 @@
                            TextColor="{AppThemeBinding Light=#00796B, Dark=#FFFFFF}"
                            Margin="-30,0,0,0"/> <!-- Geri butonu payını dengelemek için margin -->
                 </Grid>
-            </Frame>
+            </Border>
             
             <!-- 2. Arama ve Otomatik Konum (Sabit Alan) -->
             <VerticalStackLayout Grid.Row="1" Spacing="10" Margin="0,0,0,10">
                 <!-- Arama Kutusu -->
-                <Frame Padding="0"
-                       CornerRadius="15"
-                       HasShadow="False"
-                       BorderColor="{AppThemeBinding Light=#80009688, Dark=#80FFFFFF}"
+                <Border Padding="0"
+                       StrokeShape="RoundRectangle 15"
+                       Stroke="{AppThemeBinding Light=#80009688, Dark=#80FFFFFF}"
                        BackgroundColor="{AppThemeBinding Light=#33E0F2F1, Dark=#33000000}">
                     <SearchBar x:Name="SearchBar"
-                               Placeholder="Şehir ara..."
-                               TextChanged="SearchBar_TextChanged"
+                               Placeholder="{Binding SearchPlaceholder}"
+                               Text="{Binding SearchText}"
                                BackgroundColor="Transparent"
                                PlaceholderColor="{AppThemeBinding Light=#9E9E9E, Dark=#757575}"
                                TextColor="{AppThemeBinding Light=#00796B, Dark=#FFFFFF}"
                                CancelButtonColor="{AppThemeBinding Light=#00796B, Dark=#FFFFFF}"/>
-                </Frame>
+                </Border>
 
                 <!-- Otomatik Konum Kartı -->
-                <Frame CornerRadius="15"
+                <Border StrokeShape="RoundRectangle 15"
                        Padding="15"
-                       HasShadow="True"
-                       BorderColor="{AppThemeBinding Light=#80009688, Dark=#80FFFFFF}"
+                       Stroke="{AppThemeBinding Light=#80009688, Dark=#80FFFFFF}"
                        BackgroundColor="{AppThemeBinding Light=#E0F2F1, Dark=#33004D40}">
-                    <Frame.GestureRecognizers>
-                        <TapGestureRecognizer Tapped="OnFindLocationTapped"/>
-                    </Frame.GestureRecognizers>
+                    <Border.GestureRecognizers>
+                        <TapGestureRecognizer Command="{Binding FindLocationCommand}"/>
+                    </Border.GestureRecognizers>
                     <Grid ColumnDefinitions="Auto,*,Auto">
                         <Label Grid.Column="0" Text="📍" FontSize="20" VerticalOptions="Center" Margin="0,0,10,0"/>
                         <Label Grid.Column="1" 
@@ -85,26 +84,26 @@
                                TextColor="{AppThemeBinding Light=#00796B, Dark=#80CBC4}"/>
                         <Label Grid.Column="2" Text="❯" FontSize="20" TextColor="{AppThemeBinding Light=#00796B, Dark=#80CBC4}" VerticalOptions="Center"/>
                     </Grid>
-                </Frame>
+                </Border>
             </VerticalStackLayout>
             
             <!-- 3. Şehir Listesi -->
             <CollectionView Grid.Row="2" 
                             x:Name="CitiesCollectionView"
-                            SelectionMode="Single"
-                            SelectionChanged="CitiesCollectionView_SelectionChanged"
+                            ItemsSource="{Binding FilteredCities}"
+                            SelectionMode="None"
                             VerticalScrollBarVisibility="Never">
                 <CollectionView.ItemTemplate>
                     <DataTemplate>
-                        <Frame Padding="15,12" 
+                        <Border Padding="15,12" 
                                Margin="2,4"
-                               CornerRadius="12"
-                               BorderColor="{AppThemeBinding Light=#20009688, Dark=#20FFFFFF}"
-                               BackgroundColor="{AppThemeBinding Light=#CCFFFFFF, Dark=#CC1E1E1E}"
-                               HasShadow="True">
-                            <Frame.GestureRecognizers>
-                                <TapGestureRecognizer Tapped="OnCityTapped"/>
-                            </Frame.GestureRecognizers>
+                               StrokeShape="RoundRectangle 12"
+                               Stroke="{AppThemeBinding Light=#20009688, Dark=#20FFFFFF}"
+                               BackgroundColor="{AppThemeBinding Light=#CCFFFFFF, Dark=#CC1E1E1E}">
+                            <Border.GestureRecognizers>
+                                <TapGestureRecognizer Command="{Binding Source={RelativeSource AncestorType={x:Type viewmodels:SehirSecimViewModel}}, Path=SelectCityCommand}"
+                                                      CommandParameter="{Binding .}"/>
+                            </Border.GestureRecognizers>
                             <Grid ColumnDefinitions="*,Auto">
                                 <Label Grid.Column="0"
                                        Text="{Binding Name}"
@@ -119,7 +118,7 @@
                                        TextColor="{AppThemeBinding Light=#BDBDBD, Dark=#616161}"
                                        TranslationX="5"/>
                             </Grid>
-                        </Frame>
+                        </Border>
                     </DataTemplate>
                 </CollectionView.ItemTemplate>
             </CollectionView>

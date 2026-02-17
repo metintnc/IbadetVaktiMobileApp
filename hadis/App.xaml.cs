@@ -54,11 +54,20 @@
                             window.SetStatusBarColor(Android.Graphics.Color.Black);
                             
                             // Android 6.0 ve üzeri için metin rengini ayarla
-                            if (Android.OS.Build.VERSION.SdkInt >= Android.OS.BuildVersionCodes.M)
+                            // Android 11 (API 30) ve üzeri için WindowInsetsController kullanımı
+                            if (Android.OS.Build.VERSION.SdkInt >= Android.OS.BuildVersionCodes.R)
                             {
-                                // Koyu tema için açık renkli iconlar
+                                window.InsetsController?.SetSystemBarsAppearance(
+                                    0, // Clear LightStatusBars flag (become white text)
+                                    (int)Android.Views.WindowInsetsControllerAppearance.LightStatusBars);
+                            }
+                            else if (Android.OS.Build.VERSION.SdkInt >= Android.OS.BuildVersionCodes.M)
+                            {
+#pragma warning disable CS0618 // Type or member is obsolete
+                                // Koyu tema için açık renkli iconlar (SystemUiVisibility)
                                 window.DecorView.SystemUiVisibility = (Android.Views.StatusBarVisibility)
                                     Android.Views.SystemUiFlags.Visible;
+#pragma warning restore CS0618 // Type or member is obsolete
                             }
                         }
                         else
@@ -66,12 +75,20 @@
                             // Açık tema - beyaz status bar
                             window.SetStatusBarColor(Android.Graphics.Color.White);
                             
-                            // Android 6.0 ve üzeri için metin rengini ayarla
-                            if (Android.OS.Build.VERSION.SdkInt >= Android.OS.BuildVersionCodes.M)
+                            // Android 11 (API 30) ve üzeri için WindowInsetsController kullanımı
+                            if (Android.OS.Build.VERSION.SdkInt >= Android.OS.BuildVersionCodes.R)
                             {
+                                window.InsetsController?.SetSystemBarsAppearance(
+                                    (int)Android.Views.WindowInsetsControllerAppearance.LightStatusBars,
+                                    (int)Android.Views.WindowInsetsControllerAppearance.LightStatusBars);
+                            }
+                            else if (Android.OS.Build.VERSION.SdkInt >= Android.OS.BuildVersionCodes.M)
+                            {
+#pragma warning disable CS0618 // Type or member is obsolete
                                 // Açık tema için koyu renkli iconlar
                                 window.DecorView.SystemUiVisibility = (Android.Views.StatusBarVisibility)
                                     (Android.Views.SystemUiFlags.LightStatusBar);
+#pragma warning restore CS0618 // Type or member is obsolete
                             }
                         }
                     }

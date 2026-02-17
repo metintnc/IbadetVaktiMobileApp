@@ -65,16 +65,15 @@
         </VerticalStackLayout>
 
         <!-- Kalibrasyon Uyarısı - Row 1 Overlay Bottom -->
-        <Frame Grid.Row="1"
+        <Border Grid.Row="1"
                x:Name="CalibrationWarningFrame"
                BackgroundColor="#CCFF5252"
                Padding="15,10"
-               CornerRadius="15"
+               StrokeShape="RoundRectangle 15"
                HorizontalOptions="Center"
                VerticalOptions="End"
                Margin="20,10,20,50"
                IsVisible="False"
-               HasShadow="False"
                ZIndex="99">
             <HorizontalStackLayout Spacing="10" VerticalOptions="Center">
                 <Label Text="⚠️" 
@@ -92,21 +91,20 @@
                            MaximumWidthRequest="250"/>
                 </VerticalStackLayout>
             </HorizontalStackLayout>
-        </Frame>
+        </Border>
 
         <!-- Konum İzni Uyarısı - Overlay -->
-        <Frame Grid.Row="1"
+        <Border Grid.Row="1"
                x:Name="LocationWarningFrame"
                BackgroundColor="{AppThemeBinding Light=#FFFFFF, Dark=#1F1F1F}"
                Padding="20"
-               CornerRadius="20"
+               StrokeShape="RoundRectangle 20"
                HorizontalOptions="Center"
                VerticalOptions="Center"
                Margin="30"
                IsVisible="False"
-               HasShadow="True"
                ZIndex="100"
-               BorderColor="{AppThemeBinding Light=#E0E0E0, Dark=#333333}">
+               Stroke="{AppThemeBinding Light=#E0E0E0, Dark=#333333}">
             <VerticalStackLayout Spacing="15" VerticalOptions="Center">
                 <Label Text="📍" 
                        FontSize="40" 
@@ -131,7 +129,7 @@
                         CornerRadius="10"
                         Clicked="OnRequestLocationPermission_Clicked"/>
             </VerticalStackLayout>
-        </Frame>
+        </Border>
 
         <!-- Genel İzin/Ayarlar Uyarısı - Overlay (DisplayAlert yerine) -->
         <Grid x:Name="PermissionOverlay"
@@ -140,14 +138,13 @@
               ZIndex="101"
               HorizontalOptions="FillAndExpand"
               VerticalOptions="FillAndExpand">
-            <Frame BackgroundColor="{AppThemeBinding Light=#FFFFFF, Dark=#1F1F1F}"
+            <Border BackgroundColor="{AppThemeBinding Light=#FFFFFF, Dark=#1F1F1F}"
                    Padding="20"
-                   CornerRadius="20"
+                   StrokeShape="RoundRectangle 20"
                    HorizontalOptions="Center"
                    VerticalOptions="Center"
                    Margin="30"
-                   HasShadow="True"
-                   BorderColor="{AppThemeBinding Light=#E0E0E0, Dark=#333333}"
+                   Stroke="{AppThemeBinding Light=#E0E0E0, Dark=#333333}"
                    WidthRequest="300">
                 <VerticalStackLayout Spacing="15">
                     <Label x:Name="PermissionOverlayTitle"
@@ -182,7 +179,7 @@
                                 Clicked="OnPermissionOverlayConfirm_Clicked"/>
                     </HorizontalStackLayout>
                 </VerticalStackLayout>
-            </Frame>
+            </Border>
         </Grid>
 
 

@@ -1,4 +1,5 @@
 using System.Globalization;
+using Microsoft.Maui.Controls.Shapes;
 
 namespace hadis
 {
@@ -159,7 +160,7 @@ namespace hadis
             }
         }
 
-        private Frame GunHucresiOlustur(int hicriGun, int miladiGun, bool bugunMu, bool onemliGunMu, bool cumaMi)
+        private Border GunHucresiOlustur(int hicriGun, int miladiGun, bool bugunMu, bool onemliGunMu, bool cumaMi)
         {
             Color bgColor;
             Color textColor;
@@ -204,13 +205,12 @@ namespace hadis
                     : Color.FromArgb("#00796B");
             }
 
-            var frame = new Frame
+            var frame = new Border
             {
-                CornerRadius = 10,
+                StrokeShape = new RoundRectangle { CornerRadius = 10 },
                 Padding = new Thickness(2),
-                HasShadow = false,
                 BackgroundColor = bgColor,
-                BorderColor = bugunMu ? Color.FromArgb("#00BFA5") : Colors.Transparent,
+                Stroke = bugunMu ? Color.FromArgb("#00BFA5") : Colors.Transparent,
                 HeightRequest = 48,
                 Margin = new Thickness(1)
             };
@@ -277,15 +277,14 @@ namespace hadis
                     continue;
                 }
 
-                var frame = new Frame
+                var frame = new Border
                 {
-                    CornerRadius = 12,
+                    StrokeShape = new RoundRectangle { CornerRadius = 12 },
                     Padding = new Thickness(12, 10),
-                    HasShadow = false,
                     BackgroundColor = Application.Current.RequestedTheme == AppTheme.Dark
                         ? Color.FromArgb("#1A2E2A")
                         : Color.FromArgb("#E0F2F1"),
-                    BorderColor = Application.Current.RequestedTheme == AppTheme.Dark
+                    Stroke = Application.Current.RequestedTheme == AppTheme.Dark
                         ? Color.FromArgb("#2E4F47")
                         : Color.FromArgb("#B2DFDB")
                 };

@@ -7,24 +7,28 @@ namespace hadis
     public partial class BildirimAyarlari : ContentPage
     {
         private readonly hadis.Services.IAppNotificationService _notificationService;
+        private readonly PrayerTimesService _prayerTimesService;
         private bool _isInitialized = false;
 
-        public BildirimAyarlari(hadis.Services.IAppNotificationService notificationService)
+        public BildirimAyarlari(hadis.Services.IAppNotificationService notificationService, PrayerTimesService prayerTimesService)
         {
             InitializeComponent();
             _notificationService = notificationService;
+            _prayerTimesService = prayerTimesService;
         }
-        
-        // Parameterless constructor for XAML preview if needed, though strictly dependency injection is preferred
-        public BildirimAyarlari() : this(new hadis.Services.NotificationService())
-        {
-            // Fallback for previewer or manual instantiation if DI fails
-        }
+
 
         protected override async void OnAppearing()
         {
             base.OnAppearing();
-            await InitializeSettings();
+            try
+            {
+                await InitializeSettings();
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine($"BildirimAyarlari OnAppearing hatası: {ex.Message}");
+            }
         }
 
         private async Task InitializeSettings()
@@ -111,7 +115,7 @@ namespace hadis
                 }
 
                 // Bugünün vakitlerini al
-                var vakitler = await PrayerTimesService.GetPrayerTimesForDateAsync(DateTime.Now, ilce, sehir);
+                var vakitler = await _prayerTimesService.GetPrayerTimesForDateAsync(DateTime.Now, ilce, sehir);
                 
                 if (vakitler != null)
                 {
@@ -167,60 +171,11 @@ namespace hadis
 
                     if (!string.IsNullOrEmpty(sehir) && !string.IsNullOrEmpty(ilce))
                     {
-                        var vakitler = await PrayerTimesService.GetPrayerTimesForDateAsync(DateTime.Now, ilce, sehir);
+                        var vakitler = await _prayerTimesService.GetPrayerTimesForDateAsync(DateTime.Now, ilce, sehir);
                         
                         if (vakitler != null)
                         {
-                            var now = DateTime.Now;
-                            string nextPrayerName = "";
-                            TimeSpan timeRemaining = TimeSpan.Zero;
-
-                            // Bir sonraki namazı bul
-                            if (vakitler["İmsak"] > now)
-                            {
-                                nextPrayerName = "İmsak";
-                                timeRemaining = vakitler["İmsak"] - now;
-                            }
-                            else if (vakitler["gunes"] > now)
-                            {
-                                nextPrayerName = "Güneş";
-                                timeRemaining = vakitler["gunes"] - now;
-                            }
-                            else if (vakitler["Ogle"] > now)
-                            {
-                                nextPrayerName = "Öğle";
-                                timeRemaining = vakitler["Ogle"] - now;
-                            }
-                            else if (vakitler["İkindi"] > now)
-                            {
-                                nextPrayerName = "İkindi";
-                                timeRemaining = vakitler["İkindi"] - now;
-                            }
-                            else if (vakitler["Aksam"] > now)
-                            {
-                                nextPrayerName = "Akşam";
-                                timeRemaining = vakitler["Aksam"] - now;
-                            }
-                            else if (vakitler["Yatsi"] > now)
-                            {
-                                nextPrayerName = "Yatsı";
-                                timeRemaining = vakitler["Yatsi"] - now;
-                            }
-                            else
-                            {
-                                nextPrayerName = "İmsak";
-                                timeRemaining = vakitler["İmsak"].AddDays(1) - now;
-                            }
-
-                            string title = "Namaz Vakitleri";
-                            string message = $"{nextPrayerName}: {timeRemaining.Hours:D2}:{timeRemaining.Minutes:D2} | " +
-                                            $"İmsak {vakitler["İmsak"]:HH:mm} | " +
-                                            $"Güneş {vakitler["gunes"]:HH:mm} | " +
-                                            $"Öğle {vakitler["Ogle"]:HH:mm} | " +
-                                            $"İkindi {vakitler["İkindi"]:HH:mm} | " +
-                                            $"Akşam {vakitler["Aksam"]:HH:mm} | " +
-                                            $"Yatsı {vakitler["Yatsi"]:HH:mm}";
-
+                            var (title, message) = hadis.Helpers.PrayerTimeHelper.BuildPersistentNotificationContent(vakitler);
                             await _notificationService.ShowPersistentNotificationAsync(title, message);
                             
                             // Güncelleyiciyi başlat

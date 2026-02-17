@@ -28,14 +28,14 @@
         <Grid RowDefinitions="Auto,*,Auto" Padding="20">
             
             <!-- Header -->
-            <Frame Grid.Row="0"
+            <Border Grid.Row="0"
                    x:Name="HeaderFrame"
-                   CornerRadius="20"
+                   StrokeShape="RoundRectangle 20"
                    Padding="20,25,20,20"
                    Margin="0,0,0,20"
-                   HasShadow="True"
-                   BorderColor="{AppThemeBinding Light=#80009688, Dark=#80FFFFFF}"
-                   BackgroundColor="{AppThemeBinding Light=#22FFFFFF, Dark=#33000000}">
+                   Stroke="{AppThemeBinding Light=#80009688, Dark=#80FFFFFF}"
+                   BackgroundColor="{AppThemeBinding Light=#22FFFFFF, Dark=#33000000}"
+                   SizeChanged="OnHeaderFrameSizeChanged">
                 <VerticalStackLayout Spacing="15">
                     <Grid VerticalOptions="Center">
                         <!-- Başlık ve Zikir İsmi (Ortalanmış) -->
@@ -54,22 +54,21 @@
                         </VerticalStackLayout>
                         
                         <!-- Ses Butonu (Sağ Üst) -->
-                        <Frame Padding="10"
-                               CornerRadius="15"
-                               HasShadow="False"
+                        <Border Padding="10"
+                               StrokeShape="RoundRectangle 15"
                                BackgroundColor="Transparent"
-                               BorderColor="Transparent"
+                               Stroke="Transparent"
                                HorizontalOptions="End"
                                VerticalOptions="Start">
-                            <Frame.GestureRecognizers>
+                            <Border.GestureRecognizers>
                                 <TapGestureRecognizer Tapped="SesTitresim_Clicked"/>
-                            </Frame.GestureRecognizers>
+                            </Border.GestureRecognizers>
                             <Label x:Name="SesTitresimIcon"
                                    Text="📳"
                                    FontSize="24"
                                    VerticalOptions="Center"
                                    HorizontalOptions="Center"/>
-                        </Frame>
+                        </Border>
                     </Grid>
                     
                     <!-- İlerleme Göstergesi -->
@@ -111,7 +110,7 @@
                         </Border>
                     </VerticalStackLayout>
                 </VerticalStackLayout>
-            </Frame>
+            </Border>
 
             <!-- Ana Merkezi Alan -->
             <Grid Grid.Row="1" 
@@ -143,19 +142,18 @@
                         Opacity="0.5"/>
 
                 <!-- Ana Merkezi Daire (Tıklanabilir) -->
-                <Frame x:Name="zikirbutton"
-                       CornerRadius="125"
+                <Border x:Name="zikirbutton"
+                       StrokeShape="RoundRectangle 125"
                        WidthRequest="250"
                        HeightRequest="250"
                        HorizontalOptions="Center"
                        VerticalOptions="Center"
                        Padding="0"
-                       HasShadow="True"
-                       BorderColor="{AppThemeBinding Light=#80009688, Dark=#80FFFFFF}"
+                       Stroke="{AppThemeBinding Light=#80009688, Dark=#80FFFFFF}"
                        BackgroundColor="{AppThemeBinding Light=#44FFFFFF, Dark=#44000000}">
-                    <Frame.GestureRecognizers>
+                    <Border.GestureRecognizers>
                         <TapGestureRecognizer Tapped="zikirbutton_Clicked"/>
-                    </Frame.GestureRecognizers>
+                    </Border.GestureRecognizers>
                     
                     <Grid>
                         <!-- İlerleme Göstergesi (Circular Progress) -->
@@ -183,7 +181,7 @@
                                    TextColor="{AppThemeBinding Light=#757575, Dark=#BDBDBD}"/>
                         </VerticalStackLayout>
                     </Grid>
-                </Frame>
+                </Border>
             </Grid>
 
             <!-- Alt Butonlar -->
@@ -193,15 +191,14 @@
                   Margin="0,20,0,0">
                 
                 <!-- Sıfırla Butonu -->
-                <Frame Grid.Column="0"
-                       CornerRadius="20"
+                <Border Grid.Column="0"
+                       StrokeShape="RoundRectangle 20"
                        Padding="10"
-                       HasShadow="True"
-                       BorderColor="{AppThemeBinding Light=#80009688, Dark=#80FFFFFF}"
+                       Stroke="{AppThemeBinding Light=#80009688, Dark=#80FFFFFF}"
                        BackgroundColor="{AppThemeBinding Light=#22FFFFFF, Dark=#33000000}">
-                    <Frame.GestureRecognizers>
+                    <Border.GestureRecognizers>
                         <TapGestureRecognizer Tapped="sifirla_Clicked"/>
-                    </Frame.GestureRecognizers>
+                    </Border.GestureRecognizers>
                     <VerticalStackLayout Spacing="5" HorizontalOptions="Center">
                         <Label Text="🔄"
                                FontSize="24"
@@ -213,18 +210,17 @@
                                HorizontalOptions="Center"
                                TextColor="{AppThemeBinding Light=#00796B, Dark=#FFFFFF}"/>
                     </VerticalStackLayout>
-                </Frame>
+                </Border>
 
                 <!-- Hedef Ayarla Butonu -->
-                <Frame Grid.Column="1"
-                       CornerRadius="20"
+                <Border Grid.Column="1"
+                       StrokeShape="RoundRectangle 20"
                        Padding="10"
-                       HasShadow="True"
-                       BorderColor="{AppThemeBinding Light=#80009688, Dark=#80FFFFFF}"
+                       Stroke="{AppThemeBinding Light=#80009688, Dark=#80FFFFFF}"
                        BackgroundColor="{AppThemeBinding Light=#22FFFFFF, Dark=#33000000}">
-                    <Frame.GestureRecognizers>
+                    <Border.GestureRecognizers>
                         <TapGestureRecognizer Tapped="HedefAyarla_Clicked"/>
-                    </Frame.GestureRecognizers>
+                    </Border.GestureRecognizers>
                     <VerticalStackLayout Spacing="5" HorizontalOptions="Center">
                         <Label Text="⚙️"
                                FontSize="24"
@@ -237,18 +233,17 @@
                                HorizontalTextAlignment="Center"
                                TextColor="{AppThemeBinding Light=#00796B, Dark=#FFFFFF}"/>
                     </VerticalStackLayout>
-                </Frame>
+                </Border>
 
                 <!-- Zikir Seç Butonu -->
-                <Frame Grid.Column="2"
-                       CornerRadius="20"
+                <Border Grid.Column="2"
+                       StrokeShape="RoundRectangle 20"
                        Padding="10"
-                       HasShadow="True"
-                       BorderColor="{AppThemeBinding Light=#80009688, Dark=#80FFFFFF}"
+                       Stroke="{AppThemeBinding Light=#80009688, Dark=#80FFFFFF}"
                        BackgroundColor="{AppThemeBinding Light=#22FFFFFF, Dark=#33000000}">
-                    <Frame.GestureRecognizers>
+                    <Border.GestureRecognizers>
                         <TapGestureRecognizer Tapped="ZikirSec_Clicked"/>
-                    </Frame.GestureRecognizers>
+                    </Border.GestureRecognizers>
                     <VerticalStackLayout Spacing="5" HorizontalOptions="Center">
                         <Label Text="📋"
                                FontSize="24"
@@ -261,18 +256,17 @@
                                HorizontalTextAlignment="Center"
                                TextColor="{AppThemeBinding Light=#00796B, Dark=#FFFFFF}"/>
                     </VerticalStackLayout>
-                </Frame>
+                </Border>
 
                 <!-- İstatistik Butonu -->
-                <Frame Grid.Column="3"
-                       CornerRadius="20"
+                <Border Grid.Column="3"
+                       StrokeShape="RoundRectangle 20"
                        Padding="10"
-                       HasShadow="True"
-                       BorderColor="{AppThemeBinding Light=#80009688, Dark=#80FFFFFF}"
+                       Stroke="{AppThemeBinding Light=#80009688, Dark=#80FFFFFF}"
                        BackgroundColor="{AppThemeBinding Light=#22FFFFFF, Dark=#33000000}">
-                    <Frame.GestureRecognizers>
+                    <Border.GestureRecognizers>
                         <TapGestureRecognizer Tapped="Istatistik_Clicked"/>
-                    </Frame.GestureRecognizers>
+                    </Border.GestureRecognizers>
                     <VerticalStackLayout Spacing="5" HorizontalOptions="Center">
                         <Label Text="📈"
                                FontSize="24"
@@ -285,7 +279,7 @@
                                HorizontalTextAlignment="Center"
                                TextColor="{AppThemeBinding Light=#00796B, Dark=#FFFFFF}"/>
                     </VerticalStackLayout>
-                </Frame>
+                </Border>
             </Grid>
         </Grid>
 
@@ -300,13 +294,13 @@
                   <TapGestureRecognizer Tapped="OnCancelTarget_Clicked"/>
               </Grid.GestureRecognizers>
             
-            <Frame BackgroundColor="{AppThemeBinding Light=#FFFFFF, Dark=#1F1F1F}"
-                   CornerRadius="25"
+            <Border BackgroundColor="{AppThemeBinding Light=#FFFFFF, Dark=#1F1F1F}"
+                   StrokeShape="RoundRectangle 25"
                    HorizontalOptions="Center"
                    VerticalOptions="Center"
                    WidthRequest="320"
                    Padding="20"
-                   HasShadow="True">
+                   StrokeThickness="0">
                 <VerticalStackLayout Spacing="20">
                     <Label Text="Hedef Ayarla" 
                            FontSize="22" 
@@ -367,10 +361,10 @@
                                 Clicked="OnSaveTarget_Clicked"/>
                     </Grid>
                 </VerticalStackLayout>
-            </Frame>
+            </Border>
         </Grid>
 
-        <!-- Zikir Seçim Listesi (Custom Pop-up) -->
+            <!-- Zikir Seçim Listesi (Custom Pop-up) -->
         <Grid x:Name="ZikirSelectionOverlay"
               BackgroundColor="#CC000000"
               IsVisible="False"
@@ -381,14 +375,14 @@
                 <TapGestureRecognizer Tapped="OnCancelZikirSelection_Clicked"/>
             </Grid.GestureRecognizers>
 
-            <Frame BackgroundColor="{AppThemeBinding Light=#FFFFFF, Dark=#1F1F1F}"
-                   CornerRadius="25"
+            <Border BackgroundColor="{AppThemeBinding Light=#FFFFFF, Dark=#1F1F1F}"
+                   StrokeShape="RoundRectangle 25"
                    HorizontalOptions="Center"
                    VerticalOptions="Center"
                    WidthRequest="320"
                    HeightRequest="500"
                    Padding="20"
-                   HasShadow="True">
+                   StrokeThickness="0">
                 <Grid RowDefinitions="Auto,*,Auto,Auto" RowSpacing="15">
                     <Label Grid.Row="0"
                            Text="Zikir Seç" 
@@ -426,7 +420,7 @@
                             HeightRequest="45"
                             Clicked="OnCancelZikirSelection_Clicked"/>
                 </Grid>
-            </Frame>
+            </Border>
         </Grid>
 
         <!-- Özel Zikir Giriş Penceresi -->
@@ -440,13 +434,13 @@
                 <TapGestureRecognizer Tapped="OnCancelCustomZikir_Clicked"/>
             </Grid.GestureRecognizers>
 
-            <Frame BackgroundColor="{AppThemeBinding Light=#FFFFFF, Dark=#1F1F1F}"
-                   CornerRadius="25"
+            <Border BackgroundColor="{AppThemeBinding Light=#FFFFFF, Dark=#1F1F1F}"
+                   StrokeShape="RoundRectangle 25"
                    HorizontalOptions="Center"
                    VerticalOptions="Center"
                    WidthRequest="320"
                    Padding="20"
-                   HasShadow="True">
+                   StrokeThickness="0">
                 <VerticalStackLayout Spacing="20">
                     <Label Text="Özel Zikir" 
                            FontSize="22" 
@@ -483,7 +477,7 @@
                                 Clicked="OnSaveCustomZikir_Clicked"/>
                     </Grid>
                 </VerticalStackLayout>
-            </Frame>
+            </Border>
         </Grid>
 
         <!-- Sıfırla Onay Penceresi (Custom Pop-up) -->
@@ -497,13 +491,13 @@
                   <TapGestureRecognizer Tapped="OnCancelReset_Clicked"/>
               </Grid.GestureRecognizers>
             
-            <Frame BackgroundColor="{AppThemeBinding Light=#FFFFFF, Dark=#1F1F1F}"
-                   CornerRadius="25"
+            <Border BackgroundColor="{AppThemeBinding Light=#FFFFFF, Dark=#1F1F1F}"
+                   StrokeShape="RoundRectangle 25"
                    HorizontalOptions="Center"
                    VerticalOptions="Center"
                    WidthRequest="300"
                    Padding="20"
-                   HasShadow="True">
+                   StrokeThickness="0">
                 <VerticalStackLayout Spacing="20">
                     <Label Text="⚠️" 
                            FontSize="40" 
@@ -541,7 +535,7 @@
                                 Clicked="OnConfirmReset_Clicked"/>
                     </Grid>
                 </VerticalStackLayout>
-            </Frame>
+            </Border>
         </Grid>
     </Grid>
 </ContentPage>

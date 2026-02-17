@@ -30,11 +30,10 @@
             <VerticalStackLayout Spacing="20">
                 
                 <!-- Header -->
-                <Frame x:Name="HeaderFrame"
-                       CornerRadius="20"
+                <Border x:Name="HeaderFrame"
+                       StrokeShape="RoundRectangle 20"
                        Padding="20,25"
-                       HasShadow="True"
-                       BorderColor="{AppThemeBinding Light=#80009688, Dark=#80FFFFFF}"
+                       Stroke="{AppThemeBinding Light=#80009688, Dark=#80FFFFFF}"
                        BackgroundColor="{AppThemeBinding Light=#22FFFFFF, Dark=#33000000}">
                     <VerticalStackLayout Spacing="5" HorizontalOptions="Center">
                         <Label Text="📚" 
@@ -50,18 +49,17 @@
                                HorizontalOptions="Center"
                                TextColor="{AppThemeBinding Light=#757575, Dark=#BDBDBD}"/>
                     </VerticalStackLayout>
-                </Frame>
+                </Border>
 
                 <!-- Arapça Kur'an Card -->
-                <Frame x:Name="ArapcaKuranFrame"
-                       CornerRadius="20"
+                <Border x:Name="ArapcaKuranFrame"
+                       StrokeShape="RoundRectangle 20"
                        Padding="25"
-                       HasShadow="True"
-                       BorderColor="{AppThemeBinding Light=#80009688, Dark=#80FFFFFF}"
+                       Stroke="{AppThemeBinding Light=#80009688, Dark=#80FFFFFF}"
                        BackgroundColor="{AppThemeBinding Light=#22FFFFFF, Dark=#33000000}">
-                    <Frame.GestureRecognizers>
+                    <Border.GestureRecognizers>
                         <TapGestureRecognizer Tapped="ArapcaKuranButton_Clicked"/>
-                    </Frame.GestureRecognizers>
+                    </Border.GestureRecognizers>
                     <Grid ColumnDefinitions="Auto,*,Auto" ColumnSpacing="15">
                         <Label Grid.Column="0"
                                Text="📖"
@@ -87,18 +85,17 @@
                                WidthRequest="24"
                                VerticalOptions="Center" />
                     </Grid>
-                </Frame>
+                </Border>
 
                 <!-- İlmihal Card -->
-                <Frame x:Name="IlmihalFrame"
-                       CornerRadius="20"
+                <Border x:Name="IlmihalFrame"
+                       StrokeShape="RoundRectangle 20"
                        Padding="25"
-                       HasShadow="True"
-                       BorderColor="{AppThemeBinding Light=#80009688, Dark=#80FFFFFF}"
+                       Stroke="{AppThemeBinding Light=#80009688, Dark=#80FFFFFF}"
                        BackgroundColor="{AppThemeBinding Light=#22FFFFFF, Dark=#33000000}">
-                    <Frame.GestureRecognizers>
+                    <Border.GestureRecognizers>
                         <TapGestureRecognizer Tapped="IlmihalButton_Clicked"/>
-                    </Frame.GestureRecognizers>
+                    </Border.GestureRecognizers>
                     <Grid ColumnDefinitions="Auto,*,Auto" ColumnSpacing="15">
                         <Label Grid.Column="0"
                                Text="📜"
@@ -124,18 +121,17 @@
                                WidthRequest="24"
                                VerticalOptions="Center" />
                     </Grid>
-                </Frame>
+                </Border>
 
                 <!-- Namaz Hocası Card -->
-                <Frame x:Name="NamazHocasiFrame"
-                       CornerRadius="20"
+                <Border x:Name="NamazHocasiFrame"
+                       StrokeShape="RoundRectangle 20"
                        Padding="25"
-                       HasShadow="True"
-                       BorderColor="{AppThemeBinding Light=#80009688, Dark=#80FFFFFF}"
+                       Stroke="{AppThemeBinding Light=#80009688, Dark=#80FFFFFF}"
                        BackgroundColor="{AppThemeBinding Light=#22FFFFFF, Dark=#33000000}">
-                    <Frame.GestureRecognizers>
+                    <Border.GestureRecognizers>
                         <TapGestureRecognizer Tapped="NamazHocasiButton_Clicked"/>
-                    </Frame.GestureRecognizers>
+                    </Border.GestureRecognizers>
                     <Grid ColumnDefinitions="Auto,*,Auto" ColumnSpacing="15">
                         <Label Grid.Column="0"
                                Text="🕌"
@@ -161,7 +157,7 @@
                                WidthRequest="24"
                                VerticalOptions="Center" />
                     </Grid>
-                </Frame>
+                </Border>
 
                 <!-- Bottom spacing -->
                 <BoxView HeightRequest="40" Color="Transparent" />

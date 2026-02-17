@@ -10,10 +10,9 @@
         <VerticalStackLayout Padding="20" Spacing="25">
             
             <!-- Header Frame -->
-            <Frame CornerRadius="20"
+            <Border StrokeShape="RoundRectangle 20"
                    Padding="15"
-                   HasShadow="True"
-                   BorderColor="{AppThemeBinding Light=#80009688, Dark=#80FFFFFF}"
+                   Stroke="{AppThemeBinding Light=#80009688, Dark=#80FFFFFF}"
                    BackgroundColor="{AppThemeBinding Light=#22FFFFFF, Dark=#33000000}">
                  <VerticalStackLayout Spacing="5" HorizontalOptions="Center">
                     <Label Text="📊"
@@ -25,18 +24,19 @@
                            HorizontalOptions="Center"
                            TextColor="{AppThemeBinding Light=#00796B, Dark=#FFFFFF}"/>
                  </VerticalStackLayout>
-            </Frame>
+            </Border>
             
             <!-- Özet İstatistikler Grid'i -->
             <Grid ColumnDefinitions="*,*" RowDefinitions="Auto, Auto" ColumnSpacing="15" RowSpacing="15">
                 
                 <!-- 1. Satır: Toplam ve Bugün -->
                 <!-- Toplam Kartı -->
-                <Frame Grid.Row="0" Grid.Column="0"
-                       CornerRadius="15"
+                <!-- 1. Satır: Toplam ve Bugün -->
+                <!-- Toplam Kartı -->
+                <Border Grid.Row="0" Grid.Column="0"
+                       StrokeShape="RoundRectangle 15"
                        Padding="15"
-                       HasShadow="True"
-                       BorderColor="{AppThemeBinding Light=#E0E0E0, Dark=#333333}"
+                       Stroke="{AppThemeBinding Light=#E0E0E0, Dark=#333333}"
                        BackgroundColor="{AppThemeBinding Light=White, Dark=#1E1E1E}">
                     <VerticalStackLayout Spacing="5">
                         <Label Text="Toplam Zikir" 
@@ -48,14 +48,13 @@
                                FontAttributes="Bold"
                                TextColor="{AppThemeBinding Light=#00796B, Dark=#80CBC4}"/>
                     </VerticalStackLayout>
-                </Frame>
+                </Border>
 
                 <!-- Bugün Kartı -->
-                <Frame Grid.Row="0" Grid.Column="1"
-                       CornerRadius="15"
+                <Border Grid.Row="0" Grid.Column="1"
+                       StrokeShape="RoundRectangle 15"
                        Padding="15"
-                       HasShadow="True"
-                       BorderColor="{AppThemeBinding Light=#E0E0E0, Dark=#333333}"
+                       Stroke="{AppThemeBinding Light=#E0E0E0, Dark=#333333}"
                        BackgroundColor="{AppThemeBinding Light=White, Dark=#1E1E1E}">
                     <VerticalStackLayout Spacing="5">
                         <Label Text="Bugün" 
@@ -67,15 +66,15 @@
                                FontAttributes="Bold"
                                TextColor="{AppThemeBinding Light=#FFA000, Dark=#FFCA28}"/>
                     </VerticalStackLayout>
-                </Frame>
+                </Border>
 
                 <!-- 2. Satır: Zincir ve Ortalama -->
+                <!-- 2. Satır: Zincir ve Ortalama -->
                 <!-- Zincir (Streak) Kartı -->
-                <Frame Grid.Row="1" Grid.Column="0"
-                       CornerRadius="15"
+                <Border Grid.Row="1" Grid.Column="0"
+                       StrokeShape="RoundRectangle 15"
                        Padding="15"
-                       HasShadow="True"
-                       BorderColor="{AppThemeBinding Light=#E0E0E0, Dark=#333333}"
+                       Stroke="{AppThemeBinding Light=#E0E0E0, Dark=#333333}"
                        BackgroundColor="{AppThemeBinding Light=White, Dark=#1E1E1E}">
                     <VerticalStackLayout Spacing="5">
                         <Grid ColumnDefinitions="Auto, *">
@@ -91,14 +90,13 @@
                                FontAttributes="Bold"
                                TextColor="{AppThemeBinding Light=#D32F2F, Dark=#EF5350}"/>
                     </VerticalStackLayout>
-                </Frame>
+                </Border>
 
                 <!-- Ortalama Kartı -->
-                <Frame Grid.Row="1" Grid.Column="1"
-                       CornerRadius="15"
+                <Border Grid.Row="1" Grid.Column="1"
+                       StrokeShape="RoundRectangle 15"
                        Padding="15"
-                       HasShadow="True"
-                       BorderColor="{AppThemeBinding Light=#E0E0E0, Dark=#333333}"
+                       Stroke="{AppThemeBinding Light=#E0E0E0, Dark=#333333}"
                        BackgroundColor="{AppThemeBinding Light=White, Dark=#1E1E1E}">
                     <VerticalStackLayout Spacing="5">
                         <Grid ColumnDefinitions="Auto, *">
@@ -114,15 +112,14 @@
                                FontAttributes="Bold"
                                TextColor="{AppThemeBinding Light=#1976D2, Dark=#42A5F5}"/>
                     </VerticalStackLayout>
-                </Frame>
+                </Border>
 
             </Grid>
 
             <!-- En Çok Çekilen Kartı (Tek Satır) -->
-            <Frame CornerRadius="15"
+            <Border StrokeShape="RoundRectangle 15"
                    Padding="15"
-                   HasShadow="True"
-                   BorderColor="{AppThemeBinding Light=#E0E0E0, Dark=#333333}"
+                   Stroke="{AppThemeBinding Light=#E0E0E0, Dark=#333333}"
                    BackgroundColor="{AppThemeBinding Light=White, Dark=#1E1E1E}">
                 <Grid ColumnDefinitions="Auto, *" ColumnSpacing="15">
                     <Label Grid.Column="0" 
@@ -141,13 +138,12 @@
                                TextColor="{AppThemeBinding Light=#212121, Dark=#FFFFFF}"/>
                     </VerticalStackLayout>
                 </Grid>
-            </Frame>
+            </Border>
 
             <!-- Haftalık Grafik -->
-            <Frame CornerRadius="20"
+            <Border StrokeShape="RoundRectangle 20"
                    Padding="20"
-                   HasShadow="True"
-                   BorderColor="{AppThemeBinding Light=#E0E0E0, Dark=#333333}"
+                   Stroke="{AppThemeBinding Light=#E0E0E0, Dark=#333333}"
                    BackgroundColor="{AppThemeBinding Light=White, Dark=#1E1E1E}">
                 <VerticalStackLayout Spacing="15">
                     <Label Text="Son 7 Gün" 
@@ -162,7 +158,7 @@
                           ColumnSpacing="8"
                           VerticalOptions="End"/>
                 </VerticalStackLayout>
-            </Frame>
+            </Border>
 
 
 

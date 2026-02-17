@@ -1,0 +1,144 @@
+using System.Globalization;
+
+namespace hadis.Helpers
+{
+    /// <summary>
+    /// Namaz vakitleriyle ilgili tekrar kullanılabilir yardımcı metotlar
+    /// </summary>
+    public static class PrayerTimeHelper
+    {
+        // Vakitlerin sıralı listesi (dictionary key'leri)
+        private static readonly (string Key, string DisplayName, string ShortName)[] PrayerOrder = new[]
+        {
+            ("İmsak", "İmsak Vaktine", "İmsak"),
+            ("gunes", "Güneşin Doğmasına", "Güneş"),
+            ("Ogle", "Öğle Namazına", "Öğle"),
+            ("İkindi", "İkindi Namazına", "İkindi"),
+            ("Aksam", "Akşam Namazına", "Akşam"),
+            ("Yatsi", "Yatsı Namazına", "Yatsı")
+        };
+
+        /// <summary>
+        /// Sonraki namazı ve kalan süreyi bulur
+        /// </summary>
+        public static (string DisplayName, string Key, TimeSpan Remaining, int Index) GetNextPrayer(Dictionary<string, DateTime> times)
+        {
+            DateTime now = DateTime.Now;
+
+            for (int i = 0; i < PrayerOrder.Length; i++)
+            {
+                var (key, displayName, _) = PrayerOrder[i];
+                if (times.ContainsKey(key) && times[key] > now)
+                {
+                    return (displayName, key, times[key] - now, i);
+                }
+            }
+
+            // Tüm vakitler geçmiş → ertesi gün İmsak
+            var imsakTime = times["İmsak"].AddDays(1);
+            return ("İmsak Vaktine", "İmsak", imsakTime - now, 0);
+        }
+
+        /// <summary>
+        /// Sonraki namazın kısa adını ve kalan süreyi döndürür (bildirimler için)
+        /// </summary>
+        public static (string ShortName, TimeSpan Remaining) GetNextPrayerShort(Dictionary<string, DateTime> times)
+        {
+            DateTime now = DateTime.Now;
+
+            for (int i = 0; i < PrayerOrder.Length; i++)
+            {
+                var (key, _, shortName) = PrayerOrder[i];
+                if (times.ContainsKey(key) && times[key] > now)
+                {
+                    return (shortName, times[key] - now);
+                }
+            }
+
+            // Tüm vakitler geçmiş → ertesi gün İmsak
+            var imsakTime = times["İmsak"].AddDays(1);
+            return ("İmsak", imsakTime - now);
+        }
+
+        /// <summary>
+        /// Sürekli bildirim için başlık ve mesaj oluşturur
+        /// </summary>
+        public static (string Title, string Message) BuildPersistentNotificationContent(Dictionary<string, DateTime> times)
+        {
+            var (shortName, remaining) = GetNextPrayerShort(times);
+
+            string title = $"{shortName} vaktine {remaining.Hours:D2}:{remaining.Minutes:D2} kaldı";
+            string message = $"İmsak {times["İmsak"]:HH:mm} | " +
+                            $"Güneş {times["gunes"]:HH:mm} | " +
+                            $"Öğle {times["Ogle"]:HH:mm} | " +
+                            $"İkindi {times["İkindi"]:HH:mm} | " +
+                            $"Akşam {times["Aksam"]:HH:mm} | " +
+                            $"Yatsı {times["Yatsi"]:HH:mm}";
+
+            return (title, message);
+        }
+
+        /// <summary>
+        /// Vakit saatini formatlı string olarak döndürür (HH:mm)
+        /// </summary>
+        public static string FormatTime(DateTime time) => $"{time.Hour:D2}:{time.Minute:D2}";
+
+        /// <summary>
+        /// Geri sayım süresini formatlı string olarak döndürür (HH : MM : SS)
+        /// </summary>
+        public static string FormatCountdown(TimeSpan remaining) =>
+            $"{remaining.Hours:D2} : {remaining.Minutes:D2} : {remaining.Seconds:D2}";
+
+        /// <summary>
+        /// Hicri tarihi hesaplar ve formatlı string döndürür
+        /// </summary>
+        public static string GetHicriTarih()
+        {
+            try
+            {
+                var hicriTakvim = new UmAlQuraCalendar();
+                var bugun = DateTime.Now;
+
+                int hicriGun = hicriTakvim.GetDayOfMonth(bugun);
+                int hicriAy = hicriTakvim.GetMonth(bugun);
+                int hicriYil = hicriTakvim.GetYear(bugun);
+
+                string[] hicriAylar = {
+                    "Muharrem", "Safer", "Rebiülevvel", "Rebiülahir",
+                    "Cemaziyelevvel", "Cemaziyelahir", "Recep", "Şaban",
+                    "Ramazan", "Şevval", "Zilkade", "Zilhicce"
+                };
+
+                string ayAdi = hicriAylar[hicriAy - 1];
+                return $"🌙 {hicriGun} {ayAdi} {hicriYil}";
+            }
+            catch
+            {
+                return "";
+            }
+        }
+
+        /// <summary>
+        /// Günün ayetini döndürür
+        /// </summary>
+        public static string GetDailyAyet()
+        {
+            string[] ayetler = new string[]
+            {
+                "Hiç bilenlerle bilmeyenler bir olur mu? (Zümer, 9)",
+                "Şüphesiz Allah sabredenlerle beraberdir. (Bakara, 153)",
+                "Gerçekten güçlükle beraber bir kolaylık vardır. (İnşirah, 6)",
+                "Allah, kullarına karşı çok şefkatlidir. (Şura, 19)",
+                "Ey iman edenler! Sabır ve namazla Allah'tan yardım isteyin. (Bakara, 45)",
+                "Göklerde ve yerde ne varsa hepsi Allah'ındır. (Bakara, 284)",
+                "Zorlukla beraber bir kolaylık vardır. (İnşirah, 5)",
+                "Kıyamet günü herkese amel defteri verilecektir. (İsra, 13)",
+                "İyilik ve takva üzerine yardımlaşın. (Maide, 2)",
+                "Şüphesiz dönüş ancak Allah'adır. (Bakara, 156)"
+            };
+
+            int gunIndex = DateTime.Now.DayOfYear % ayetler.Length;
+            return ayetler[gunIndex];
+        }
+    }
+}

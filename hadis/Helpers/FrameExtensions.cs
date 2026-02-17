@@ -46,6 +46,48 @@ namespace hadis.Helpers
             titleLabel.TextColor = textColor;
             timeLabel.TextColor = textColor;
         }
+
+        /// <summary>
+        /// Border'a glassmorphism efekti uygular
+        /// </summary>
+        public static void ApplyGlassmorphism(this Border border, Color baseColor, Color borderColor)
+        {
+            border.Stroke = borderColor;
+            border.Background = new LinearGradientBrush
+            {
+                StartPoint = new Point(0, 0),
+                EndPoint = new Point(1, 1),
+                GradientStops = new GradientStopCollection
+                {
+                    new GradientStop 
+                    { 
+                        Color = baseColor.WithAlpha(AppConstants.GLASSMORPHISM_ALPHA_START), 
+                        Offset = 0.0f 
+                    },
+                    new GradientStop 
+                    { 
+                        Color = baseColor.WithAlpha(AppConstants.GLASSMORPHISM_ALPHA_END), 
+                        Offset = 1.0f 
+                    }
+                }
+            };
+        }
+
+        /// <summary>
+        /// Namaz vakti border'larina stil uygular
+        /// </summary>
+        public static void ApplyPrayerTimeStyle(
+            this Border border, 
+            Label titleLabel, 
+            Label timeLabel,
+            Color borderColor,
+            Color textColor,
+            Color baseColor)
+        {
+            border.ApplyGlassmorphism(baseColor, borderColor);
+            titleLabel.TextColor = textColor;
+            timeLabel.TextColor = textColor;
+        }
     }
 
     /// <summary>

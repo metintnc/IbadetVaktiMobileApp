@@ -1,6 +1,7 @@
 ﻿
 using Microsoft.Extensions.Logging;
 using hadis.Services;
+using hadis.ViewModels;
 using Plugin.LocalNotification;
 
 namespace hadis
@@ -25,6 +26,8 @@ namespace hadis
             builder.Services.AddSingleton<TabBarService>();
             builder.Services.AddSingleton<BackgroundService>();
             builder.Services.AddSingleton<ThemeService>();
+            builder.Services.AddHttpClient();
+            builder.Services.AddSingleton<PrayerTimesService>();
             
 #if ANDROID
             builder.Services.AddSingleton<INativeCompassService, hadis.Platforms.Android.Services.AndroidCompassService>();
@@ -35,12 +38,19 @@ namespace hadis
 #endif
 
             // Pages
+            builder.Services.AddTransient<MainPageViewModel>();
             builder.Services.AddTransient<MainPage>();
             builder.Services.AddTransient<kible>();
             builder.Services.AddTransient<zikirmatik>();
             builder.Services.AddTransient<Kuran>();
             builder.Services.AddTransient<Ayarlar>();
             builder.Services.AddTransient<BildirimAyarlari>();
+            builder.Services.AddTransient<SehirSecimViewModel>();
+            builder.Services.AddTransient<SehirSecim>();
+            builder.Services.AddTransient<TemaAyarlari>();
+            builder.Services.AddTransient<YakindakiCamiler>();
+            builder.Services.AddTransient<HicriTakvim>();
+            builder.Services.AddTransient<Kutuphane>();
 
             // Notification Service
             builder.Services.AddSingleton<IAppNotificationService, NotificationService>();
