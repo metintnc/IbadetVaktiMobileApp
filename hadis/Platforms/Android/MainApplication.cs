@@ -51,8 +51,10 @@ namespace hadis
                 notificationManager?.CreateNotificationChannel(prayerChannel);
                 notificationManager?.CreateNotificationChannel(persistentChannel);
 
-                System.Console.WriteLine("✅ Notification channels oluşturuldu");
+                System.Diagnostics.Debug.WriteLine("✅ Notification channels oluşturuldu");
             }
         }
     }
 }
+
+

@@ -21,22 +21,13 @@ namespace hadis.Helpers
         /// <summary>
         /// Sonraki namazı ve kalan süreyi bulur
         /// </summary>
+        /// <summary>
+        /// Sonraki namazı ve kalan süreyi bulur
+        /// </summary>
         public static (string DisplayName, string Key, TimeSpan Remaining, int Index) GetNextPrayer(Dictionary<string, DateTime> times)
         {
-            DateTime now = DateTime.Now;
-
-            for (int i = 0; i < PrayerOrder.Length; i++)
-            {
-                var (key, displayName, _) = PrayerOrder[i];
-                if (times.ContainsKey(key) && times[key] > now)
-                {
-                    return (displayName, key, times[key] - now, i);
-                }
-            }
-
-            // Tüm vakitler geçmiş → ertesi gün İmsak
-            var imsakTime = times["İmsak"].AddDays(1);
-            return ("İmsak Vaktine", "İmsak", imsakTime - now, 0);
+            var details = GetNextPrayerDetails(times);
+            return (details.DisplayName, details.Key, details.Remaining, details.Index);
         }
 
         /// <summary>
@@ -44,20 +35,26 @@ namespace hadis.Helpers
         /// </summary>
         public static (string ShortName, TimeSpan Remaining) GetNextPrayerShort(Dictionary<string, DateTime> times)
         {
+            var details = GetNextPrayerDetails(times);
+            return (details.ShortName, details.Remaining);
+        }
+
+        private static (string Key, string DisplayName, string ShortName, TimeSpan Remaining, int Index) GetNextPrayerDetails(Dictionary<string, DateTime> times)
+        {
             DateTime now = DateTime.Now;
 
             for (int i = 0; i < PrayerOrder.Length; i++)
             {
-                var (key, _, shortName) = PrayerOrder[i];
+                var (key, displayName, shortName) = PrayerOrder[i];
                 if (times.ContainsKey(key) && times[key] > now)
                 {
-                    return (shortName, times[key] - now);
+                    return (key, displayName, shortName, times[key] - now, i);
                 }
             }
 
             // Tüm vakitler geçmiş → ertesi gün İmsak
             var imsakTime = times["İmsak"].AddDays(1);
-            return ("İmsak", imsakTime - now);
+            return ("İmsak", "İmsak Vaktine", "İmsak", imsakTime - now, 0);
         }
 
         /// <summary>

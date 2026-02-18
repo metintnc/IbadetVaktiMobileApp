@@ -36,7 +36,7 @@ namespace hadis
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"Veri yükleme hatası: {ex.Message}");
+                System.Diagnostics.Debug.WriteLine($"Veri yükleme hatası: {ex.Message}");
             }
         }
 
@@ -204,3 +204,4 @@ namespace hadis
 
     }
 }
+

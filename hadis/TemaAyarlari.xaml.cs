@@ -1,4 +1,4 @@
-using hadis.Models;
+﻿using hadis.Models;
 using hadis.Helpers;
 using System.Text.Json;
 
@@ -32,7 +32,7 @@ namespace hadis
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"Error setting AnaTemaImage: {ex.Message}");
+                System.Diagnostics.Debug.WriteLine($"Error setting AnaTemaImage: {ex.Message}");
             }
         }
 
@@ -86,7 +86,7 @@ namespace hadis
                          string customThemeJson = Preferences.Default.Get(AppConstants.PREF_CUSTOM_THEME, string.Empty);
                          if (string.IsNullOrEmpty(customThemeJson))
                          {
-                             DisplayAlert("Uyarı", "Önce özel bir tema oluşturmalısınız.", "Tamam");
+                             DisplayAlert("UyarÄ±", "Ã–nce Ã¶zel bir tema oluÅŸturmalÄ±sÄ±nÄ±z.", "Tamam");
                              return;
                          }
                      }
@@ -102,13 +102,13 @@ namespace hadis
 
             switch (selectedTheme)
             {
-                case "MainLight": // Ana Tema (Açık) - Dynamic
+                case "MainLight": // Ana Tema (AÃ§Ä±k) - Dynamic
                     Application.Current.UserAppTheme = AppTheme.Light;
                     break;
                 case "MainDark": // Ana Tema (Koyu) - Dynamic
                     Application.Current.UserAppTheme = AppTheme.Dark;
                     break;
-                case "Light": // Açık (Sabit)
+                case "Light": // AÃ§Ä±k (Sabit)
                     Application.Current.UserAppTheme = AppTheme.Light;
                     break;
                 case "PitchBlack": // Simsiyah (Sabit)
@@ -244,3 +244,4 @@ namespace hadis
         }
     }
 }
+

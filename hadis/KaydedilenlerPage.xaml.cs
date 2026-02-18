@@ -1,4 +1,4 @@
-using hadis.Models;
+﻿using hadis.Models;
 using hadis.Services;
 
 using System.Collections.ObjectModel;
@@ -51,7 +51,7 @@ namespace hadis
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"Kaydedilenler Background Load Error: {ex.Message}");
+                System.Diagnostics.Debug.WriteLine($"Kaydedilenler Background Load Error: {ex.Message}");
             }
         }
 
@@ -69,7 +69,7 @@ namespace hadis
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"Error loading saved ayahs: {ex.Message}");
+                System.Diagnostics.Debug.WriteLine($"Error loading saved ayahs: {ex.Message}");
                 _savedAyahs = new ObservableCollection<SavedAyah>();
                 KaydedilenlerCollection.ItemsSource = _savedAyahs;
             }
@@ -91,3 +91,4 @@ namespace hadis
         }
     }
 }
+

@@ -1,4 +1,4 @@
-using Android.Graphics;
+﻿using Android.Graphics;
 using hadis.Services;
 
 namespace hadis.Platforms.Android.Services
@@ -11,7 +11,7 @@ namespace hadis.Platforms.Android.Services
             {
                 try
                 {
-                    // 1. Ekran Boyutlarını Al
+                    // 1. Ekran BoyutlarÄ±nÄ± Al
                     var displayMetrics = global::Android.App.Application.Context.Resources.DisplayMetrics;
                     int reqWidth = displayMetrics.WidthPixels;
                     int reqHeight = displayMetrics.HeightPixels;
@@ -24,7 +24,7 @@ namespace hadis.Platforms.Android.Services
 
                     Bitmap bitmap = null;
                     
-                    // A. Dosya Sistemi Kontrolü
+                    // A. Dosya Sistemi KontrolÃ¼
                     if (File.Exists(filename))
                     {
                         BitmapFactory.DecodeFile(filename, options);
@@ -34,7 +34,7 @@ namespace hadis.Platforms.Android.Services
                     }
                     else
                     {
-                        // B. Assets Kontrolü
+                        // B. Assets KontrolÃ¼
                         bool assetFound = false;
                         try 
                         {
@@ -58,7 +58,7 @@ namespace hadis.Platforms.Android.Services
 
                         if (!assetFound)
                         {
-                            // C. Drawable Resource Kontrolü (MAUI Images)
+                            // C. Drawable Resource KontrolÃ¼ (MAUI Images)
                             try
                             {
                                 string resName = System.IO.Path.GetFileNameWithoutExtension(filename).ToLower();
@@ -86,7 +86,7 @@ namespace hadis.Platforms.Android.Services
 
                     if (bitmap != null)
                     {
-                        // Bitmap'i Stream'e çevir ve ImageSource olarak döndür
+                        // Bitmap'i Stream'e Ã§evir ve ImageSource olarak dÃ¶ndÃ¼r
                         MemoryStream ms = new MemoryStream();
                         bitmap.Compress(Bitmap.CompressFormat.Jpeg, 80, ms);
                         ms.Seek(0, SeekOrigin.Begin);
@@ -97,7 +97,7 @@ namespace hadis.Platforms.Android.Services
                 }
                 catch (Exception ex)
                 {
-                    System.Console.WriteLine($"Image Opt Hatası: {ex.Message}");
+                    System.Diagnostics.Debug.WriteLine($"Image Opt HatasÄ±: {ex.Message}");
                     return ImageSource.FromFile(filename);
                 }
             });
@@ -127,3 +127,5 @@ namespace hadis.Platforms.Android.Services
         }
     }
 }
+
+

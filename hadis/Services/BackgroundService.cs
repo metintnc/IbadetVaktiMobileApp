@@ -1,9 +1,9 @@
-using hadis.Helpers;
+﻿using hadis.Helpers;
 
 namespace hadis.Services
 {
     /// <summary>
-    /// Arkaplan resmi ve renk yönetimi servisi
+    /// Arkaplan resmi ve renk yÃ¶netimi servisi
     /// </summary>
     public class BackgroundService
     {
@@ -19,18 +19,18 @@ namespace hadis.Services
         }
 
         /// <summary>
-        /// Saate göre otomatik arkaplan ayarlar
+        /// Saate gÃ¶re otomatik arkaplan ayarlar
         /// </summary>
         public (bool IsBright, string ImageName) SetTimeBasedBackground(Image backgroundImage, Grid backgroundOverlay, string savedTheme, string? currentImageName = null)
         {
-            // 1. Özel Tema: Otomatik arkaplanı atla
+            // 1. Ã–zel Tema: Otomatik arkaplanÄ± atla
             if (savedTheme == "Custom")
             {
-                Console.WriteLine("ℹ️ Custom tema aktif - otomatik arkaplan devre dışı");
+                System.Diagnostics.Debug.WriteLine("â„¹ï¸ Custom tema aktif - otomatik arkaplan devre dÄ±ÅŸÄ±");
                 return (false, string.Empty); 
             }
 
-            // 2. Açık (Sabit) Tema
+            // 2. AÃ§Ä±k (Sabit) Tema
             if (savedTheme == "Light")
             {
                 try
@@ -50,7 +50,7 @@ namespace hadis.Services
                 }
                 catch (Exception ex)
                 {
-                    Console.WriteLine($"❌ Açık tema arkaplan hatası: {ex.Message}");
+                    System.Diagnostics.Debug.WriteLine($"âŒ AÃ§Ä±k tema arkaplan hatasÄ±: {ex.Message}");
                     return (true, "kuran_light.png");
                 }
             }
@@ -67,7 +67,7 @@ namespace hadis.Services
                         backgroundImage.IsVisible = true;
                     }
                     
-                    // Kuran sayfasındaki siyah overlay efekti (Opacity 0.45)
+                    // Kuran sayfasÄ±ndaki siyah overlay efekti (Opacity 0.45)
                     backgroundOverlay.IsVisible = true;
                     backgroundOverlay.Background = new SolidColorBrush(Colors.Black.WithAlpha(0.45f));
                     
@@ -78,23 +78,23 @@ namespace hadis.Services
                 }
                 catch (Exception ex)
                 {
-                    Console.WriteLine($"❌ Simsiyah tema arkaplan hatası: {ex.Message}");
+                    System.Diagnostics.Debug.WriteLine($"âŒ Simsiyah tema arkaplan hatasÄ±: {ex.Message}");
                     return (false, "kuranarkaplan.png");
                 }
             }
 
             // 4. Ana Temalar (MainLight, MainDark, Main, System): Dinamik Arkaplan
-            Console.WriteLine("🎨 Zamana göre arkaplan ayarlanıyor...");
+            System.Diagnostics.Debug.WriteLine("ğŸ¨ Zamana gÃ¶re arkaplan ayarlanÄ±yor...");
 
             DateTime now = DateTime.Now;
             var backgroundInfo = TimeBasedBackgroundConfig.GetBackgroundForTime(now.Hour, now.Minute);
 
-            Console.WriteLine($"📅 Şu anki saat: {now.Hour}:{now.Minute:D2}");
-            Console.WriteLine($"🖼️ Arkaplan: {backgroundInfo.Image}, Status Bar: {backgroundInfo.StatusBarColor}");
+            System.Diagnostics.Debug.WriteLine($"ğŸ“… Åu anki saat: {now.Hour}:{now.Minute:D2}");
+            System.Diagnostics.Debug.WriteLine($"ğŸ–¼ï¸ Arkaplan: {backgroundInfo.Image}, Status Bar: {backgroundInfo.StatusBarColor}");
 
             try
             {
-                // Arkaplanı uygula (Eğer değiştiyse)
+                // ArkaplanÄ± uygula (EÄŸer deÄŸiÅŸtiyse)
                 if (currentImageName != backgroundInfo.Image)
                 {
                     MainThread.BeginInvokeOnMainThread(async () => 
@@ -105,11 +105,11 @@ namespace hadis.Services
                 }
                 else
                 {
-                     Console.WriteLine("ℹ️ Arkaplan resmi aynı, güncelleme atlandı.");
+                     System.Diagnostics.Debug.WriteLine("â„¹ï¸ Arkaplan resmi aynÄ±, gÃ¼ncelleme atlandÄ±.");
                      backgroundImage.IsVisible = true;
                 }
                 
-                // Overlay'i devre dışı bırak
+                // Overlay'i devre dÄ±ÅŸÄ± bÄ±rak
                 backgroundOverlay.IsVisible = false;
 
                 // Status bar rengini ayarla
@@ -118,21 +118,21 @@ namespace hadis.Services
                 // TabBar rengini ayarla
                 _tabBarService.SetTabBarColor(backgroundInfo.TabBarColor);
 
-                Console.WriteLine("✅ Arkaplan, status bar ve TabBar başarıyla ayarlandı!");
+                System.Diagnostics.Debug.WriteLine("âœ… Arkaplan, status bar ve TabBar baÅŸarÄ±yla ayarlandÄ±!");
 
-                // Arkaplan parlak mı?
+                // Arkaplan parlak mÄ±?
                 bool isBright = TimeBasedBackgroundConfig.IsBackgroundBright(backgroundInfo.Image);
                 return (isBright, backgroundInfo.Image);
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"❌ Arkaplan ayarlama hatası: {ex.Message}");
+                System.Diagnostics.Debug.WriteLine($"âŒ Arkaplan ayarlama hatasÄ±: {ex.Message}");
                 return (false, backgroundInfo.Image);
             }
         }
 
         /// <summary>
-        /// Özel tema arkaplanını uygular
+        /// Ã–zel tema arkaplanÄ±nÄ± uygular
         /// </summary>
         public void ApplyCustomBackground(Image backgroundImage, Grid backgroundOverlay, string backgroundValue)
         {
@@ -166,16 +166,16 @@ namespace hadis.Services
                 string tabBarColor = TimeBasedBackgroundConfig.GetTabBarColorForCustomBackground(backgroundValue);
                 _tabBarService.SetTabBarColor(tabBarColor);
 
-                Console.WriteLine($"✅ Özel arkaplan, status bar ve TabBar uygulandı: {backgroundValue}");
+                System.Diagnostics.Debug.WriteLine($"âœ… Ã–zel arkaplan, status bar ve TabBar uygulandÄ±: {backgroundValue}");
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"❌ Özel arkaplan uygulama hatası: {ex.Message}");
+                System.Diagnostics.Debug.WriteLine($"âŒ Ã–zel arkaplan uygulama hatasÄ±: {ex.Message}");
             }
         }
 
         /// <summary>
-        /// Arkaplan parlaklığına göre kontrast overlay uygular
+        /// Arkaplan parlaklÄ±ÄŸÄ±na gÃ¶re kontrast overlay uygular
         /// </summary>
         private void ApplyContrastOverlay(Grid backgroundOverlay, string backgroundValue)
         {
@@ -188,7 +188,8 @@ namespace hadis.Services
             backgroundOverlay.IsVisible = true;
             backgroundOverlay.Background = new SolidColorBrush(Colors.Black.WithAlpha(overlayOpacity));
 
-            Console.WriteLine($"🎨 Overlay uygulandı - Parlak: {isBright}, Opacity: {overlayOpacity}");
+            System.Diagnostics.Debug.WriteLine($"ğŸ¨ Overlay uygulandÄ± - Parlak: {isBright}, Opacity: {overlayOpacity}");
         }
     }
 }
+

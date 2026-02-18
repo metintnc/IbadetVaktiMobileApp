@@ -25,25 +25,25 @@ namespace hadis.Services
                 {
                     await LocalNotificationCenter.Current.RequestNotificationPermission();
                 }
-                Console.WriteLine("✅ Bildirim izinleri kontrol edildi.");
+                System.Diagnostics.Debug.WriteLine("✅ Bildirim izinleri kontrol edildi.");
 #endif
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"⚠️ Notification Initialize Hatası: {ex.Message}");
+                System.Diagnostics.Debug.WriteLine($"⚠️ Notification Initialize Hatası: {ex.Message}");
             }
         }
 
         public async Task ScheduleNotificationsAsync(Dictionary<string, DateTime> prayerTimes)
         {
-            Console.WriteLine("📢 ScheduleNotificationsAsync çağrıldı");
+            System.Diagnostics.Debug.WriteLine("📢 ScheduleNotificationsAsync çağrıldı");
             
             // Vakitleri cache'le
             _cachedPrayerTimes = prayerTimes;
             
             if (!Preferences.Default.Get("NotificationsEnabled", true))
             {
-                Console.WriteLine("⚠️ Bildirimler kapalı (NotificationsEnabled = false)");
+                System.Diagnostics.Debug.WriteLine("⚠️ Bildirimler kapalı (NotificationsEnabled = false)");
                 CancelAllNotifications();
                 return;
             }
@@ -54,14 +54,14 @@ namespace hadis.Services
                 // Ensure permissions
                 if (await LocalNotificationCenter.Current.AreNotificationsEnabled() == false)
                 {
-                    Console.WriteLine("⚠️ Bildirim izni yok, izin isteniyor...");
+                    System.Diagnostics.Debug.WriteLine("⚠️ Bildirim izni yok, izin isteniyor...");
                     await LocalNotificationCenter.Current.RequestNotificationPermission();
                 }
 #endif
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"⚠️ Notification Permission Hatası: {ex.Message}");
+                System.Diagnostics.Debug.WriteLine($"⚠️ Notification Permission Hatası: {ex.Message}");
             }
 
             int scheduledCount = 0;
@@ -72,12 +72,12 @@ namespace hadis.Services
                 string key = prayer.Key;
                 DateTime time = prayer.Value;
                 
-                Console.WriteLine($"🕌 {key} vakti: {time:HH:mm}");
+                System.Diagnostics.Debug.WriteLine($"🕌 {key} vakti: {time:HH:mm}");
                 
                 int notificationId = GetNotificationId(key);
                 if (notificationId == 0)
                 {
-                    Console.WriteLine($"⚠️ {key} için ID bulunamadı, atlanıyor");
+                    System.Diagnostics.Debug.WriteLine($"⚠️ {key} için ID bulunamadı, atlanıyor");
                     continue;
                 }
 
@@ -86,7 +86,7 @@ namespace hadis.Services
                 string offsetKey = $"NotificationOffset_{canonicalKey}";
 
                 bool isEnabled = Preferences.Default.Get(prefKey, true);
-                Console.WriteLine($"   📌 {canonicalKey} bildirimi: {(isEnabled ? "AÇIK" : "KAPALI")}\n");
+                System.Diagnostics.Debug.WriteLine($"   📌 {canonicalKey} bildirimi: {(isEnabled ? "AÇIK" : "KAPALI")}\n");
                 
                 if (!isEnabled)
                 {
@@ -98,11 +98,11 @@ namespace hadis.Services
                 int offsetMinutes = Preferences.Default.Get(offsetKey, 0);
                 DateTime notifyTime = time.AddMinutes(-offsetMinutes);
                 
-                Console.WriteLine($"   ⏰ Offset: {offsetMinutes} dk, Bildirim zamanı: {notifyTime:HH:mm:ss}");
+                System.Diagnostics.Debug.WriteLine($"   ⏰ Offset: {offsetMinutes} dk, Bildirim zamanı: {notifyTime:HH:mm:ss}");
 
                 if (notifyTime < DateTime.Now)
                 {
-                    Console.WriteLine($"   ⭐ Zaman geçmiş, atlanıyor (Şimdi: {DateTime.Now:HH:mm:ss})");
+                    System.Diagnostics.Debug.WriteLine($"   ⭐ Zaman geçmiş, atlanıyor (Şimdi: {DateTime.Now:HH:mm:ss})");
                     skippedCount++;
                     continue; 
                 }
@@ -146,15 +146,15 @@ namespace hadis.Services
                 {
                     await LocalNotificationCenter.Current.Show(request);
                     scheduledCount++;
-                    Console.WriteLine($"   ✅ Bildirim zamanlandı: ID={notificationId}, Zaman={notifyTime:HH:mm:ss}");
+                    System.Diagnostics.Debug.WriteLine($"   ✅ Bildirim zamanlandı: ID={notificationId}, Zaman={notifyTime:HH:mm:ss}");
                 }
                 catch (Exception ex)
                 {
-                    Console.WriteLine($"   ❌ Notification Show Hatası ({key}): {ex.Message}");
+                    System.Diagnostics.Debug.WriteLine($"   ❌ Notification Show Hatası ({key}): {ex.Message}");
                 }
             }
 
-            Console.WriteLine($"📊 Toplam: {scheduledCount} bildirim zamanlandı, {skippedCount} atlandı");
+            System.Diagnostics.Debug.WriteLine($"📊 Toplam: {scheduledCount} bildirim zamanlandı, {skippedCount} atlandı");
             
             // Persistent notification'ı güncelle
             if (Preferences.Default.Get("PersistentNotificationEnabled", false))
@@ -169,18 +169,18 @@ namespace hadis.Services
             {
                 var (title, message) = PrayerTimeHelper.BuildPersistentNotificationContent(prayerTimes);
                 await ShowPersistentNotificationAsync(title, message);
-                Console.WriteLine($"📌 Sürekli bildirim güncellendi: {title}");
+                System.Diagnostics.Debug.WriteLine($"📌 Sürekli bildirim güncellendi: {title}");
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"⚠️ Persistent notification güncelleme hatası: {ex.Message}");
+                System.Diagnostics.Debug.WriteLine($"⚠️ Persistent notification güncelleme hatası: {ex.Message}");
             }
         }
 
         public void CancelAllNotifications()
         {
             LocalNotificationCenter.Current.CancelAll();
-            Console.WriteLine("🗑️ Tüm bildirimler iptal edildi");
+            System.Diagnostics.Debug.WriteLine("🗑️ Tüm bildirimler iptal edildi");
         }
 
         public async Task RescheduleAllAsync()
@@ -210,7 +210,7 @@ namespace hadis.Services
                     context.StartService(intent);
                 }
                 
-                Console.WriteLine($"📌 Foreground service başlatıldı: {title}");
+                System.Diagnostics.Debug.WriteLine($"📌 Foreground service başlatıldı: {title}");
 #elif IOS
                 if (await LocalNotificationCenter.Current.AreNotificationsEnabled() == false)
                 {
@@ -230,7 +230,7 @@ namespace hadis.Services
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"⚠️ Persistent Notification Hatası: {ex.Message}");
+                System.Diagnostics.Debug.WriteLine($"⚠️ Persistent Notification Hatası: {ex.Message}");
             }
         }
 
@@ -243,15 +243,15 @@ namespace hadis.Services
                 var intent = new global::Android.Content.Intent(context, typeof(Platforms.Android.Services.PersistentNotificationService));
                 intent.SetAction("STOP_SERVICE");
                 context.StartService(intent);
-                Console.WriteLine("🗑️ Foreground service durduruldu");
+                System.Diagnostics.Debug.WriteLine("🗑️ Foreground service durduruldu");
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"⚠️ Service durdurma hatası: {ex.Message}");
+                System.Diagnostics.Debug.WriteLine($"⚠️ Service durdurma hatası: {ex.Message}");
             }
 #else
             LocalNotificationCenter.Current.Cancel(ID_PERSISTENT);
-            Console.WriteLine("🗑️ Sürekli bildirim iptal edildi");
+            System.Diagnostics.Debug.WriteLine("🗑️ Sürekli bildirim iptal edildi");
 #endif
         }
 
@@ -283,3 +283,4 @@ namespace hadis.Services
         }
     }
 }
+

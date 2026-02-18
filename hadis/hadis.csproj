@@ -13,7 +13,7 @@
 		<Nullable>enable</Nullable>
 
 		<!-- Display name -->
-		<ApplicationTitle>NamazVakti</ApplicationTitle>
+		<ApplicationTitle>İbadet Vakti</ApplicationTitle>
 
 		<!-- App Identifier -->
 		<ApplicationId>com.metintnc.namazvakti</ApplicationId>

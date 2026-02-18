@@ -36,7 +36,7 @@ namespace hadis
                     var alarmManager = (AlarmManager?)GetSystemService(AlarmService);
                     if (alarmManager != null && !alarmManager.CanScheduleExactAlarms())
                     {
-                        System.Console.WriteLine("⚠️ SCHEDULE_EXACT_ALARM izni yok, izin sayfasına yönlendiriliyor...");
+                        System.Diagnostics.Debug.WriteLine("⚠️ SCHEDULE_EXACT_ALARM izni yok, izin sayfasına yönlendiriliyor...");
                         
                         // Kullanıcıyı ayarlar sayfasına yönlendir
                         var intent = new Intent(Android.Provider.Settings.ActionRequestScheduleExactAlarm);
@@ -45,12 +45,12 @@ namespace hadis
                     }
                     else
                     {
-                        System.Console.WriteLine("✅ SCHEDULE_EXACT_ALARM izni mevcut");
+                        System.Diagnostics.Debug.WriteLine("✅ SCHEDULE_EXACT_ALARM izni mevcut");
                     }
                 }
                 catch (Exception ex)
                 {
-                    System.Console.WriteLine($"⚠️ Exact alarm izin kontrolü hatası: {ex.Message}");
+                    System.Diagnostics.Debug.WriteLine($"⚠️ Exact alarm izin kontrolü hatası: {ex.Message}");
                 }
             }
         }
@@ -62,3 +62,5 @@ namespace hadis
         }
     }
 }
+
+

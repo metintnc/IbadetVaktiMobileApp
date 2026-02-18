@@ -1,4 +1,4 @@
-using hadis.Models;
+﻿using hadis.Models;
 using hadis.Services;
 using System.Collections.ObjectModel;
 
@@ -27,7 +27,7 @@ namespace hadis
             }
             catch (Exception ex)
             {
-                System.Diagnostics.Debug.WriteLine($"BildirimAyarlari OnAppearing hatası: {ex.Message}");
+                System.Diagnostics.Debug.WriteLine($"BildirimAyarlari OnAppearing hatasÄ±: {ex.Message}");
             }
         }
 
@@ -58,7 +58,7 @@ namespace hadis
         private string FormatOffset(int offset)
         {
             if (offset == 0) return "0 dk";
-            return offset > 0 ? $"{offset} dk önce" : $"{Math.Abs(offset)} dk sonra";
+            return offset > 0 ? $"{offset} dk Ã¶nce" : $"{Math.Abs(offset)} dk sonra";
         }
 
         private void UpdateOffsetLabels()
@@ -110,22 +110,22 @@ namespace hadis
 
                 if (string.IsNullOrEmpty(sehir) || string.IsNullOrEmpty(ilce))
                 {
-                    Console.WriteLine("⚠️ Bildirim yeniden zamanlanamadı: Konum bilgisi yok");
+                    System.Diagnostics.Debug.WriteLine("âš ï¸ Bildirim yeniden zamanlanamadÄ±: Konum bilgisi yok");
                     return;
                 }
 
-                // Bugünün vakitlerini al
+                // BugÃ¼nÃ¼n vakitlerini al
                 var vakitler = await _prayerTimesService.GetPrayerTimesForDateAsync(DateTime.Now, ilce, sehir);
                 
                 if (vakitler != null)
                 {
                     await _notificationService.ScheduleNotificationsAsync(vakitler);
-                    Console.WriteLine("✅ Bildirimler yeniden zamanlandı");
+                    System.Diagnostics.Debug.WriteLine("âœ… Bildirimler yeniden zamanlandÄ±");
                 }
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"⚠️ Bildirim yeniden zamanlama hatası: {ex.Message}");
+                System.Diagnostics.Debug.WriteLine($"âš ï¸ Bildirim yeniden zamanlama hatasÄ±: {ex.Message}");
             }
         }
 
@@ -163,7 +163,7 @@ namespace hadis
 
             if (isEnabled)
             {
-                // Vakitleri al ve gerçek bilgilerle göster
+                // Vakitleri al ve gerÃ§ek bilgilerle gÃ¶ster
                 try
                 {
                     string sehir = Preferences.Default.Get("ManuelSehir", "");
@@ -178,29 +178,29 @@ namespace hadis
                             var (title, message) = hadis.Helpers.PrayerTimeHelper.BuildPersistentNotificationContent(vakitler);
                             await _notificationService.ShowPersistentNotificationAsync(title, message);
                             
-                            // Güncelleyiciyi başlat
+                            // GÃ¼ncelleyiciyi baÅŸlat
                             Services.PersistentNotificationUpdater.StartUpdating(_notificationService, vakitler);
                         }
                         else
                         {
-                            await _notificationService.ShowPersistentNotificationAsync("Namaz Vakti", "Vakitler yükleniyor...");
+                            await _notificationService.ShowPersistentNotificationAsync("Namaz Vakti", "Vakitler yÃ¼kleniyor...");
                         }
                     }
                     else
                     {
-                        await _notificationService.ShowPersistentNotificationAsync("Namaz Vakti", "Konum seçiniz");
+                        await _notificationService.ShowPersistentNotificationAsync("Namaz Vakti", "Konum seÃ§iniz");
                     }
                 }
                 catch (Exception ex)
                 {
-                    Console.WriteLine($"⚠️ Persistent notification hatası: {ex.Message}");
-                    await _notificationService.ShowPersistentNotificationAsync("Namaz Vakti", "Vakitler yükleniyor...");
+                    System.Diagnostics.Debug.WriteLine($"âš ï¸ Persistent notification hatasÄ±: {ex.Message}");
+                    await _notificationService.ShowPersistentNotificationAsync("Namaz Vakti", "Vakitler yÃ¼kleniyor...");
                 }
             }
             else
             {
                 _notificationService.CancelPersistentNotification();
-                // Güncelleyiciyi durdur
+                // GÃ¼ncelleyiciyi durdur
                 Services.PersistentNotificationUpdater.StopUpdating();
             }
         }
@@ -228,3 +228,4 @@ namespace hadis
         }
     }
 }
+

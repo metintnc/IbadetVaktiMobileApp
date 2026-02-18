@@ -383,7 +383,7 @@ namespace hadis.ViewModels
                     }
                     catch (Exception notifEx)
                     {
-                        Console.WriteLine($"⚠️ Bildirim zamanlama hatası: {notifEx.Message}");
+                        System.Diagnostics.Debug.WriteLine($"⚠️ Bildirim zamanlama hatası: {notifEx.Message}");
                     }
                 }
                 else
@@ -395,7 +395,7 @@ namespace hadis.ViewModels
             }
             catch (Exception e)
             {
-                Console.WriteLine($"❌ Namaz vakitleri çekme hatası: {e.Message}");
+                System.Diagnostics.Debug.WriteLine($"❌ Namaz vakitleri çekme hatası: {e.Message}");
                 ResetPrayerTimes();
                 ShowInternetError(false);
             }
@@ -427,7 +427,7 @@ namespace hadis.ViewModels
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"❌ Geri sayım güncelleme hatası: {ex.Message}");
+                System.Diagnostics.Debug.WriteLine($"❌ Geri sayım güncelleme hatası: {ex.Message}");
             }
         }
 

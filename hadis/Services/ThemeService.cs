@@ -1,11 +1,11 @@
-using hadis.Helpers;
+﻿using hadis.Helpers;
 using hadis.Models;
 using System.Text.Json;
 
 namespace hadis.Services
 {
     /// <summary>
-    /// Tema yönetimi ve uygulama servisi
+    /// Tema yÃ¶netimi ve uygulama servisi
     /// </summary>
     public class ThemeService
     {
@@ -17,7 +17,7 @@ namespace hadis.Services
         }
 
         /// <summary>
-        /// Özel temayı tüm border'lara uygular
+        /// Ã–zel temayÄ± tÃ¼m border'lara uygular
         /// </summary>
         public void ApplyCustomTheme(
             Border mainBorder, Label namazIsmi, Label kalan, Label konum,
@@ -52,7 +52,7 @@ namespace hadis.Services
                     // Ana Border
                     ApplyMainFrameTheme(mainBorder, namazIsmi, kalan, konum, theme);
 
-                    // Namaz vakitleri border'ları
+                    // Namaz vakitleri border'larÄ±
                     var smallBaseColor = Color.FromArgb(theme.SmallFrameBackground);
                     var smallBorderColor = Color.FromArgb(theme.SmallFrameBorder);
                     var smallTextColor = Color.FromArgb(theme.SmallFrameText);
@@ -67,12 +67,12 @@ namespace hadis.Services
                     // Ayet Border
                     ApplyAyetFrameTheme(ayetBorder, gununAyeti, theme);
 
-                    Console.WriteLine("✅ Özel tema başarıyla uygulandı");
+                    System.Diagnostics.Debug.WriteLine("âœ… Ã–zel tema baÅŸarÄ±yla uygulandÄ±");
                 }
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"❌ Özel tema uygulama hatası: {ex.Message}");
+                System.Diagnostics.Debug.WriteLine($"âŒ Ã–zel tema uygulama hatasÄ±: {ex.Message}");
                 ResetToDefaultStyles(mainBorder, namazIsmi, kalan, konum,
                     imsakBorder, imsakYazi, imsakVakit,
                     gunesBorder, gunesYazi, gunesVakit,
@@ -100,7 +100,7 @@ namespace hadis.Services
         }
 
         /// <summary>
-        /// Ayet border'ına tema uygular
+        /// Ayet border'Ä±na tema uygular
         /// </summary>
         private void ApplyAyetFrameTheme(Border ayetBorder, Label gununAyeti, CustomTheme theme)
         {
@@ -111,7 +111,7 @@ namespace hadis.Services
         }
 
         /// <summary>
-        /// Varsayılan (sistem) tema stillerini uygular
+        /// VarsayÄ±lan (sistem) tema stillerini uygular
         /// </summary>
         public void ResetToDefaultStyles(
             Border mainBorder, Label namazIsmi, Label kalan, Label konum,
@@ -174,7 +174,7 @@ namespace hadis.Services
             kalan.TextColor = textColor;
             konum.TextColor = textColor;
 
-            // Namaz vakitleri border'ları
+            // Namaz vakitleri border'larÄ±
             imsakBorder.ApplyPrayerTimeStyle(imsakYazi, imsakVakit, borderColor, textColor, baseColor);
             gunesBorder.ApplyPrayerTimeStyle(gunesYazi, gunesVakit, borderColor, textColor, baseColor);
             ogleBorder.ApplyPrayerTimeStyle(ogleYazi, ogleVakit, borderColor, textColor, baseColor);
@@ -188,7 +188,7 @@ namespace hadis.Services
         }
 
         /// <summary>
-        /// Açık tema stillerini uygular
+        /// AÃ§Ä±k tema stillerini uygular
         /// </summary>
         private void ApplyLightTheme(
             Border mainBorder, Label namazIsmi, Label kalan, Label konum,
@@ -210,7 +210,7 @@ namespace hadis.Services
             kalan.TextColor = textColor;
             konum.TextColor = textColor;
 
-            // Namaz vakitleri border'ları
+            // Namaz vakitleri border'larÄ±
             imsakBorder.ApplyPrayerTimeStyle(imsakYazi, imsakVakit, borderColor, textColor, baseColor);
             gunesBorder.ApplyPrayerTimeStyle(gunesYazi, gunesVakit, borderColor, textColor, baseColor);
             ogleBorder.ApplyPrayerTimeStyle(ogleYazi, ogleVakit, borderColor, textColor, baseColor);
@@ -224,7 +224,7 @@ namespace hadis.Services
             gununAyeti.TextColor = textColor;
         }
         /// <summary>
-        /// Arkaplan parlaklığına göre borderlara adaptif cam efekti uygular
+        /// Arkaplan parlaklÄ±ÄŸÄ±na gÃ¶re borderlara adaptif cam efekti uygular
         /// </summary>
         public void ApplyAdaptiveGlassTheme(
             bool isBrightBackground,
@@ -243,27 +243,27 @@ namespace hadis.Services
 
             if (isBrightBackground)
             {
-                // Arkaplan parlak ise (Gündüz vb.) -> KOYU CAM (Dark Glass) kullan ki görünsün
-                // Örn: Siyah %50 opaklık
+                // Arkaplan parlak ise (GÃ¼ndÃ¼z vb.) -> KOYU CAM (Dark Glass) kullan ki gÃ¶rÃ¼nsÃ¼n
+                // Ã–rn: Siyah %50 opaklÄ±k
                 baseColor = Color.FromArgb("#80000000"); 
-                borderColor = Color.FromArgb("#99FFFFFF"); // Beyazımsı sınır
+                borderColor = Color.FromArgb("#99FFFFFF"); // BeyazÄ±msÄ± sÄ±nÄ±r
                 textColor = Colors.White;
             }
             else
             {
-                // Arkaplan karanlık ise (Gece vb.) -> AÇIK CAM (Light Glass) kullan
-                // Örn: Beyaz %20-30 opaklık
+                // Arkaplan karanlÄ±k ise (Gece vb.) -> AÃ‡IK CAM (Light Glass) kullan
+                // Ã–rn: Beyaz %20-30 opaklÄ±k
                 baseColor = Color.FromArgb("#40FFFFFF");
                 borderColor = Color.FromArgb("#80FFFFFF");
-                textColor = Colors.White; // Koyu arkaplanda beyaz yazı genelde iyidir ama frame açık renkse?
-                // Light Glass (Beyazımsı) üstüne Beyaz yazı okunmayabilir.
-                // Eğer frame beyazımsı ise yazı koyu olmalı.
-                // Veya "Light Glass" tamamen şeffaf beyaz ise...
-                // Varsayılan tasarımımızda gece arkaplan koyu, frameler beyazımsı, yazılar KOYU (ThemeService.ApplyLightTheme'deki gibi).
+                textColor = Colors.White; // Koyu arkaplanda beyaz yazÄ± genelde iyidir ama frame aÃ§Ä±k renkse?
+                // Light Glass (BeyazÄ±msÄ±) Ã¼stÃ¼ne Beyaz yazÄ± okunmayabilir.
+                // EÄŸer frame beyazÄ±msÄ± ise yazÄ± koyu olmalÄ±.
+                // Veya "Light Glass" tamamen ÅŸeffaf beyaz ise...
+                // VarsayÄ±lan tasarÄ±mÄ±mÄ±zda gece arkaplan koyu, frameler beyazÄ±msÄ±, yazÄ±lar KOYU (ThemeService.ApplyLightTheme'deki gibi).
                 
-                // Ancak kullanıcı "Gece" modunda genelde beyaz yazı bekler.
-                // Mevcut tasarım: Koyu arkaplanlarda beyaz yazı, açık frameler.
-                // Hadi Light Theme renklerini baz alalım ama text rengine dikkat.
+                // Ancak kullanÄ±cÄ± "Gece" modunda genelde beyaz yazÄ± bekler.
+                // Mevcut tasarÄ±m: Koyu arkaplanlarda beyaz yazÄ±, aÃ§Ä±k frameler.
+                // Hadi Light Theme renklerini baz alalÄ±m ama text rengine dikkat.
                 
                 // Revize:
                 // Gece (Koyu BG) -> Frame: #30FFFFFF (Hafif Beyaz), Text: White. (ApplyDarkTheme gibi)
@@ -299,3 +299,4 @@ namespace hadis.Services
         }
     }
 }
+
