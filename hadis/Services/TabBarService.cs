@@ -1,12 +1,12 @@
-namespace hadis.Services
+﻿namespace hadis.Services
 {
     /// <summary>
-    /// TabBar renk yönetimi servisi
+    /// TabBar renk yÃ¶netimi servisi
     /// </summary>
     public class TabBarService
     {
         /// <summary>
-        /// TabBar rengini ayarlar (tüm platformlar)
+        /// TabBar rengini ayarlar (tÃ¼m platformlar)
         /// </summary>
         public void SetTabBarColor(string hexColor)
         {
@@ -14,7 +14,7 @@ namespace hadis.Services
             {
                 if (Application.Current?.MainPage == null)
                 {
-                    Console.WriteLine("⚠️ MainPage null - TabBar rengi ayarlanamıyor");
+                    System.Diagnostics.Debug.WriteLine("âš ï¸ MainPage null - TabBar rengi ayarlanamÄ±yor");
                     return;
                 }
 
@@ -28,23 +28,24 @@ namespace hadis.Services
                             // TabBar rengini ayarla
                             Shell.SetTabBarBackgroundColor(Shell.Current, Color.FromArgb(hexColor));
                             
-                            Console.WriteLine($"✅ TabBar rengi değiştirildi: {hexColor}");
+                            System.Diagnostics.Debug.WriteLine($"âœ… TabBar rengi deÄŸiÅŸtirildi: {hexColor}");
                         }
                         catch (Exception ex)
                         {
-                            Console.WriteLine($"❌ TabBar renk ayarlama hatası (Main thread): {ex.Message}");
+                            System.Diagnostics.Debug.WriteLine($"âŒ TabBar renk ayarlama hatasÄ± (Main thread): {ex.Message}");
                         }
                     });
                 }
                 else
                 {
-                    Console.WriteLine("⚠️ Shell.Current null - TabBar rengi ayarlanamıyor");
+                    System.Diagnostics.Debug.WriteLine("âš ï¸ Shell.Current null - TabBar rengi ayarlanamÄ±yor");
                 }
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"❌ TabBar renk ayarlama hatası: {ex.Message}");
+                System.Diagnostics.Debug.WriteLine($"âŒ TabBar renk ayarlama hatasÄ±: {ex.Message}");
             }
         }
     }
 }
+

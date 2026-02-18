@@ -54,7 +54,7 @@ namespace hadis
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"Init Background Error: {ex.Message}");
+                System.Diagnostics.Debug.WriteLine($"Init Background Error: {ex.Message}");
                 SetTimeBasedBackground();
             }
         }
@@ -171,7 +171,7 @@ namespace hadis
                 }
                 catch (Exception ex)
                 {
-                    Console.WriteLine($"❌ Custom tema arkaplan hatası: {ex.Message}");
+                    System.Diagnostics.Debug.WriteLine($"❌ Custom tema arkaplan hatası: {ex.Message}");
                 }
             }
         }
@@ -337,9 +337,10 @@ namespace hadis
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"Widget update trigger error: {ex.Message}");
+                System.Diagnostics.Debug.WriteLine($"Widget update trigger error: {ex.Message}");
             }
         }
 #endif
     }
 }
+

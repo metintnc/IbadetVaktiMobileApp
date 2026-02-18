@@ -1,4 +1,4 @@
-using hadis.Helpers;
+﻿using hadis.Helpers;
 
 #if ANDROID
 using Android.OS;
@@ -8,7 +8,7 @@ using Android.Views;
 namespace hadis.Services
 {
     /// <summary>
-    /// Android status bar renk ve görünüm yönetimi
+    /// Android status bar renk ve gÃ¶rÃ¼nÃ¼m yÃ¶netimi
     /// </summary>
     public class StatusBarService
     {
@@ -23,7 +23,7 @@ namespace hadis.Services
                 var activity = Microsoft.Maui.ApplicationModel.Platform.CurrentActivity;
                 if (activity?.Window == null)
                 {
-                    Console.WriteLine("⚠️ Activity veya Window null - status bar ayarlanamıyor");
+                    System.Diagnostics.Debug.WriteLine("âš ï¸ Activity veya Window null - status bar ayarlanamÄ±yor");
                     return;
                 }
 
@@ -31,16 +31,16 @@ namespace hadis.Services
                 {
                     try
                     {
-                        // Hex rengini Android Color'a çevir
+                        // Hex rengini Android Color'a Ã§evir
                         var color = Android.Graphics.Color.ParseColor(hexColor);
                         activity.Window.SetStatusBarColor(color);
 
-                        Console.WriteLine($"✅ Status bar rengi değiştirildi: {hexColor}");
+                        System.Diagnostics.Debug.WriteLine($"âœ… Status bar rengi deÄŸiÅŸtirildi: {hexColor}");
 
-                        // Rengin açık mı koyu mu olduğunu hesapla
+                        // Rengin aÃ§Ä±k mÄ± koyu mu olduÄŸunu hesapla
                         bool isLightColor = hexColor.IsLightColor();
 
-                        // Android 6.0 ve üzeri için icon rengini ayarla
+                        // Android 6.0 ve Ã¼zeri iÃ§in icon rengini ayarla
                         if (Build.VERSION.SdkInt >= BuildVersionCodes.M)
                         {
                             var decorView = activity.Window.DecorView;
@@ -48,34 +48,35 @@ namespace hadis.Services
 
                             if (isLightColor)
                             {
-                                // Açık renk için koyu iconlar
+                                // AÃ§Ä±k renk iÃ§in koyu iconlar
                                 decorView.SystemUiVisibility = (StatusBarVisibility)
                                     ((int)systemUiVisibility | (int)SystemUiFlags.LightStatusBar);
-                                Console.WriteLine("✅ Status bar iconları koyu yapıldı (açık arkaplan için)");
+                                System.Diagnostics.Debug.WriteLine("âœ… Status bar iconlarÄ± koyu yapÄ±ldÄ± (aÃ§Ä±k arkaplan iÃ§in)");
                             }
                             else
                             {
-                                // Koyu renk için açık iconlar
+                                // Koyu renk iÃ§in aÃ§Ä±k iconlar
                                 decorView.SystemUiVisibility = (StatusBarVisibility)
                                     ((int)systemUiVisibility & ~(int)SystemUiFlags.LightStatusBar);
-                                Console.WriteLine("✅ Status bar iconları açık yapıldı (koyu arkaplan için)");
+                                System.Diagnostics.Debug.WriteLine("âœ… Status bar iconlarÄ± aÃ§Ä±k yapÄ±ldÄ± (koyu arkaplan iÃ§in)");
                             }
                         }
                     }
                     catch (Exception ex)
                     {
-                        Console.WriteLine($"❌ Status bar renk ayarlama hatası (UI thread): {ex.Message}");
+                        System.Diagnostics.Debug.WriteLine($"âŒ Status bar renk ayarlama hatasÄ± (UI thread): {ex.Message}");
                     }
                 });
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"❌ Status bar renk ayarlama hatası: {ex.Message}");
+                System.Diagnostics.Debug.WriteLine($"âŒ Status bar renk ayarlama hatasÄ±: {ex.Message}");
             }
 #else
-            // iOS ve diğer platformlar için şimdilik boş
-            Console.WriteLine($"ℹ️ Status bar rengi sadece Android'de destekleniyor: {hexColor}");
+            // iOS ve diÄŸer platformlar iÃ§in ÅŸimdilik boÅŸ
+            System.Diagnostics.Debug.WriteLine($"â„¹ï¸ Status bar rengi sadece Android'de destekleniyor: {hexColor}");
 #endif
         }
     }
 }
+

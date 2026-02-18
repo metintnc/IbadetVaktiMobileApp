@@ -30,6 +30,26 @@ namespace hadis.ViewModels
         private City? _selectedCityForDistrict;
         private bool _isSelectingDistrict;
 
+        [ObservableProperty]
+        private City? _selectedCity;
+
+        partial void OnSelectedCityChanged(City? value)
+        {
+            if (value is not null)
+            {
+                // Fire and forget, but handle carefully
+                _ = HandleSelection(value);
+            }
+        }
+
+        private async Task HandleSelection(City city)
+        {
+            await SelectCityAsync(city);
+            // Reset selection to allow re-selecting the same item if needed (though we usually navigate away)
+            // But since we might just switch list (SwitchToDistricts), we should clear selection.
+            SelectedCity = null;
+        }
+
         public SehirSecimViewModel(PrayerTimesService prayerTimesService)
         {
             _prayerTimesService = prayerTimesService;
@@ -189,6 +209,7 @@ namespace hadis.ViewModels
             }
             else
             {
+                _selectedCityForDistrict = city;
                 _ = FinalizeSelection(city.Name);
             }
         }

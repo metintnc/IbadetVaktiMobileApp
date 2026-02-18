@@ -1,4 +1,4 @@
-using System.Net.Http;
+﻿using System.Net.Http;
 using System.Text.Json;
 using System.Threading.Tasks;
 using System.Collections.Generic;
@@ -53,7 +53,7 @@ namespace hadis.Services
                 }
                 catch (Exception ex)
                 {
-                    Console.WriteLine($"Cache read error ({fileName}): {ex.Message}");
+                    System.Diagnostics.Debug.WriteLine($"Cache read error ({fileName}): {ex.Message}");
                 }
             }
 
@@ -67,7 +67,7 @@ namespace hadis.Services
 
                 try
                 {
-                    // author=11 (Diyanet İşleri)
+                    // author=11 (Diyanet Ä°ÅŸleri)
                     var url = $"https://api.acikkuran.com/surah/{surahNo}?author=11";
                     var responseString = await _client.GetStringAsync(url);
                     var apiResponse = JsonSerializer.Deserialize<AcikKuranResponse>(responseString);
@@ -83,7 +83,7 @@ namespace hadis.Services
                 }
                 catch (Exception ex)
                 {
-                    Console.WriteLine($"API Request error: {ex.Message}");
+                    System.Diagnostics.Debug.WriteLine($"API Request error: {ex.Message}");
                     return new List<Ayah>();
                 }
             }
@@ -142,13 +142,14 @@ namespace hadis.Services
                     }
                 }
 
-                progress?.Report("Tamamlandı");
+                progress?.Report("TamamlandÄ±");
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"Download Error: {ex.Message}");
+                System.Diagnostics.Debug.WriteLine($"Download Error: {ex.Message}");
                 throw;
             }
         }
     }
 }
+

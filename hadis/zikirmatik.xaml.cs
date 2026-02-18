@@ -83,7 +83,7 @@ namespace hadis
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"Özel tema uygulama hatası: {ex.Message}");
+                System.Diagnostics.Debug.WriteLine($"Özel tema uygulama hatası: {ex.Message}");
                 ResetToDefaultStyles();
             }
         }
@@ -196,7 +196,7 @@ namespace hadis
             }
             else
             {
-                 Console.WriteLine("DEBUGGING: sesDurum is FALSE. Vibration skipped.");
+                 System.Diagnostics.Debug.WriteLine("DEBUGGING: sesDurum is FALSE. Vibration skipped.");
             }
 
             // 3. Mantıksal İşlemler
@@ -303,7 +303,7 @@ namespace hadis
                 }
                 catch (Exception ex)
                 {
-                    Console.WriteLine(ex.ToString());
+                    System.Diagnostics.Debug.WriteLine(ex.ToString());
                 }
             }
         }

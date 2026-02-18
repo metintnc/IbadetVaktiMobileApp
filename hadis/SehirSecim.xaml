@@ -2,6 +2,7 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              xmlns:viewmodels="clr-namespace:hadis.ViewModels"
              x:Class="hadis.SehirSecim"
+             x:Name="SehirSecimPage"
              x:DataType="viewmodels:SehirSecimViewModel"
              Title="Konum Seç"
              NavigationPage.HasNavigationBar="False"
@@ -91,7 +92,8 @@
             <CollectionView Grid.Row="2" 
                             x:Name="CitiesCollectionView"
                             ItemsSource="{Binding FilteredCities}"
-                            SelectionMode="None"
+                            SelectedItem="{Binding SelectedCity, Mode=TwoWay}"
+                            SelectionMode="Single"
                             VerticalScrollBarVisibility="Never">
                 <CollectionView.ItemTemplate>
                     <DataTemplate>
@@ -100,10 +102,7 @@
                                StrokeShape="RoundRectangle 12"
                                Stroke="{AppThemeBinding Light=#20009688, Dark=#20FFFFFF}"
                                BackgroundColor="{AppThemeBinding Light=#CCFFFFFF, Dark=#CC1E1E1E}">
-                            <Border.GestureRecognizers>
-                                <TapGestureRecognizer Command="{Binding Source={RelativeSource AncestorType={x:Type viewmodels:SehirSecimViewModel}}, Path=SelectCityCommand}"
-                                                      CommandParameter="{Binding .}"/>
-                            </Border.GestureRecognizers>
+
                             <Grid ColumnDefinitions="*,Auto">
                                 <Label Grid.Column="0"
                                        Text="{Binding Name}"

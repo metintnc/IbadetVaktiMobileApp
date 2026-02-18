@@ -1,4 +1,4 @@
-using System.Globalization;
+﻿using System.Globalization;
 using Microsoft.Maui.Controls.Shapes;
 
 namespace hadis
@@ -20,20 +20,20 @@ namespace hadis
         {
             // Muharrem
             (1, 1, "Hicri Yılbaşı", "🎉"),
-            (1, 10, "Aşure Günü", "🤲"),
+            (1, 10, "Aşure Günü", "🥣"),
 
             // Safer
-            (2, 1, "Safer Ayı Başlangıcı", "📿"),
+            (2, 1, "Safer Ayı Başlangıcı", "🗓"),
 
             // Rebiülevvel
-            (3, 12, "Mevlid Kandili", "🕯️"),
+            (3, 12, "Mevlid Kandili", "📿"),
 
             // Recep
             (7, 1, "Üç Ayların Başlangıcı", "🌟"),
-            (7, 27, "Regaip Kandili", "🕯️"),
+            (7, 27, "Regaip Kandili", "📿"),
 
             // Şaban
-            (8, 15, "Berat Kandili", "🕯️"),
+            (8, 15, "Berat Kandili", "📿"),
 
             // Ramazan
             (9, 1, "Ramazan Başlangıcı", "🌙"),
@@ -45,7 +45,7 @@ namespace hadis
             (10, 3, "Ramazan Bayramı (3. Gün)", "🎊"),
 
             // Zilhicce
-            (12, 9, "Arife Günü", "🤲"),
+            (12, 9, "Arife Günü", "🥣"),
             (12, 10, "Kurban Bayramı (1. Gün)", "🐑"),
             (12, 11, "Kurban Bayramı (2. Gün)", "🐑"),
             (12, 12, "Kurban Bayramı (3. Gün)", "🐑"),
@@ -56,15 +56,15 @@ namespace hadis
         {
             InitializeComponent();
 
-            // Bugünkü Hicri tarihi hesapla
+            // BugÃ¼nkÃ¼ Hicri tarihi hesapla
             var bugun = DateTime.Now;
             _gorunenHicriYil = _hicriTakvim.GetYear(bugun);
             _gorunenHicriAy = _hicriTakvim.GetMonth(bugun);
 
-            // Miladi tarihi göster
+            // Miladi tarihi gÃ¶ster
             MiladiTarihLabel.Text = bugun.ToString("dd MMMM yyyy, dddd", new CultureInfo("tr-TR"));
 
-            // Hicri tarihi göster
+            // Hicri tarihi gÃ¶ster
             int hicriGun = _hicriTakvim.GetDayOfMonth(bugun);
             HicriTarihLabel.Text = $"🌙 {hicriGun} {HicriAylar[_gorunenHicriAy - 1]} {_gorunenHicriYil}";
 
@@ -97,23 +97,23 @@ namespace hadis
         {
             try
             {
-                // Ay başlığını güncelle
+                // Ay baÅŸlÄ±ÄŸÄ±nÄ± gÃ¼ncelle
                 AyBaslikLabel.Text = $"{HicriAylar[_gorunenHicriAy - 1]} {_gorunenHicriYil}";
 
                 // Takvim grid'ini temizle
                 TakvimGrid.Children.Clear();
                 TakvimGrid.RowDefinitions.Clear();
 
-                // Bu aydaki gün sayısı
+                // Bu aydaki gÃ¼n sayÄ±sÄ±
                 int gunSayisi = _hicriTakvim.GetDaysInMonth(_gorunenHicriYil, _gorunenHicriAy);
 
-                // Ayın ilk gününün miladi karşılığını bul
+                // AyÄ±n ilk gÃ¼nÃ¼nÃ¼n miladi karÅŸÄ±lÄ±ÄŸÄ±nÄ± bul
                 DateTime ilkGunMiladi = _hicriTakvim.ToDateTime(_gorunenHicriYil, _gorunenHicriAy, 1, 0, 0, 0, 0);
 
-                // Haftanın hangi gününde başlıyor (Pazartesi = 0)
+                // HaftanÄ±n hangi gÃ¼nÃ¼nde baÅŸlÄ±yor (Pazartesi = 0)
                 int baslangicGunu = ((int)ilkGunMiladi.DayOfWeek + 6) % 7; // Pazartesi=0, Pazar=6
 
-                // Kaç satır gerekli
+                // KaÃ§ satÄ±r gerekli
                 int satirSayisi = (int)Math.Ceiling((baslangicGunu + gunSayisi) / 7.0);
 
                 for (int i = 0; i < satirSayisi; i++)
@@ -121,18 +121,18 @@ namespace hadis
                     TakvimGrid.RowDefinitions.Add(new RowDefinition(GridLength.Auto));
                 }
 
-                // Bugünü hesapla
+                // BugÃ¼nÃ¼ hesapla
                 var bugun = DateTime.Now;
                 int bugunHicriGun = _hicriTakvim.GetDayOfMonth(bugun);
                 int bugunHicriAy = _hicriTakvim.GetMonth(bugun);
                 int bugunHicriYil = _hicriTakvim.GetYear(bugun);
 
-                // Bu aydaki önemli günleri bul
+                // Bu aydaki Ã¶nemli gÃ¼nleri bul
                 var ayinOnemliGunleri = OnemliGunler
                     .Where(g => g.Ay == _gorunenHicriAy)
                     .ToList();
 
-                // Günleri yerleştir
+                // GÃ¼nleri yerleÅŸtir
                 for (int gun = 1; gun <= gunSayisi; gun++)
                 {
                     int konum = baslangicGunu + gun - 1;
@@ -151,12 +151,12 @@ namespace hadis
                     TakvimGrid.Children.Add(hucre);
                 }
 
-                // Önemli günleri listele
+                // Ã–nemli gÃ¼nleri listele
                 OnemliGunleriGoster(ayinOnemliGunleri);
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"❌ Takvim oluşturma hatası: {ex.Message}");
+                System.Diagnostics.Debug.WriteLine($"❌ Takvim oluşturma hatası: {ex.Message}");
             }
         }
 
@@ -197,7 +197,7 @@ namespace hadis
                     : Color.FromArgb("#9E9E9E");
             }
 
-            // Cuma günü özel renk (bugün/önemli değilse)
+            // Cuma gÃ¼nÃ¼ Ã¶zel renk (bugÃ¼n/Ã¶nemli deÄŸilse)
             if (cumaMi && !bugunMu && !onemliGunMu)
             {
                 textColor = Application.Current.RequestedTheme == AppTheme.Dark
@@ -266,7 +266,7 @@ namespace hadis
 
             foreach (var gun in ayinGunleri.OrderBy(g => g.Gun))
             {
-                // Miladi karşılığını hesapla
+                // Miladi karÅŸÄ±lÄ±ÄŸÄ±nÄ± hesapla
                 DateTime miladiTarih;
                 try
                 {
@@ -337,7 +337,7 @@ namespace hadis
                 grid.Children.Add(emojiLabel);
                 grid.Children.Add(infoStack);
 
-                // Bugün bu önemli günse işaret koy
+                // BugÃ¼n bu Ã¶nemli gÃ¼nse iÅŸaret koy
                 var bugun = DateTime.Now;
                 int bugunHicriGun = _hicriTakvim.GetDayOfMonth(bugun);
                 int bugunHicriAy = _hicriTakvim.GetMonth(bugun);
@@ -362,3 +362,4 @@ namespace hadis
         }
     }
 }
+
