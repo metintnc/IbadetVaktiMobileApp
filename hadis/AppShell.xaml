@@ -19,7 +19,7 @@
         <Tab Title="Kuran" Icon="kuran.png">
             <ShellContent ContentTemplate="{DataTemplate local:Kuran}"  />
         </Tab>
-        <Tab Title="Kible" Icon="kiblesekme.png"> 
+        <Tab Title="Kıble" Icon="kiblesekme.png"> 
             <ShellContent ContentTemplate="{DataTemplate local:kible}" />
         </Tab>
         <Tab Title="Zikir" Icon="zikirmatik.png">

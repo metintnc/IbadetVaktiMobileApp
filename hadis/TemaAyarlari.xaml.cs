@@ -86,7 +86,7 @@ namespace hadis
                          string customThemeJson = Preferences.Default.Get(AppConstants.PREF_CUSTOM_THEME, string.Empty);
                          if (string.IsNullOrEmpty(customThemeJson))
                          {
-                             DisplayAlert("UyarÄ±", "Ã–nce Ã¶zel bir tema oluÅŸturmalÄ±sÄ±nÄ±z.", "Tamam");
+                             DisplayAlert("Uyar\u0131", "\u00d6nce \u00f6zel bir tema olu\u015fturmal\u0131s\u0131n\u0131z.", "Tamam");
                              return;
                          }
                      }
