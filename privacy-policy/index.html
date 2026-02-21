@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Gizlilik Politikası - Namaz Vakti</title>
+    <title>Gizlilik Politikası - İbadet Vakti</title>
     <style>
         * {
             margin: 0;
@@ -24,7 +24,7 @@
         .container {
             max-width: 800px;
             margin: 0 auto;
-            background: rgba(255, 255, 255, 0.95);
+            background: rgba(255, 255, 255, 0.97);
             border-radius: 20px;
             padding: 40px;
             box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
@@ -40,7 +40,7 @@
         .app-name {
             text-align: center;
             color: #666;
-            margin-bottom: 30px;
+            margin-bottom: 8px;
             font-size: 1.1rem;
         }
 
@@ -113,73 +113,86 @@
 <body>
     <div class="container">
         <h1>🕌 Gizlilik Politikası</h1>
-        <p class="app-name">Namaz Vakti Uygulaması</p>
-        <p class="update-date">Son Güncelleme: 9 Şubat 2025</p>
+        <p class="app-name">İbadet Vakti</p>
+        <p class="update-date">Son Güncelleme: 19 Şubat 2026</p>
 
         <div class="highlight">
-            <p><strong>Özet:</strong> Namaz Vakti uygulaması, gizliliğinize saygı duyar. Kişisel verilerinizi üçüncü
-                taraflarla paylaşmaz veya satmaz. Konum bilgileriniz yalnızca namaz vakitlerini hesaplamak için
-                kullanılır.</p>
+            <p><strong>Özet:</strong> İbadet Vakti uygulaması gizliliğinize saygı duyar. Kişisel verilerinizi
+                üçüncü taraflarla paylaşmaz veya satmaz. Konum bilgileriniz yalnızca namaz vakitlerini, kıble
+                yönünü ve yakındaki camileri göstermek için kullanılır ve yalnızca cihazınızda saklanır.</p>
         </div>
 
         <h2><span class="emoji">📍</span>Konum Verileri</h2>
-        <p>Uygulamamız, namaz vakitlerini ve kıble yönünü doğru hesaplayabilmek için konum bilgilerinize erişim talep
-            eder:</p>
+        <p>Uygulamamız, aşağıdaki özellikler için konum bilgilerinize ihtiyaç duyar:</p>
         <ul>
-            <li><strong>Ne için kullanılır:</strong> Bulunduğunuz konuma göre doğru namaz vakitlerini göstermek ve kıble
-                yönünü hesaplamak</li>
-            <li><strong>Nasıl saklanır:</strong> Konum bilgileriniz yalnızca cihazınızda saklanır</li>
+            <li><strong>Namaz vakitleri:</strong> Bulunduğunuz konuma özel doğru vakitleri hesaplamak için</li>
+            <li><strong>Kıble pusulası:</strong> Kabe'nin yönünü doğru göstermek için</li>
+            <li><strong>Yakındaki camiler:</strong> Çevrenizde bulunan camileri haritada listelemek için</li>
+            <li><strong>Nasıl saklanır:</strong> Konum bilgileri yalnızca cihazınızda tutulur, sunucularımıza gönderilmez</li>
             <li><strong>Paylaşım:</strong> Konum verileriniz hiçbir üçüncü tarafla paylaşılmaz</li>
         </ul>
+        <p>Konum iznini dilediğiniz zaman cihaz ayarlarından iptal edebilirsiniz. Bu durumda, konumunuzu manuel
+            olarak şehir listesinden seçebilirsiniz.</p>
+
+        <h2><span class="emoji">🌐</span>İnternet Erişimi ve Üçüncü Taraf Hizmetler</h2>
+        <p>Uygulamamız internet bağlantısını aşağıdaki amaçlarla kullanır:</p>
+        <ul>
+            <li><strong>Namaz vakitleri:</strong> Güncel vakitleri almak için (veriler önbelleğe alınır; çevrimdışı çalışır)</li>
+            <li><strong>Kuran-ı Kerim:</strong> Sure ve ayet verilerini yüklemek için</li>
+            <li><strong>Yakındaki camiler:</strong> Cami konumlarını almak için <a href="https://www.openstreetmap.org" target="_blank">OpenStreetMap</a> / <a href="https://overpass-api.de" target="_blank">Overpass API</a> hizmeti kullanılır. Bu hizmetlere yalnızca yaklaşık konumunuz iletilir ve sadece cami listesini getirmek için kullanılır.</li>
+        </ul>
+        <p>Uygulama, reklam ağları, analitik araçlar veya veri takip servisleri içermez.</p>
 
         <h2><span class="emoji">🔔</span>Bildirimler</h2>
-        <p>Uygulamamız, namaz vakitlerinde sizi haberdar edebilmek için bildirim izni talep eder:</p>
+        <p>Uygulamamız, namaz vakitlerinde sizi bilgilendirmek için bildirim izni talep eder:</p>
         <ul>
-            <li>Ezan vakitlerinde hatırlatıcı bildirimler</li>
-            <li>Özelleştirilebilir bildirim ayarları</li>
-            <li>İstediğiniz zaman kapatabilirsiniz</li>
+            <li>Her namaz vakti için ayrı ayrı bildirim açıp kapatabilirsiniz</li>
+            <li>Bildirimleri vakitten önce veya sonra dakika bazında özelleştirebilirsiniz</li>
+            <li>Bildirimleri istediğiniz zaman uygulama veya cihaz ayarlarından devre dışı bırakabilirsiniz</li>
         </ul>
 
-        <h2><span class="emoji">🌐</span>İnternet Erişimi</h2>
-        <p>Uygulamamız internet bağlantısını şu amaçlarla kullanır:</p>
-        <ul>
-            <li>Namaz vakitlerini güncellemek</li>
-            <li>Kuran-ı Kerim ayet ve surelerini yüklemek</li>
-        </ul>
+        <h2><span class="emoji">📳</span>Titreşim ve Ses</h2>
+        <p>Zikirmatik özelliği, her tıklamada geri bildirim sağlamak için cihazınızın titreşim motorunu kullanabilir.
+            Bu özellik uygulama içinden açılıp kapatılabilir. Herhangi bir ses verisi kaydedilmez.</p>
 
-        <h2><span class="emoji">💾</span>Veri Saklama</h2>
-        <p>Tüm uygulama verileri (tercihler, kayıtlı ayetler, zikir sayaçları) yalnızca cihazınızda saklanır. Bu
-            veriler:</p>
+        <h2><span class="emoji">💾</span>Yerel Veri Saklama</h2>
+        <p>Aşağıdaki tüm veriler yalnızca cihazınızda saklanır, sunucularımıza gönderilmez:</p>
         <ul>
-            <li>Sunucularımıza gönderilmez</li>
-            <li>Üçüncü taraflarla paylaşılmaz</li>
-            <li>Uygulamayı sildiğinizde cihazınızdan kaldırılır</li>
+            <li>Zikir sayaç geçmişi ve istatistikleri</li>
+            <li>Kaydedilen Kuran ayetleri</li>
+            <li>Tema ve görünüm tercihleri</li>
+            <li>Bildirim ayarları</li>
+            <li>Seçilen şehir / konum bilgisi</li>
+            <li>Önbelleğe alınan namaz vakitleri</li>
         </ul>
+        <p>Uygulamayı sildiğinizde tüm bu veriler cihazınızdan kalıcı olarak kaldırılır.</p>
 
         <h2><span class="emoji">🔒</span>Güvenlik</h2>
         <p>Verilerinizin güvenliği bizim için önemlidir. Uygulamamız:</p>
         <ul>
             <li>Gereksiz izinler talep etmez</li>
-            <li>Kişisel bilgilerinizi toplamaz</li>
-            <li>Reklam veya analitik SDK'ları içermez</li>
+            <li>Kişisel kimlik bilgilerinizi toplamaz (isim, e-posta, telefon numarası vb.)</li>
+            <li>Reklam veya analitik SDK içermez</li>
+            <li>Kullanıcı profili oluşturmaz</li>
         </ul>
 
         <h2><span class="emoji">👶</span>Çocukların Gizliliği</h2>
-        <p>Uygulamamız her yaştan kullanıcı için uygundur ve çocuklardan özel olarak kişisel bilgi toplamaz.</p>
+        <p>Uygulamamız her yaştan kullanıcı için uygundur ve çocuklardan özel olarak kişisel bilgi toplamaz.
+            13 yaş altı kullanıcılardan herhangi bir veri toplanmamaktadır.</p>
 
-        <h2><span class="emoji">📝</span>Değişiklikler</h2>
-        <p>Bu gizlilik politikasını zaman zaman güncelleyebiliriz. Önemli değişiklikler olduğunda uygulama içinden
-            bilgilendirileceksiniz.</p>
+        <h2><span class="emoji">📝</span>Politika Değişiklikleri</h2>
+        <p>Bu gizlilik politikasını zaman zaman güncelleyebiliriz. Önemli değişiklikler olduğunda bu sayfa
+            güncellenecek ve "Son Güncelleme" tarihi değiştirilecektir. Uygulamayı kullanmaya devam etmeniz,
+            güncel politikayı kabul ettiğiniz anlamına gelir.</p>
 
         <div class="contact">
             <h2 style="margin-top: 0;"><span class="emoji">📧</span>İletişim</h2>
             <p>Gizlilik politikamızla ilgili sorularınız için bizimle iletişime geçebilirsiniz:</p>
-            <p><strong>E-posta:</strong> <a href="mailto:metincantunc@protonmail.com">metincantunc@protonmail.com</a>
-            </p>
+            <p><strong>E-posta:</strong> <a href="mailto:metincantunc@protonmail.com">metincantunc@protonmail.com</a></p>
         </div>
 
         <footer>
-            <p>© 2025 Namaz Vakti Uygulaması. Tüm hakları saklıdır.</p>
+            <p>© 2026 İbadet Vakti. Tüm hakları saklıdır.</p>
         </footer>
     </div>
 </body>
