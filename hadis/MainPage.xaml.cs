@@ -34,6 +34,24 @@ namespace hadis
 #if ANDROID
             _viewModel.WidgetUpdateRequested += UpdateAndroidWidget;
 #endif
+            // Konum hatasında şehir seçim sayfasına yönlendir
+            _viewModel.NavigateToSehirSecim += OnNavigateToSehirSecim;
+        }
+
+        private async void OnNavigateToSehirSecim()
+        {
+            await MainThread.InvokeOnMainThreadAsync(async () =>
+            {
+                try
+                {
+                    var sehirSecimPage = _serviceProvider.GetRequiredService<SehirSecim>();
+                    await Navigation.PushAsync(sehirSecimPage);
+                }
+                catch (Exception ex)
+                {
+                    System.Diagnostics.Debug.WriteLine($"SehirSecim navigasyon hatası: {ex.Message}");
+                }
+            });
         }
 
         private void InitializeBackgroundSync()
