@@ -96,6 +96,9 @@ namespace hadis.ViewModels
         // Event: Page'e Widget güncelleme sinyali
         public event Action? WidgetUpdateRequested;
 
+        // Event: Konum hatası → SehirSecim sayfasına yönlendir
+        public event Action? NavigateToSehirSecim;
+
         // Namaz vakitleri dışarıya (notification scheduling için)
         public Dictionary<string, DateTime>? NamazVakitleri => _namazVakitleri;
 
@@ -392,6 +395,16 @@ namespace hadis.ViewModels
                     _namazVakitleri = null;
                     ShowInternetError(false);
                 }
+            }
+            catch (FeatureNotEnabledException)
+            {
+                IsLocationErrorVisible = true;
+                IsInternetErrorVisible = false;
+            }
+            catch (PermissionException)
+            {
+                IsLocationErrorVisible = true;
+                IsInternetErrorVisible = false;
             }
             catch (Exception e)
             {
