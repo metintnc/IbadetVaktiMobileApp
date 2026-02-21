@@ -58,7 +58,7 @@ namespace hadis
         private string FormatOffset(int offset)
         {
             if (offset == 0) return "0 dk";
-            return offset > 0 ? $"{offset} dk Ã¶nce" : $"{Math.Abs(offset)} dk sonra";
+            return offset > 0 ? $"{offset} dk önce" : $"{Math.Abs(offset)} dk sonra";
         }
 
         private void UpdateOffsetLabels()
@@ -183,18 +183,18 @@ namespace hadis
                         }
                         else
                         {
-                            await _notificationService.ShowPersistentNotificationAsync("Namaz Vakti", "Vakitler yÃ¼kleniyor...");
+                            await _notificationService.ShowPersistentNotificationAsync("İbadet Vakti", "Vakitler yükleniyor...");
                         }
                     }
                     else
                     {
-                        await _notificationService.ShowPersistentNotificationAsync("Namaz Vakti", "Konum seÃ§iniz");
+                        await _notificationService.ShowPersistentNotificationAsync("İbadet Vakti", "Konum seçiniz");
                     }
                 }
                 catch (Exception ex)
                 {
                     System.Diagnostics.Debug.WriteLine($"âš ï¸ Persistent notification hatasÄ±: {ex.Message}");
-                    await _notificationService.ShowPersistentNotificationAsync("Namaz Vakti", "Vakitler yÃ¼kleniyor...");
+                    await _notificationService.ShowPersistentNotificationAsync("İbadet Vakti", "Vakitler yükleniyor...");
                 }
             }
             else

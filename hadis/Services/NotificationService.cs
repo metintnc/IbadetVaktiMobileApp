@@ -124,7 +124,7 @@ namespace hadis.Services
                 var request = new NotificationRequest
                 {
                     NotificationId = notificationId,
-                    Title = "Namaz Vakti",
+                    Title = "İbadet Vakti",
                     Description = description,
                     ReturningData = key,
                     Schedule = new NotificationRequestSchedule
