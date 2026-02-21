@@ -18,6 +18,7 @@ namespace hadis
         private readonly MainPageViewModel _viewModel;
         private readonly IServiceProvider _serviceProvider;
         private string _currentImageName;
+        private bool _isDataLoaded = false;
 
         public MainPage(MainPageViewModel viewModel, IServiceProvider serviceProvider)
         {
@@ -65,13 +66,19 @@ namespace hadis
 
             try
             {
-                Connectivity.ConnectivityChanged += Connectivity_ConnectivityChanged;
-
+                // Tema ve arkaplan: hızlı, her gezişte yapılır
                 ApplyTheme();
                 SetTimeBasedBackground();
 
-                // ViewModel üzerinden tüm verileri yükle
-                await _viewModel.LoadDataCommand.ExecuteAsync(null);
+                // Connectivity event her OnAppearing'de bağlanır
+                Connectivity.ConnectivityChanged += Connectivity_ConnectivityChanged;
+
+                // Ağır veri yükleme (konum + HTTP) yalnızca ilk gezişte
+                if (!_isDataLoaded)
+                {
+                    _isDataLoaded = true;
+                    await _viewModel.LoadDataCommand.ExecuteAsync(null);
+                }
             }
             catch (Exception ex)
             {

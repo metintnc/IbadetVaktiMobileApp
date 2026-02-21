@@ -142,170 +142,164 @@
             <!-- İlk Satır Namaz Vakitleri -->
             <Grid Grid.Row="1" ColumnDefinitions="*,*,*" RowSpacing="30" ColumnSpacing="10" Margin="0,20,0,0" >
 
-                <StackLayout Grid.Column="0" Spacing="10" >
-                    <Border x:Name="ImsakFrame" 
-                           Style="{StaticResource BorderFrameStyle}" 
-                           StrokeShape="RoundRectangle 20" 
-                           Padding="10"
-                           Stroke="#CCFFFFFF">
-                        <Border.Background>
-                            <LinearGradientBrush StartPoint="0,0" EndPoint="1,1">
-                                <GradientStop Color="#60FFFFFF" Offset="0.0" />
-                                <GradientStop Color="#50FFFFFF" Offset="1.0" />
-                            </LinearGradientBrush>
-                        </Border.Background>
-                        <StackLayout Spacing="5" HorizontalOptions="Center">
-                            <Label Style="{StaticResource AnaLabel}" x:Name="imsakyazı" Text="İmsak" HorizontalOptions="Center" FontSize="16" HorizontalTextAlignment="Center">
-                                <Label.Shadow>
-                                    <Shadow Brush="Black" Offset="1,1" Radius="1" Opacity="0.4" />
-                                </Label.Shadow>
-                            </Label>
-                            <Label Style="{StaticResource AnaLabel}" x:Name="imsakvakit" Text="{Binding ImsakVakit}" TextColor="{Binding ImsakVakitColor}" HorizontalOptions="Center" HorizontalTextAlignment="Center">
-                                <Label.Shadow>
-                                    <Shadow Brush="Black" Offset="1,1" Radius="1" Opacity="0.4" />
-                                </Label.Shadow>
-                            </Label>
-                        </StackLayout>
-                    </Border>
-                </StackLayout>
+                <Border Grid.Column="0"
+                        x:Name="ImsakFrame" 
+                        Style="{StaticResource BorderFrameStyle}" 
+                        StrokeShape="RoundRectangle 20" 
+                        Padding="10"
+                        Stroke="#CCFFFFFF">
+                    <Border.Background>
+                        <LinearGradientBrush StartPoint="0,0" EndPoint="1,1">
+                            <GradientStop Color="#60FFFFFF" Offset="0.0" />
+                            <GradientStop Color="#50FFFFFF" Offset="1.0" />
+                        </LinearGradientBrush>
+                    </Border.Background>
+                    <StackLayout Spacing="5" HorizontalOptions="Center">
+                        <Label Style="{StaticResource AnaLabel}" x:Name="imsakyazı" Text="İmsak" HorizontalOptions="Center" FontSize="16" HorizontalTextAlignment="Center">
+                            <Label.Shadow>
+                                <Shadow Brush="Black" Offset="1,1" Radius="1" Opacity="0.4" />
+                            </Label.Shadow>
+                        </Label>
+                        <Label Style="{StaticResource AnaLabel}" x:Name="imsakvakit" Text="{Binding ImsakVakit}" TextColor="{Binding ImsakVakitColor}" HorizontalOptions="Center" HorizontalTextAlignment="Center">
+                            <Label.Shadow>
+                                <Shadow Brush="Black" Offset="1,1" Radius="1" Opacity="0.4" />
+                            </Label.Shadow>
+                        </Label>
+                    </StackLayout>
+                </Border>
 
-                <StackLayout Grid.Column="1" Spacing="10">
-                    <Border x:Name="GunesFrame" 
-                           Style="{StaticResource BorderFrameStyle}" 
-                           StrokeShape="RoundRectangle 20" 
-                           Padding="10"
-                           Stroke="#CCFFFFFF">
-                        <Border.Background>
-                            <LinearGradientBrush StartPoint="0,0" EndPoint="1,1">
-                                <GradientStop Color="#60FFFFFF" Offset="0.0" />
-                                <GradientStop Color="#50FFFFFF" Offset="1.0" />
-                            </LinearGradientBrush>
-                        </Border.Background>
-                        <StackLayout Spacing="5" HorizontalOptions="Center">
-                            <Label Style="{StaticResource AnaLabel}" x:Name="gunesyazı" Text="Güneş" HorizontalOptions="Center" FontSize="16" HorizontalTextAlignment="Center">
-                                <Label.Shadow>
-                                    <Shadow Brush="Black" Offset="1,1" Radius="1" Opacity="0.4" />
-                                </Label.Shadow>
-                            </Label>
-                            <Label Style="{StaticResource AnaLabel}" x:Name="gunesvakit" Text="{Binding GunesVakit}" TextColor="{Binding GunesVakitColor}" HorizontalOptions="Center" HorizontalTextAlignment="Center">
-                                <Label.Shadow>
-                                    <Shadow Brush="Black" Offset="1,1" Radius="1" Opacity="0.4" />
-                                </Label.Shadow>
-                            </Label>
-                        </StackLayout>
-                    </Border>
-                </StackLayout>
+                <Border Grid.Column="1"
+                        x:Name="GunesFrame" 
+                        Style="{StaticResource BorderFrameStyle}" 
+                        StrokeShape="RoundRectangle 20" 
+                        Padding="10"
+                        Stroke="#CCFFFFFF">
+                    <Border.Background>
+                        <LinearGradientBrush StartPoint="0,0" EndPoint="1,1">
+                            <GradientStop Color="#60FFFFFF" Offset="0.0" />
+                            <GradientStop Color="#50FFFFFF" Offset="1.0" />
+                        </LinearGradientBrush>
+                    </Border.Background>
+                    <StackLayout Spacing="5" HorizontalOptions="Center">
+                        <Label Style="{StaticResource AnaLabel}" x:Name="gunesyazı" Text="Güneş" HorizontalOptions="Center" FontSize="16" HorizontalTextAlignment="Center">
+                            <Label.Shadow>
+                                <Shadow Brush="Black" Offset="1,1" Radius="1" Opacity="0.4" />
+                            </Label.Shadow>
+                        </Label>
+                        <Label Style="{StaticResource AnaLabel}" x:Name="gunesvakit" Text="{Binding GunesVakit}" TextColor="{Binding GunesVakitColor}" HorizontalOptions="Center" HorizontalTextAlignment="Center">
+                            <Label.Shadow>
+                                <Shadow Brush="Black" Offset="1,1" Radius="1" Opacity="0.4" />
+                            </Label.Shadow>
+                        </Label>
+                    </StackLayout>
+                </Border>
 
-                <StackLayout Grid.Column="2" Spacing="10">
-                    <Border x:Name="OgleFrame" 
-                           Style="{StaticResource BorderFrameStyle}" 
-                           StrokeShape="RoundRectangle 20" 
-                           Padding="10"
-                           Stroke="#CCFFFFFF">
-                        <Border.Background>
-                            <LinearGradientBrush StartPoint="0,0" EndPoint="1,1">
-                                <GradientStop Color="#60FFFFFF" Offset="0.0" />
-                                <GradientStop Color="#50FFFFFF" Offset="1.0" />
-                            </LinearGradientBrush>
-                        </Border.Background>
-                        <StackLayout Spacing="5" HorizontalOptions="Center">
-                            <Label Style="{StaticResource AnaLabel}" x:Name="ogleyazı" Text="Öğle" HorizontalOptions="Center" FontSize="16" HorizontalTextAlignment="Center">
-                                <Label.Shadow>
-                                    <Shadow Brush="Black" Offset="1,1" Radius="1" Opacity="0.4" />
-                                </Label.Shadow>
-                            </Label>
-                            <Label Style="{StaticResource AnaLabel}" x:Name="oglevakit" Text="{Binding OgleVakit}" TextColor="{Binding OgleVakitColor}" HorizontalOptions="Center" HorizontalTextAlignment="Center">
-                                <Label.Shadow>
-                                    <Shadow Brush="Black" Offset="1,1" Radius="1" Opacity="0.4" />
-                                </Label.Shadow>
-                            </Label>
-                        </StackLayout>
-                    </Border>
-                </StackLayout>
+                <Border Grid.Column="2"
+                        x:Name="OgleFrame" 
+                        Style="{StaticResource BorderFrameStyle}" 
+                        StrokeShape="RoundRectangle 20" 
+                        Padding="10"
+                        Stroke="#CCFFFFFF">
+                    <Border.Background>
+                        <LinearGradientBrush StartPoint="0,0" EndPoint="1,1">
+                            <GradientStop Color="#60FFFFFF" Offset="0.0" />
+                            <GradientStop Color="#50FFFFFF" Offset="1.0" />
+                        </LinearGradientBrush>
+                    </Border.Background>
+                    <StackLayout Spacing="5" HorizontalOptions="Center">
+                        <Label Style="{StaticResource AnaLabel}" x:Name="ogleyazı" Text="Öğle" HorizontalOptions="Center" FontSize="16" HorizontalTextAlignment="Center">
+                            <Label.Shadow>
+                                <Shadow Brush="Black" Offset="1,1" Radius="1" Opacity="0.4" />
+                            </Label.Shadow>
+                        </Label>
+                        <Label Style="{StaticResource AnaLabel}" x:Name="oglevakit" Text="{Binding OgleVakit}" TextColor="{Binding OgleVakitColor}" HorizontalOptions="Center" HorizontalTextAlignment="Center">
+                            <Label.Shadow>
+                                <Shadow Brush="Black" Offset="1,1" Radius="1" Opacity="0.4" />
+                            </Label.Shadow>
+                        </Label>
+                    </StackLayout>
+                </Border>
             </Grid>
 
             <!-- İkinci Satır Namaz Vakitleri -->
             <Grid Grid.Row="2" ColumnDefinitions="*,*,*" RowSpacing="30" ColumnSpacing="10" Margin="0,10,0,0" >
-                <StackLayout Grid.Column="0" Spacing="10">
-                    <Border x:Name="IkindiFrame" 
-                           Style="{StaticResource BorderFrameStyle}" 
-                           StrokeShape="RoundRectangle 20" 
-                           Padding="10"
-                           Stroke="#CCFFFFFF">
-                        <Border.Background>
-                            <LinearGradientBrush StartPoint="0,0" EndPoint="1,1">
-                                <GradientStop Color="#60FFFFFF" Offset="0.0" />
-                                <GradientStop Color="#50FFFFFF" Offset="1.0" />
-                            </LinearGradientBrush>
-                        </Border.Background>
-                        <StackLayout Spacing="5" HorizontalOptions="Center">
-                            <Label Style="{StaticResource AnaLabel}" x:Name="ikindiyazı" Text="İkindi" HorizontalOptions="Center" FontSize="16" HorizontalTextAlignment="Center">
-                                <Label.Shadow>
-                                    <Shadow Brush="Black" Offset="1,1" Radius="1" Opacity="0.4" />
-                                </Label.Shadow>
-                            </Label>
-                            <Label Style="{StaticResource AnaLabel}" x:Name="ikindivakit" Text="{Binding IkindiVakit}" TextColor="{Binding IkindiVakitColor}" HorizontalOptions="Center" HorizontalTextAlignment="Center">
-                                <Label.Shadow>
-                                    <Shadow Brush="Black" Offset="1,1" Radius="1" Opacity="0.4" />
-                                </Label.Shadow>
-                            </Label>
-                        </StackLayout>
-                    </Border>
-                </StackLayout>
+                <Border Grid.Column="0"
+                        x:Name="IkindiFrame" 
+                        Style="{StaticResource BorderFrameStyle}" 
+                        StrokeShape="RoundRectangle 20" 
+                        Padding="10"
+                        Stroke="#CCFFFFFF">
+                    <Border.Background>
+                        <LinearGradientBrush StartPoint="0,0" EndPoint="1,1">
+                            <GradientStop Color="#60FFFFFF" Offset="0.0" />
+                            <GradientStop Color="#50FFFFFF" Offset="1.0" />
+                        </LinearGradientBrush>
+                    </Border.Background>
+                    <StackLayout Spacing="5" HorizontalOptions="Center">
+                        <Label Style="{StaticResource AnaLabel}" x:Name="ikindiyazı" Text="İkindi" HorizontalOptions="Center" FontSize="16" HorizontalTextAlignment="Center">
+                            <Label.Shadow>
+                                <Shadow Brush="Black" Offset="1,1" Radius="1" Opacity="0.4" />
+                            </Label.Shadow>
+                        </Label>
+                        <Label Style="{StaticResource AnaLabel}" x:Name="ikindivakit" Text="{Binding IkindiVakit}" TextColor="{Binding IkindiVakitColor}" HorizontalOptions="Center" HorizontalTextAlignment="Center">
+                            <Label.Shadow>
+                                <Shadow Brush="Black" Offset="1,1" Radius="1" Opacity="0.4" />
+                            </Label.Shadow>
+                        </Label>
+                    </StackLayout>
+                </Border>
 
-                <StackLayout Grid.Column="1" Spacing="10">
-                    <Border x:Name="AksamFrame" 
-                           Style="{StaticResource BorderFrameStyle}" 
-                           StrokeShape="RoundRectangle 20" 
-                           Padding="10"
-                           Stroke="#CCFFFFFF">
-                        <Border.Background>
-                            <LinearGradientBrush StartPoint="0,0" EndPoint="1,1">
-                                <GradientStop Color="#60FFFFFF" Offset="0.0" />
-                                <GradientStop Color="#50FFFFFF" Offset="1.0" />
-                            </LinearGradientBrush>
-                        </Border.Background>
-                        <StackLayout Spacing="5" HorizontalOptions="Center">
-                            <Label Style="{StaticResource AnaLabel}" x:Name="aksamyazı" Text="Akşam" HorizontalOptions="Center" FontSize="17" HorizontalTextAlignment="Center">
-                                <Label.Shadow>
-                                    <Shadow Brush="Black" Offset="1,1" Radius="1" Opacity="0.4" />
-                                </Label.Shadow>
-                            </Label>
-                            <Label Style="{StaticResource AnaLabel}" x:Name="aksamvakit" Text="{Binding AksamVakit}" TextColor="{Binding AksamVakitColor}" HorizontalOptions="Center" HorizontalTextAlignment="Center">
-                                <Label.Shadow>
-                                    <Shadow Brush="Black" Offset="1,1" Radius="1" Opacity="0.4" />
-                                </Label.Shadow>
-                            </Label>
-                        </StackLayout>
-                    </Border>
-                </StackLayout>
+                <Border Grid.Column="1"
+                        x:Name="AksamFrame" 
+                        Style="{StaticResource BorderFrameStyle}" 
+                        StrokeShape="RoundRectangle 20" 
+                        Padding="10"
+                        Stroke="#CCFFFFFF">
+                    <Border.Background>
+                        <LinearGradientBrush StartPoint="0,0" EndPoint="1,1">
+                            <GradientStop Color="#60FFFFFF" Offset="0.0" />
+                            <GradientStop Color="#50FFFFFF" Offset="1.0" />
+                        </LinearGradientBrush>
+                    </Border.Background>
+                    <StackLayout Spacing="5" HorizontalOptions="Center">
+                        <Label Style="{StaticResource AnaLabel}" x:Name="aksamyazı" Text="Akşam" HorizontalOptions="Center" FontSize="17" HorizontalTextAlignment="Center">
+                            <Label.Shadow>
+                                <Shadow Brush="Black" Offset="1,1" Radius="1" Opacity="0.4" />
+                            </Label.Shadow>
+                        </Label>
+                        <Label Style="{StaticResource AnaLabel}" x:Name="aksamvakit" Text="{Binding AksamVakit}" TextColor="{Binding AksamVakitColor}" HorizontalOptions="Center" HorizontalTextAlignment="Center">
+                            <Label.Shadow>
+                                <Shadow Brush="Black" Offset="1,1" Radius="1" Opacity="0.4" />
+                            </Label.Shadow>
+                        </Label>
+                    </StackLayout>
+                </Border>
 
-                <StackLayout Grid.Column="2" Spacing="10">
-                    <Border x:Name="YatsiFrame" 
-                           Style="{StaticResource BorderFrameStyle}" 
-                           StrokeShape="RoundRectangle 20" 
-                           Padding="10"
-                           Stroke="#CCFFFFFF">
-                        <Border.Background>
-                            <LinearGradientBrush StartPoint="0,0" EndPoint="1,1">
-                                <GradientStop Color="#60FFFFFF" Offset="0.0" />
-                                <GradientStop Color="#50FFFFFF" Offset="1.0" />
-                            </LinearGradientBrush>
-                        </Border.Background>
-                        <StackLayout Spacing="5" HorizontalOptions="Center">
-                            <Label Style="{StaticResource AnaLabel}" x:Name="yatsıyazı" Text="Yatsı" HorizontalOptions="Center" FontSize="17" HorizontalTextAlignment="Center">
-                                <Label.Shadow>
-                                    <Shadow Brush="Black" Offset="1,1" Radius="1" Opacity="0.4" />
-                                </Label.Shadow>
-                            </Label>
-                            <Label Style="{StaticResource AnaLabel}" x:Name="yatsıvakit" Text="{Binding YatsiVakit}" TextColor="{Binding YatsiVakitColor}" HorizontalOptions="Center" HorizontalTextAlignment="Center">
-                                <Label.Shadow>
-                                    <Shadow Brush="Black" Offset="1,1" Radius="1" Opacity="0.4" />
-                                </Label.Shadow>
-                            </Label>
-                        </StackLayout>
-                    </Border>
-                </StackLayout>
+                <Border Grid.Column="2"
+                        x:Name="YatsiFrame" 
+                        Style="{StaticResource BorderFrameStyle}" 
+                        StrokeShape="RoundRectangle 20" 
+                        Padding="10"
+                        Stroke="#CCFFFFFF">
+                    <Border.Background>
+                        <LinearGradientBrush StartPoint="0,0" EndPoint="1,1">
+                            <GradientStop Color="#60FFFFFF" Offset="0.0" />
+                            <GradientStop Color="#50FFFFFF" Offset="1.0" />
+                        </LinearGradientBrush>
+                    </Border.Background>
+                    <StackLayout Spacing="5" HorizontalOptions="Center">
+                        <Label Style="{StaticResource AnaLabel}" x:Name="yatsıyazı" Text="Yatsı" HorizontalOptions="Center" FontSize="17" HorizontalTextAlignment="Center">
+                            <Label.Shadow>
+                                <Shadow Brush="Black" Offset="1,1" Radius="1" Opacity="0.4" />
+                            </Label.Shadow>
+                        </Label>
+                        <Label Style="{StaticResource AnaLabel}" x:Name="yatsıvakit" Text="{Binding YatsiVakit}" TextColor="{Binding YatsiVakitColor}" HorizontalOptions="Center" HorizontalTextAlignment="Center">
+                            <Label.Shadow>
+                                <Shadow Brush="Black" Offset="1,1" Radius="1" Opacity="0.4" />
+                            </Label.Shadow>
+                        </Label>
+                    </StackLayout>
+                </Border>
             </Grid>
             
             <!-- Boşluk - Grid.Row="3" * ile esnek alan -->

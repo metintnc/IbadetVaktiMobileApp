@@ -6,12 +6,12 @@ namespace hadis
 {
     public partial class Kuran : ContentPage
     {
-        private List<Sure> _tumSureler;
-        private List<Sure> _filtreSureler;
+        private List<Sure> _tumSureler = new();
+        private List<Sure> _filtreSureler = new();
         private readonly StatusBarService _statusBarService;
         private readonly TabBarService _tabBarService;
-
         private readonly IImageService _imageService;
+        private bool _isInitialized = false;
 
         public Kuran(StatusBarService statusBarService, TabBarService tabBarService, IImageService imageService)
         {
@@ -19,19 +19,30 @@ namespace hadis
             _statusBarService = statusBarService;
             _tabBarService = tabBarService;
             _imageService = imageService;
-            _tumSureler = KuranDataService.GetSureler();
-            _filtreSureler = _tumSureler;
-            SureListesi.ItemsSource = _filtreSureler;
-            SonOkunanYukle();
         }
 
-        protected override async void OnAppearing()
+        protected override void OnAppearing()
         {
             base.OnAppearing();
-            _statusBarService.SetStatusBarColor("#000000");
+            _statusBarService.SetStatusBarColor("#000000"); // Hızlı, UI thread'i bloklamaz
+        }
 
+        protected override async void OnNavigatedTo(NavigatedToEventArgs args)
+        {
+            base.OnNavigatedTo(args);
+
+            if (!_isInitialized)
+            {
+                _isInitialized = true;
+                // Ağır senkron işlemi arka plan thread'inde çalıştır
+                await Task.Run(() => _tumSureler = KuranDataService.GetSureler());
+                _filtreSureler = _tumSureler;
+                SureListesi.ItemsSource = _filtreSureler;
+                CheckDownloadStatus();
+            }
+
+            // Her gezinişte taze 'son okunan' verisini göster (Preferences okuma hızlı)
             SonOkunanYukle();
-            CheckDownloadStatus();
         }
 
 

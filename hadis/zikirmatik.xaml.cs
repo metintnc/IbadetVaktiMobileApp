@@ -18,6 +18,7 @@ namespace hadis
         private readonly StatusBarService _statusBarService;
         private readonly TabBarService _tabBarService;
         private readonly IImageService _imageService;
+        private bool _stateRestored = false;
 
         public zikirmatik(StatusBarService statusBarService, TabBarService tabBarService, IImageService imageService)
         {
@@ -44,8 +45,30 @@ namespace hadis
         {
             base.OnNavigatedTo(args);
             ApplyCustomTheme();
+
+            if (!_stateRestored)
+            {
+                _stateRestored = true;
+                RestorePersistedState();
+            }
+
             // Giriş animasyonunu başlat
             _ = AnimateZikirEntry();
+        }
+
+        private void RestorePersistedState()
+        {
+            sayı        = Preferences.Default.Get("sonSayi",    0);
+            toplam      = Preferences.Default.Get("Toplam",     0);
+            hedef       = Preferences.Default.Get("ZikirHedef", 100);
+            seciliZikir = Preferences.Default.Get("SeciliZikir", "Sübhanallah");
+            sesDurum    = Preferences.Default.Get("SesDurum",    true);
+
+            zikirsayisi.Text      = sayı.ToString();
+            HedefLabel.Text       = $"Hedef: {hedef}";
+            SeciliZikirLabel.Text = $"Seçili Zikir: {seciliZikir}";
+            SesTitresimIcon.Text  = sesDurum ? "📳" : "🔕";
+            UpdateProgress();
         }
 
         protected override void OnAppearing()
