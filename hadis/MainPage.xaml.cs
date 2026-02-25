@@ -19,6 +19,7 @@ namespace hadis
         private readonly IServiceProvider _serviceProvider;
         private string _currentImageName;
         private bool _isDataLoaded = false;
+        private string _lastLocationKey = "";
 
         public MainPage(MainPageViewModel viewModel, IServiceProvider serviceProvider)
         {
@@ -91,10 +92,12 @@ namespace hadis
                 // Connectivity event her OnAppearing'de bağlanır
                 Connectivity.ConnectivityChanged += Connectivity_ConnectivityChanged;
 
-                // Ağır veri yükleme (konum + HTTP) yalnızca ilk gezişte
-                if (!_isDataLoaded)
+                // Konum değişikliği kontrolü
+                var currentLocationKey = GetLocationKey();
+                if (!_isDataLoaded || currentLocationKey != _lastLocationKey)
                 {
                     _isDataLoaded = true;
+                    _lastLocationKey = currentLocationKey;
                     await _viewModel.LoadDataCommand.ExecuteAsync(null);
                 }
             }
@@ -366,6 +369,19 @@ namespace hadis
             }
         }
 #endif
+
+        /// <summary>
+        /// Konum tercihlerinden bir anahtar oluşturur; değişiklik tespiti için kullanılır.
+        /// </summary>
+        private string GetLocationKey()
+        {
+            var otomatik = Preferences.Default.Get("OtomatikKonum", true);
+            var sehir = Preferences.Default.Get("ManuelSehir", "");
+            var ilce = Preferences.Default.Get("ManuelIlce", "");
+            var lat = Preferences.Default.Get("ManuelLatitude", 0.0);
+            var lon = Preferences.Default.Get("ManuelLongitude", 0.0);
+            return $"{otomatik}|{sehir}|{ilce}|{lat}|{lon}";
+        }
     }
 }
 

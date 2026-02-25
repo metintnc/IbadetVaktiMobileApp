@@ -19,8 +19,8 @@
 		<ApplicationId>com.metintnc.namazvakti</ApplicationId>
 
 		<!-- Versions -->
-		<ApplicationDisplayVersion>1.0.0</ApplicationDisplayVersion>
-		<ApplicationVersion>1</ApplicationVersion>
+		<ApplicationDisplayVersion>1.0.5</ApplicationDisplayVersion>
+		<ApplicationVersion>3</ApplicationVersion>
 
 		<WindowsPackageType>None</WindowsPackageType>
 
