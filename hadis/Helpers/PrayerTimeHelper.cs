@@ -87,32 +87,11 @@ namespace hadis.Helpers
             $"{remaining.Hours:D2} : {remaining.Minutes:D2} : {remaining.Seconds:D2}";
 
         /// <summary>
-        /// Hicri tarihi hesaplar ve formatlı string döndürür
+        /// Diyanet'e uyumlu Hicri tarihi formatlı string olarak döndürür
         /// </summary>
         public static string GetHicriTarih()
         {
-            try
-            {
-                var hicriTakvim = new UmAlQuraCalendar();
-                var bugun = DateTime.Now;
-
-                int hicriGun = hicriTakvim.GetDayOfMonth(bugun);
-                int hicriAy = hicriTakvim.GetMonth(bugun);
-                int hicriYil = hicriTakvim.GetYear(bugun);
-
-                string[] hicriAylar = {
-                    "Muharrem", "Safer", "Rebiülevvel", "Rebiülahir",
-                    "Cemaziyelevvel", "Cemaziyelahir", "Recep", "Şaban",
-                    "Ramazan", "Şevval", "Zilkade", "Zilhicce"
-                };
-
-                string ayAdi = hicriAylar[hicriAy - 1];
-                return $"🌙 {hicriGun} {ayAdi} {hicriYil}";
-            }
-            catch
-            {
-                return "";
-            }
+            return DiyanetHicriHelper.GetHicriTarihFormatli(DateTime.Now);
         }
 
         /// <summary>
