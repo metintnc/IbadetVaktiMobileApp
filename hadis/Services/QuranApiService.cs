@@ -67,8 +67,9 @@ namespace hadis.Services
 
                 try
                 {
-                    // author=11 (Diyanet Ä°ÅŸleri)
-                    var url = $"https://api.acikkuran.com/surah/{surahNo}?author=11";
+                    // Seçili meal yazarını Preferences'tan al (varsayılan: 11 = Diyanet İşleri)
+                    var authorId = Preferences.Default.Get("MealAuthorId", "11");
+                    var url = $"https://api.acikkuran.com/surah/{surahNo}?author={authorId}";
                     var responseString = await _client.GetStringAsync(url);
                     var apiResponse = JsonSerializer.Deserialize<AcikKuranResponse>(responseString);
                     

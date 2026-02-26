@@ -94,27 +94,52 @@ namespace hadis.Helpers
             return DiyanetHicriHelper.GetHicriTarihFormatli(DateTime.Now);
         }
 
+        private static readonly string[] Ayetler = new string[]
+        {
+            "Hiç bilenlerle bilmeyenler bir olur mu? (Zümer, 9)",
+            "Şüphesiz Allah sabredenlerle beraberdir. (Bakara, 153)",
+            "Gerçekten güçlükle beraber bir kolaylık vardır. (İnşirah, 6)",
+            "Allah, kullarına karşı çok şefkatlidir. (Şura, 19)",
+            "Ey iman edenler! Sabır ve namazla Allah'tan yardım isteyin. (Bakara, 45)",
+            "Göklerde ve yerde ne varsa hepsi Allah'ındır. (Bakara, 284)",
+            "Zorlukla beraber bir kolaylık vardır. (İnşirah, 5)",
+            "Kıyamet günü herkese amel defteri verilecektir. (İsra, 13)",
+            "İyilik ve takva üzerine yardımlaşın. (Maide, 2)",
+            "Şüphesiz dönüş ancak Allah'adır. (Bakara, 156)",
+            "Allah'a güvenip dayanan kimseye O yeter. (Talak, 3)",
+            "Rabbinizden mağfiret dileyin; O çok bağışlayıcıdır. (Nuh, 10)",
+            "Kim bir iyilik yaparsa onun on katı vardır. (En'am, 160)",
+            "Allah'ı çokça zikredin ki kurtuluşa eresiniz. (Cuma, 10)",
+            "Rabbim! İlmimi artır. (Taha, 114)",
+            "Sabret! Allah'ın vaadi gerçektir. (Rum, 60)",
+            "İnsan için ancak çalıştığının karşılığı vardır. (Necm, 39)",
+            "Allah güzel davrananları sever. (Ali İmran, 134)",
+            "Namaz, kötülüklerden alıkoyar. (Ankebut, 45)",
+            "De ki: Rabbim, beni doğru yola ilet. (Müminun, 93)"
+        };
+
+        private static readonly Random _random = new Random();
+
         /// <summary>
-        /// Günün ayetini döndürür
+        /// Her girişte farklı rastgele ayet döndürür
         /// </summary>
         public static string GetDailyAyet()
         {
-            string[] ayetler = new string[]
-            {
-                "Hiç bilenlerle bilmeyenler bir olur mu? (Zümer, 9)",
-                "Şüphesiz Allah sabredenlerle beraberdir. (Bakara, 153)",
-                "Gerçekten güçlükle beraber bir kolaylık vardır. (İnşirah, 6)",
-                "Allah, kullarına karşı çok şefkatlidir. (Şura, 19)",
-                "Ey iman edenler! Sabır ve namazla Allah'tan yardım isteyin. (Bakara, 45)",
-                "Göklerde ve yerde ne varsa hepsi Allah'ındır. (Bakara, 284)",
-                "Zorlukla beraber bir kolaylık vardır. (İnşirah, 5)",
-                "Kıyamet günü herkese amel defteri verilecektir. (İsra, 13)",
-                "İyilik ve takva üzerine yardımlaşın. (Maide, 2)",
-                "Şüphesiz dönüş ancak Allah'adır. (Bakara, 156)"
-            };
+            return Ayetler[_random.Next(Ayetler.Length)];
+        }
 
-            int gunIndex = DateTime.Now.DayOfYear % ayetler.Length;
-            return ayetler[gunIndex];
+        /// <summary>
+        /// Mevcut ayetten farklı rastgele bir ayet döndürür (dokunma ile değişim için)
+        /// </summary>
+        public static string GetRandomAyet(string currentAyet)
+        {
+            string newAyet;
+            do
+            {
+                newAyet = Ayetler[_random.Next(Ayetler.Length)];
+            } while (newAyet == currentAyet && Ayetler.Length > 1);
+
+            return newAyet;
         }
     }
 }
