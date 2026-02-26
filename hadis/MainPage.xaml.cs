@@ -382,6 +382,28 @@ namespace hadis
             var lon = Preferences.Default.Get("ManuelLongitude", 0.0);
             return $"{otomatik}|{sehir}|{ilce}|{lat}|{lon}";
         }
+
+        /// <summary>
+        /// Ayet kutusuna tıklanınca küçülüp büyüme animasyonu ile ayet değiştirir
+        /// </summary>
+        private async void AyetFrame_Tapped(object? sender, EventArgs e)
+        {
+            try
+            {
+                // Küçülme animasyonu
+                await AyetFrame.ScaleTo(0.85, 150, Easing.CubicIn);
+
+                // Ayet değiştir
+                _viewModel.GununAyeti = Helpers.PrayerTimeHelper.GetRandomAyet(_viewModel.GununAyeti);
+
+                // Büyüme animasyonu (geri dön)
+                await AyetFrame.ScaleTo(1.0, 150, Easing.CubicOut);
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine($"⚠️ Ayet animasyon hatası: {ex.Message}");
+            }
+        }
     }
 }
 

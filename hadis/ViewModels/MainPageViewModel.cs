@@ -369,7 +369,11 @@ namespace hadis.ViewModels
 
                     try
                     {
+                        // Bugünün bildirimlerini hemen zamanla
                         await _notificationService.ScheduleNotificationsAsync(vakitler);
+                        
+                        // Önümüzdeki 7 günün bildirimlerini arka planda zamanla
+                        _ = _notificationService.ScheduleMultiDayNotificationsAsync(7);
 
                         if (Preferences.Default.Get("PersistentNotificationEnabled", false))
                         {

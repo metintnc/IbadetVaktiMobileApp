@@ -313,6 +313,9 @@
                    Margin="0,0,0,10"
                    StrokeShape="RoundRectangle 20"
                    Stroke="#80FFFFFF">
+                <Border.GestureRecognizers>
+                    <TapGestureRecognizer Tapped="AyetFrame_Tapped" />
+                </Border.GestureRecognizers>
                 <Border.Background>
                     <LinearGradientBrush StartPoint="0,0" EndPoint="1,1">
                         <GradientStop Color="#30FFFFFF" Offset="0.0" />

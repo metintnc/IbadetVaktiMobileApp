@@ -15,6 +15,12 @@ namespace hadis.Services
         private const int ID_PERSISTENT = 9999;
 
         private static Dictionary<string, DateTime>? _cachedPrayerTimes;
+        private readonly PrayerTimesService _prayerTimesService;
+
+        public NotificationService(PrayerTimesService prayerTimesService)
+        {
+            _prayerTimesService = prayerTimesService;
+        }
 
         public async Task InitializeAsync()
         {
@@ -34,9 +40,9 @@ namespace hadis.Services
             }
         }
 
-        public async Task ScheduleNotificationsAsync(Dictionary<string, DateTime> prayerTimes)
+        public async Task ScheduleNotificationsAsync(Dictionary<string, DateTime> prayerTimes, int dayOffset = 0)
         {
-            System.Diagnostics.Debug.WriteLine("📢 ScheduleNotificationsAsync çağrıldı");
+            System.Diagnostics.Debug.WriteLine($"📢 ScheduleNotificationsAsync çağrıldı (dayOffset={dayOffset})");
             
             // Vakitleri cache'le
             _cachedPrayerTimes = prayerTimes;
@@ -74,14 +80,15 @@ namespace hadis.Services
                 
                 System.Diagnostics.Debug.WriteLine($"🕌 {key} vakti: {time:HH:mm}");
                 
-                int notificationId = GetNotificationId(key);
-                if (notificationId == 0)
+                int baseNotifId = GetNotificationId(key);
+                int notificationId = baseNotifId + (dayOffset * 100);
+                if (baseNotifId == 0)
                 {
                     System.Diagnostics.Debug.WriteLine($"⚠️ {key} için ID bulunamadı, atlanıyor");
                     continue;
                 }
 
-                string canonicalKey = GetCanonicalKey(notificationId);
+                string canonicalKey = GetCanonicalKey(baseNotifId);
                 string prefKey = $"Notification_{canonicalKey}";
                 string offsetKey = $"NotificationOffset_{canonicalKey}";
 
@@ -118,7 +125,7 @@ namespace hadis.Services
                 }
                 else
                 {
-                    description = $"{key} vakti girdi.";
+                    description = $"{key} Ezanı!";
                 }
 
                 var request = new NotificationRequest
@@ -188,6 +195,62 @@ namespace hadis.Services
              if (!Preferences.Default.Get("NotificationsEnabled", true))
             {
                 CancelAllNotifications();
+                return;
+            }
+            await ScheduleMultiDayNotificationsAsync(7);
+        }
+
+        public async Task ScheduleMultiDayNotificationsAsync(int days = 3)
+        {
+            System.Diagnostics.Debug.WriteLine($"📢 ScheduleMultiDayNotificationsAsync çağrıldı ({days} gün)");
+
+            if (!Preferences.Default.Get("NotificationsEnabled", true))
+            {
+                CancelAllNotifications();
+                return;
+            }
+
+            try
+            {
+                // Konum bilgilerini Preferences'tan al
+                string sehir = Preferences.Default.Get("ManuelSehir", "");
+                string ilce = Preferences.Default.Get("ManuelIlce", "");
+                double lat = Preferences.Default.Get("ManuelLatitude", 0.0);
+                double lon = Preferences.Default.Get("ManuelLongitude", 0.0);
+
+                if (string.IsNullOrEmpty(sehir) && lat == 0.0 && lon == 0.0)
+                {
+                    System.Diagnostics.Debug.WriteLine("⚠️ Konum bilgisi bulunamadı, çoklu gün zamanlama atlanıyor");
+                    return;
+                }
+
+                for (int dayOffset = 0; dayOffset < days; dayOffset++)
+                {
+                    DateTime targetDate = DateTime.Now.Date.AddDays(dayOffset);
+                    try
+                    {
+                        var vakitler = await _prayerTimesService.GetPrayerTimesForDateAsync(
+                            targetDate, ilce, sehir, lat, lon);
+
+                        if (vakitler != null)
+                        {
+                            await ScheduleNotificationsAsync(vakitler, dayOffset);
+                            System.Diagnostics.Debug.WriteLine($"✅ {targetDate:yyyy-MM-dd} bildirimleri zamanlandı (offset={dayOffset})");
+                        }
+                        else
+                        {
+                            System.Diagnostics.Debug.WriteLine($"⚠️ {targetDate:yyyy-MM-dd} vakitleri alınamadı");
+                        }
+                    }
+                    catch (Exception ex)
+                    {
+                        System.Diagnostics.Debug.WriteLine($"⚠️ {targetDate:yyyy-MM-dd} zamanlama hatası: {ex.Message}");
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine($"❌ ScheduleMultiDayNotificationsAsync hatası: {ex.Message}");
             }
         }
 

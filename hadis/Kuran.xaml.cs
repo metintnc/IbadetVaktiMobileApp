@@ -13,6 +13,15 @@ namespace hadis
         private readonly IImageService _imageService;
         private bool _isInitialized = false;
 
+        private static readonly Dictionary<string, string> MealIsimleri = new()
+        {
+            { "11", "Diyanet İşleri" },
+            { "14", "Elmalılı Hamdi Yazır (Orijinal)" },
+            { "15", "Elmalılı Hamdi Yazır (Sadeleştirilmiş)" },
+            { "27", "Süleyman Ateş" },
+            { "8", "Bayraktar Bayraklı" }
+        };
+
         public Kuran(StatusBarService statusBarService, TabBarService tabBarService, IImageService imageService)
         {
             InitializeComponent();
@@ -43,6 +52,10 @@ namespace hadis
 
             // Her gezinişte taze 'son okunan' verisini göster (Preferences okuma hızlı)
             SonOkunanYukle();
+
+            // Aktif meal etiketini güncelle
+            var authorId = Preferences.Default.Get("MealAuthorId", "11");
+            AktifMealLabel.Text = $"Aktif: {(MealIsimleri.ContainsKey(authorId) ? MealIsimleri[authorId] : "Diyanet İşleri")}";
         }
 
 
@@ -220,12 +233,68 @@ namespace hadis
         }
         protected override bool OnBackButtonPressed()
         {
+            if (MealSelectionOverlay.IsVisible)
+            {
+                MealSelectionOverlay.IsVisible = false;
+                return true;
+            }
+
             // Geri tuşuna basıldığında Ana Sayfaya (Vakitler Sekmesine) git
             MainThread.BeginInvokeOnMainThread(async () =>
             {
                 await Shell.Current.GoToAsync("//MainPage");
             });
             return true; // Olayı biz yönettik
+        }
+
+        private void MealAyarlar_Clicked(object sender, EventArgs e)
+        {
+            var authorId = Preferences.Default.Get("MealAuthorId", "11");
+            AktifMealLabel.Text = $"Aktif: {(MealIsimleri.ContainsKey(authorId) ? MealIsimleri[authorId] : "Diyanet İşleri")}";
+            MealSelectionOverlay.IsVisible = true;
+        }
+
+        private void OnCancelMealSelection_Clicked(object sender, EventArgs e)
+        {
+            MealSelectionOverlay.IsVisible = false;
+        }
+
+        private async void OnSelectMeal_Clicked(object sender, EventArgs e)
+        {
+            if (sender is Button btn && btn.CommandParameter is string authorId)
+            {
+                var currentAuthor = Preferences.Default.Get("MealAuthorId", "11");
+                if (currentAuthor == authorId)
+                {
+                    MealSelectionOverlay.IsVisible = false;
+                    return; // Aynı meal seçildi
+                }
+
+                // Yeni meal kaydet
+                Preferences.Default.Set("MealAuthorId", authorId);
+                var mealName = MealIsimleri.ContainsKey(authorId) ? MealIsimleri[authorId] : "Bilinmiyor";
+                AktifMealLabel.Text = $"Aktif: {mealName}";
+
+                // Önbelleği temizle (yeni meal ile yeniden indirilecek)
+                try
+                {
+                    var cacheDir = Path.Combine(FileSystem.AppDataDirectory, "quran_cache_v2");
+                    if (Directory.Exists(cacheDir))
+                    {
+                        Directory.Delete(cacheDir, true);
+                        Directory.CreateDirectory(cacheDir);
+                    }
+                }
+                catch (Exception ex)
+                {
+                    System.Diagnostics.Debug.WriteLine($"Cache temizleme hatası: {ex.Message}");
+                }
+
+                MealSelectionOverlay.IsVisible = false;
+                CheckDownloadStatus(); // İndirme butonunu güncelle
+
+                await DisplayAlert("Meal Değiştirildi", $"Meal: {mealName}\n\nSureleri açtığınızda yeni mealle yüklenecektir.", "Tamam");
+            }
         }
 
     }

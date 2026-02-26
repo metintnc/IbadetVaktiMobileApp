@@ -25,6 +25,16 @@ namespace hadis
 
             // Android 12+ için exact alarm izni kontrol et
             RequestExactAlarmPermission();
+
+            // Günlük bildirim yenileme alarmını kur (gece 03:00)
+            try
+            {
+                hadis.Platforms.Android.Services.NotificationAlarmHelper.ScheduleDailyAlarm(this);
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine($"⚠️ Alarm kurma hatası: {ex.Message}");
+            }
         }
 
         private void RequestExactAlarmPermission()
