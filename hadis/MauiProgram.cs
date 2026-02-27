@@ -1,5 +1,4 @@
-﻿
-using Microsoft.Extensions.Logging;
+﻿using Microsoft.Extensions.Logging;
 using hadis.Services;
 using hadis.ViewModels;
 using Plugin.LocalNotification;
@@ -18,7 +17,6 @@ namespace hadis
                 {
                     fonts.AddFont("OpenSans-Regular.ttf", "OpenSansRegular");
                     fonts.AddFont("OpenSans-Semibold.ttf", "OpenSansSemibold");
-                    // fonts.AddFont("Amiri-Regular.ttf", "ArabicFontFamily"); // Font dosyası eksik olduğu için geçici olarak kapatıldı
                 });
 
             // Servisleri kaydet
@@ -26,8 +24,17 @@ namespace hadis
             builder.Services.AddSingleton<TabBarService>();
             builder.Services.AddSingleton<BackgroundService>();
             builder.Services.AddSingleton<ThemeService>();
+            
+            // HttpClient yapılandırması - Socket exhaustion önleme
             builder.Services.AddHttpClient();
+            builder.Services.AddHttpClient("QuranApi", client =>
+            {
+                client.BaseAddress = new Uri("https://api.acikkuran.com/");
+                client.Timeout = TimeSpan.FromSeconds(30);
+            });
+            
             builder.Services.AddSingleton<PrayerTimesService>();
+            builder.Services.AddSingleton<QuranApiService>(); // Artık DI ile yönetiliyor
             
 #if ANDROID
             builder.Services.AddSingleton<INativeCompassService, hadis.Platforms.Android.Services.AndroidCompassService>();

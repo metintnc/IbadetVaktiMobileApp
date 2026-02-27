@@ -3,12 +3,29 @@ using System.Text.Json;
 
 namespace hadis.Services
 {
+    /// <summary>
+    /// Kaydedilen ayetleri yöneten thread-safe servis
+    /// </summary>
     public static class SavedAyahsService
     {
         private static readonly string FileName = Path.Combine(FileSystem.AppDataDirectory, "saved_ayahs.json");
-        private static List<SavedAyah> _savedAyahs;
+        private static readonly SemaphoreSlim _lock = new(1, 1);
+        private static List<SavedAyah>? _savedAyahs;
 
         public static async Task<List<SavedAyah>> GetSavedAyahsAsync()
+        {
+            await _lock.WaitAsync();
+            try
+            {
+                return await GetSavedAyahsInternalAsync();
+            }
+            finally
+            {
+                _lock.Release();
+            }
+        }
+
+        private static async Task<List<SavedAyah>> GetSavedAyahsInternalAsync()
         {
             if (_savedAyahs != null)
                 return _savedAyahs;
@@ -34,25 +51,41 @@ namespace hadis.Services
 
         public static async Task SaveAyahAsync(SavedAyah ayah)
         {
-            await GetSavedAyahsAsync();
+            await _lock.WaitAsync();
+            try
+            {
+                await GetSavedAyahsInternalAsync();
 
-            // Check if already saved (same sure and ayah number)
-            if (_savedAyahs.Any(a => a.SureNo == ayah.SureNo && a.Number == ayah.Number))
-                return;
+                // Check if already saved (same sure and ayah number)
+                if (_savedAyahs!.Any(a => a.SureNo == ayah.SureNo && a.Number == ayah.Number))
+                    return;
 
-            _savedAyahs.Add(ayah);
-            await SaveToFileAsync();
+                _savedAyahs.Add(ayah);
+                await SaveToFileAsync();
+            }
+            finally
+            {
+                _lock.Release();
+            }
         }
 
         public static async Task RemoveAyahAsync(SavedAyah ayah)
         {
-            await GetSavedAyahsAsync();
-            
-            var item = _savedAyahs.FirstOrDefault(a => a.SureNo == ayah.SureNo && a.Number == ayah.Number);
-            if (item != null)
+            await _lock.WaitAsync();
+            try
             {
-                _savedAyahs.Remove(item);
-                await SaveToFileAsync();
+                await GetSavedAyahsInternalAsync();
+                
+                var item = _savedAyahs!.FirstOrDefault(a => a.SureNo == ayah.SureNo && a.Number == ayah.Number);
+                if (item != null)
+                {
+                    _savedAyahs.Remove(item);
+                    await SaveToFileAsync();
+                }
+            }
+            finally
+            {
+                _lock.Release();
             }
         }
 

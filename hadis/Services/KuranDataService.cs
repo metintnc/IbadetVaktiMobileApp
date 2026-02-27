@@ -6,7 +6,8 @@ namespace hadis.Services
 {
     public static class KuranDataService
     {
-        private static readonly List<Sure> _sureler = new List<Sure>
+        // IReadOnlyList ile immutability garantisi
+        private static readonly IReadOnlyList<Sure> _sureler = new List<Sure>
         {
             new Sure { SureNo = 1, Ad = "Fâtiha", AdArapca = "الفاتحة", AyetSayisi = 7, Inis = "Mekke" },
             new Sure { SureNo = 2, Ad = "Bakara", AdArapca = "البقرة", AyetSayisi = 286, Inis = "Medine" },
@@ -122,7 +123,7 @@ namespace hadis.Services
             new Sure { SureNo = 112, Ad = "İhlâs", AdArapca = "الإخلاص", AyetSayisi = 4, Inis = "Mekke" },
             new Sure { SureNo = 113, Ad = "Felak", AdArapca = "الفلق", AyetSayisi = 5, Inis = "Mekke" },
             new Sure { SureNo = 114, Ad = "Nâs", AdArapca = "الناس", AyetSayisi = 6, Inis = "Mekke" }
-        };
+        }.AsReadOnly();
 
         // Standard 15-line Madani Mushaf Page Numbers for each Surah (1-114)
         public static readonly int[] SurahPageNumbers = new int[] {
@@ -176,12 +177,12 @@ namespace hadis.Services
             return juz;
         }
 
-        public static List<Sure> GetSureler()
-        {
-            return _sureler;
-        }
+        /// <summary>
+        /// Tüm sureleri döndürür (immutable - değiştirilemez)
+        /// </summary>
+        public static IReadOnlyList<Sure> GetSureler() => _sureler;
 
-        public static Sure GetSureByNo(int sureNo)
+        public static Sure? GetSureByNo(int sureNo)
         {
             return _sureler.FirstOrDefault(s => s.SureNo == sureNo);
         }

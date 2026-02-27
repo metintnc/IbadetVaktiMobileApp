@@ -21,6 +21,21 @@ namespace hadis
         private bool _isDataLoaded = false;
         private string _lastLocationKey = "";
 
+        // Animasyon için frame array'i - her seferinde yeniden oluşturulmuyor (allocation optimize)
+        private Border[]? _allFrames;
+        private Border[]? _prayerFrames;
+
+        private Border[] AllFrames => _allFrames ??= new[]
+        {
+            MainCountdownFrame, ImsakFrame, GunesFrame, OgleFrame,
+            IkindiFrame, AksamFrame, YatsiFrame, AyetFrame
+        };
+
+        private Border[] PrayerFrames => _prayerFrames ??= new[]
+        {
+            ImsakFrame, GunesFrame, OgleFrame, IkindiFrame, AksamFrame, YatsiFrame
+        };
+
         public MainPage(MainPageViewModel viewModel, IServiceProvider serviceProvider)
         {
             InitializeComponent();
@@ -39,9 +54,9 @@ namespace hadis
             _viewModel.NavigateToSehirSecim += OnNavigateToSehirSecim;
         }
 
-        private async void OnNavigateToSehirSecim()
+        private void OnNavigateToSehirSecim()
         {
-            await MainThread.InvokeOnMainThreadAsync(async () =>
+            MainThread.BeginInvokeOnMainThread(async () =>
             {
                 try
                 {
@@ -113,19 +128,19 @@ namespace hadis
             Connectivity.ConnectivityChanged -= Connectivity_ConnectivityChanged;
         }
 
-        private async void Connectivity_ConnectivityChanged(object? sender, ConnectivityChangedEventArgs e)
+        private void Connectivity_ConnectivityChanged(object? sender, ConnectivityChangedEventArgs e)
         {
-            try
+            MainThread.BeginInvokeOnMainThread(async () =>
             {
-                await MainThread.InvokeOnMainThreadAsync(async () =>
+                try
                 {
                     await _viewModel.OnConnectivityChangedAsync(e.NetworkAccess);
-                });
-            }
-            catch (Exception ex)
-            {
-                System.Diagnostics.Debug.WriteLine($"Connectivity değişiklik hatası: {ex.Message}");
-            }
+                }
+                catch (Exception ex)
+                {
+                    System.Diagnostics.Debug.WriteLine($"Connectivity değişiklik hatası: {ex.Message}");
+                }
+            });
         }
 
         // ============================================================
@@ -223,62 +238,29 @@ namespace hadis
 
         private async Task AnimateFrames()
         {
-            // Önceki animasyonları iptal et (çakışma önleme)
-            MainCountdownFrame.CancelAnimations();
-            ImsakFrame.CancelAnimations();
-            GunesFrame.CancelAnimations();
-            OgleFrame.CancelAnimations();
-            IkindiFrame.CancelAnimations();
-            AksamFrame.CancelAnimations();
-            YatsiFrame.CancelAnimations();
-            AyetFrame.CancelAnimations();
+            // Tüm animasyonları iptal et (optimize edilmiş)
+            AnimationHelpers.CancelAllAnimations(AllFrames);
 
-            MainCountdownFrame.Opacity = 0;
-            MainCountdownFrame.Scale = 0.7;
+            // Başlangıç durumuna getir
+            AnimationHelpers.PrepareForAnimation(AllFrames);
 
-            ImsakFrame.Opacity = 0; ImsakFrame.Scale = 0.7;
-            GunesFrame.Opacity = 0; GunesFrame.Scale = 0.7;
-            OgleFrame.Opacity = 0; OgleFrame.Scale = 0.7;
-
-            IkindiFrame.Opacity = 0; IkindiFrame.Scale = 0.7;
-            AksamFrame.Opacity = 0; AksamFrame.Scale = 0.7;
-            YatsiFrame.Opacity = 0; YatsiFrame.Scale = 0.7;
-
-            AyetFrame.Opacity = 0; AyetFrame.Scale = 0.7;
-
-            await Task.WhenAll(
-                MainCountdownFrame.FadeTo(1, 500, Easing.CubicOut),
-                MainCountdownFrame.ScaleTo(1.0, 600, Easing.SpringOut)
-            );
+            // Ana countdown frame'i animasyonla göster
+            await MainCountdownFrame.AnimateIn(500, 600);
 
             await Task.Delay(100);
 
-            _ = AnimateSingleFrame(ImsakFrame);
-            await Task.Delay(80);
-            _ = AnimateSingleFrame(GunesFrame);
-            await Task.Delay(80);
-            _ = AnimateSingleFrame(OgleFrame);
-            await Task.Delay(100);
+            // Namaz vakitlerini sırayla animasyonla göster
+            await AnimationHelpers.AnimateInSequential(80, PrayerFrames);
 
-            _ = AnimateSingleFrame(IkindiFrame);
-            await Task.Delay(80);
-            _ = AnimateSingleFrame(AksamFrame);
-            await Task.Delay(80);
-            _ = AnimateSingleFrame(YatsiFrame);
             await Task.Delay(150);
 
-            await Task.WhenAll(
-                AyetFrame.FadeTo(1, 500, Easing.CubicOut),
-                AyetFrame.ScaleTo(1.0, 600, Easing.SpringOut)
-            );
+            // Ayet frame'i animasyonla göster
+            await AyetFrame.AnimateIn(500, 600);
         }
 
         private Task AnimateSingleFrame(Border border)
         {
-            return Task.WhenAll(
-                border.FadeTo(1, 400, Easing.CubicOut),
-                border.ScaleTo(1.0, 500, Easing.SpringOut)
-            );
+            return border.AnimateIn();
         }
 
         protected override async void OnNavigatedFrom(NavigatedFromEventArgs args)
@@ -287,27 +269,11 @@ namespace hadis
 
             try
             {
-                // Önceki animasyonları iptal et
-                MainCountdownFrame.CancelAnimations();
-                ImsakFrame.CancelAnimations();
-                GunesFrame.CancelAnimations();
-                OgleFrame.CancelAnimations();
-                IkindiFrame.CancelAnimations();
-                AksamFrame.CancelAnimations();
-                YatsiFrame.CancelAnimations();
-                AyetFrame.CancelAnimations();
+                // Tüm animasyonları iptal et (optimize edilmiş)
+                AnimationHelpers.CancelAllAnimations(AllFrames);
 
-                // Hızlı (çıkış animasyonu beklenilmiyor, geçişi bloklamaz)
-                _ = Task.WhenAll(
-                    MainCountdownFrame.ScaleTo(0.7, 200, Easing.CubicIn),
-                    ImsakFrame.ScaleTo(0.7, 200, Easing.CubicIn),
-                    GunesFrame.ScaleTo(0.7, 200, Easing.CubicIn),
-                    OgleFrame.ScaleTo(0.7, 200, Easing.CubicIn),
-                    IkindiFrame.ScaleTo(0.7, 200, Easing.CubicIn),
-                    AksamFrame.ScaleTo(0.7, 200, Easing.CubicIn),
-                    YatsiFrame.ScaleTo(0.7, 200, Easing.CubicIn),
-                    AyetFrame.ScaleTo(0.7, 200, Easing.CubicIn)
-                );
+                // Hızlı çıkış animasyonu (fire-and-forget, bloklama yok)
+                _ = AnimationHelpers.AnimateOutParallel(AllFrames);
             }
             catch (Exception ex)
             {
@@ -390,14 +356,11 @@ namespace hadis
         {
             try
             {
-                // Küçülme animasyonu
-                await AyetFrame.ScaleTo(0.85, 150, Easing.CubicIn);
+                // Optimize edilmiş tap bounce animasyonu
+                await AyetFrame.TapBounce();
 
                 // Ayet değiştir
                 _viewModel.GununAyeti = Helpers.PrayerTimeHelper.GetRandomAyet(_viewModel.GununAyeti);
-
-                // Büyüme animasyonu (geri dön)
-                await AyetFrame.ScaleTo(1.0, 150, Easing.CubicOut);
             }
             catch (Exception ex)
             {

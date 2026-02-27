@@ -1,4 +1,6 @@
-﻿namespace hadis
+﻿using hadis.Services;
+
+namespace hadis
 {
     public partial class App : Application
     {
@@ -21,7 +23,41 @@
 
         protected override Window CreateWindow(IActivationState? activationState)
         {
-            return new Window(new AppShell());
+            var window = new Window(new AppShell());
+            
+            // Uygulama lifecycle event'larını dinle - Batarya tasarrufu için
+            window.Resumed += OnWindowResumed;
+            window.Stopped += OnWindowStopped;
+            window.Destroying += OnWindowDestroying;
+            
+            return window;
+        }
+
+        /// <summary>
+        /// Uygulama ön plana geldiğinde
+        /// </summary>
+        private void OnWindowResumed(object? sender, EventArgs e)
+        {
+            System.Diagnostics.Debug.WriteLine("📱 Uygulama ön plana geldi");
+            // PersistentNotificationUpdater MainPage tarafından yeniden başlatılacak
+        }
+
+        /// <summary>
+        /// Uygulama arka plana geçtiğinde - Timer'ları durdur
+        /// </summary>
+        private void OnWindowStopped(object? sender, EventArgs e)
+        {
+            System.Diagnostics.Debug.WriteLine("📱 Uygulama arka plana geçti - Timer'lar durduruluyor");
+            PersistentNotificationUpdater.StopUpdating();
+        }
+
+        /// <summary>
+        /// Uygulama kapanırken - Tüm kaynakları temizle
+        /// </summary>
+        private void OnWindowDestroying(object? sender, EventArgs e)
+        {
+            System.Diagnostics.Debug.WriteLine("📱 Uygulama kapanıyor - Kaynaklar temizleniyor");
+            PersistentNotificationUpdater.StopUpdating();
         }
         
         private void OnRequestedThemeChanged(object? sender, AppThemeChangedEventArgs e)

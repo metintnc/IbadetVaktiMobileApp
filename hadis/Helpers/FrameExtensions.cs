@@ -1,52 +1,10 @@
 namespace hadis.Helpers
 {
     /// <summary>
-    /// Frame ve UI elementleri için extension metodları
+    /// Border ve UI elementleri için extension metodları
     /// </summary>
     public static class FrameExtensions
     {
-        /// <summary>
-        /// Frame'e glassmorphism efekti uygular
-        /// </summary>
-        public static void ApplyGlassmorphism(this Frame frame, Color baseColor, Color borderColor)
-        {
-            frame.BorderColor = borderColor;
-            frame.Background = new LinearGradientBrush
-            {
-                StartPoint = new Point(0, 0),
-                EndPoint = new Point(1, 1),
-                GradientStops = new GradientStopCollection
-                {
-                    new GradientStop 
-                    { 
-                        Color = baseColor.WithAlpha(AppConstants.GLASSMORPHISM_ALPHA_START), 
-                        Offset = 0.0f 
-                    },
-                    new GradientStop 
-                    { 
-                        Color = baseColor.WithAlpha(AppConstants.GLASSMORPHISM_ALPHA_END), 
-                        Offset = 1.0f 
-                    }
-                }
-            };
-        }
-
-        /// <summary>
-        /// Namaz vakti frame'lerine stil uygular
-        /// </summary>
-        public static void ApplyPrayerTimeStyle(
-            this Frame frame, 
-            Label titleLabel, 
-            Label timeLabel,
-            Color borderColor,
-            Color textColor,
-            Color baseColor)
-        {
-            frame.ApplyGlassmorphism(baseColor, borderColor);
-            titleLabel.TextColor = textColor;
-            timeLabel.TextColor = textColor;
-        }
-
         /// <summary>
         /// Border'a glassmorphism efekti uygular
         /// </summary>
@@ -74,7 +32,7 @@ namespace hadis.Helpers
         }
 
         /// <summary>
-        /// Namaz vakti border'larina stil uygular
+        /// Namaz vakti border'larına stil uygular
         /// </summary>
         public static void ApplyPrayerTimeStyle(
             this Border border, 

@@ -14,14 +14,14 @@ namespace hadis
         private int _sureNo;
         private double? _pendingScrollPercent = null;
         private bool _scrollRestored = false;
-        private CollectionView _collectionView;
+        private CollectionView? _collectionView;
         private KuranViewModel _viewModel;
 
-        public SurePage(int sureNo)
+        public SurePage(int sureNo, QuranApiService quranApiService)
         {
             InitializeComponent();
             _sureNo = sureNo;
-            _viewModel = new KuranViewModel(sureNo);
+            _viewModel = new KuranViewModel(sureNo, quranApiService);
             BindingContext = _viewModel;
         }
 

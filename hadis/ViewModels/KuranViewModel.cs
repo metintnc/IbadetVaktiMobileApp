@@ -15,11 +15,14 @@ namespace hadis.ViewModels
         [ObservableProperty]
         private bool isBusy;
 
-        private int _sureNo;
+        private readonly int _sureNo;
+        private readonly QuranApiService _quranApiService;
 
-        public KuranViewModel(int sureNo)
+        public KuranViewModel(int sureNo, QuranApiService quranApiService)
         {
             _sureNo = sureNo;
+            _quranApiService = quranApiService;
+            
             var sure = KuranDataService.GetSureByNo(sureNo);
             SureTitle = sure?.Ad ?? "";
             SureTitleArabic = sure?.AdArapca ?? "";
@@ -31,9 +34,8 @@ namespace hadis.ViewModels
             IsBusy = true;
             try
             {
-                var service = new QuranApiService();
-                // AcikKuran API returns mapped Ayah list directly (Arabic + Turkish + Transliteration)
-                var fetchedAyahs = await service.GetSurahAsync(_sureNo);
+                // DI ile inject edilmiþ service kullan
+                var fetchedAyahs = await _quranApiService.GetSurahAsync(_sureNo);
                 
                 // Kaydedilenleri al
                 var savedAyahs = await SavedAyahsService.GetSavedAyahsAsync();
@@ -42,7 +44,6 @@ namespace hadis.ViewModels
                 Ayahs.Clear();
                 foreach (var a in fetchedAyahs)
                 {
-                    // Update IsSaved status
                     a.IsSaved = savedSet.Contains(a.Number);
                     Ayahs.Add(a);
                 }
