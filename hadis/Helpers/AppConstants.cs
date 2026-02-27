@@ -6,7 +6,7 @@ namespace hadis.Helpers
     public static class AppConstants
     {
         // Timer Ayarları
-        public const int TIMER_INTERVAL_MS = 500;
+        public const int TIMER_INTERVAL_MS = 1000;
 
         // Parlaklık Hesaplama
         public const int BRIGHTNESS_THRESHOLD = 128;

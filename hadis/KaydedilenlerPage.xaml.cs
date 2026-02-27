@@ -8,19 +8,22 @@ namespace hadis
     public partial class KaydedilenlerPage : ContentPage
     {
         private readonly IImageService _imageService;
+        private readonly QuranApiService _quranApiService;
         private ObservableCollection<SavedAyah> _savedAyahs;
 
-        public KaydedilenlerPage()
+        public KaydedilenlerPage(QuranApiService quranApiService)
         {
             InitializeComponent();
             _imageService = new PlatformImageService();
+            _quranApiService = quranApiService;
             LoadSavedAyahs();
         }
 
-        public KaydedilenlerPage(IImageService imageService)
+        public KaydedilenlerPage(IImageService imageService, QuranApiService quranApiService)
         {
             InitializeComponent();
             _imageService = imageService;
+            _quranApiService = quranApiService;
             LoadSavedAyahs();
         }
 
@@ -86,7 +89,7 @@ namespace hadis
             {
                 Preferences.Default.Set("KuranSonSureNo", ayah.SureNo);
                 Preferences.Default.Set("KuranSonAyetNo", ayah.Number);
-                await Navigation.PushAsync(new SurePage(ayah.SureNo));
+                await Navigation.PushAsync(new SurePage(ayah.SureNo, _quranApiService));
             }
         }
     }

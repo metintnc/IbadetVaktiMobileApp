@@ -1,6 +1,7 @@
 using System;
 using System.Threading.Tasks;
 using hadis.Services;
+using hadis.Helpers;
 
 using Microsoft.Maui.ApplicationModel;
 
@@ -9,12 +10,21 @@ namespace hadis
     public partial class kible : ContentPage
     {
         private Pusula compass;
-        private bool _animationPlayed = false;
         private readonly StatusBarService _statusBarService;
         private readonly TabBarService _tabBarService;
         private readonly INativeCompassService _nativeCompassService;
         private readonly IImageService _imageService;
         
+        // State flag to prevent duplicate event registration
+        private bool _isCompassRunning;
+        private bool _inInitialWarningPeriod;
+        private CompassAccuracy _currentAccuracy = CompassAccuracy.Unreliable;
+        private Action? _onPermissionConfirm;
+        
+        // Animasyon i�in element array'i (allocation optimize)
+        private VisualElement[]? _kibleElements;
+        private VisualElement[] KibleElements => _kibleElements ??= new VisualElement[] { kibleoku, AciDegeri };
+
         public kible(StatusBarService statusBarService, TabBarService tabBarService, INativeCompassService nativeCompassService, IImageService imageService)
         {
             InitializeComponent();
@@ -24,9 +34,6 @@ namespace hadis
             _nativeCompassService = nativeCompassService;
             _imageService = imageService;
         }
-        
-        private bool _inInitialWarningPeriod = false;
-        private CompassAccuracy _currentAccuracy = CompassAccuracy.Unreliable;
 
         protected override async void OnAppearing()
         {
@@ -34,22 +41,17 @@ namespace hadis
             
             try
             {
-                // Kıble sayfası için özel StatusBar ve TabBar renkleri
-                _statusBarService.SetStatusBarColor("#000000"); // Siyah
-
+                _statusBarService.SetStatusBarColor("#000000");
                 
-                 // Her açılışta 5 saniye kalibrasyon uyarısını göster
                 _inInitialWarningPeriod = true;
                 if (CalibrationWarningFrame != null)
                     CalibrationWarningFrame.IsVisible = true;
 
-                // 5 saniye sonra normal akışa dön
                 _ = Task.Run(async () => 
                 {
                     await Task.Delay(5000);
                     _inInitialWarningPeriod = false;
                     
-                    // Süre bitince mevcut duruma göre güncelle
                     MainThread.BeginInvokeOnMainThread(() =>
                     {
                         OnCompassAccuracyChanged(_currentAccuracy);
@@ -60,7 +62,7 @@ namespace hadis
             }
             catch (Exception ex)
             {
-                System.Diagnostics.Debug.WriteLine($"Kible OnAppearing hatası: {ex.Message}");
+                System.Diagnostics.Debug.WriteLine($"Kible OnAppearing hatas�: {ex.Message}");
             }
         }
 
@@ -70,18 +72,15 @@ namespace hadis
             
             if (status != PermissionStatus.Granted)
             {
-                // İzin yoksa uyarıyı göster, diğer her şeyi gizle
                 LocationWarningFrame.IsVisible = true;
                 kibleoku.IsVisible = false;
                 AciDegeri.IsVisible = false;
                 CalibrationWarningFrame.IsVisible = false;
                 
-                // Arka planda çalışmaması için durdur
                 StopCompassLogic();
             }
             else
             {
-                // İzin varsa normal akış
                 LocationWarningFrame.IsVisible = false;
                 kibleoku.IsVisible = true;
                 AciDegeri.IsVisible = true;
@@ -92,8 +91,9 @@ namespace hadis
 
         private void StartCompassLogic()
         {
-            // Zaten çalışıyorsa tekrar başlatma (basit kontrol)
-            _nativeCompassService.AccuracyChanged -= OnCompassAccuracyChanged;
+            // Guard: Zaten �al���yorsa tekrar ba�latma
+            if (_isCompassRunning) return;
+            
             _nativeCompassService.AccuracyChanged += OnCompassAccuracyChanged;
             _nativeCompassService.Start();
 
@@ -102,25 +102,26 @@ namespace hadis
                 await compass.KontrolEt();
                 MainThread.BeginInvokeOnMainThread(() =>
                 {
-                    compass.AciDegisti -= KıbleOkunuDondur; // Çift eklemeyi önle
-                    compass.AciDegisti += KıbleOkunuDondur;
+                    compass.AciDegisti += K�bleOkunuDondur;
                 });
             });
+            
+            _isCompassRunning = true;
         }
         
         private void StopCompassLogic()
         {
+            // Guard: Zaten durmu�sa tekrar durdurma
+            if (!_isCompassRunning) return;
+            
             compass.PusulaDurdur();
-            compass.AciDegisti -= KıbleOkunuDondur;
+            compass.AciDegisti -= K�bleOkunuDondur;
             
             _nativeCompassService.Stop();
             _nativeCompassService.AccuracyChanged -= OnCompassAccuracyChanged;
+            
+            _isCompassRunning = false;
         }
-
-        // ... (Permission methods excluded for brevity if not changing) ...
-
-        // ... Existing permission methods ...
-        private Action _onPermissionConfirm;
 
         private async void OnRequestLocationPermission_Clicked(object sender, EventArgs e)
         {
@@ -135,8 +136,8 @@ namespace hadis
             if (Permissions.ShouldShowRationale<Permissions.LocationWhenInUse>())
             {
                 ShowPermissionOverlay(
-                    "Konum İzni", 
-                    "Kıble yönünü doğru hesaplayabilmek için konum iznine ihtiyacımız var.", 
+                    "Konum �zni", 
+                    "K�ble y�n�n� do�ru hesaplayabilmek i�in konum iznine ihtiyac�m�z var.", 
                     "Tamam",
                     async () => 
                     {
@@ -154,17 +155,16 @@ namespace hadis
             }
             else
             {
-                // Eğer izin reddedildiyse ve rasyonel gösterilmiyorsa (kalıcı ret durumu olabilir)
                 ShowPermissionOverlay(
-                    "İzin Gerekli", 
-                    "Konum izni verilmediği için kıble yönü hesaplanamıyor. Ayarlardan izin vermek ister misiniz?", 
+                    "�zin Gerekli", 
+                    "Konum izni verilmedi�i i�in k�ble y�n� hesaplanam�yor. Ayarlardan izin vermek ister misiniz?", 
                     "Ayarlara Git",
                     () => { AppInfo.ShowSettingsUI(); },
-                    "İptal");
+                    "�ptal");
             }
         }
 
-        private void ShowPermissionOverlay(string title, string message, string confirmText, Action onConfirm, string cancelText = "İptal")
+        private void ShowPermissionOverlay(string title, string message, string confirmText, Action onConfirm, string cancelText = "�ptal")
         {
             PermissionOverlayTitle.Text = title;
             PermissionOverlayMessage.Text = message;
@@ -189,51 +189,29 @@ namespace hadis
             PermissionOverlay.IsVisible = false;
         }
 
-
         private void OnCompassAccuracyChanged(CompassAccuracy accuracy)
         {
             _currentAccuracy = accuracy;
 
             MainThread.BeginInvokeOnMainThread(async () =>
             {
-                bool shouldBeVisible = false;
-
-                if (_inInitialWarningPeriod)
-                {
-                    shouldBeVisible = true;
-                }
-                else
-                {
-                    switch (accuracy)
-                    {
-                        case CompassAccuracy.High:
-                        case CompassAccuracy.Medium:
-                            shouldBeVisible = false;
-                            break;
-                        default:
-                            shouldBeVisible = true;
-                            break;
-                    }
-                }
+                bool shouldBeVisible = _inInitialWarningPeriod || 
+                    (accuracy != CompassAccuracy.High && accuracy != CompassAccuracy.Medium);
 
                 if (CalibrationWarningFrame != null)
                 {
                     if (shouldBeVisible)
                     {
-                        // Görünür olması gerekiyorsa ve görünür değilse veya sönükse
                         if (!CalibrationWarningFrame.IsVisible || CalibrationWarningFrame.Opacity < 1)
                         {
                             CalibrationWarningFrame.IsVisible = true;
-                            // Hızlıca gelsin (varsa bir önceki animasyonu da ezer)
                             await CalibrationWarningFrame.FadeTo(1, 250);
                         }
                     }
                     else
                     {
-                        // Gizlenmesi gerekiyorsa ve şu an görünürse
                         if (CalibrationWarningFrame.IsVisible && CalibrationWarningFrame.Opacity > 0)
                         {
-                            // Yavaş yavaş gitsin (1.5 saniye)
                             await CalibrationWarningFrame.FadeTo(0, 1500);
                             CalibrationWarningFrame.IsVisible = false;
                         }
@@ -250,28 +228,20 @@ namespace hadis
         
         private async Task AnimateKibleEntry()
         {
-            kibleoku.Opacity = 0;
-            kibleoku.Scale = 0.3;
-            AciDegeri.Opacity = 0;
-            AciDegeri.Scale = 0.5;
-            await Task.WhenAll(
-                kibleoku.FadeTo(1, 600, Easing.CubicOut),
-                kibleoku.ScaleTo(1.0, 800, Easing.SpringOut)
-            );
-            await Task.WhenAll(
-                AciDegeri.FadeTo(1, 400, Easing.CubicOut),
-                AciDegeri.ScaleTo(1.0, 500, Easing.SpringOut)
-            );
+            // Optimize edilmi� animasyon
+            AnimationHelpers.PrepareForAnimation(KibleElements);
+            
+            // K�ble oku �nce
+            await kibleoku.AnimateIn(600, 800);
+            
+            // A�� de�eri sonra
+            await AciDegeri.AnimateIn(400, 500);
         }
         
         protected override void OnDisappearing()
         {
             base.OnDisappearing();
-            compass.PusulaDurdur();
-            compass.AciDegisti -= KıbleOkunuDondur;
-            
-            _nativeCompassService.Stop();
-            _nativeCompassService.AccuracyChanged -= OnCompassAccuracyChanged;
+            StopCompassLogic();
         }
         
         protected override async void OnNavigatedFrom(NavigatedFromEventArgs args)
@@ -282,49 +252,23 @@ namespace hadis
         
         private async Task AnimateKibleExit()
         {
-            var acıTask = Task.WhenAll(
-                AciDegeri.FadeTo(0, 300, Easing.CubicIn),
-                AciDegeri.ScaleTo(0.5, 400, Easing.CubicIn)
-            );
-            var okuTask = Task.WhenAll(
-                kibleoku.FadeTo(0, 400, Easing.CubicIn),
-                kibleoku.ScaleTo(0.3, 500, Easing.SpringIn)
-            );
-            await Task.WhenAll(acıTask, okuTask);
+            // Optimize edilmi� paralel ��k�� animasyonu
+            await AnimationHelpers.AnimateOutParallel(KibleElements);
         }
 
-        public void KıbleOkunuDondur(double gelenaci)
+        public void K�bleOkunuDondur(double gelenaci)
         {
             MainThread.BeginInvokeOnMainThread(() =>
             {
-                // Mevcut açı ve hedef açı arasındaki en kısa yolu bul
-                double currentRotation = kibleoku.Rotation;
-                
-                // Hedef açıyı 0-360 arasına normalize et (Gelen açı zaten öyledir ama garanti olsun)
-                double targetRotation = gelenaci % 360; 
-                if (targetRotation < 0) targetRotation += 360;
+                // Optimize edilmi� smooth rotation
+                kibleoku.SmoothRotateTo(gelenaci, 100);
 
-                // Farkı bul
-                double diff = targetRotation - currentRotation;
-
-                // Farkı -180 ile 180 arasına sıkıştır (En kısa yol)
-                while (diff < -180) diff += 360;
-                while (diff > 180) diff -= 360;
-
-                // Yeni hedef, mevcut + fark (Böylece 350 -> 10 geçişi 350 -> 370 olur, terse dönmez)
-                double finalTarget = currentRotation + diff;
-
-                // Animasyonlu geçiş (Await etmiyoruz, yeni gelen veri eskisini iptal edip devam etsin)
-                // Sensör hızı Game (20ms) olduğu için, 80-100ms arası bir animasyon yumuşaklık sağlar.
-                kibleoku.RotateTo(finalTarget, 100, Easing.Linear);
-
-                // UI Güncelleme
                 double rawAngle = (360 - (gelenaci % 360)) % 360;
                 int displayAngle = (int)Math.Round(rawAngle);
                 
                 if (displayAngle == 360) displayAngle = 0;
 
-                AciDegeri.Text = $"{displayAngle}°";
+                AciDegeri.Text = $"{displayAngle}�";
                 
                 if(displayAngle == 0)
                 {
@@ -335,11 +279,8 @@ namespace hadis
                     AciDegeri.ClearValue(Label.TextColorProperty);
                 }
 
-                // Kıble yönü doğrulama (355 - 5 arası)
-                // displayAngle 0 ise, 355-5 aralığına girer (çünkü 0 <= 5)
                 if ((displayAngle >= 355 || displayAngle <= 5) && QiblaCheckmark != null)
                 {
-                    // Zaten görünür değilse göster (Fade To)
                     if (QiblaCheckmark.Opacity == 0)
                     {
                         QiblaCheckmark.FadeTo(1, 200);
@@ -347,7 +288,6 @@ namespace hadis
                 }
                 else if (QiblaCheckmark != null)
                 {
-                    // Görünürse gizle
                     if (QiblaCheckmark.Opacity > 0)
                     {
                         QiblaCheckmark.FadeTo(0, 200);
@@ -358,12 +298,11 @@ namespace hadis
         
         protected override bool OnBackButtonPressed()
         {
-            // Geri tuşuna basıldığında Ana Sayfaya (Vakitler Sekmesine) git
             MainThread.BeginInvokeOnMainThread(async () =>
             {
                 await Shell.Current.GoToAsync("//MainPage");
             });
-            return true; // Olayı biz yönettik
+            return true;
         }
     }
 }

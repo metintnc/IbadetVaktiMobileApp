@@ -11,15 +11,28 @@ namespace hadis.Services
 {
     public class QuranApiService
     {
-        private readonly HttpClient _client = new();
+        private readonly HttpClient _client;
         private readonly string _cacheDir;
 
-        public QuranApiService()
+        public QuranApiService(IHttpClientFactory httpClientFactory)
         {
-            _cacheDir = Path.Combine(FileSystem.AppDataDirectory, "quran_cache_v2"); // New cache dir for new API
-            if (!Directory.Exists(_cacheDir))
+            _client = httpClientFactory.CreateClient("QuranApi");
+            _cacheDir = Path.Combine(FileSystem.AppDataDirectory, "quran_cache_v2");
+            EnsureCacheDirectory();
+        }
+
+        private void EnsureCacheDirectory()
+        {
+            try
             {
-                Directory.CreateDirectory(_cacheDir);
+                if (!Directory.Exists(_cacheDir))
+                {
+                    Directory.CreateDirectory(_cacheDir);
+                }
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine($"Cache dizini oluşturma hatası: {ex.Message}");
             }
         }
 
@@ -143,7 +156,7 @@ namespace hadis.Services
                     }
                 }
 
-                progress?.Report("TamamlandÄ±");
+                progress?.Report("Tamamlandı");
             }
             catch (Exception ex)
             {

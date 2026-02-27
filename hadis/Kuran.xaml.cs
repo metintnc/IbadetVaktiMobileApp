@@ -6,11 +6,10 @@ namespace hadis
 {
     public partial class Kuran : ContentPage
     {
-        private List<Sure> _tumSureler = new();
+        private IReadOnlyList<Sure> _tumSureler = Array.Empty<Sure>();
         private List<Sure> _filtreSureler = new();
         private readonly StatusBarService _statusBarService;
-        private readonly TabBarService _tabBarService;
-        private readonly IImageService _imageService;
+        private readonly QuranApiService _quranApiService;
         private bool _isInitialized = false;
 
         private static readonly Dictionary<string, string> MealIsimleri = new()
@@ -22,12 +21,11 @@ namespace hadis
             { "8", "Bayraktar Bayraklı" }
         };
 
-        public Kuran(StatusBarService statusBarService, TabBarService tabBarService, IImageService imageService)
+        public Kuran(StatusBarService statusBarService, QuranApiService quranApiService)
         {
             InitializeComponent();
             _statusBarService = statusBarService;
-            _tabBarService = tabBarService;
-            _imageService = imageService;
+            _quranApiService = quranApiService;
         }
 
         protected override void OnAppearing()
@@ -43,9 +41,9 @@ namespace hadis
             if (!_isInitialized)
             {
                 _isInitialized = true;
-                // Ağır senkron işlemi arka plan thread'inde çalıştır
-                await Task.Run(() => _tumSureler = KuranDataService.GetSureler());
-                _filtreSureler = _tumSureler;
+                // IReadOnlyList kullanımı - artık direkt referans alıyoruz
+                _tumSureler = KuranDataService.GetSureler();
+                _filtreSureler = _tumSureler.ToList();
                 SureListesi.ItemsSource = _filtreSureler;
                 CheckDownloadStatus();
             }
@@ -87,7 +85,7 @@ namespace hadis
             var sonSureNo = Preferences.Default.Get("KuranSonSureNo", 0);
             if (sonSureNo > 0)
             {
-                await Navigation.PushAsync(new SurePage(sonSureNo));
+                await Navigation.PushAsync(new SurePage(sonSureNo, _quranApiService));
             }
             else
             {
@@ -100,7 +98,7 @@ namespace hadis
             var aramaMetni = e.NewTextValue?.ToLower() ?? "";
             if (string.IsNullOrWhiteSpace(aramaMetni))
             {
-                _filtreSureler = _tumSureler;
+                _filtreSureler = _tumSureler.ToList();
             }
             else
             {
@@ -120,7 +118,7 @@ namespace hadis
                 Preferences.Default.Set("KuranSonSureNo", sureNo);
                 Preferences.Default.Set("KuranSonAyetNo", 1); // ilk ayet
                 SonOkunanYukle();
-                await Navigation.PushAsync(new SurePage(sureNo));
+                await Navigation.PushAsync(new SurePage(sureNo, _quranApiService));
             }
         }
 
@@ -131,19 +129,18 @@ namespace hadis
                 Preferences.Default.Set("KuranSonSureNo", sureNo);
                 Preferences.Default.Set("KuranSonAyetNo", 1); // ilk ayet
                 SonOkunanYukle();
-                await Navigation.PushAsync(new SurePage(sureNo));
+                await Navigation.PushAsync(new SurePage(sureNo, _quranApiService));
             }
         }
 
         private async void KaydedilenlerButonu_Clicked(object sender, TappedEventArgs e)
         {
-            await Navigation.PushAsync(new KaydedilenlerPage());
+            await Navigation.PushAsync(new KaydedilenlerPage(_quranApiService));
         }
 
         private void CheckDownloadStatus()
         {
-            var service = new QuranApiService();
-            bool isDownloaded = service.CheckCacheStatus();
+            bool isDownloaded = _quranApiService.CheckCacheStatus();
             UpdateDownloadUI(isDownloaded);
         }
 
@@ -203,7 +200,6 @@ namespace hadis
             DownloadIndicator.IsVisible = true;
             DownloadIndicator.IsRunning = true;
 
-            var service = new QuranApiService();
             var progress = new Progress<string>(message => 
             {
                 MainThread.BeginInvokeOnMainThread(() => DownloadStatusLabel.Text = message);
@@ -211,7 +207,7 @@ namespace hadis
 
             try
             {
-                await Task.Run(async () => await service.DownloadAndCacheFullQuranAsync(progress));
+                await Task.Run(async () => await _quranApiService.DownloadAndCacheFullQuranAsync(progress));
                 
                 // Başarılı
                 UpdateDownloadUI(true);
