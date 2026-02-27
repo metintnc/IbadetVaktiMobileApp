@@ -62,6 +62,9 @@ namespace hadis
             // Notification Service
             builder.Services.AddSingleton<IAppNotificationService, NotificationService>();
             
+            // AppShell'e IServiceProvider inject et
+            builder.Services.AddSingleton<AppShell>();
+
             // Local Notification
             try
             {

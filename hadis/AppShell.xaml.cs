@@ -2,12 +2,71 @@
 {
     using hadis.Helpers;
     using hadis.Services;
+    using Microsoft.Extensions.DependencyInjection;
 
     public partial class AppShell : Shell
     {
-        public AppShell()
+        private readonly IServiceProvider _serviceProvider;
+        
+        // Tema cache - Preferences okuma overhead'ini önler
+        private string? _cachedTheme;
+        private DateTime _themeCacheTime;
+        private static readonly TimeSpan ThemeCacheExpiry = TimeSpan.FromSeconds(5);
+        
+        public AppShell(IServiceProvider serviceProvider)
         {
             InitializeComponent();
+            _serviceProvider = serviceProvider;
+            
+            // Hemen arka planda başlat - Task.Run UI thread'i bloklamaz
+            _ = Task.Run(PrewarmPages);
+        }
+
+        /// <summary>
+        /// Sayfaları ve servisleri arka planda önceden oluşturarak ilk açılış gecikmesini önler
+        /// Thread pool'da çalışır, UI'ı etkilemez
+        /// </summary>
+        private void PrewarmPages()
+        {
+            try
+            {
+                // Paralel DI resolution - tüm sayfaları ve kritik servisleri aynı anda oluştur
+                Parallel.Invoke(
+                    // Sayfalar
+                    () => _ = _serviceProvider.GetService<zikirmatik>(),
+                    () => _ = _serviceProvider.GetService<kible>(),
+                    () => _ = _serviceProvider.GetService<Kuran>(),
+                    () => _ = _serviceProvider.GetService<Ayarlar>(),
+                    // Kritik servisler (henüz resolve edilmemişse)
+                    () => _ = _serviceProvider.GetService<INativeCompassService>(),
+                    () => _ = _serviceProvider.GetService<QuranApiService>()
+                );
+                
+                System.Diagnostics.Debug.WriteLine("✅ Sayfalar ve servisler ön yüklendi (prewarm - parallel)");
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine($"⚠️ Sayfa prewarm hatası: {ex.Message}");
+            }
+        }
+
+        /// <summary>
+        /// Tema cache'ini invalidate et (tema değiştiğinde çağrılmalı)
+        /// </summary>
+        public void InvalidateThemeCache() => _cachedTheme = null;
+
+        /// <summary>
+        /// Cache'li tema değerini al
+        /// </summary>
+        private string GetCachedTheme()
+        {
+            var now = DateTime.UtcNow;
+            if (_cachedTheme == null || (now - _themeCacheTime) > ThemeCacheExpiry)
+            {
+                _cachedTheme = Preferences.Default.Get(AppConstants.PREF_APP_THEME, "MainDark");
+                _themeCacheTime = now;
+            }
+            return _cachedTheme;
         }
 
         protected override void OnNavigated(ShellNavigatedEventArgs args)
@@ -20,42 +79,34 @@
         {
             try
             {
-                string savedTheme = Preferences.Default.Get(AppConstants.PREF_APP_THEME, "MainDark");
+                // Cache'li tema kullan
+                string savedTheme = GetCachedTheme();
+                var currentPage = Current.CurrentPage;
+                bool isMainPage = currentPage is MainPage;
 
-                // Sadece "MainLight" (Ana Açık) teması için özel mantık
                 if (savedTheme == "MainLight")
                 {
-                    // Şuan hangi sayfadayız?
-                    var currentPage = Current.CurrentPage;
-
-                    if (currentPage is MainPage)
+                    if (isMainPage)
                     {
-                        // Ana Sayfa: Zamana göre dinamik renk
                         var now = DateTime.Now;
                         var info = TimeBasedBackgroundConfig.GetBackgroundForTime(now.Hour, now.Minute);
-                        Shell.SetTabBarBackgroundColor(this, Color.FromArgb(info.TabBarColor));
+                        Shell.SetTabBarBackgroundColor(this, info.TabBarColorParsed);
                     }
                     else
                     {
-                        // Diğer Sayfalar: Beyaz
                         Shell.SetTabBarBackgroundColor(this, Colors.White);
                     }
                 }
-                // "MainDark" (Ana Koyu) teması için özel mantık
                 else if (savedTheme == "MainDark")
                 {
-                    var currentPage = Current.CurrentPage;
-
-                    if (currentPage is MainPage)
+                    if (isMainPage)
                     {
-                        // Ana Sayfa: Dinamik renk
                         var now = DateTime.Now;
                         var info = TimeBasedBackgroundConfig.GetBackgroundForTime(now.Hour, now.Minute);
-                        Shell.SetTabBarBackgroundColor(this, Color.FromArgb(info.TabBarColor));
+                        Shell.SetTabBarBackgroundColor(this, info.TabBarColorParsed);
                     }
                     else
                     {
-                        // Diğer Sayfalar: Siyah
                         Shell.SetTabBarBackgroundColor(this, Colors.Black);
                     }
                 }

@@ -16,16 +16,12 @@ namespace hadis
         private bool sesDurum = true;
         private const string ZikirHistoryKey = "ZikirHistory";
         private readonly StatusBarService _statusBarService;
-        private readonly TabBarService _tabBarService;
-        private readonly IImageService _imageService;
         private bool _stateRestored = false;
 
-        public zikirmatik(StatusBarService statusBarService, TabBarService tabBarService, IImageService imageService)
+        public zikirmatik(StatusBarService statusBarService)
         {
             InitializeComponent();
             _statusBarService = statusBarService;
-            _tabBarService = tabBarService;
-            _imageService = imageService;
         }
 
         private void OnHeaderFrameSizeChanged(object sender, EventArgs e)
