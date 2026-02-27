@@ -5,63 +5,56 @@ namespace hadis.Helpers
     /// </summary>
     public static class TimeBasedBackgroundConfig
     {
-        public record BackgroundInfo(string Image, string StatusBarColor, string TabBarColor);
+        // Önceden parse edilmiş renkler ile BackgroundInfo
+        public record BackgroundInfo
+        {
+            public string Image { get; }
+            public string StatusBarColor { get; }
+            public string TabBarColor { get; }
+            
+            // Lazy cached Color objects - Color.FromArgb overhead'ini önler
+            private Color? _tabBarColorParsed;
+            public Color TabBarColorParsed => _tabBarColorParsed ??= Color.FromArgb(TabBarColor);
+            
+            public BackgroundInfo(string image, string statusBarColor, string tabBarColor)
+            {
+                Image = image;
+                StatusBarColor = statusBarColor;
+                TabBarColor = tabBarColor;
+            }
+        }
+
+        // Statik cache - her saat dilimi için tek bir instance (allocation yok)
+        private static readonly BackgroundInfo[] _cachedInfos =
+        [
+            new("sun_01.png", "#05051B", "#000115"), // 0: Gece 00-04
+            new("sun_02.png", "#060723", "#040519"), // 1: Sabah 05:00-05:29
+            new("sun_03.png", "#4B427E", "#0C0718"), // 2: Şafak 05:30-06:59
+            new("sun_04.png", "#4077D9", "#181F3D"), // 3: Sabah 07-08
+            new("sun_05.png", "#2F71E4", "#13254F"), // 4: Kuşluk 09-10
+            new("sun_06.png", "#5E92F3", "#14255D"), // 5: Öğle 11-12
+            new("sun_07.png", "#5C89F2", "#192143"), // 6: Öğleden sonra 13-14
+            new("sun_08.png", "#6376C6", "#271C2F"), // 7: İkindi 15-16
+            new("sun_09.png", "#22133A", "#251334"), // 8: Akşam 17-18
+            new("sun_10.png", "#08091D", "#0C0D2A"), // 9: Gece 19-23
+        ];
 
         /// <summary>
         /// Saatlere göre arkaplan resmi, status bar rengi ve TabBar rengi
+        /// Cache'lenmiş değerler döndürür - allocation yok
         /// </summary>
         public static BackgroundInfo GetBackgroundForTime(int hour, int minute)
         {
-            // Gece 00:00 - 04:59
-            if (hour >= 0 && hour < 5)
-            {
-                return new BackgroundInfo("sun_01.png", "#05051B", "#000115");
-            }
-            // Sabah erkeni 05:00 - 05:29
-            else if (hour == 5 && minute < 30)
-            {
-                return new BackgroundInfo("sun_02.png", "#060723", "#040519");
-            }
-            // Şafak 05:30 - 06:59
-            else if ((hour == 5 && minute >= 30) || (hour == 6))
-            {
-                return new BackgroundInfo("sun_03.png", "#4B427E", "#0C0718");
-            }
-            // Sabah 07:00 - 08:59
-            else if (hour >= 7 && hour < 9)
-            {
-                return new BackgroundInfo("sun_04.png", "#4077D9", "#181F3D");
-            }
-            // Kuşluk 09:00 - 10:59
-            else if (hour >= 9 && hour < 11)
-            {
-                return new BackgroundInfo("sun_05.png", "#2F71E4", "#13254F");
-            }
-            // Öğle 11:00 - 12:59
-            else if (hour >= 11 && hour < 13)
-            {
-                return new BackgroundInfo("sun_06.png", "#5E92F3", "#14255D");
-            }
-            // Öğleden sonra 13:00 - 14:59
-            else if (hour >= 13 && hour < 15)
-            {
-                return new BackgroundInfo("sun_07.png", "#5C89F2", "#192143");
-            }
-            // İkindi 15:00 - 16:59
-            else if (hour >= 15 && hour < 17)
-            {
-                return new BackgroundInfo("sun_08.png", "#6376C6", "#271C2F");
-            }
-            // Akşam 17:00 - 18:59
-            else if (hour >= 17 && hour < 19)
-            {
-                return new BackgroundInfo("sun_09.png", "#22133A", "#251334");
-            }
-            // Gece 19:00 - 23:59
-            else // hour >= 19 && hour < 24
-            {
-                return new BackgroundInfo("sun_10.png", "#08091D", "#0C0D2A");
-            }
+            if (hour < 5) return _cachedInfos[0];
+            if (hour == 5 && minute < 30) return _cachedInfos[1];
+            if (hour < 7) return _cachedInfos[2];
+            if (hour < 9) return _cachedInfos[3];
+            if (hour < 11) return _cachedInfos[4];
+            if (hour < 13) return _cachedInfos[5];
+            if (hour < 15) return _cachedInfos[6];
+            if (hour < 17) return _cachedInfos[7];
+            if (hour < 19) return _cachedInfos[8];
+            return _cachedInfos[9];
         }
 
         /// <summary>

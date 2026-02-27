@@ -1,12 +1,16 @@
 ﻿using hadis.Services;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace hadis
 {
     public partial class App : Application
     {
-        public App()
+        private readonly IServiceProvider _serviceProvider;
+
+        public App(IServiceProvider serviceProvider)
         {
             InitializeComponent();
+            _serviceProvider = serviceProvider;
             
             // Kaydedilmiş tema tercihini yükle
             LoadThemePreference();
@@ -23,7 +27,9 @@ namespace hadis
 
         protected override Window CreateWindow(IActivationState? activationState)
         {
-            var window = new Window(new AppShell());
+            // AppShell'i DI'dan al (prewarm desteği için)
+            var appShell = _serviceProvider.GetRequiredService<AppShell>();
+            var window = new Window(appShell);
             
             // Uygulama lifecycle event'larını dinle - Batarya tasarrufu için
             window.Resumed += OnWindowResumed;
