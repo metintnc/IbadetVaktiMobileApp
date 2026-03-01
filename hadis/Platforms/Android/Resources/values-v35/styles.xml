@@ -1,14 +1,13 @@
-ï»¿<?xml version="1.0" encoding="utf-8" ?>
+<?xml version="1.0" encoding="utf-8" ?>
 <resources>
+  <!-- Android 15 (API 35) için özel stiller -->
+  <!-- Edge-to-edge Android 15'te zorunlu, statusBarColor ve navigationBarColor yok sayılıyor -->
   <style name="AppTheme" parent="Theme.MaterialComponents.DayNight.NoActionBar">
-    <!-- Android 15+ iÃ§in edge-to-edge uyumluluk -->
-    <item name="android:statusBarColor">@android:color/transparent</item>
-    <item name="android:navigationBarColor">@android:color/transparent</item>
     <item name="android:windowDrawsSystemBarBackgrounds">true</item>
     <item name="android:windowTranslucentStatus">false</item>
     <item name="android:windowTranslucentNavigation">false</item>
-    <!-- Edge-to-edge iÃ§in iÃ§erik system bar'larÄ±n altÄ±na uzanÄ±r -->
-    <item name="android:fitsSystemWindows">false</item>
+    <!-- Android 15'te edge-to-edge varsayılan olarak etkin -->
+    <item name="android:windowOptOutEdgeToEdgeEnforcement">false</item>
   </style>
 
   <style name="Maui.SplashTheme" parent="AppTheme">

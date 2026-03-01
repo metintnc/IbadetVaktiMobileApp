@@ -130,7 +130,7 @@
                                    FontAttributes="Bold"
                                    HorizontalOptions="Center"
                                    HorizontalTextAlignment="Center"
-                                   TextColor="{AppThemeBinding Light=#00796B, Dark=#FFFFFF}"/>
+                                   TextColor="{AppThemeBinding Light=#00796L, Dark=#FFFFFF}"/>
                             <Border StrokeShape="RoundRectangle 10" 
                                    Padding="6,3"
                                    BackgroundColor="{AppThemeBinding Light=#FFF3E0, Dark=#3E2723}"
@@ -292,7 +292,7 @@
                                HorizontalOptions="Center"
                                TextColor="{AppThemeBinding Light=#757575, Dark=#BDBDBD}"/>
                         <Label x:Name="CopyrightLabel"
-                               Text="© 2025 Namaz Vakti Uygulaması" 
+                               Text="© 2025 İbadet Vakti Uygulaması" 
                                FontSize="12"
                                HorizontalOptions="Center"
                                TextColor="{AppThemeBinding Light=#9E9E9E, Dark=#757575}"/>
