@@ -93,7 +93,7 @@ namespace hadis
                 await compass.KontrolEt();
                 MainThread.BeginInvokeOnMainThread(() =>
                 {
-                    compass.AciDegisti += K?bleOkunuDondur;
+                    compass.AciDegisti += KibleOkunuDondur;
                 });
             });
             
@@ -106,7 +106,7 @@ namespace hadis
             if (!_isCompassRunning) return;
             
             compass.PusulaDurdur();
-            compass.AciDegisti -= K?bleOkunuDondur;
+            compass.AciDegisti -= KibleOkunuDondur;
             
             _nativeCompassService.Stop();
             _nativeCompassService.AccuracyChanged -= OnCompassAccuracyChanged;
@@ -246,7 +246,7 @@ namespace hadis
             await AnimationHelpers.AnimateOutParallel(KibleElements);
         }
 
-        public void K?bleOkunuDondur(double gelenaci)
+        public void KibleOkunuDondur(double gelenaci)
         {
             MainThread.BeginInvokeOnMainThread(() =>
             {

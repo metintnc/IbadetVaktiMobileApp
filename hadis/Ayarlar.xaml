@@ -49,29 +49,29 @@
                       RowSpacing="15"
                       ColumnSpacing="15">
                     
-                    <!-- Tema Ayarlari Card -->
+                    <!-- Kütüphane Card -->
                     <Border Grid.Row="0" Grid.Column="0"
-                           x:Name="TemaFrame"
+                           x:Name="KutuphaneFrame"
                            StrokeShape="RoundRectangle 20"
                            Padding="20"
                            Stroke="{AppThemeBinding Light=#80009688, Dark=#80FFFFFF}"
                            BackgroundColor="{AppThemeBinding Light=#22FFFFFF, Dark=#33000000}">
                         <Border.GestureRecognizers>
-                            <TapGestureRecognizer Tapped="TemaButton_Clicked"/>
+                            <TapGestureRecognizer Tapped="KutuphaneButton_Clicked"/>
                         </Border.GestureRecognizers>
                         <VerticalStackLayout Spacing="10" HorizontalOptions="Center">
-                            <Label Text="🎨"
+                            <Label Text="📚"
                                    FontSize="48"
                                    HorizontalOptions="Center"/>
-                            <Label x:Name="TemaTitle"
-                                   Text="Tema Ayarları"
+                            <Label x:Name="KutuphaneTitle"
+                                   Text="Kütüphane"
                                    FontSize="16"
                                    FontAttributes="Bold"
                                    HorizontalOptions="Center"
                                    HorizontalTextAlignment="Center"
                                    TextColor="{AppThemeBinding Light=#00796B, Dark=#FFFFFF}"/>
-                            <Label x:Name="TemaSubtitle"
-                                   Text="Görünüm ve Renkler"
+                            <Label x:Name="KutuphaneSubtitle"
+                                   Text="Okuma ve İlim"
                                    FontSize="12"
                                    HorizontalOptions="Center"
                                    HorizontalTextAlignment="Center"
@@ -130,7 +130,7 @@
                                    FontAttributes="Bold"
                                    HorizontalOptions="Center"
                                    HorizontalTextAlignment="Center"
-                                   TextColor="{AppThemeBinding Light=#00796L, Dark=#FFFFFF}"/>
+                                   TextColor="{AppThemeBinding Light=#00796B, Dark=#FFFFFF}"/>
                             <Border StrokeShape="RoundRectangle 10" 
                                    Padding="6,3"
                                    BackgroundColor="{AppThemeBinding Light=#FFF3E0, Dark=#3E2723}"
@@ -235,29 +235,29 @@
                         </VerticalStackLayout>
                     </Border>
                     
-                    <!-- Kütüphane Card -->
+                    <!-- Tema Ayarlari Card -->
                     <Border Grid.Row="3" Grid.Column="0" Grid.ColumnSpan="2"
-                           x:Name="KutuphaneFrame"
+                           x:Name="TemaFrame"
                            StrokeShape="RoundRectangle 20"
                            Padding="20"
                            Stroke="{AppThemeBinding Light=#80009688, Dark=#80FFFFFF}"
                            BackgroundColor="{AppThemeBinding Light=#22FFFFFF, Dark=#33000000}">
                         <Border.GestureRecognizers>
-                            <TapGestureRecognizer Tapped="KutuphaneButton_Clicked"/>
+                            <TapGestureRecognizer Tapped="TemaButton_Clicked"/>
                         </Border.GestureRecognizers>
                         <Grid ColumnDefinitions="Auto,*,Auto" ColumnSpacing="15">
                             <Label Grid.Column="0"
-                                   Text="📚"
+                                   Text="🎨"
                                    FontSize="48"
                                    VerticalOptions="Center"/>
                             <VerticalStackLayout Grid.Column="1" Spacing="5" VerticalOptions="Center">
-                                <Label x:Name="KutuphaneTitle"
-                                       Text="Kütüphane"
+                                <Label x:Name="TemaTitle"
+                                       Text="Tema Ayarları"
                                        FontSize="18"
                                        FontAttributes="Bold"
                                        TextColor="{AppThemeBinding Light=#00796B, Dark=#FFFFFF}"/>
-                                <Label x:Name="KutuphaneSubtitle"
-                                       Text="Kur'an, İlmihal, Namaz Hocası"
+                                <Label x:Name="TemaSubtitle"
+                                       Text="Görünüm ve Renkler"
                                        FontSize="12"
                                        TextColor="{AppThemeBinding Light=#757575, Dark=#BDBDBD}"/>
                             </VerticalStackLayout>
