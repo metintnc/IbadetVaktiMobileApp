@@ -130,6 +130,7 @@
                         Clicked="OnRequestLocationPermission_Clicked"/>
             </VerticalStackLayout>
         </Border>
+        </Grid>
 
         <!-- Genel İzin/Ayarlar Uyarısı - Overlay (DisplayAlert yerine) -->
         <Grid x:Name="PermissionOverlay"
@@ -184,9 +185,5 @@
 
 
     </Grid>
-
-
-    </Grid>
-
 
 </ContentPage>
