@@ -12,6 +12,6 @@
   </style>
 
   <style name="Maui.SplashTheme" parent="AppTheme">
-    <item name="android:windowBackground">@color/colorPrimary</item>
+    <item name="android:windowBackground">@color/splash_background</item>
   </style>
 </resources>

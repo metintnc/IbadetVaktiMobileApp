@@ -43,11 +43,20 @@ namespace hadis
             {
                 _statusBarService.SetStatusBarColor("#000000");
                 
+                _inInitialWarningPeriod = true;
                 if (CalibrationWarningFrame != null)
+                    CalibrationWarningFrame.IsVisible = true;
+
+                _ = Task.Run(async () => 
                 {
-                    // Update visibility immediately based on current accuracy
-                    OnCompassAccuracyChanged(_currentAccuracy);
-                }
+                    await Task.Delay(5000);
+                    _inInitialWarningPeriod = false;
+                    
+                    MainThread.BeginInvokeOnMainThread(() =>
+                    {
+                        OnCompassAccuracyChanged(_currentAccuracy);
+                    });
+                });
 
                 await CheckAndStartCompass();
             }
@@ -186,7 +195,8 @@ namespace hadis
 
             MainThread.BeginInvokeOnMainThread(async () =>
             {
-                bool shouldBeVisible = (accuracy != CompassAccuracy.High);
+                bool shouldBeVisible = _inInitialWarningPeriod || 
+                    (accuracy != CompassAccuracy.High && accuracy != CompassAccuracy.Medium);
 
                 if (CalibrationWarningFrame != null)
                 {
