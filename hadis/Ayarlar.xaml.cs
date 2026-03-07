@@ -26,7 +26,7 @@ namespace hadis
         private void UpdateVersionInfo()
         {
             VersionLabel.Text = $"Versiyon: {AppInfo.VersionString}";
-            CopyrightLabel.Text = $"© {DateTime.Now.Year} Namaz Vakti Uygulaması";
+            CopyrightLabel.Text = $"© {DateTime.Now.Year} İbadet Vakti Uygulaması";
         }
 
         private async void TemaButton_Clicked(object sender, TappedEventArgs e)
