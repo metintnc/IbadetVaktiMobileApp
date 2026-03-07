@@ -115,17 +115,18 @@ namespace hadis.Services
                 }
 
                 string description;
+                string displayName = GetTurkishDisplayName(key);
                 if (offsetMinutes > 0)
                 {
-                    description = $"{key} vaktine {offsetMinutes} dakika kaldı.";
+                    description = $"{displayName} vaktine {offsetMinutes} dakika kaldı.";
                 }
                 else if (offsetMinutes < 0)
                 {
-                    description = $"{key} vaktinden {Math.Abs(offsetMinutes)} dakika geçti.";
+                    description = $"{displayName} vaktinden {Math.Abs(offsetMinutes)} dakika geçti.";
                 }
                 else
                 {
-                    description = $"{key} Ezanı!";
+                    description = $"{displayName} Ezanı!";
                 }
 
                 var request = new NotificationRequest
@@ -329,6 +330,18 @@ namespace hadis.Services
             if (lower.Contains("yatsi") || lower.Contains("yatsı")) return ID_YATSI;
             
             return 0;
+        }
+
+        private string GetTurkishDisplayName(string key)
+        {
+            var lower = key.ToLower(new System.Globalization.CultureInfo("tr-TR"));
+            if (lower.Contains("imsak") || lower.Contains("İmsak".ToLower(new System.Globalization.CultureInfo("tr-TR")))) return "İmsak";
+            if (lower.Contains("gunes") || lower.Contains("güneş")) return "Güneş";
+            if (lower.Contains("ogle") || lower.Contains("öğle")) return "Öğle";
+            if (lower.Contains("ikindi") || lower.Contains("İkindi".ToLower(new System.Globalization.CultureInfo("tr-TR")))) return "İkindi";
+            if (lower.Contains("aksam") || lower.Contains("akşam")) return "Akşam";
+            if (lower.Contains("yatsi") || lower.Contains("yatsı")) return "Yatsı";
+            return key;
         }
 
         private string GetCanonicalKey(int notificationId)
