@@ -43,10 +43,11 @@ namespace hadis
             {
                 _statusBarService.SetStatusBarColor("#000000");
                 
+                // Hide calibration warning on entry; it will appear only if compass reports low accuracy
                 if (CalibrationWarningFrame != null)
                 {
-                    // Update visibility immediately based on current accuracy
-                    OnCompassAccuracyChanged(_currentAccuracy);
+                    CalibrationWarningFrame.IsVisible = false;
+                    CalibrationWarningFrame.Opacity = 0;
                 }
 
                 await CheckAndStartCompass();
@@ -258,9 +259,9 @@ namespace hadis
                 
                 if (displayAngle == 360) displayAngle = 0;
 
-                AciDegeri.Text = $"{displayAngle}?";
+                AciDegeri.Text = $"{displayAngle}°";
                 
-                if(displayAngle == 0)
+                if (displayAngle == 0)
                 {
                     AciDegeri.TextColor = Colors.Green;
                 }
