@@ -126,7 +126,13 @@ namespace hadis.Services
                 }
                 else
                 {
-                    description = $"{displayName} Ezanı!";
+                    int baseId = GetNotificationId(key);
+                    if (baseId == ID_IMSAK)
+                        description = "İmsak Vakti!";
+                    else if (baseId == ID_GUNES)
+                        description = "Güneş Doğdu!";
+                    else
+                        description = $"{displayName} Ezanı!";
                 }
 
                 var request = new NotificationRequest
