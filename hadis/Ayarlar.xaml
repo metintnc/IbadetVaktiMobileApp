@@ -5,6 +5,7 @@
              Title="Ayarlar">
     
     <Grid>
+        <!-- Arka Plan -->
         <Image x:Name="BackgroundImage"
                Aspect="AspectFill"
                HorizontalOptions="FillAndExpand"
@@ -23,296 +24,317 @@
                 <AppThemeBinding Light="0.75" Dark="0.45" />
             </BoxView.Opacity>
         </BoxView>
-        
-        <ScrollView VerticalScrollBarVisibility="Never"
-                    HorizontalScrollBarVisibility="Never"
-                    Padding="20">
-            <VerticalStackLayout Spacing="20">
-                
-                <!-- Header -->
-                <Border x:Name="HeaderFrame"
-                       StrokeShape="RoundRectangle 20"
-                       Padding="20,25"
-                       Stroke="{AppThemeBinding Light=#80009688, Dark=#80FFFFFF}"
-                       BackgroundColor="{AppThemeBinding Light=#22FFFFFF, Dark=#33000000}">
-                    <Label x:Name="AyarlarTitle" 
-                           Text="Ayarlar"
-                           FontSize="32"
-                           FontAttributes="Bold"
-                           HorizontalOptions="Center"
-                           TextColor="{AppThemeBinding Light=#00796B, Dark=#FFFFFF}"/>
-                </Border>
 
-                <!-- Grid for main settings cards -->
-                <Grid RowDefinitions="Auto,Auto,Auto,Auto" 
-                      ColumnDefinitions="*,*"
-                      RowSpacing="15"
-                      ColumnSpacing="15">
+        <!-- İçerik: Sabit Header + Scrollable Alan -->
+        <Grid RowDefinitions="Auto,*">
+            
+            <!-- Sabit Header -->
+            <Border Grid.Row="0"
+                   x:Name="HeaderFrame"
+                   StrokeShape="RoundRectangle 20"
+                   Padding="20,25"
+                   Margin="20,20,20,0"
+                   Stroke="{AppThemeBinding Light=#80009688, Dark=#80FFFFFF}"
+                   BackgroundColor="{AppThemeBinding Light=#22FFFFFF, Dark=#33000000}">
+                <Label x:Name="AyarlarTitle" 
+                       Text="Ayarlar"
+                       FontSize="32"
+                       FontAttributes="Bold"
+                       HorizontalOptions="Center"
+                       TextColor="{AppThemeBinding Light=#00796B, Dark=#FFFFFF}"/>
+            </Border>
+
+            <!-- Scrollable Content -->
+            <ScrollView Grid.Row="1"
+                        VerticalScrollBarVisibility="Never"
+                        HorizontalScrollBarVisibility="Never"
+                        Padding="20">
+                <VerticalStackLayout Spacing="20">
                     
-                    <!-- Kütüphane Card -->
-                    <Border Grid.Row="0" Grid.Column="0"
-                           x:Name="KutuphaneFrame"
-                           StrokeShape="RoundRectangle 20"
-                           Padding="20"
-                           Stroke="{AppThemeBinding Light=#80009688, Dark=#80FFFFFF}"
-                           BackgroundColor="{AppThemeBinding Light=#22FFFFFF, Dark=#33000000}">
-                        <Border.GestureRecognizers>
-                            <TapGestureRecognizer Tapped="KutuphaneButton_Clicked"/>
-                        </Border.GestureRecognizers>
-                        <VerticalStackLayout Spacing="10" HorizontalOptions="Center">
-                            <Label Text="📚"
-                                   FontSize="48"
-                                   HorizontalOptions="Center"/>
-                            <Label x:Name="KutuphaneTitle"
-                                   Text="Kütüphane"
-                                   FontSize="16"
-                                   FontAttributes="Bold"
-                                   HorizontalOptions="Center"
-                                   HorizontalTextAlignment="Center"
-                                   TextColor="{AppThemeBinding Light=#00796B, Dark=#FFFFFF}"/>
-                            <Label x:Name="KutuphaneSubtitle"
-                                   Text="Okuma ve İlim"
-                                   FontSize="12"
-                                   HorizontalOptions="Center"
-                                   HorizontalTextAlignment="Center"
-                                   TextColor="{AppThemeBinding Light=#757575, Dark=#BDBDBD}"/>
-                        </VerticalStackLayout>
-                    </Border>
-                    
-                    <!-- Bildirim Ayarlari Card -->
-                    <Border Grid.Row="0" Grid.Column="1"
-                           x:Name="BildirimFrame"
-                           StrokeShape="RoundRectangle 20"
-                           Padding="20"
-                           Stroke="{AppThemeBinding Light=#80009688, Dark=#80FFFFFF}"
-                           BackgroundColor="{AppThemeBinding Light=#22FFFFFF, Dark=#33000000}">
-                        <Border.GestureRecognizers>
-                            <TapGestureRecognizer Tapped="BildirimButton_Clicked"/>
-                        </Border.GestureRecognizers>
-                        <VerticalStackLayout Spacing="10" HorizontalOptions="Center">
-                            <Label Text="🔔"
-                                   FontSize="48"
-                                   HorizontalOptions="Center"/>
-                            <Label x:Name="BildirimTitle"
-                                   Text="Bildirim Ayarları"
-                                   FontSize="16"
-                                   FontAttributes="Bold"
-                                   HorizontalOptions="Center"
-                                   HorizontalTextAlignment="Center"
-                                   TextColor="{AppThemeBinding Light=#00796B, Dark=#FFFFFF}"/>
-                            <Label x:Name="BildirimSubtitle"
-                                   Text="Ezan ve Hatırlatıcılar"
-                                   FontSize="12"
-                                   HorizontalOptions="Center"
-                                   HorizontalTextAlignment="Center"
-                                   TextColor="{AppThemeBinding Light=#757575, Dark=#BDBDBD}"/>
-                        </VerticalStackLayout>
-                    </Border>
-                    
-                    <!-- Widget Ayarlari Card -->
-                    <Border Grid.Row="1" Grid.Column="0"
-                           x:Name="WidgetFrame"
-                           StrokeShape="RoundRectangle 20"
-                           Padding="20"
-                           Opacity="0.6"
-                           Stroke="{AppThemeBinding Light=#80009688, Dark=#80FFFFFF}"
-                           BackgroundColor="{AppThemeBinding Light=#22FFFFFF, Dark=#33000000}">
-                        <Border.GestureRecognizers>
-                            <TapGestureRecognizer Tapped="WidgetButton_Clicked"/>
-                        </Border.GestureRecognizers>
-                        <VerticalStackLayout Spacing="10" HorizontalOptions="Center">
-                            <Label Text="📱"
-                                   FontSize="48"
-                                   HorizontalOptions="Center"/>
-                            <Label x:Name="WidgetTitle"
-                                   Text="Widget Ayarları"
-                                   FontSize="16"
-                                   FontAttributes="Bold"
-                                   HorizontalOptions="Center"
-                                   HorizontalTextAlignment="Center"
-                                   TextColor="{AppThemeBinding Light=#00796B, Dark=#FFFFFF}"/>
-                            <Border StrokeShape="RoundRectangle 10" 
-                                   Padding="6,3"
-                                   BackgroundColor="{AppThemeBinding Light=#FFF3E0, Dark=#3E2723}"
-                                   Stroke="{AppThemeBinding Light=#FFB74D, Dark=#FF8A65}"
-                                   HorizontalOptions="Center">
-                                <Label Text="🚧 Yakında"
-                                       FontSize="11"
+                    <!-- Grid for main settings cards -->
+                    <Grid RowDefinitions="Auto,Auto,Auto,Auto,Auto,Auto" 
+                          ColumnDefinitions="*,*"
+                          RowSpacing="15"
+                          ColumnSpacing="15">
+                        
+                        <!-- Kütüphane Card -->
+                        <Border Grid.Row="0" Grid.Column="0"
+                               x:Name="KutuphaneFrame"
+                               StrokeShape="RoundRectangle 20"
+                               Padding="20"
+                               Stroke="{AppThemeBinding Light=#80009688, Dark=#80FFFFFF}"
+                               BackgroundColor="{AppThemeBinding Light=#22FFFFFF, Dark=#33000000}">
+                            <Border.GestureRecognizers>
+                                <TapGestureRecognizer Tapped="KutuphaneButton_Clicked"/>
+                            </Border.GestureRecognizers>
+                            <VerticalStackLayout Spacing="10" HorizontalOptions="Center">
+                                <Label Text="📚"
+                                       FontSize="48"
+                                       HorizontalOptions="Center"/>
+                                <Label x:Name="KutuphaneTitle"
+                                       Text="Kütüphane"
+                                       FontSize="16"
                                        FontAttributes="Bold"
                                        HorizontalOptions="Center"
-                                       TextColor="{AppThemeBinding Light=#E65100, Dark=#FFAB91}"/>
-                            </Border>
-                        </VerticalStackLayout>
-                    </Border>
-                    
-                    <!-- Konum Ayarlari Card -->
-                    <Border Grid.Row="1" Grid.Column="1"
-                           x:Name="KonumFrame"
-                           StrokeShape="RoundRectangle 20"
-                           Padding="20"
-                           Stroke="{AppThemeBinding Light=#80009688, Dark=#80FFFFFF}"
-                           BackgroundColor="{AppThemeBinding Light=#22FFFFFF, Dark=#33000000}">
-                        <Border.GestureRecognizers>
-                            <TapGestureRecognizer Tapped="KonumButton_Clicked"/>
-                        </Border.GestureRecognizers>
-                        <VerticalStackLayout Spacing="10" HorizontalOptions="Center">
-                            <Label Text="📍"
-                                   FontSize="48"
-                                   HorizontalOptions="Center"/>
-                            <Label x:Name="KonumTitle"
-                                   Text="Konum Ayarları"
-                                   FontSize="16"
-                                   FontAttributes="Bold"
-                                   HorizontalOptions="Center"
-                                   HorizontalTextAlignment="Center"
-                                   TextColor="{AppThemeBinding Light=#00796B, Dark=#FFFFFF}"/>
-                            <Label x:Name="SeciliKonumLabel" 
-                                   Text="Şehir ve GPS" 
-                                   FontSize="12"
-                                   HorizontalOptions="Center"
-                                   HorizontalTextAlignment="Center"
-                                   TextColor="{AppThemeBinding Light=#757575, Dark=#BDBDBD}"/>
-                        </VerticalStackLayout>
-                    </Border>
-                    
-                    <!-- Yakindaki Camiler Card -->
-                    <Border Grid.Row="2" Grid.Column="0"
-                           x:Name="CamilerFrame"
-                           StrokeShape="RoundRectangle 20"
-                           Padding="20"
-                           Stroke="{AppThemeBinding Light=#80009688, Dark=#80FFFFFF}"
-                           BackgroundColor="{AppThemeBinding Light=#22FFFFFF, Dark=#33000000}">
-                        <Border.GestureRecognizers>
-                            <TapGestureRecognizer Tapped="YakinCamilerButton_Clicked"/>
-                        </Border.GestureRecognizers>
-                        <VerticalStackLayout Spacing="10" HorizontalOptions="Center">
-                            <Label Text="🕌"
-                                   FontSize="48"
-                                   HorizontalOptions="Center"/>
-                            <Label x:Name="CamilerTitle"
-                                   Text="Yakındaki Camiler"
-                                   FontSize="16"
-                                   FontAttributes="Bold"
-                                   HorizontalOptions="Center"
-                                   HorizontalTextAlignment="Center"
-                                   TextColor="{AppThemeBinding Light=#00796B, Dark=#FFFFFF}"/>
-                            <Label x:Name="CamilerSubtitle"
-                                   Text="Haritada Görüntüle"
-                                   FontSize="12"
-                                   HorizontalOptions="Center"
-                                   HorizontalTextAlignment="Center"
-                                   TextColor="{AppThemeBinding Light=#757575, Dark=#BDBDBD}"/>
-                        </VerticalStackLayout>
-                    </Border>
-
-                    <!-- Hicri Takvim Card -->
-                    <Border Grid.Row="2" Grid.Column="1"
-                           x:Name="HicriTakvimFrame"
-                           StrokeShape="RoundRectangle 20"
-                           Padding="20"
-                           Stroke="{AppThemeBinding Light=#80009688, Dark=#80FFFFFF}"
-                           BackgroundColor="{AppThemeBinding Light=#22FFFFFF, Dark=#33000000}">
-                        <Border.GestureRecognizers>
-                            <TapGestureRecognizer Tapped="HicriTakvimButton_Clicked"/>
-                        </Border.GestureRecognizers>
-                        <VerticalStackLayout Spacing="10" HorizontalOptions="Center">
-                            <Label Text="📅"
-                                   FontSize="48"
-                                   HorizontalOptions="Center"/>
-                            <Label x:Name="HicriTakvimTitle"
-                                   Text="Hicri Takvim"
-                                   FontSize="16"
-                                   FontAttributes="Bold"
-                                   HorizontalOptions="Center"
-                                   HorizontalTextAlignment="Center"
-                                   TextColor="{AppThemeBinding Light=#00796B, Dark=#FFFFFF}"/>
-                            <Label x:Name="HicriTakvimSubtitle"
-                                   Text="İslami Takvim"
-                                   FontSize="12"
-                                   HorizontalOptions="Center"
-                                   HorizontalTextAlignment="Center"
-                                   TextColor="{AppThemeBinding Light=#757575, Dark=#BDBDBD}"/>
-                        </VerticalStackLayout>
-                    </Border>
-                    
-                    <!-- Tema Ayarlari Card -->
-                    <Border Grid.Row="3" Grid.Column="0" Grid.ColumnSpan="2"
-                           x:Name="TemaFrame"
-                           StrokeShape="RoundRectangle 20"
-                           Padding="20"
-                           Stroke="{AppThemeBinding Light=#80009688, Dark=#80FFFFFF}"
-                           BackgroundColor="{AppThemeBinding Light=#22FFFFFF, Dark=#33000000}">
-                        <Border.GestureRecognizers>
-                            <TapGestureRecognizer Tapped="TemaButton_Clicked"/>
-                        </Border.GestureRecognizers>
-                        <Grid ColumnDefinitions="Auto,*,Auto" ColumnSpacing="15">
-                            <Label Grid.Column="0"
-                                   Text="🎨"
-                                   FontSize="48"
-                                   VerticalOptions="Center"/>
-                            <VerticalStackLayout Grid.Column="1" Spacing="5" VerticalOptions="Center">
-                                <Label x:Name="TemaTitle"
-                                       Text="Tema Ayarları"
-                                       FontSize="18"
-                                       FontAttributes="Bold"
+                                       HorizontalTextAlignment="Center"
                                        TextColor="{AppThemeBinding Light=#00796B, Dark=#FFFFFF}"/>
-                                <Label x:Name="TemaSubtitle"
-                                       Text="Görünüm ve Renkler"
+                                <Label x:Name="KutuphaneSubtitle"
+                                       Text="Okuma ve İlim"
                                        FontSize="12"
+                                       HorizontalOptions="Center"
+                                       HorizontalTextAlignment="Center"
                                        TextColor="{AppThemeBinding Light=#757575, Dark=#BDBDBD}"/>
                             </VerticalStackLayout>
-                            <Image Grid.Column="2"
-                                   Source="gerigit.svg"
-                                   Rotation="180"
-                                   HeightRequest="24"
-                                   WidthRequest="24"
-                                   VerticalOptions="Center" />
-                        </Grid>
+                        </Border>
+                        
+                        <!-- Hicri Takvim Card (Row=0, Col=1) -->
+                        <Border Grid.Row="0" Grid.Column="1"
+                               x:Name="HicriTakvimFrame"
+                               StrokeShape="RoundRectangle 20"
+                               Padding="20"
+                               Stroke="{AppThemeBinding Light=#80009688, Dark=#80FFFFFF}"
+                               BackgroundColor="{AppThemeBinding Light=#22FFFFFF, Dark=#33000000}">
+                            <Border.GestureRecognizers>
+                                <TapGestureRecognizer Tapped="HicriTakvimButton_Clicked"/>
+                            </Border.GestureRecognizers>
+                            <VerticalStackLayout Spacing="10" HorizontalOptions="Center">
+                                <Label Text="📅"
+                                       FontSize="48"
+                                       HorizontalOptions="Center"/>
+                                <Label x:Name="HicriTakvimTitle"
+                                       Text="Hicri Takvim"
+                                       FontSize="16"
+                                       FontAttributes="Bold"
+                                       HorizontalOptions="Center"
+                                       HorizontalTextAlignment="Center"
+                                       TextColor="{AppThemeBinding Light=#00796B, Dark=#FFFFFF}"/>
+                                <Label x:Name="HicriTakvimSubtitle"
+                                       Text="İslami Takvim"
+                                       FontSize="12"
+                                       HorizontalOptions="Center"
+                                       HorizontalTextAlignment="Center"
+                                       TextColor="{AppThemeBinding Light=#757575, Dark=#BDBDBD}"/>
+                            </VerticalStackLayout>
+                        </Border>
+                        
+                        <!-- Yakindaki Camiler Card (Row=1, Col=0) -->
+                        <Border Grid.Row="1" Grid.Column="0"
+                               x:Name="CamilerFrame"
+                               StrokeShape="RoundRectangle 20"
+                               Padding="20"
+                               Stroke="{AppThemeBinding Light=#80009688, Dark=#80FFFFFF}"
+                               BackgroundColor="{AppThemeBinding Light=#22FFFFFF, Dark=#33000000}">
+                            <Border.GestureRecognizers>
+                                <TapGestureRecognizer Tapped="YakinCamilerButton_Clicked"/>
+                            </Border.GestureRecognizers>
+                            <VerticalStackLayout Spacing="10" HorizontalOptions="Center">
+                                <Label Text="🕌"
+                                       FontSize="48"
+                                       HorizontalOptions="Center"/>
+                                <Label x:Name="CamilerTitle"
+                                       Text="Yakındaki Camiler"
+                                       FontSize="16"
+                                       FontAttributes="Bold"
+                                       HorizontalOptions="Center"
+                                       HorizontalTextAlignment="Center"
+                                       TextColor="{AppThemeBinding Light=#00796B, Dark=#FFFFFF}"/>
+                                <Label x:Name="CamilerSubtitle"
+                                       Text="Haritada Görüntüle"
+                                       FontSize="12"
+                                       HorizontalOptions="Center"
+                                       HorizontalTextAlignment="Center"
+                                       TextColor="{AppThemeBinding Light=#757575, Dark=#BDBDBD}"/>
+                            </VerticalStackLayout>
+                        </Border>
+                        
+                        <!-- Konum Ayarlari Card (Row=1, Col=1) -->
+                        <Border Grid.Row="1" Grid.Column="1"
+                               x:Name="KonumFrame"
+                               StrokeShape="RoundRectangle 20"
+                               Padding="20"
+                               Stroke="{AppThemeBinding Light=#80009688, Dark=#80FFFFFF}"
+                               BackgroundColor="{AppThemeBinding Light=#22FFFFFF, Dark=#33000000}">
+                            <Border.GestureRecognizers>
+                                <TapGestureRecognizer Tapped="KonumButton_Clicked"/>
+                            </Border.GestureRecognizers>
+                            <VerticalStackLayout Spacing="10" HorizontalOptions="Center">
+                                <Label Text="📍"
+                                       FontSize="48"
+                                       HorizontalOptions="Center"/>
+                                <Label x:Name="KonumTitle"
+                                       Text="Konum Ayarları"
+                                       FontSize="16"
+                                       FontAttributes="Bold"
+                                       HorizontalOptions="Center"
+                                       HorizontalTextAlignment="Center"
+                                       TextColor="{AppThemeBinding Light=#00796B, Dark=#FFFFFF}"/>
+                                <Label x:Name="SeciliKonumLabel" 
+                                       Text="Şehir ve GPS" 
+                                       FontSize="12"
+                                       HorizontalOptions="Center"
+                                       HorizontalTextAlignment="Center"
+                                       TextColor="{AppThemeBinding Light=#757575, Dark=#BDBDBD}"/>
+                            </VerticalStackLayout>
+                        </Border>
+
+                        <!-- Bildirim Ayarlari Card (Row=2) — Tema gibi tam genişlik -->
+                        <Border Grid.Row="2" Grid.Column="0" Grid.ColumnSpan="2"
+                               x:Name="BildirimFrame"
+                               StrokeShape="RoundRectangle 20"
+                               Padding="20"
+                               Stroke="{AppThemeBinding Light=#80009688, Dark=#80FFFFFF}"
+                               BackgroundColor="{AppThemeBinding Light=#22FFFFFF, Dark=#33000000}">
+                            <Border.GestureRecognizers>
+                                <TapGestureRecognizer Tapped="BildirimButton_Clicked"/>
+                            </Border.GestureRecognizers>
+                            <Grid ColumnDefinitions="Auto,*,Auto" ColumnSpacing="15">
+                                <Label Grid.Column="0"
+                                       Text="🔔"
+                                       FontSize="48"
+                                       VerticalOptions="Center"/>
+                                <VerticalStackLayout Grid.Column="1" Spacing="5" VerticalOptions="Center">
+                                    <Label x:Name="BildirimTitle"
+                                           Text="Bildirim Ayarları"
+                                           FontSize="18"
+                                           FontAttributes="Bold"
+                                           TextColor="{AppThemeBinding Light=#00796B, Dark=#FFFFFF}"/>
+                                    <Label x:Name="BildirimSubtitle"
+                                           Text="Ezan ve Hatırlatıcılar"
+                                           FontSize="12"
+                                           TextColor="{AppThemeBinding Light=#757575, Dark=#BDBDBD}"/>
+                                </VerticalStackLayout>
+                                <Image Grid.Column="2"
+                                       Source="gerigit.svg"
+                                       Rotation="180"
+                                       HeightRequest="24"
+                                       WidthRequest="24"
+                                       VerticalOptions="Center" />
+                            </Grid>
+                        </Border>
+
+                        <!-- Widget Ayarlari Card (Row=3) — Tema gibi tam genişlik -->
+                        <Border Grid.Row="3" Grid.Column="0" Grid.ColumnSpan="2"
+                               x:Name="WidgetFrame"
+                               StrokeShape="RoundRectangle 20"
+                               Padding="20"
+                               Opacity="0.6"
+                               Stroke="{AppThemeBinding Light=#80009688, Dark=#80FFFFFF}"
+                               BackgroundColor="{AppThemeBinding Light=#22FFFFFF, Dark=#33000000}">
+                            <Border.GestureRecognizers>
+                                <TapGestureRecognizer Tapped="WidgetButton_Clicked"/>
+                            </Border.GestureRecognizers>
+                            <Grid ColumnDefinitions="Auto,*,Auto" ColumnSpacing="15">
+                                <Label Grid.Column="0"
+                                       Text="📱"
+                                       FontSize="48"
+                                       VerticalOptions="Center"/>
+                                <VerticalStackLayout Grid.Column="1" Spacing="5" VerticalOptions="Center">
+                                    <Label x:Name="WidgetTitle"
+                                           Text="Widget Ayarları"
+                                           FontSize="18"
+                                           FontAttributes="Bold"
+                                           TextColor="{AppThemeBinding Light=#00796B, Dark=#FFFFFF}"/>
+                                    <Border StrokeShape="RoundRectangle 10"
+                                           Padding="6,3"
+                                           BackgroundColor="{AppThemeBinding Light=#FFF3E0, Dark=#3E2723}"
+                                           Stroke="{AppThemeBinding Light=#FFB74D, Dark=#FF8A65}"
+                                           HorizontalOptions="Start">
+                                        <Label Text="🚧 Yakında"
+                                               FontSize="11"
+                                               FontAttributes="Bold"
+                                               TextColor="{AppThemeBinding Light=#E65100, Dark=#FFAB91}"/>
+                                    </Border>
+                                </VerticalStackLayout>
+                                <Image Grid.Column="2"
+                                       Source="gerigit.svg"
+                                       Rotation="180"
+                                       HeightRequest="24"
+                                       WidthRequest="24"
+                                       VerticalOptions="Center" />
+                            </Grid>
+                        </Border>
+
+                        <!-- Tema Ayarlari Card (Row=4) -->
+                        <Border Grid.Row="4" Grid.Column="0" Grid.ColumnSpan="2"
+                               x:Name="TemaFrame"
+                               StrokeShape="RoundRectangle 20"
+                               Padding="20"
+                               Stroke="{AppThemeBinding Light=#80009688, Dark=#80FFFFFF}"
+                               BackgroundColor="{AppThemeBinding Light=#22FFFFFF, Dark=#33000000}">
+                            <Border.GestureRecognizers>
+                                <TapGestureRecognizer Tapped="TemaButton_Clicked"/>
+                            </Border.GestureRecognizers>
+                            <Grid ColumnDefinitions="Auto,*,Auto" ColumnSpacing="15">
+                                <Label Grid.Column="0"
+                                       Text="🎨"
+                                       FontSize="48"
+                                       VerticalOptions="Center"/>
+                                <VerticalStackLayout Grid.Column="1" Spacing="5" VerticalOptions="Center">
+                                    <Label x:Name="TemaTitle"
+                                           Text="Tema Ayarları"
+                                           FontSize="18"
+                                           FontAttributes="Bold"
+                                           TextColor="{AppThemeBinding Light=#00796B, Dark=#FFFFFF}"/>
+                                    <Label x:Name="TemaSubtitle"
+                                           Text="Görünüm ve Renkler"
+                                           FontSize="12"
+                                           TextColor="{AppThemeBinding Light=#757575, Dark=#BDBDBD}"/>
+                                </VerticalStackLayout>
+                                <Image Grid.Column="2"
+                                       Source="gerigit.svg"
+                                       Rotation="180"
+                                       HeightRequest="24"
+                                       WidthRequest="24"
+                                       VerticalOptions="Center" />
+                            </Grid>
+                        </Border>
+                        
+                    </Grid>
+
+                    <!-- Hakkinda -->
+                    <Border x:Name="HakkindaFrame"
+                           StrokeShape="RoundRectangle 20"
+                           Padding="20"
+                           Stroke="{AppThemeBinding Light=#80009688, Dark=#80FFFFFF}"
+                           BackgroundColor="{AppThemeBinding Light=#22FFFFFF, Dark=#33000000}">
+                        <VerticalStackLayout Spacing="10">
+                            <Label x:Name="HakkindaTitle"
+                                   Text="Hakkında"
+                                   FontSize="20"
+                                   FontAttributes="Bold"
+                                   HorizontalOptions="Center"
+                                   TextColor="{AppThemeBinding Light=#00796B, Dark=#FFFFFF}"/>
+                            
+
+                            <Label x:Name="VersionLabel" 
+                                   Text="Versiyon: 1.0.0" 
+                                   FontSize="14"
+                                   HorizontalOptions="Center"
+                                   TextColor="{AppThemeBinding Light=#757575, Dark=#BDBDBD}"/>
+                            <Label x:Name="CopyrightLabel"
+                                   Text="© 2025 İbadet Vakti Uygulaması" 
+                                   FontSize="12"
+                                   HorizontalOptions="Center"
+                                   TextColor="{AppThemeBinding Light=#9E9E9E, Dark=#757575}"/>
+                            
+
+                            <Label x:Name="GizlilikPolitikasiLabel"
+                                   Text="Gizlilik Politikası"
+                                   FontSize="14"
+                                   FontAttributes="Italic"
+                                   TextDecorations="Underline"
+                                   HorizontalOptions="Center"
+                                   Margin="0,10,0,0"
+                                   TextColor="{AppThemeBinding Light=#00796B, Dark=#80CBC4}">
+                                <Label.GestureRecognizers>
+                                    <TapGestureRecognizer Tapped="GizlilikPolitikasi_Tapped"/>
+                                </Label.GestureRecognizers>
+                            </Label>
+                        </VerticalStackLayout>
                     </Border>
-                    
-                </Grid>
 
-                <!-- Hakkinda -->
-                <Border x:Name="HakkindaFrame"
-                       StrokeShape="RoundRectangle 20"
-                       Padding="20"
-                       Stroke="{AppThemeBinding Light=#80009688, Dark=#80FFFFFF}"
-                       BackgroundColor="{AppThemeBinding Light=#22FFFFFF, Dark=#33000000}">
-                    <VerticalStackLayout Spacing="10">
-                        <Label x:Name="HakkindaTitle"
-                               Text="Hakkında"
-                               FontSize="20"
-                               FontAttributes="Bold"
-                               HorizontalOptions="Center"
-                               TextColor="{AppThemeBinding Light=#00796B, Dark=#FFFFFF}"/>
-                        
-                        <Label x:Name="VersionLabel" 
-                               Text="Versiyon: 1.0.0" 
-                               FontSize="14"
-                               HorizontalOptions="Center"
-                               TextColor="{AppThemeBinding Light=#757575, Dark=#BDBDBD}"/>
-                        <Label x:Name="CopyrightLabel"
-                               Text="© 2025 İbadet Vakti Uygulaması" 
-                               FontSize="12"
-                               HorizontalOptions="Center"
-                               TextColor="{AppThemeBinding Light=#9E9E9E, Dark=#757575}"/>
-                        
-                        <Label x:Name="GizlilikPolitikasiLabel"
-                               Text="Gizlilik Politikası"
-                               FontSize="14"
-                               FontAttributes="Italic"
-                               TextDecorations="Underline"
-                               HorizontalOptions="Center"
-                               Margin="0,10,0,0"
-                               TextColor="{AppThemeBinding Light=#00796B, Dark=#80CBC4}">
-                            <Label.GestureRecognizers>
-                                <TapGestureRecognizer Tapped="GizlilikPolitikasi_Tapped"/>
-                            </Label.GestureRecognizers>
-                        </Label>
-                    </VerticalStackLayout>
-                </Border>
-
-            </VerticalStackLayout>
-        </ScrollView>
+                </VerticalStackLayout>
+            </ScrollView>
+        </Grid>
     </Grid>
 </ContentPage>
