@@ -1,6 +1,6 @@
 # 🕋 İbadet Vakti: Diyanet Uyumlu Namaz Vakitleri ve İslami Rehber
 
-[![Play Store'dan İndir](https://img.shields.io/badge/Google_Play-414141?style=for-the-badge&logo=google-play&logoColor=white)]([https://play.google.com/store/apps/details?id=com.metintnc.namazvakti])
+[![Play Store'dan İndir](https://img.shields.io/badge/Google_Play-414141?style=for-the-badge&logo=google-play&logoColor=white)](https://play.google.com/store/apps/details?id=com.metintnc.namazvakti)
 
 İbadet Vakti, Diyanet İşleri Başkanlığı verileriyle birebir uyumlu, kullanıcıların namaz vakitlerini, kıble yönünü ve zikirlerini takip etmelerini sağlayan kapsamlı bir mobil uygulamadır. Sade ve modern arayüzü ile kullanıcı deneyimini ön planda tutarak manevi hayatın düzenlenmesine yardımcı olmayı hedefler.
 
