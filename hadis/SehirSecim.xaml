@@ -123,5 +123,31 @@
             </CollectionView>
             
         </Grid>
+
+        <!-- Loading Overlay -->
+        <Grid IsVisible="{Binding IsLoading}"
+              BackgroundColor="#AA000000"
+              ZIndex="10">
+            <Border StrokeShape="RoundRectangle 20"
+                    Padding="35,30"
+                    BackgroundColor="{AppThemeBinding Light=#F0FFFFFF, Dark=#F0222222}"
+                    Stroke="{AppThemeBinding Light=#80009688, Dark=#80FFFFFF}"
+                    HorizontalOptions="Center"
+                    VerticalOptions="Center">
+                <VerticalStackLayout Spacing="16" HorizontalOptions="Center">
+                    <ActivityIndicator IsRunning="{Binding IsLoading}"
+                                       Color="{AppThemeBinding Light=#00796B, Dark=#80CBC4}"
+                                       WidthRequest="48"
+                                       HeightRequest="48"
+                                       HorizontalOptions="Center"/>
+                    <Label Text="Konum bulunuyor..."
+                           FontSize="16"
+                           FontAttributes="Bold"
+                           HorizontalOptions="Center"
+                           TextColor="{AppThemeBinding Light=#00796B, Dark=#80CBC4}"/>
+                </VerticalStackLayout>
+            </Border>
+        </Grid>
+
     </Grid>
 </ContentPage>
