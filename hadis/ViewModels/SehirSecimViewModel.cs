@@ -25,7 +25,10 @@ namespace hadis.ViewModels
         private string _searchPlaceholder = "Şehir ara...";
 
         [ObservableProperty]
-        private bool _isBackVisible = true; 
+        private bool _isBackVisible = true;
+
+        [ObservableProperty]
+        private bool _isLoading = false;
 
         private City? _selectedCityForDistrict;
         private bool _isSelectingDistrict;
@@ -280,6 +283,7 @@ namespace hadis.ViewModels
         [RelayCommand]
         private async Task FindLocationAsync()
         {
+            IsLoading = true;
             try
             {
                 var status = await Permissions.CheckStatusAsync<Permissions.LocationWhenInUse>();
@@ -346,6 +350,10 @@ namespace hadis.ViewModels
             catch (Exception ex)
             {
                 await App.Current.MainPage.DisplayAlert("Hata", ex.Message, "Tamam");
+            }
+            finally
+            {
+                IsLoading = false;
             }
         }
 
