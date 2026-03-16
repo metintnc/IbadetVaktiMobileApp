@@ -91,10 +91,22 @@ namespace hadis
 
             Task.Run(async () =>
             {
-                await compass.KontrolEt();
+                bool success = await compass.KontrolEt();
                 MainThread.BeginInvokeOnMainThread(() =>
                 {
-                    compass.AciDegisti += KibleOkunuDondur;
+                    if (success)
+                    {
+                        compass.AciDegisti += KibleOkunuDondur;
+                    }
+                    else
+                    {
+                        ShowPermissionOverlay(
+                            "Konum Alýnamadý", 
+                            "Konum bilgisi alýnamadý. Lütfen cihazýnýzýn konum (GPS) özelliðinin açýk olduðundan emin olun.", 
+                            "Tamam",
+                            () => { },
+                            "");
+                    }
                 });
             });
             
@@ -103,7 +115,7 @@ namespace hadis
         
         private void StopCompassLogic()
         {
-            // Guard: Zaten durmu?sa tekrar durdurma
+            // Guard: Zaten durmuþsa tekrar durdurma
             if (!_isCompassRunning) return;
             
             compass.PusulaDurdur();
@@ -128,8 +140,8 @@ namespace hadis
             if (Permissions.ShouldShowRationale<Permissions.LocationWhenInUse>())
             {
                 ShowPermissionOverlay(
-                    "Konum ?zni", 
-                    "K?ble y?n?n? do?ru hesaplayabilmek i?in konum iznine ihtiyac?m?z var.", 
+                    "Konum Ýzni", 
+                    "Kýble yönünü doðru hesaplayabilmek için konum iznine ihtiyacýmýz var.", 
                     "Tamam",
                     async () => 
                     {
@@ -148,15 +160,15 @@ namespace hadis
             else
             {
                 ShowPermissionOverlay(
-                    "?zin Gerekli", 
-                    "Konum izni verilmedi?i i?in k?ble y?n? hesaplanam?yor. Ayarlardan izin vermek ister misiniz?", 
+                    "Ýzin Gerekli", 
+                    "Konum izni verilmediði için kýble yönü hesaplanamýyor. Ayarlardan izin vermek ister misiniz?", 
                     "Ayarlara Git",
                     () => { AppInfo.ShowSettingsUI(); },
-                    "?ptal");
+                    "Ýptal");
             }
         }
 
-        private void ShowPermissionOverlay(string title, string message, string confirmText, Action onConfirm, string cancelText = "?ptal")
+        private void ShowPermissionOverlay(string title, string message, string confirmText, Action onConfirm, string cancelText = "Ýptal")
         {
             PermissionOverlayTitle.Text = title;
             PermissionOverlayMessage.Text = message;

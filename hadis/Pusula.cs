@@ -10,21 +10,29 @@ namespace hadis
         const double kabeboylam = 39.8262;
         private bool _pusulaAktifMi;
         public event Action<double> AciDegisti;
-        public async Task KontrolEt()
+        public async Task<bool> KontrolEt()
         {
-            var konum = await Geolocation.GetLastKnownLocationAsync();
-            if(konum == null)
+            try
             {
-                konum = await Geolocation.GetLocationAsync();
+                var konum = await Geolocation.GetLastKnownLocationAsync();
+                if(konum == null)
+                {
+                    konum = await Geolocation.GetLocationAsync(new GeolocationRequest(GeolocationAccuracy.Medium, TimeSpan.FromSeconds(5)));
+                }
+                if(konum == null)
+                {
+                    return false;
+                }
+                enlem = konum.Latitude;
+                boylam = konum.Longitude;
+                AciyiHesapla();
+                PusulaBaslat();
+                return true;
             }
-            if(konum == null)
+            catch (Exception)
             {
-                return;
+                return false;
             }
-            enlem = konum.Latitude;
-            boylam = konum.Longitude;
-            AciyiHesapla();
-            PusulaBaslat();
         }
         public void AciyiHesapla()
         {
