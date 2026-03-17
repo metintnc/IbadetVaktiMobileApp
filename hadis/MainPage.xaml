@@ -7,7 +7,7 @@
              Shell.NavBarIsVisible="False"
              BackgroundColor="Transparent">
 
-    <Grid>
+    <Grid Padding="0" Margin="0">
         <!-- Arkaplan Resmi - En altta -->
         <Image x:Name="BackgroundImage"
                Aspect="AspectFill"

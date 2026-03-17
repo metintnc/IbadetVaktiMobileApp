@@ -109,8 +109,9 @@ namespace hadis
                 // Edge-to-edge etkinleştir (içerik status bar ve navigation bar altına uzanır)
                 WindowCompat.SetDecorFitsSystemWindows(Window, false);
 
-                // Status bar ve navigation bar'ı yarı saydam yap
+                // Status bar'ı yarı saydam yap (navigation bar hariç)
                 Window.SetStatusBarColor(Android.Graphics.Color.Transparent);
+                // Navigation bar'ı de saydam yap
                 Window.SetNavigationBarColor(Android.Graphics.Color.Transparent);
 
                 // Android 15+ için ek yapılandırma
@@ -127,13 +128,35 @@ namespace hadis
                     
                     System.Diagnostics.Debug.WriteLine("✅ Android 15+ edge-to-edge yapılandırıldı");
                 }
-                else
+                else if (Build.VERSION.SdkInt >= BuildVersionCodes.Q)
                 {
-                    // Android 14 ve altı için eski flag'ler
+                    // Android 10 (API 29) ve üzeri - WindowInsets kullan
+                    var insetsController = WindowCompat.GetInsetsController(Window, Window.DecorView);
+                    if (insetsController != null)
+                    {
+                        insetsController.AppearanceLightStatusBars = false;
+                        insetsController.AppearanceLightNavigationBars = false;
+                    }
+
+                    // API 29+ uyumluluğu
+                    Window.AddFlags(WindowManagerFlags.DrawsSystemBarBackgrounds);
+                    
+                    System.Diagnostics.Debug.WriteLine("✅ Android 10+ edge-to-edge yapılandırıldı");
+                }
+                else if (Build.VERSION.SdkInt >= BuildVersionCodes.M)
+                {
+                    // Android 6.0+ için eski flag'ler (Redmi 9C uyumluluğu)
                     Window.AddFlags(WindowManagerFlags.DrawsSystemBarBackgrounds);
                     Window.ClearFlags(WindowManagerFlags.TranslucentStatus);
                     
-                    System.Diagnostics.Debug.WriteLine("✅ Android 14- edge-to-edge yapılandırıldı");
+                    System.Diagnostics.Debug.WriteLine("✅ Android 6+ edge-to-edge yapılandırıldı (Redmi 9C uyumlu)");
+                }
+                else
+                {
+                    // Eski Android sürümleri
+                    Window.AddFlags(WindowManagerFlags.DrawsSystemBarBackgrounds);
+                    
+                    System.Diagnostics.Debug.WriteLine("✅ Android 5- edge-to-edge yapılandırıldı");
                 }
             }
             catch (Exception ex)
