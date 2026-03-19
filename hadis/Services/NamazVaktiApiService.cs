@@ -23,8 +23,8 @@ namespace hadis.Services
         {
             _httpClient = new HttpClient { BaseAddress = new Uri(BaseUrl) };
             SetApiHeaders();
-            // Azure App Service Cold Start (uyku modundan uyanma) genellikle 30-50 saniye s�rer.
-            // Bu sebeple timeout s�resi 90 saniyeye ��kar�ld�.
+            // Azure App Service Cold Start (uyku modundan uyanma) genellikle 30-50 saniye sürer.
+            // Bu sebeple timeout süresi 90 saniyeye çıkarıldı.
             _httpClient.Timeout = TimeSpan.FromSeconds(90); 
         }
 
@@ -206,6 +206,14 @@ namespace hadis.Services
             }
         }
 
+        private static string NormalizeForSearch(string? input)
+        {
+            if (string.IsNullOrWhiteSpace(input)) return "";
+            return input.ToUpper(new System.Globalization.CultureInfo("tr-TR"))
+                        .Replace("Ö", "O").Replace("Ü", "U").Replace("Ş", "S")
+                        .Replace("Ç", "C").Replace("Ğ", "G").Replace("İ", "I").Replace("I", "I");
+        }
+
         /// <summary>
         /// Sehir adindan ilce/city ID'sini bulur
         /// Mevcut PrayerTimesService ile uyumluluk icin korunuyor
@@ -226,15 +234,15 @@ namespace hadis.Services
 
                 // 2. Sehir adiyla eslesen ili bul
                 var il = iller.FirstOrDefault(i =>
-                    i.Name?.Equals(sehirAdi, StringComparison.OrdinalIgnoreCase) == true ||
-                    i.Code?.Equals(sehirAdi, StringComparison.OrdinalIgnoreCase) == true);
+                    NormalizeForSearch(i.Name) == NormalizeForSearch(sehirAdi) ||
+                    NormalizeForSearch(i.Code) == NormalizeForSearch(sehirAdi));
 
                 if (il == null)
                 {
                     // Kismi eslestirme dene
                     il = iller.FirstOrDefault(i =>
-                        i.Name?.Contains(sehirAdi, StringComparison.OrdinalIgnoreCase) == true ||
-                        i.Code?.Contains(sehirAdi, StringComparison.OrdinalIgnoreCase) == true);
+                        NormalizeForSearch(i.Name).Contains(NormalizeForSearch(sehirAdi)) ||
+                        NormalizeForSearch(i.Code).Contains(NormalizeForSearch(sehirAdi)));
                 }
 
                 if (il == null)
@@ -258,14 +266,14 @@ namespace hadis.Services
                 if (!string.IsNullOrEmpty(ilceAdi))
                 {
                     var ilce = ilceler.FirstOrDefault(i =>
-                        i.Name?.Equals(ilceAdi, StringComparison.OrdinalIgnoreCase) == true ||
-                        i.Code?.Equals(ilceAdi, StringComparison.OrdinalIgnoreCase) == true);
+                        NormalizeForSearch(i.Name) == NormalizeForSearch(ilceAdi) ||
+                        NormalizeForSearch(i.Code) == NormalizeForSearch(ilceAdi));
 
                     if (ilce == null)
                     {
                         ilce = ilceler.FirstOrDefault(i =>
-                            i.Name?.Contains(ilceAdi, StringComparison.OrdinalIgnoreCase) == true ||
-                            i.Code?.Contains(ilceAdi, StringComparison.OrdinalIgnoreCase) == true);
+                            NormalizeForSearch(i.Name).Contains(NormalizeForSearch(ilceAdi)) ||
+                            NormalizeForSearch(i.Code).Contains(NormalizeForSearch(ilceAdi)));
                     }
 
                     if (ilce != null)
@@ -281,8 +289,8 @@ namespace hadis.Services
 
                 // 5. Merkez ilceyi dondur
                 var merkez = ilceler.FirstOrDefault(i =>
-                    i.Name?.Equals(il.Name, StringComparison.OrdinalIgnoreCase) == true ||
-                    i.Code?.Equals(il.Code, StringComparison.OrdinalIgnoreCase) == true);
+                    NormalizeForSearch(i.Name) == NormalizeForSearch(il.Name) ||
+                    NormalizeForSearch(i.Code) == NormalizeForSearch(il.Code));
 
                 if (merkez != null)
                 {

@@ -1,4 +1,4 @@
-﻿using hadis.Models;
+using hadis.Models;
 using System.Text.Json;
 
 namespace hadis.Services
@@ -179,7 +179,7 @@ namespace hadis.Services
 
         private string GetCacheFilePath(DateTime date)
         {
-            return Path.Combine(_cacheDir, $"prayer_{date:yyyy_MM}.json");
+            return Path.Combine(_cacheDir, $"prayer_{date:yyyy_MM_dd}.json");
         }
 
         /// <summary>

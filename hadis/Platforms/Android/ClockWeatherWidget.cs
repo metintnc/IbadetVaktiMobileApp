@@ -126,45 +126,21 @@ namespace hadis.Platforms.Android
         {
             try
             {
-                // Konum al
-                var (latitude, longitude) = await GetLocationAsync(context);
-                
-                if (latitude == 0 && longitude == 0)
-                    return ("Konum Yok", TimeSpan.Zero);
-
-                // 1. Once Uygulama Cache'ine bak (Ayni veriyi kullanmak icin)
-                var cachedVakitler = await TryLoadFromAppCache(context);
+                // 1. Bugunun verisini App Cache'den oku
+                var cachedVakitler = await TryLoadFromAppCache(context, DateTime.Now);
                 if (cachedVakitler != null)
                 {
                     return FindNextPrayer(cachedVakitler);
                 }
 
-                // 2. Cache yoksa API'den namaz vakitlerini cek
-                using var httpClient = new HttpClient();
-                httpClient.Timeout = TimeSpan.FromSeconds(5);
-                
-                string url = $"https://api.aladhan.com/v1/timings?latitude={latitude.ToString(System.Globalization.CultureInfo.InvariantCulture)}&longitude={longitude.ToString(System.Globalization.CultureInfo.InvariantCulture)}&method=13";
-                var response = await httpClient.GetAsync(url);
-                
-                if (!response.IsSuccessStatusCode)
-                    return ("API Hatasi", TimeSpan.Zero);
-
-                var content = await response.Content.ReadAsStringAsync();
-                var jsonDoc = JsonDocument.Parse(content);
-                var timings = jsonDoc.RootElement.GetProperty("data").GetProperty("timings");
-
-                // Namaz vakitlerini al
-                var namazVakitleri = new Dictionary<string, DateTime>
+                // 2. Eger bugunun verisi yoksa (gece yarisi vb), yarininkini bulmaya calis
+                var yarinVakitler = await TryLoadFromAppCache(context, DateTime.Now.AddDays(1));
+                if (yarinVakitler != null)
                 {
-                    { "Imsak", ParsePrayerTime(timings.GetProperty("Fajr").GetString()) },
-                    { "Gunes", ParsePrayerTime(timings.GetProperty("Sunrise").GetString()) },
-                    { "Ogle", ParsePrayerTime(timings.GetProperty("Dhuhr").GetString()) },
-                    { "Ikindi", ParsePrayerTime(timings.GetProperty("Asr").GetString()) },
-                    { "Aksam", ParsePrayerTime(timings.GetProperty("Maghrib").GetString()) },
-                    { "Yatsi", ParsePrayerTime(timings.GetProperty("Isha").GetString()) }
-                };
+                    return FindNextPrayer(yarinVakitler);
+                }
 
-                return FindNextPrayer(namazVakitleri);
+                return ("Veri Bekleniyor", TimeSpan.Zero);
             }
             catch (Exception ex)
             {
@@ -190,44 +166,36 @@ namespace hadis.Platforms.Android
              }
         }
 
-        // Cache dosyasini okumaya calis (Uygulama ile ayni veriyi kullanmak icin)
-        private static async Task<Dictionary<string, DateTime>> TryLoadFromAppCache(Context context)
+        // Yeni Diyanet API Onbellek dosyasini okumaya calis
+        private static async Task<Dictionary<string, DateTime>> TryLoadFromAppCache(Context context, DateTime date)
         {
             try
             {
                 // FileSystem.AppDataDirectory karsiligi Context.FilesDir
-                var cachePath = System.IO.Path.Combine(context.FilesDir.AbsolutePath, "prayer_times_cache_v2.json");
+                var cachePath = System.IO.Path.Combine(context.FilesDir.AbsolutePath, "prayer_cache", $"prayer_{date:yyyy_MM_dd}.json");
                 
                 if (System.IO.File.Exists(cachePath))
                 {
                     var json = await System.IO.File.ReadAllTextAsync(cachePath);
-                    // CalendarData modelini burada parse etmek yerine JsonDocument ile manuel bakalim
-                    // Cunku Models namespace erisimi zor olabilir veya farkli assembly sorunu cikabilir
-                    
                     using var doc = JsonDocument.Parse(json);
                     var root = doc.RootElement;
-                    var dateStr = DateTime.Now.ToString("dd-MM-yyyy"); // API Formati
                     
-                    foreach (var item in root.EnumerateArray())
+                    DateTime ParseTime(string timeStr)
                     {
-                        var dateProp = item.GetProperty("date").GetProperty("gregorian").GetProperty("date").GetString();
-                        if (dateProp == dateStr)
-                        {
-                             var t = item.GetProperty("timings");
-                             
-                             DateTime ParseTime(string s) => DateTime.Today + TimeSpan.Parse(s.Split(' ')[0]);
-
-                             return new Dictionary<string, DateTime>
-                             {
-                                { "Imsak", ParseTime(t.GetProperty("Fajr").GetString()) },
-                                { "Gunes", ParseTime(t.GetProperty("Sunrise").GetString()) },
-                                { "Ogle", ParseTime(t.GetProperty("Dhuhr").GetString()) },
-                                { "Ikindi", ParseTime(t.GetProperty("Asr").GetString()) },
-                                { "Aksam", ParseTime(t.GetProperty("Maghrib").GetString()) },
-                                { "Yatsi", ParseTime(t.GetProperty("Isha").GetString()) }
-                             };
-                        }
+                        if (string.IsNullOrEmpty(timeStr)) return DateTime.MinValue;
+                        try { return DateTime.Parse($"{date:yyyy-MM-dd} {timeStr}"); }
+                        catch { return DateTime.MinValue; }
                     }
+
+                    return new Dictionary<string, DateTime>
+                    {
+                        { "Imsak", ParseTime(root.GetProperty("fajr").GetString()) },
+                        { "Gunes", ParseTime(root.GetProperty("sunrise").GetString()) },
+                        { "Ogle", ParseTime(root.GetProperty("dhuhr").GetString()) },
+                        { "Ikindi", ParseTime(root.GetProperty("asr").GetString()) },
+                        { "Aksam", ParseTime(root.GetProperty("maghrib").GetString()) },
+                        { "Yatsi", ParseTime(root.GetProperty("isha").GetString()) }
+                    };
                 }
             }
             catch (Exception ex)
