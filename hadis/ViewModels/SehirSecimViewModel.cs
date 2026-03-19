@@ -10,6 +10,7 @@ namespace hadis.ViewModels
     public partial class SehirSecimViewModel : ObservableObject
     {
         private readonly PrayerTimesService _prayerTimesService;
+        private readonly NamazVaktiApiService _namazVaktiApiService;
         private List<City> _allCities;
         
         [ObservableProperty]
@@ -53,9 +54,10 @@ namespace hadis.ViewModels
             SelectedCity = null;
         }
 
-        public SehirSecimViewModel(PrayerTimesService prayerTimesService)
+        public SehirSecimViewModel(PrayerTimesService prayerTimesService, NamazVaktiApiService namazVaktiApiService = null)
         {
             _prayerTimesService = prayerTimesService;
+            _namazVaktiApiService = namazVaktiApiService;
             InitializeCities();
         }
 

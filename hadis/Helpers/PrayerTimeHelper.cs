@@ -1,4 +1,4 @@
-using System.Globalization;
+﻿using System.Globalization;
 
 namespace hadis.Helpers
 {
@@ -10,10 +10,10 @@ namespace hadis.Helpers
         // Vakitlerin sıralı listesi (dictionary key'leri)
         private static readonly (string Key, string DisplayName, string ShortName)[] PrayerOrder = new[]
         {
-            ("İmsak", "İmsak Vaktine", "İmsak"),
+            ("Imsak", "İmsak Vaktine", "İmsak"),
             ("gunes", "Güneşin Doğmasına", "Güneş"),
             ("Ogle", "Öğle Namazına", "Öğle"),
-            ("İkindi", "İkindi Namazına", "İkindi"),
+            ("Ikindi", "İkindi Namazına", "İkindi"),
             ("Aksam", "Akşam Namazına", "Akşam"),
             ("Yatsi", "Yatsı Namazına", "Yatsı")
         };
@@ -53,8 +53,8 @@ namespace hadis.Helpers
             }
 
             // Tüm vakitler geçmiş → ertesi gün İmsak
-            var imsakTime = times["İmsak"].AddDays(1);
-            return ("İmsak", "İmsak Vaktine", "İmsak", imsakTime - now, 0);
+            var imsakTime = times["Imsak"].AddDays(1);
+            return ("Imsak", "İmsak Vaktine", "İmsak", imsakTime - now, 0);
         }
 
         /// <summary>
@@ -65,10 +65,10 @@ namespace hadis.Helpers
             var (shortName, remaining) = GetNextPrayerShort(times);
 
             string title = $"{shortName} vaktine {remaining.Hours:D2}:{remaining.Minutes:D2} kaldı";
-            string message = $"İmsak {times["İmsak"]:HH:mm} | " +
+            string message = $"İmsak {times["Imsak"]:HH:mm} | " +
                             $"Güneş {times["gunes"]:HH:mm} | " +
                             $"Öğle {times["Ogle"]:HH:mm} | " +
-                            $"İkindi {times["İkindi"]:HH:mm} | " +
+                            $"İkindi {times["Ikindi"]:HH:mm} | " +
                             $"Akşam {times["Aksam"]:HH:mm} | " +
                             $"Yatsı {times["Yatsi"]:HH:mm}";
 

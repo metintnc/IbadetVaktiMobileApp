@@ -6,7 +6,7 @@ namespace hadis.Platforms.Android.Services
     /// <summary>
     /// AlarmManager tarafından günde 1 kez tetiklenen BroadcastReceiver.
     /// Bildirimleri arka planda yeniden zamanlar.
-    /// WorkManager kullanmaz — crash riski yok.
+    /// WorkManager kullanmaz – crash riski yok.
     /// </summary>
     [BroadcastReceiver(Enabled = true, Exported = false)]
     public class NotificationAlarmReceiver : BroadcastReceiver
@@ -24,14 +24,31 @@ namespace hadis.Platforms.Android.Services
                 {
                     try
                     {
-                        // DI kullanmadan doğrudan PrayerTimesService ile çalış
-                        var httpClient = new System.Net.Http.HttpClient();
-                        var factory = new SimpleHttpClientFactory(httpClient);
-                        var prayerTimesService = new PrayerTimesService(factory);
-                        var notificationService = new NotificationService(prayerTimesService);
+                        // DI'dan servisleri al
+                        var services = App.Current?.Handler?.MauiContext?.Services;
+                        if (services == null)
+                        {
+                            System.Diagnostics.Debug.WriteLine("❌ DI container kullanılamıyor");
+                            return;
+                        }
 
-                        await notificationService.ScheduleMultiDayNotificationsAsync(7);
-                        System.Diagnostics.Debug.WriteLine("✅ Arka plan bildirim zamanlaması tamamlandı");
+                        var namazVaktiApiService = services.GetService<NamazVaktiApiService>();
+                        var prayerTimesService = services.GetService<PrayerTimesService>();
+                        var notificationService = services.GetService<IAppNotificationService>();
+
+                        if (prayerTimesService != null && notificationService != null)
+                        {
+                            var typedNotificationService = notificationService as NotificationService;
+                            if (typedNotificationService != null)
+                            {
+                                await typedNotificationService.ScheduleMultiDayNotificationsAsync(7);
+                                System.Diagnostics.Debug.WriteLine("✅ Arka plan bildirim zamanlaması tamamlandı");
+                            }
+                        }
+                        else
+                        {
+                            System.Diagnostics.Debug.WriteLine("❌ Servisler bulunamadı");
+                        }
                     }
                     catch (Exception ex)
                     {
@@ -46,24 +63,6 @@ namespace hadis.Platforms.Android.Services
             {
                 System.Diagnostics.Debug.WriteLine($"❌ AlarmReceiver hatası: {ex.Message}");
             }
-        }
-    }
-
-    /// <summary>
-    /// DI olmadan IHttpClientFactory oluşturmak için minimal implementasyon
-    /// </summary>
-    internal class SimpleHttpClientFactory : IHttpClientFactory
-    {
-        private readonly System.Net.Http.HttpClient _client;
-
-        public SimpleHttpClientFactory(System.Net.Http.HttpClient client)
-        {
-            _client = client;
-        }
-
-        public System.Net.Http.HttpClient CreateClient(string name)
-        {
-            return _client;
         }
     }
 }

@@ -1,24 +1,21 @@
-using hadis.Models;
+﻿using hadis.Models;
 using System.Text.Json;
-using System.Net.Http;
-
 
 namespace hadis.Services
 {
     /// <summary>
-    /// Namaz vakitlerini API'den çekip önbellekleyen servis.
-    /// Offline-first: Her zaman önce cache'e bakar, cache miss olursa API'ye gider.
-    /// Multi-month cache, TTL, ve konum bazlı invalidation destekler.
+    /// Namaz vakitlerini Azure API'den çekip önbelekleyen servis.
+    /// Sadece Azure API kullanır - Aladhan fallback kaldırıldı.
     /// </summary>
     public class PrayerTimesService
     {
-        private readonly HttpClient _httpClient;
+        private readonly NamazVaktiApiService _namazVaktiApiService;
         private readonly string _cacheDir;
         private const int CACHE_TTL_DAYS = 45; // 45 gün sonra cache expire olur
 
-        public PrayerTimesService(IHttpClientFactory httpClientFactory)
+        public PrayerTimesService(NamazVaktiApiService namazVaktiApiService)
         {
-            _httpClient = httpClientFactory.CreateClient();
+            _namazVaktiApiService = namazVaktiApiService;
             _cacheDir = Path.Combine(FileSystem.AppDataDirectory, "prayer_cache");
             EnsureCacheDirectory();
         }
@@ -50,11 +47,6 @@ namespace hadis.Services
                         File.Delete(file);
                     }
                 }
-
-                // Eski v2 cache dosyasını da temizle (migration)
-                var legacyFile = Path.Combine(FileSystem.AppDataDirectory, "prayer_times_cache_v2.json");
-                if (File.Exists(legacyFile))
-                    File.Delete(legacyFile);
             }
             catch (Exception ex)
             {
@@ -64,60 +56,85 @@ namespace hadis.Services
 
         /// <summary>
         /// Belirli bir tarih için namaz vakitlerini döndürür.
-        /// Önce cache'e bakar, yoksa API'ye gider, API başarısız olursa en yakın cache'i dener.
+        /// Stratejisi:
+        /// 1. Local Cache
+        /// 2. Azure API
+        /// 3. Offline Cache (fallback)
         /// </summary>
         public async Task<Dictionary<string, DateTime>?> GetPrayerTimesForDateAsync(
             DateTime date, string ilce, string sehir, double? lat = null, double? lon = null)
         {
-            // 1. Bu aya ait cache'e bak
+            // 1. Bu ayı cache'den kontrol et
             var cachedData = await LoadMonthCacheAsync(date);
             if (cachedData != null)
             {
-                var todayData = FindDataForDate(cachedData, date);
-                if (todayData != null)
-                {
-                    System.Diagnostics.Debug.WriteLine($"📦 Cache hit: {date:yyyy-MM-dd}");
-                    return ConvertToDictionary(todayData, date);
-                }
+                System.Diagnostics.Debug.WriteLine($"✅ Cache hit: {date:yyyy-MM-dd}");
+                return cachedData;
             }
 
-            // 2. Cache'te yok → API'den çek
+            // 2. Azure API'den ilçe ID'sini bul ve veri çek
             try
             {
-                var freshData = await FetchMonthlyDataAsync(date, ilce, sehir, lat, lon);
-                if (freshData != null && freshData.Count > 0)
+                System.Diagnostics.Debug.WriteLine($"🔄 İlçe ID araniyor: {sehir}/{ilce}");
+                
+                var ilceId = await _namazVaktiApiService.GetIlceIdBySehir(sehir, ilce);
+                
+                if (ilceId.HasValue)
                 {
-                    await SaveMonthCacheAsync(date, freshData);
-
-                    var todayData = FindDataForDate(freshData, date);
-                    if (todayData != null)
+                    System.Diagnostics.Debug.WriteLine($"✅ İlçe ID bulundu: {ilceId} ({sehir}/{ilce})");
+                    
+                    DailyNamazVakitleri vakitler;
+                    
+                    if (date.Date == DateTime.Now.Date)
                     {
-                        System.Diagnostics.Debug.WriteLine($"🌐 API'den çekildi: {date:yyyy-MM-dd}");
-                        return ConvertToDictionary(todayData, date);
+                        System.Diagnostics.Debug.WriteLine($"📞 GetBugunVakitleri çağrılıyor (ID: {ilceId})");
+                        vakitler = await _namazVaktiApiService.GetBugunVakitleri(ilceId.Value);
                     }
+                    else
+                    {
+                        System.Diagnostics.Debug.WriteLine($"📞 GetTarihVakitleri çağrılıyor (ID: {ilceId}, Tarih: {date:yyyy-MM-dd})");
+                        vakitler = await _namazVaktiApiService.GetTarihVakitleri(ilceId.Value, date);
+                    }
+
+                    if (vakitler != null)
+                    {
+                        System.Diagnostics.Debug.WriteLine($"✅ Vakitler alındı: İmsak={vakitler.Imsak}, Yatsı={vakitler.Yatsi}");
+                        
+                        var result = ConvertToDateTimeDictionary(vakitler, date);
+                        
+                        // Cache'e kaydet
+                        await SaveDateCacheAsync(date, vakitler);
+                        
+                        System.Diagnostics.Debug.WriteLine($"✅ Azure API'den çekildi: {date:yyyy-MM-dd}");
+                        return result;
+                    }
+                    else
+                    {
+                        System.Diagnostics.Debug.WriteLine($"⚠️ Azure API veri döndürmedi (null): {date:yyyy-MM-dd}");
+                    }
+                }
+                else
+                {
+                    System.Diagnostics.Debug.WriteLine($"❌ İlçe ID bulunamadı: {sehir}/{ilce}");
+                    System.Diagnostics.Debug.WriteLine($"   Tüm ilçeleri listelemek için debug'a bakın");
                 }
             }
             catch (Exception ex)
             {
-                System.Diagnostics.Debug.WriteLine($"API Hatası: {ex.Message}");
+                System.Diagnostics.Debug.WriteLine($"❌ Azure API hatası: {ex.GetType().Name}: {ex.Message}");
+                if (ex.InnerException != null)
+                    System.Diagnostics.Debug.WriteLine($"   Inner: {ex.InnerException.Message}");
             }
 
-            // 3. API başarısız → Tüm cache dosyalarında ara (offline fallback)
-            var fallbackResult = await TryOfflineFallbackAsync(date);
-            if (fallbackResult != null)
+            // 3. Offline fallback - Tüm cache dosyalarından ara
+            var offlineResult = await TryOfflineFallbackAsync(date);
+            if (offlineResult != null)
             {
-                System.Diagnostics.Debug.WriteLine($"📴 Offline fallback: {date:yyyy-MM-dd}");
-                return fallbackResult;
+                System.Diagnostics.Debug.WriteLine($"⚠️ Offline fallback: {date:yyyy-MM-dd}");
+                return offlineResult;
             }
 
-            // 4. Eski v2 cache'ten migration denemesi
-            var legacyResult = await TryLegacyCacheAsync(date);
-            if (legacyResult != null)
-            {
-                System.Diagnostics.Debug.WriteLine($"📜 Legacy cache fallback: {date:yyyy-MM-dd}");
-                return legacyResult;
-            }
-
+            System.Diagnostics.Debug.WriteLine($"❌ Veri bulunamadı: {date:yyyy-MM-dd}");
             return null;
         }
 
@@ -129,15 +146,24 @@ namespace hadis.Services
             try
             {
                 var tomorrow = DateTime.Now.AddDays(1);
+                
+                // Cache'te var mı kontrol et
                 var cachedData = await LoadMonthCacheAsync(tomorrow);
-                if (cachedData == null || FindDataForDate(cachedData, tomorrow) == null)
+                if (cachedData != null)
                 {
-                    // Yarının ayı cache'te yok, çek
-                    var freshData = await FetchMonthlyDataAsync(tomorrow, ilce, sehir, lat, lon);
-                    if (freshData != null && freshData.Count > 0)
+                    System.Diagnostics.Debug.WriteLine($"✅ Yarın verisi cache'te mevcut: {tomorrow:yyyy-MM-dd}");
+                    return;
+                }
+
+                // Azure API'den çek
+                var ilceId = await _namazVaktiApiService.GetIlceIdBySehir(sehir, ilce);
+                if (ilceId.HasValue)
+                {
+                    var vakitler = await _namazVaktiApiService.GetTarihVakitleri(ilceId.Value, tomorrow);
+                    if (vakitler != null)
                     {
-                        await SaveMonthCacheAsync(tomorrow, freshData);
-                        System.Diagnostics.Debug.WriteLine($"⏩ Prefetch tamamlandı: {tomorrow:yyyy-MM}");
+                        await SaveDateCacheAsync(tomorrow, vakitler);
+                        System.Diagnostics.Debug.WriteLine($"✅ Prefetch tamamlandı: {tomorrow:yyyy-MM-dd}");
                     }
                 }
             }
@@ -148,7 +174,7 @@ namespace hadis.Services
         }
 
         // ================================================================
-        // Cache I/O — Ay bazlı dosyalama
+        // Cache I/O
         // ================================================================
 
         private string GetCacheFilePath(DateTime date)
@@ -156,40 +182,53 @@ namespace hadis.Services
             return Path.Combine(_cacheDir, $"prayer_{date:yyyy_MM}.json");
         }
 
-        private async Task<List<CalendarData>?> LoadMonthCacheAsync(DateTime date)
+        /// <summary>
+        /// Ayın tamamı için cache'ten veri yüklemeye çalışır
+        /// İçinde aradığımız tarihe ait veri varsa onu döndürür
+        /// </summary>
+        private async Task<Dictionary<string, DateTime>?> LoadMonthCacheAsync(DateTime date)
         {
             try
             {
                 string filePath = GetCacheFilePath(date);
-                if (!File.Exists(filePath)) return null;
+                if (!File.Exists(filePath)) 
+                    return null;
 
                 // TTL kontrolü
                 var fileInfo = new FileInfo(filePath);
                 if ((DateTime.Now - fileInfo.LastWriteTime).TotalDays > CACHE_TTL_DAYS)
                 {
-                    System.Diagnostics.Debug.WriteLine($"⏰ Cache expired: {filePath}");
+                    System.Diagnostics.Debug.WriteLine($"⚠️ Cache expired: {filePath}");
                     File.Delete(filePath);
                     return null;
                 }
 
                 string json = await File.ReadAllTextAsync(filePath);
-                return JsonSerializer.Deserialize<List<CalendarData>>(json);
+                var cachedVakitler = JsonSerializer.Deserialize<DailyNamazVakitleri>(json);
+                
+                if (cachedVakitler != null && cachedVakitler.Tarih == date.ToString("yyyy-MM-dd"))
+                {
+                    return ConvertToDateTimeDictionary(cachedVakitler, date);
+                }
+
+                return null;
             }
-            catch
+            catch (Exception ex)
             {
+                System.Diagnostics.Debug.WriteLine($"Cache yükleme hatası: {ex.Message}");
                 return null;
             }
         }
 
-        private async Task SaveMonthCacheAsync(DateTime date, List<CalendarData> data)
+        private async Task SaveDateCacheAsync(DateTime date, DailyNamazVakitleri vakitler)
         {
             try
             {
                 string filePath = GetCacheFilePath(date);
-                string json = JsonSerializer.Serialize(data);
+                string json = JsonSerializer.Serialize(vakitler);
                 await File.WriteAllTextAsync(filePath, json);
 
-                // Eski cache dosyalarını temizle (3 aydan eski)
+                // Eski cache dosyalarını temizle
                 CleanExpiredCacheFiles();
             }
             catch (Exception ex)
@@ -202,12 +241,13 @@ namespace hadis.Services
         {
             try
             {
-                // Check if we cleaned recently (limit to once per 24 hours)
+                // Günde 1 kez temizle
                 var lastClean = Preferences.Default.Get("LastCacheCleanDate", DateTime.MinValue);
                 if ((DateTime.Now - lastClean).TotalHours < 24)
                     return;
 
-                if (!Directory.Exists(_cacheDir)) return;
+                if (!Directory.Exists(_cacheDir)) 
+                    return;
 
                 foreach (var file in Directory.GetFiles(_cacheDir, "*.json"))
                 {
@@ -215,7 +255,7 @@ namespace hadis.Services
                     if ((DateTime.Now - fileInfo.LastWriteTime).TotalDays > CACHE_TTL_DAYS)
                     {
                         File.Delete(file);
-                        System.Diagnostics.Debug.WriteLine($"🗑️ Eski cache silindi: {Path.GetFileName(file)}");
+                        System.Diagnostics.Debug.WriteLine($"🧹 Eski cache silindi: {Path.GetFileName(file)}");
                     }
                 }
 
@@ -228,29 +268,31 @@ namespace hadis.Services
         }
 
         // ================================================================
-        // Offline Fallback — Tüm cache dosyalarından en yakın veriyi bul
+        // Offline Fallback
         // ================================================================
 
         private async Task<Dictionary<string, DateTime>?> TryOfflineFallbackAsync(DateTime date)
         {
             try
             {
-                if (!Directory.Exists(_cacheDir)) return null;
+                if (!Directory.Exists(_cacheDir)) 
+                    return null;
 
+                // Tüm cache dosyalarında aradığımız tarihi bul
                 foreach (var file in Directory.GetFiles(_cacheDir, "*.json"))
                 {
                     try
                     {
                         string json = await File.ReadAllTextAsync(file);
-                        var data = JsonSerializer.Deserialize<List<CalendarData>>(json);
-                        if (data != null)
+                        var vakitler = JsonSerializer.Deserialize<DailyNamazVakitleri>(json);
+                        
+                        if (vakitler != null && vakitler.Tarih == date.ToString("yyyy-MM-dd"))
                         {
-                            var match = FindDataForDate(data, date);
-                            if (match != null)
-                                return ConvertToDictionary(match, date);
+                            System.Diagnostics.Debug.WriteLine($"✅ Offline cache'te tarih bulundu: {file}");
+                            return ConvertToDateTimeDictionary(vakitler, date);
                         }
                     }
-                    catch { /* Dosya bozuksa atla */ }
+                    catch { }
                 }
             }
             catch (Exception ex)
@@ -261,96 +303,36 @@ namespace hadis.Services
             return null;
         }
 
-        /// <summary>
-        /// Eski v2 cache dosyasından migration
-        /// </summary>
-        private async Task<Dictionary<string, DateTime>?> TryLegacyCacheAsync(DateTime date)
-        {
-            try
-            {
-                var legacyFile = Path.Combine(FileSystem.AppDataDirectory, "prayer_times_cache_v2.json");
-                if (!File.Exists(legacyFile)) return null;
-
-                string json = await File.ReadAllTextAsync(legacyFile);
-                var data = JsonSerializer.Deserialize<List<CalendarData>>(json);
-                if (data != null)
-                {
-                    // Veriyi yeni formata migrate et
-                    await SaveMonthCacheAsync(date, data);
-
-                    var match = FindDataForDate(data, date);
-                    if (match != null)
-                        return ConvertToDictionary(match, date);
-                }
-            }
-            catch { }
-
-            return null;
-        }
-
-        // ================================================================
-        // API
-        // ================================================================
-
-        private async Task<List<CalendarData>?> FetchMonthlyDataAsync(DateTime date, string ilce, string sehir, double? lat, double? lon)
-        {
-            try
-            {
-                string url;
-
-                if (lat.HasValue && lon.HasValue && Math.Abs(lat.Value) > 0.0001 && Math.Abs(lon.Value) > 0.0001)
-                {
-                    url = $"https://api.aladhan.com/v1/calendar?latitude={lat.Value.ToString(System.Globalization.CultureInfo.InvariantCulture)}&longitude={lon.Value.ToString(System.Globalization.CultureInfo.InvariantCulture)}&method=13&month={date.Month}&year={date.Year}";
-                }
-                else
-                {
-                    url = $"https://api.aladhan.com/v1/calendarByAddress?address={ilce},{sehir},Turkey&method=13&month={date.Month}&year={date.Year}";
-                }
-                
-                HttpResponseMessage response = await _httpClient.GetAsync(url);
-                if (!response.IsSuccessStatusCode) return null;
-
-                string json = await response.Content.ReadAsStringAsync();
-                var calendarResponse = JsonSerializer.Deserialize<CalendarResponse>(json);
-
-                return calendarResponse?.Data;
-            }
-            catch (Exception ex)
-            {
-                System.Diagnostics.Debug.WriteLine($"Fetch hatası: {ex.Message}");
-                return null;
-            }
-        }
-
         // ================================================================
         // Helpers
         // ================================================================
 
-        private static CalendarData? FindDataForDate(List<CalendarData> data, DateTime date)
+        private static Dictionary<string, DateTime> ConvertToDateTimeDictionary(DailyNamazVakitleri vakitler, DateTime date)
         {
-            string searchDate = date.ToString("dd-MM-yyyy");
-            return data.FirstOrDefault(d => d.Date.Gregorian.Date == searchDate);
-        }
+            DateTime ParseTime(string timeStr)
+            {
+                if (string.IsNullOrEmpty(timeStr)) 
+                    return DateTime.MinValue;
+                
+                try
+                {
+                    return DateTime.Parse($"{date:yyyy-MM-dd} {timeStr}");
+                }
+                catch
+                {
+                    return DateTime.MinValue;
+                }
+            }
 
-        private static Dictionary<string, DateTime> ConvertToDictionary(CalendarData data, DateTime date)
-        {
-           Timings t = data.Timings;
-
-           DateTime ParseTime(string timeStr)
-           {
-               string cleanTime = timeStr.Split(' ')[0]; 
-               return date.Date + TimeSpan.Parse(cleanTime);
-           }
-
-           return new Dictionary<string, DateTime>
-           {
-               { "İmsak", ParseTime(t.Fajr) },
-               { "gunes", ParseTime(t.Sunrise) },
-               { "Ogle", ParseTime(t.Dhuhr) },
-               { "İkindi", ParseTime(t.Asr) },
-               { "Aksam", ParseTime(t.Maghrib) },
-               { "Yatsi", ParseTime(t.Isha) }
-           };
+            return new Dictionary<string, DateTime>
+            {
+                { "Imsak", ParseTime(vakitler.Imsak) },
+                { "gunes", ParseTime(vakitler.Gunes) },
+                { "Ogle", ParseTime(vakitler.Ogle) },
+                { "Ikindi", ParseTime(vakitler.Ikindi) },
+                { "Aksam", ParseTime(vakitler.Aksam) },
+                { "Yatsi", ParseTime(vakitler.Yatsi) }
+            };
         }
     }
 }

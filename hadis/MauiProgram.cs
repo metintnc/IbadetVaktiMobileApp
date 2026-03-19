@@ -33,6 +33,10 @@ namespace hadis
                 client.Timeout = TimeSpan.FromSeconds(30);
             });
             
+            // Yeni Namaz Vakti API HttpClient
+            builder.Services.AddHttpClient<NamazVaktiApiService>();
+            
+            builder.Services.AddSingleton<NamazVaktiApiService>();
             builder.Services.AddSingleton<PrayerTimesService>();
             builder.Services.AddSingleton<QuranApiService>(); // Artık DI ile yönetiliyor
             

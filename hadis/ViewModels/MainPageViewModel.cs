@@ -19,7 +19,7 @@ namespace hadis.ViewModels
         private bool _prefetchDone;
         private bool _disposed;
 
-        // --- Observable Properties: Geri Sayým ---
+        // --- Observable Properties: Geri SayÃ„Â±m ---
         [ObservableProperty]
         private string _namazIsmi = "";
 
@@ -57,7 +57,7 @@ namespace hadis.ViewModels
         [ObservableProperty]
         private string _yatsiVakit = "";
 
-        // --- Observable Properties: Hata Durumlarý ---
+        // --- Observable Properties: Hata DurumlarÃ„Â± ---
         [ObservableProperty]
         private bool _isInternetErrorVisible;
 
@@ -65,10 +65,10 @@ namespace hadis.ViewModels
         private bool _isLocationErrorVisible;
 
         [ObservableProperty]
-        private string _errorTitle = "Ýnternet Baðlantýsý Yok";
+        private string _errorTitle = "Ã„Â°nternet BaÃ„Å¸lantÃ„Â±sÃ„Â± Yok";
 
         [ObservableProperty]
-        private string _errorDescription = "Namaz vakitlerini güncellemek için lütfen internet baðlantýnýzý kontrol ediniz.";
+        private string _errorDescription = "Namaz vakitlerini gÃƒÂ¼ncellemek iÃƒÂ§in lÃƒÂ¼tfen internet baÃ„Å¸lantÃ„Â±nÃ„Â±zÃ„Â± kontrol ediniz.";
 
         // --- Observable Properties: Aktif namaz vurgulama ---
         [ObservableProperty]
@@ -89,21 +89,21 @@ namespace hadis.ViewModels
         [ObservableProperty]
         private Color _yatsiVakitColor = Colors.White;
 
-        // Dýþ eriþim: BackgroundService ve ThemeService
+        // DÃ„Â±Ã…Å¸ eriÃ…Å¸im: BackgroundService ve ThemeService
         public BackgroundService BackgroundService => _backgroundService;
         public ThemeService ThemeService => _themeService;
         public StatusBarService StatusBarService => _statusBarService;
 
-        // Event: Page'e Widget güncelleme sinyali
+        // Event: Page'e Widget gÃƒÂ¼ncelleme sinyali
         public event Action? WidgetUpdateRequested;
 
-        // Event: Konum hatasý ? SehirSecim sayfasýna yönlendir
+        // Event: Konum hatasÃ„Â± ? SehirSecim sayfasÃ„Â±na yÃƒÂ¶nlendir
         public event Action? NavigateToSehirSecim;
 
-        // Namaz vakitleri dýþarýya
+        // Namaz vakitleri dÃ„Â±Ã…Å¸arÃ„Â±ya
         public Dictionary<string, DateTime>? NamazVakitleri => _namazVakitleri;
 
-        // Geocoding sonuçlarýný cache'lemek için
+        // Geocoding sonuÃƒÂ§larÃ„Â±nÃ„Â± cache'lemek iÃƒÂ§in
         private string? _cachedSehir;
         private string? _cachedIlce;
 
@@ -120,14 +120,14 @@ namespace hadis.ViewModels
             _notificationService = notificationService;
             _prayerTimesService = prayerTimesService;
 
-            // Timer baþlat - Named method kullanarak memory leak önleme
+            // Timer baÃ…Å¸lat - Named method kullanarak memory leak ÃƒÂ¶nleme
             _timer = new System.Timers.Timer(AppConstants.TIMER_INTERVAL_MS);
             _timer.Elapsed += OnTimerElapsed;
             _timer.Start();
         }
 
         /// <summary>
-        /// Timer event handler - Lambda yerine named method kullanarak memory leak önlenir
+        /// Timer event handler - Lambda yerine named method kullanarak memory leak ÃƒÂ¶nlenir
         /// </summary>
         private void OnTimerElapsed(object? sender, System.Timers.ElapsedEventArgs e)
         {
@@ -136,7 +136,7 @@ namespace hadis.ViewModels
         }
 
         /// <summary>
-        /// Tüm verileri yükle (OnAppearing'de çaðrýlýr)
+        /// TÃƒÂ¼m verileri yÃƒÂ¼kle (OnAppearing'de ÃƒÂ§aÃ„Å¸rÃ„Â±lÃ„Â±r)
         /// </summary>
         [RelayCommand]
         private async Task LoadDataAsync()
@@ -144,15 +144,15 @@ namespace hadis.ViewModels
             HicriTarih = PrayerTimeHelper.GetHicriTarih();
             GununAyeti = PrayerTimeHelper.GetDailyAyet();
 
-            // Konum bilgisini al (þehir/ilçe de cache'lenir)
+            // Konum bilgisini al (Ã…Å¸ehir/ilÃƒÂ§e de cache'lenir)
             var locationInfo = await LoadKonumBilgisiAsync();
             
-            // Geocoding sonuçlarýný FetchPrayerTimesAsync'e geçir (tekrar Geocoding yapýlmasýn)
+            // Geocoding sonuÃƒÂ§larÃ„Â±nÃ„Â± FetchPrayerTimesAsync'e geÃƒÂ§ir (tekrar Geocoding yapÃ„Â±lmasÃ„Â±n)
             await FetchPrayerTimesAsync(locationInfo.Location, locationInfo.Sehir, locationInfo.Ilce);
         }
 
         /// <summary>
-        /// Konum bilgisini göster ve bulunan konumu döndür (þehir/ilçe bilgisiyle birlikte)
+        /// Konum bilgisini gÃƒÂ¶ster ve bulunan konumu dÃƒÂ¶ndÃƒÂ¼r (Ã…Å¸ehir/ilÃƒÂ§e bilgisiyle birlikte)
         /// </summary>
         private async Task<(Location? Location, string? Sehir, string? Ilce)> LoadKonumBilgisiAsync()
         {
@@ -193,7 +193,7 @@ namespace hadis.ViewModels
 
                 if (status != PermissionStatus.Granted)
                 {
-                    KonumText = "Konum Ýzni Verilmedi";
+                    KonumText = "Konum Ã„Â°zni Verilmedi";
                     return (null, null, null);
                 }
 
@@ -208,7 +208,7 @@ namespace hadis.ViewModels
                 {
                     try
                     {
-                        // Tek seferlik Geocoding çaðrýsý - sonuçlar cache'lenir
+                        // Tek seferlik Geocoding ÃƒÂ§aÃ„Å¸rÃ„Â±sÃ„Â± - sonuÃƒÂ§lar cache'lenir
                         var placemarks = await Geocoding.Default.GetPlacemarksAsync(foundLocation.Latitude, foundLocation.Longitude);
                         var placemark = placemarks?.FirstOrDefault();
 
@@ -239,7 +239,7 @@ namespace hadis.ViewModels
                 }
                 else
                 {
-                    KonumText = "Konum Alýnamadý";
+                    KonumText = "Konum AlÃ„Â±namadÃ„Â±";
                 }
             }
             catch (FeatureNotSupportedException)
@@ -248,18 +248,18 @@ namespace hadis.ViewModels
             }
             catch (PermissionException)
             {
-                KonumText = "Konum Ýzni Gerekli";
+                KonumText = "Konum Ã„Â°zni Gerekli";
             }
             catch
             {
-                KonumText = "Konum Hatasý";
+                KonumText = "Konum HatasÃ„Â±";
             }
 
             return (foundLocation, sehir, ilce);
         }
 
         /// <summary>
-        /// Namaz vakitlerini çek ve güncelle
+        /// Namaz vakitlerini ÃƒÂ§ek ve gÃƒÂ¼ncelle
         /// </summary>
         public async Task FetchPrayerTimesAsync(Location? locationOverride = null, string? cachedSehir = null, string? cachedIlce = null)
         {
@@ -287,10 +287,10 @@ namespace hadis.ViewModels
 
                     WidgetUpdateRequested?.Invoke();
 
-                    // Cache'lenmiþ þehir/ilçe yoksa ve otomatik konum modundaysa Geocoding yap
+                    // Cache'lenmiÃ…Å¸ Ã…Å¸ehir/ilÃƒÂ§e yoksa ve otomatik konum modundaysa Geocoding yap
                     if (string.IsNullOrEmpty(sehir) && otomatikKonum)
                     {
-                        // Önce cache'e bak
+                        // Ãƒâ€“nce cache'e bak
                         if (!string.IsNullOrEmpty(_cachedSehir))
                         {
                             sehir = _cachedSehir;
@@ -467,7 +467,7 @@ namespace hadis.ViewModels
                     }
                     catch (Exception notifEx)
                     {
-                        System.Diagnostics.Debug.WriteLine($"?? Bildirim zamanlama hatasý: {notifEx.Message}");
+                        System.Diagnostics.Debug.WriteLine($"?? Bildirim zamanlama hatasÃ„Â±: {notifEx.Message}");
                     }
                 }
                 else
@@ -489,14 +489,14 @@ namespace hadis.ViewModels
             }
             catch (Exception e)
             {
-                System.Diagnostics.Debug.WriteLine($"? Namaz vakitleri çekme hatasý: {e.Message}");
+                System.Diagnostics.Debug.WriteLine($"? Namaz vakitleri ÃƒÂ§ekme hatasÃ„Â±: {e.Message}");
                 ResetPrayerTimes();
                 ShowInternetError(false);
             }
         }
 
         /// <summary>
-        /// Geri sayýmý güncelle (Timer tarafýndan çaðrýlýr)
+        /// Geri sayÃ„Â±mÃ„Â± gÃƒÂ¼ncelle (Timer tarafÃ„Â±ndan ÃƒÂ§aÃ„Å¸rÃ„Â±lÃ„Â±r)
         /// </summary>
         private void UpdateCountdown()
         {
@@ -507,10 +507,10 @@ namespace hadis.ViewModels
 
                 var result = PrayerTimeHelper.GetNextPrayer(_namazVakitleri);
 
-                if (result.Key == "Ýmsak" && result.DisplayName == "Ýmsak Vaktine" &&
-                    _namazVakitleri["Ýmsak"] <= DateTime.Now)
+                if (result.Key == "Imsak" && result.DisplayName == "Ä°msak Vaktine" &&
+                    _namazVakitleri["Imsak"] <= DateTime.Now)
                 {
-                    _namazVakitleri["Ýmsak"] = _namazVakitleri["Ýmsak"].AddDays(1);
+                    _namazVakitleri["Imsak"] = _namazVakitleri["Imsak"].AddDays(1);
                 }
 
                 NamazIsmi = result.DisplayName;
@@ -520,7 +520,7 @@ namespace hadis.ViewModels
             }
             catch (Exception ex)
             {
-                System.Diagnostics.Debug.WriteLine($"? Geri sayým güncelleme hatasý: {ex.Message}");
+                System.Diagnostics.Debug.WriteLine($"? Geri sayÃ„Â±m gÃƒÂ¼ncelleme hatasÃ„Â±: {ex.Message}");
             }
         }
 
@@ -540,10 +540,10 @@ namespace hadis.ViewModels
         {
             if (_namazVakitleri == null) return;
 
-            ImsakVakit = PrayerTimeHelper.FormatTime(_namazVakitleri["Ýmsak"]);
+            ImsakVakit = PrayerTimeHelper.FormatTime(_namazVakitleri["Imsak"]);
             GunesVakit = PrayerTimeHelper.FormatTime(_namazVakitleri["gunes"]);
             OgleVakit = PrayerTimeHelper.FormatTime(_namazVakitleri["Ogle"]);
-            IkindiVakit = PrayerTimeHelper.FormatTime(_namazVakitleri["Ýkindi"]);
+            IkindiVakit = PrayerTimeHelper.FormatTime(_namazVakitleri["Ikindi"]);
             AksamVakit = PrayerTimeHelper.FormatTime(_namazVakitleri["Aksam"]);
             YatsiVakit = PrayerTimeHelper.FormatTime(_namazVakitleri["Yatsi"]);
         }
@@ -564,19 +564,19 @@ namespace hadis.ViewModels
         {
             if (isNoInternet)
             {
-                ErrorTitle = "Ýnternet Baðlantýsý Yok";
-                ErrorDescription = "Namaz vakitlerini güncellemek için lütfen internet baðlantýnýzý kontrol ediniz.";
+                ErrorTitle = "Ã„Â°nternet BaÃ„Å¸lantÃ„Â±sÃ„Â± Yok";
+                ErrorDescription = "Namaz vakitlerini gÃƒÂ¼ncellemek iÃƒÂ§in lÃƒÂ¼tfen internet baÃ„Å¸lantÃ„Â±nÃ„Â±zÃ„Â± kontrol ediniz.";
             }
             else
             {
-                ErrorTitle = "Veri Alýnamadý";
-                ErrorDescription = "Sunucu ile baðlantý kurulamadý. Lütfen daha sonra tekrar deneyiniz.";
+                ErrorTitle = "Veri AlÃ„Â±namadÃ„Â±";
+                ErrorDescription = "Sunucu ile baÃ„Å¸lantÃ„Â± kurulamadÃ„Â±. LÃƒÂ¼tfen daha sonra tekrar deneyiniz.";
             }
             IsInternetErrorVisible = true;
         }
 
         /// <summary>
-        /// Connectivity deðiþikliðini iþle
+        /// Connectivity deÃ„Å¸iÃ…Å¸ikliÃ„Å¸ini iÃ…Å¸le
         /// </summary>
         public async Task OnConnectivityChangedAsync(NetworkAccess networkAccess)
         {
