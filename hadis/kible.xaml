@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8" ?>
+﻿<?xml version="1.0" encoding="utf-8" ?>
 <ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              x:Class="hadis.kible">
@@ -8,7 +8,7 @@
                HorizontalOptions="FillAndExpand"
                VerticalOptions="FillAndExpand">
             <Image.Source>
-                <AppThemeBinding Light="z_light.png" Dark="z.png" />
+                <AppThemeBinding Light="z_light.webp" Dark="z.webp" />
             </Image.Source>
         </Image>
         <BoxView HorizontalOptions="FillAndExpand"
@@ -187,3 +187,4 @@
     </Grid>
 
 </ContentPage>
+

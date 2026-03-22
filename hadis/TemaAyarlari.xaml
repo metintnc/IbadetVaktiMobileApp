@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8" ?>
+﻿<?xml version="1.0" encoding="utf-8" ?>
 <ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              x:Class="hadis.TemaAyarlari"
@@ -59,7 +59,7 @@
                                 <Image x:Name="AnaAcikImage"
                                        Grid.Row="0"
                                        Aspect="AspectFill"
-                                       Source="sun_06.png"/>
+                                       Source="sun_06.webp"/>
                                 
                                 <VerticalStackLayout Grid.Row="1" Padding="10" Spacing="5">
                                     <Label Text="Ana (Açık)"
@@ -91,7 +91,7 @@
                                 <Image x:Name="AnaKoyuImage"
                                        Grid.Row="0"
                                        Aspect="AspectFill"
-                                       Source="sun_09.png"/>
+                                       Source="sun_09.webp"/>
                                 
                                 <VerticalStackLayout Grid.Row="1" Padding="10" Spacing="5">
                                     <Label Text="Ana (Koyu)"
@@ -186,7 +186,7 @@
                                 <Image x:Name="OzelTemaImage"
                                        Grid.Row="0"
                                        Aspect="AspectFill"
-                                       Source="sun_05.png"
+                                       Source="sun_05.webp"
                                        BackgroundColor="Gray"/> 
                                 
                                 <VerticalStackLayout Grid.Row="1" Padding="10" Spacing="5">
@@ -261,3 +261,5 @@
         </ScrollView>
     </Grid>
 </ContentPage>
+
+

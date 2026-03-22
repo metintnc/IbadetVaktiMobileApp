@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8" ?>
+﻿<?xml version="1.0" encoding="utf-8" ?>
 <ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              x:Class="hadis.Ilmihal"
@@ -10,7 +10,7 @@
                HorizontalOptions="FillAndExpand"
                VerticalOptions="FillAndExpand">
             <Image.Source>
-                <AppThemeBinding Light="bg_light.jpg" Dark="ayarlararkaplan.png" />
+                <AppThemeBinding Light="bg_light.jpg" Dark="ayarlararkaplan.webp" />
             </Image.Source>
         </Image>
         
@@ -107,3 +107,5 @@
         </Grid>
     </Grid>
 </ContentPage>
+
+

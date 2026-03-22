@@ -1,4 +1,4 @@
-<Shell
+﻿<Shell
     x:Class="hadis.AppShell"
     xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
     xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
@@ -13,16 +13,16 @@
     
     <TabBar>
         
-        <Tab Title="Vakitler" Icon="vakitler.png">
+        <Tab Title="Vakitler" Icon="vakitler.webp">
             <ShellContent Route="MainPage" ContentTemplate="{DataTemplate local:MainPage}" />
         </Tab>
-        <Tab Title="Kuran" Icon="kuran.png">
+        <Tab Title="Kuran" Icon="kuran.webp">
             <ShellContent ContentTemplate="{DataTemplate local:Kuran}"  />
         </Tab>
-        <Tab Title="Kıble" Icon="kiblesekme.png"> 
+        <Tab Title="Kıble" Icon="kiblesekme.webp"> 
             <ShellContent ContentTemplate="{DataTemplate local:kible}" />
         </Tab>
-        <Tab Title="Zikir" Icon="zikirmatik.png">
+        <Tab Title="Zikir" Icon="zikirmatik.webp">
             <ShellContent ContentTemplate="{DataTemplate local:zikirmatik}" />
         </Tab>
         <Tab Title="Ayarlar" Icon="ayarlar.svg"> 
@@ -33,3 +33,5 @@
     
    
 </Shell>
+
+

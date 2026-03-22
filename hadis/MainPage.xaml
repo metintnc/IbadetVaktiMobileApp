@@ -14,7 +14,7 @@
                HorizontalOptions="FillAndExpand"
                VerticalOptions="FillAndExpand">
             <Image.Source>
-                <AppThemeBinding Light="kuran_light.png" Dark="kuranarkaplan.png" />
+                <AppThemeBinding Light="kuran_light.webp" Dark="kuranarkaplan.webp" />
             </Image.Source>
         </Image>
         <!-- Arkaplan Overlay - Ortada -->
@@ -334,3 +334,5 @@
         </Grid>
     </Grid>
 </ContentPage>
+
+

@@ -1,4 +1,4 @@
-namespace hadis.Helpers
+﻿namespace hadis.Helpers
 {
     /// <summary>
     /// Saatlere göre arkaplan resmi ve status bar renk konfigürasyonu
@@ -27,16 +27,16 @@ namespace hadis.Helpers
         // Statik cache - her saat dilimi için tek bir instance (allocation yok)
         private static readonly BackgroundInfo[] _cachedInfos =
         [
-            new("sun_01.png", "#05051B", "#000115"), // 0: Gece 00-04
-            new("sun_02.png", "#060723", "#040519"), // 1: Sabah 05:00-05:29
-            new("sun_03.png", "#4B427E", "#0C0718"), // 2: Şafak 05:30-06:59
-            new("sun_04.png", "#4077D9", "#181F3D"), // 3: Sabah 07-08
-            new("sun_05.png", "#2F71E4", "#13254F"), // 4: Kuşluk 09-10
-            new("sun_06.png", "#5E92F3", "#14255D"), // 5: Öğle 11-12
-            new("sun_07.png", "#5C89F2", "#192143"), // 6: Öğleden sonra 13-14
-            new("sun_08.png", "#6376C6", "#271C2F"), // 7: İkindi 15-16
-            new("sun_09.png", "#22133A", "#251334"), // 8: Akşam 17-18
-            new("sun_10.png", "#08091D", "#0C0D2A"), // 9: Gece 19-23
+            new("sun_01.webp", "#05051B", "#000115"), // 0: Gece 00-04
+            new("sun_02.webp", "#060723", "#040519"), // 1: Sabah 05:00-05:29
+            new("sun_03.webp", "#4B427E", "#0C0718"), // 2: Şafak 05:30-06:59
+            new("sun_04.webp", "#4077D9", "#181F3D"), // 3: Sabah 07-08
+            new("sun_05.webp", "#2F71E4", "#13254F"), // 4: Kuşluk 09-10
+            new("sun_06.webp", "#5E92F3", "#14255D"), // 5: Öğle 11-12
+            new("sun_07.webp", "#5C89F2", "#192143"), // 6: Öğleden sonra 13-14
+            new("sun_08.webp", "#6376C6", "#271C2F"), // 7: İkindi 15-16
+            new("sun_09.webp", "#22133A", "#251334"), // 8: Akşam 17-18
+            new("sun_10.webp", "#08091D", "#0C0D2A"), // 9: Gece 19-23
         ];
 
         /// <summary>
@@ -66,7 +66,7 @@ namespace hadis.Helpers
                 return "#000000";
 
             // Resim dosyaları için
-            if (backgroundValue.EndsWith(".jpg") || backgroundValue.EndsWith(".png"))
+            if (backgroundValue.EndsWith(".jpg") || backgroundValue.EndsWith(".webp"))
             {
                 if (backgroundValue.Contains("sun_01")) return "#0D1B2A";
                 if (backgroundValue.Contains("sun_02")) return "#1B263B";
@@ -112,7 +112,7 @@ namespace hadis.Helpers
                 return "#1A1A1A";
 
             // Resim dosyaları için
-            if (backgroundValue.EndsWith(".jpg") || backgroundValue.EndsWith(".png"))
+            if (backgroundValue.EndsWith(".jpg") || backgroundValue.EndsWith(".webp"))
             {
                 if (backgroundValue.Contains("sun_01")) return "#000115";
                 if (backgroundValue.Contains("sun_02")) return "#040519";
@@ -194,3 +194,4 @@ namespace hadis.Helpers
         }
     }
 }
+

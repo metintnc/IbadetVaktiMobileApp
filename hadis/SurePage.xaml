@@ -1,4 +1,4 @@
-<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+﻿<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              xmlns:viewModels="clr-namespace:hadis.ViewModels"
              xmlns:models="clr-namespace:hadis.Models"
@@ -10,7 +10,7 @@
                Grid.RowSpan="2"
                IsVisible="True">
             <Image.Source>
-                <AppThemeBinding Light="bg_light.jpg" Dark="kuranarkaplan.png" />
+                <AppThemeBinding Light="bg_light.jpg" Dark="kuranarkaplan.webp" />
             </Image.Source>
         </Image>
         <BoxView Grid.RowSpan="2"
@@ -125,3 +125,5 @@
                            VerticalOptions="Center"/>
     </Grid>
 </ContentPage>
+
+

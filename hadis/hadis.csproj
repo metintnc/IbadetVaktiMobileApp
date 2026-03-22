@@ -68,31 +68,28 @@
 		
 		<!-- Splash Screen -->
 		<MauiSplashScreen Include="Resources\Splash\splash.svg" Color="#000000" BaseSize="128,128" />
-		<MauiImage Include="Resources\Images\ayarlararkaplan.png" />
+		<MauiImage Include="Resources\Images\ayarlararkaplan.webp" />
 		
 		<!-- Background Images -->
-		<MauiImage Include="Resources\Images\bg_dark.jpg" />
-		<MauiImage Include="Resources\Images\bg_light.jpg" />
 		<MauiImage Include="Resources\Images\gerigit.svg" />
 		<MauiImage Include="Resources\Images\kaydet.svg" />
 		<MauiImage Include="Resources\Images\kaydet_white.svg" />
 		<MauiImage Include="Resources\Images\kaydet_filled_white.svg" />
-		<MauiImage Include="Resources\Images\kiblearkaplan.png" />
-		<MauiImage Include="Resources\Images\kuranarkaplan.png" />
-		<MauiImage Include="Resources\Images\kuran_light.png" />
-		<MauiImage Include="Resources\Images\z.png" />
+		<MauiImage Include="Resources\Images\kuranarkaplan.webp" />
+		<MauiImage Include="Resources\Images\kuran_light.webp" />
+		<MauiImage Include="Resources\Images\z.webp" />
 		
 		<!-- Sun Images for Time-based Backgrounds -->
-		<MauiImage Include="Resources\Images\sun_01.png" />
-		<MauiImage Include="Resources\Images\sun_02.png" />
-		<MauiImage Include="Resources\Images\sun_03.png" />
-		<MauiImage Include="Resources\Images\sun_04.png" />
-		<MauiImage Include="Resources\Images\sun_05.png" />
-		<MauiImage Include="Resources\Images\sun_06.png" />
-		<MauiImage Include="Resources\Images\sun_07.png" />
-		<MauiImage Include="Resources\Images\sun_08.png" />
-		<MauiImage Include="Resources\Images\sun_09.png" />
-		<MauiImage Include="Resources\Images\sun_10.png" />
+		<MauiImage Include="Resources\Images\sun_01.webp" />
+		<MauiImage Include="Resources\Images\sun_02.webp" />
+		<MauiImage Include="Resources\Images\sun_03.webp" />
+		<MauiImage Include="Resources\Images\sun_04.webp" />
+		<MauiImage Include="Resources\Images\sun_05.webp" />
+		<MauiImage Include="Resources\Images\sun_06.webp" />
+		<MauiImage Include="Resources\Images\sun_07.webp" />
+		<MauiImage Include="Resources\Images\sun_08.webp" />
+		<MauiImage Include="Resources\Images\sun_09.webp" />
+		<MauiImage Include="Resources\Images\sun_10.webp" />
 		
 		<!-- Qibla Images -->
 		<MauiImage Include="Resources\Images\kibleokdark.svg" />
@@ -104,7 +101,7 @@
 		<MauiImage Include="Resources\Images\kuran.svg" />
 		<MauiImage Include="Resources\Images\vakitler.svg" />
 		<MauiImage Include="Resources\Images\zikirmatik.svg" />
-		<MauiImage Include="Resources\Images\z_light.png" />
+		<MauiImage Include="Resources\Images\z_light.webp" />
 
 		<!-- Custom Fonts -->
 		<MauiFont Include="Resources\Fonts\*" />
@@ -120,28 +117,26 @@
 	</ItemGroup>
 
 	<ItemGroup>
-	  <None Remove="Resources\Images\ayarlararkaplan.png" />
-	  <None Remove="Resources\Images\bg_dark.jpg" />
-	  <None Remove="Resources\Images\bg_light.jpg" />
+	  <None Remove="Resources\Images\ayarlararkaplan.webp" />
 	  <None Remove="Resources\Images\gerigit.svg" />
 	  <None Remove="Resources\Images\kaydet.svg" />
 	  <None Remove="Resources\Images\kaydet_white.svg" />
 	  <None Remove="Resources\Images\kaydet_filled_white.svg" />
 	  <None Remove="Resources\Images\kibleoklight.svg" />
 	  <None Remove="Resources\Images\kiblesekme.svg" />
-	  <None Remove="Resources\Images\kuranarkaplan.png" />
-	  <None Remove="Resources\Images\kuran_light.png" />
-	  <None Remove="Resources\Images\sun_01.png" />
-	  <None Remove="Resources\Images\sun_02.png" />
-	  <None Remove="Resources\Images\sun_03.png" />
-	  <None Remove="Resources\Images\sun_04.png" />
-	  <None Remove="Resources\Images\sun_05.png" />
-	  <None Remove="Resources\Images\sun_06.png" />
-	  <None Remove="Resources\Images\sun_07.png" />
-	  <None Remove="Resources\Images\sun_08.png" />
-	  <None Remove="Resources\Images\sun_09.png" />
-	  <None Remove="Resources\Images\sun_10.png" />
-	  <None Remove="Resources\Images\z_light.png" />
+	  <None Remove="Resources\Images\kuranarkaplan.webp" />
+	  <None Remove="Resources\Images\kuran_light.webp" />
+	  <None Remove="Resources\Images\sun_01.webp" />
+	  <None Remove="Resources\Images\sun_02.webp" />
+	  <None Remove="Resources\Images\sun_03.webp" />
+	  <None Remove="Resources\Images\sun_04.webp" />
+	  <None Remove="Resources\Images\sun_05.webp" />
+	  <None Remove="Resources\Images\sun_06.webp" />
+	  <None Remove="Resources\Images\sun_07.webp" />
+	  <None Remove="Resources\Images\sun_08.webp" />
+	  <None Remove="Resources\Images\sun_09.webp" />
+	  <None Remove="Resources\Images\sun_10.webp" />
+	  <None Remove="Resources\Images\z_light.webp" />
 	</ItemGroup>
 
 	<ItemGroup>
@@ -189,4 +184,7 @@
 	</ItemGroup>
 
 </Project>
+
+
+
 
