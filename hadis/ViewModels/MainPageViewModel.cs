@@ -193,7 +193,7 @@ namespace hadis.ViewModels
 
                 if (status != PermissionStatus.Granted)
                 {
-                    KonumText = "Konum Ä°zni Verilmedi";
+                    KonumText = "Konum İzni Verilmedi";
                     return (null, null, null);
                 }
 
@@ -208,7 +208,7 @@ namespace hadis.ViewModels
                 {
                     try
                     {
-                        // Tek seferlik Geocoding Ã§aÄŸrÄ±sÄ± - sonuÃ§lar cache'lenir
+                        // Tek seferlik Geocoding çağrısı - sonuçlar cache'lenir
                         var placemarks = await Geocoding.Default.GetPlacemarksAsync(foundLocation.Latitude, foundLocation.Longitude);
                         var placemark = placemarks?.FirstOrDefault();
 
@@ -226,20 +226,30 @@ namespace hadis.ViewModels
                                 KonumText = sehir;
                             else
                                 KonumText = $"Lat: {foundLocation.Latitude:F2}, Lon: {foundLocation.Longitude:F2}";
+
+                            // Bulunan konumu manuel konuma kaydet (bir sonraki sefer hızlı olsun)
+                            Preferences.Default.Set("ManuelSehir", sehir);
+                            Preferences.Default.Set("ManuelIlce", ilce);
+                            Preferences.Default.Set("ManuelLatitude", foundLocation.Latitude);
+                            Preferences.Default.Set("ManuelLongitude", foundLocation.Longitude);
+                            
+                            System.Diagnostics.Debug.WriteLine($"✅ Konum kaydedildi: {sehir}/{ilce} (Lat: {foundLocation.Latitude:F2}, Lon: {foundLocation.Longitude:F2})");
                         }
                         else
                         {
                             KonumText = $"Lat: {foundLocation.Latitude:F2}, Lon: {foundLocation.Longitude:F2}";
+                            System.Diagnostics.Debug.WriteLine($"⚠️ Geocoding sonucu null geldi");
                         }
                     }
-                    catch
+                    catch (Exception ex)
                     {
                         KonumText = $"Lat: {foundLocation.Latitude:F2}, Lon: {foundLocation.Longitude:F2}";
+                        System.Diagnostics.Debug.WriteLine($"⚠️ Geocoding hatası: {ex.Message}");
                     }
                 }
                 else
                 {
-                    KonumText = "Konum AlÄ±namadÄ±";
+                    KonumText = "Konum Alınamadı";
                 }
             }
             catch (FeatureNotSupportedException)
@@ -248,11 +258,12 @@ namespace hadis.ViewModels
             }
             catch (PermissionException)
             {
-                KonumText = "Konum Ä°zni Gerekli";
+                KonumText = "Konum İzni Gerekli";
             }
-            catch
+            catch (Exception ex)
             {
-                KonumText = "Konum HatasÄ±";
+                KonumText = "Konum Hatası";
+                System.Diagnostics.Debug.WriteLine($"❌ LoadKonumBilgisiAsync hatası: {ex.Message}");
             }
 
             return (foundLocation, sehir, ilce);
@@ -287,14 +298,20 @@ namespace hadis.ViewModels
 
                     WidgetUpdateRequested?.Invoke();
 
-                    // Cache'lenmiÅŸ ÅŸehir/ilÃ§e yoksa ve otomatik konum modundaysa Geocoding yap
-                    if (string.IsNullOrEmpty(sehir) && otomatikKonum)
+                    // Cache'lenmiş şehir/ilçe parametreleri kontrol et
+                    if (!string.IsNullOrEmpty(sehir) && !string.IsNullOrEmpty(ilce))
                     {
-                        // Ã–nce cache'e bak
+                        // Cache'lenmiş değerler var, doğrudan kullan
+                        System.Diagnostics.Debug.WriteLine($"✅ Cache'lenmiş konum kullanıldı: {sehir}/{ilce}");
+                    }
+                    else
+                    {
+                        // Geocoding yapılması gerekli - eski koddan kopyalama yerine sadece cache kontrol
                         if (!string.IsNullOrEmpty(_cachedSehir))
                         {
                             sehir = _cachedSehir;
                             ilce = _cachedIlce ?? "";
+                            System.Diagnostics.Debug.WriteLine($"✅ İnternal cache kullanıldı: {sehir}/{ilce}");
                         }
                         else
                         {
@@ -308,19 +325,18 @@ namespace hadis.ViewModels
                                     ilce = placemark.SubAdminArea ?? placemark.Locality ?? "";
                                     _cachedSehir = sehir;
                                     _cachedIlce = ilce;
+                                    System.Diagnostics.Debug.WriteLine($"✅ Geocoding sonucu: {sehir}/{ilce}");
+                                }
+                                else
+                                {
+                                    System.Diagnostics.Debug.WriteLine($"❌ Geocoding sonucu null");
                                 }
                             }
-                            catch
+                            catch (Exception ex)
                             {
-                                sehir = "?";
-                                ilce = "?";
+                                System.Diagnostics.Debug.WriteLine($"❌ Geocoding hatası: {ex.Message}");
                             }
                         }
-                    }
-                    else if (!otomatikKonum && string.IsNullOrEmpty(sehir))
-                    {
-                        sehir = Preferences.Default.Get("ManuelSehir", "");
-                        ilce = Preferences.Default.Get("ManuelIlce", "");
                     }
                 }
                 else if (!otomatikKonum)
@@ -393,6 +409,7 @@ namespace hadis.ViewModels
                         {
                             sehir = _cachedSehir;
                             ilce = _cachedIlce ?? "";
+                            System.Diagnostics.Debug.WriteLine($"✅ Cache'lenmiş konum kullanıldı: {sehir}/{ilce}");
                         }
                         else
                         {
@@ -406,9 +423,17 @@ namespace hadis.ViewModels
                                     ilce = placemark.SubAdminArea ?? placemark.Locality ?? "";
                                     _cachedSehir = sehir;
                                     _cachedIlce = ilce;
+                                    System.Diagnostics.Debug.WriteLine($"✅ Geocoding sonucu: {sehir}/{ilce}");
+                                }
+                                else
+                                {
+                                    System.Diagnostics.Debug.WriteLine($"❌ Geocoding sonucu null");
                                 }
                             }
-                            catch { }
+                            catch (Exception ex)
+                            {
+                                System.Diagnostics.Debug.WriteLine($"❌ Geocoding hatası: {ex.Message}");
+                            }
                         }
                     }
                     else
@@ -419,9 +444,11 @@ namespace hadis.ViewModels
                     }
                 }
 
+                // Tüm gerekli bilgiler kontrol et
                 if ((string.IsNullOrEmpty(sehir) || string.IsNullOrEmpty(ilce)) && 
                     (!latitude.HasValue || !longitude.HasValue || (Math.Abs(latitude.Value) < 0.0001 && Math.Abs(longitude.Value) < 0.0001)))
                 {
+                    System.Diagnostics.Debug.WriteLine($"❌ Eksik konum bilgisi: sehir={sehir}, ilce={ilce}, lat={latitude}, lon={longitude}");
                     IsLocationErrorVisible = true;
                     IsInternetErrorVisible = false;
                     ResetPrayerTimes();
@@ -439,6 +466,7 @@ namespace hadis.ViewModels
                     }
                 }
 
+                System.Diagnostics.Debug.WriteLine($"📞 GetPrayerTimesForDateAsync çağrılıyor: {sehir}/{ilce}");
                 var vakitler = await _prayerTimesService.GetPrayerTimesForDateAsync(DateTime.Now, ilce, sehir, latitude, longitude);
 
                 if (vakitler != null)
@@ -467,7 +495,7 @@ namespace hadis.ViewModels
                     }
                     catch (Exception notifEx)
                     {
-                        System.Diagnostics.Debug.WriteLine($"?? Bildirim zamanlama hatasÄ±: {notifEx.Message}");
+                        System.Diagnostics.Debug.WriteLine($"🔔 Bildirim zamanlama hatası: {notifEx.Message}");
                     }
                 }
                 else
@@ -489,7 +517,7 @@ namespace hadis.ViewModels
             }
             catch (Exception e)
             {
-                System.Diagnostics.Debug.WriteLine($"? Namaz vakitleri Ã§ekme hatasÄ±: {e.Message}");
+                System.Diagnostics.Debug.WriteLine($"❌ Namaz vakitleri çekme hatası: {e.Message}");
                 ResetPrayerTimes();
                 ShowInternetError(false);
             }
