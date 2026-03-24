@@ -409,7 +409,7 @@ namespace hadis.ViewModels
                         {
                             sehir = _cachedSehir;
                             ilce = _cachedIlce ?? "";
-                            System.Diagnostics.Debug.WriteLine($"✅ Cache'lenmiş konum kullanıldı: {sehir}/{ilce}");
+                            System.Diagnostics.Debug.WriteLine($"âœ… Cache'lenmiÅŸ konum kullanÄ±ldÄ±: {sehir}/{ilce}");
                         }
                         else
                         {
@@ -423,24 +423,47 @@ namespace hadis.ViewModels
                                     ilce = placemark.SubAdminArea ?? placemark.Locality ?? "";
                                     _cachedSehir = sehir;
                                     _cachedIlce = ilce;
-                                    System.Diagnostics.Debug.WriteLine($"✅ Geocoding sonucu: {sehir}/{ilce}");
+                                    System.Diagnostics.Debug.WriteLine($"âœ… Geocoding sonucu: {sehir}/{ilce}");
                                 }
                                 else
                                 {
-                                    System.Diagnostics.Debug.WriteLine($"❌ Geocoding sonucu null");
+                                    System.Diagnostics.Debug.WriteLine($"âŒ Geocoding sonucu null");
                                 }
                             }
                             catch (Exception ex)
                             {
-                                System.Diagnostics.Debug.WriteLine($"❌ Geocoding hatası: {ex.Message}");
+                                System.Diagnostics.Debug.WriteLine($"âŒ Geocoding hatasÄ±: {ex.Message}");
                             }
                         }
                     }
                     else
                     {
-                        IsLocationErrorVisible = true;
-                        IsInternetErrorVisible = false;
-                        return;
+                        // Konum bulunamadÄ±, Ã¶nceki kaydÄ±lmÄ±Å› konumu kontrol et
+                        System.Diagnostics.Debug.WriteLine($"âš ï¸ Konum bulunamadÄ±, Ã¶nceki konumu kontrol ediliyor...");
+                        var savedSehir = Preferences.Default.Get("ManuelSehir", "");
+                        var savedIlce = Preferences.Default.Get("ManuelIlce", "");
+                        var savedLat = Preferences.Default.Get("ManuelLatitude", 0.0);
+                        var savedLon = Preferences.Default.Get("ManuelLongitude", 0.0);
+
+                        if (!string.IsNullOrEmpty(savedSehir) && !string.IsNullOrEmpty(savedIlce) && (savedLat != 0 || savedLon != 0))
+                        {
+                            // Önceki konum var, devam et (uyarı gösterme)
+                            sehir = savedSehir;
+                            ilce = savedIlce;
+                            latitude = savedLat;
+                            longitude = savedLon;
+                            _cachedSehir = sehir;
+                            _cachedIlce = ilce;
+                            System.Diagnostics.Debug.WriteLine($"✅ Önceki konum kullanıldı: {sehir}/{ilce}");
+                        }
+                        else
+                        {
+                            // Hiç konum bulunamadı ve eski konum yok - hata göster
+                            IsLocationErrorVisible = true;
+                            IsInternetErrorVisible = false;
+                            System.Diagnostics.Debug.WriteLine($"❌ Konum bulunamadı ve önceki konum da yok");
+                            return;
+                        }
                     }
                 }
 
