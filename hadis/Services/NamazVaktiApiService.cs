@@ -10,7 +10,11 @@ namespace hadis.Services
     public class NamazVaktiApiService
     {
         private readonly HttpClient _httpClient;
-        private const string BaseUrl = "https://diyanetnamazvaktiapi20260317180232-gddsaqbzbgawdfbv.swedencentral-01.azurewebsites.net/";
+        // API URL'sini environment variable'dan oku, yoksa varsayılan URL kullan
+        // Kendi API'nizi deploy edip NAMAZVAKTI_API_URL ortam değişkenini ayarlayın
+        private static readonly string BaseUrl = 
+            Environment.GetEnvironmentVariable("NAMAZVAKTI_API_URL") 
+            ?? "https://your-api-url-here.azurewebsites.net/";
         
         // Turkiye ulke ID'si (API'de sabit)
         private const int TurkiyeCountryId = 2;

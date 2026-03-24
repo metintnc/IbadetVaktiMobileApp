@@ -1,4 +1,4 @@
-﻿<Project Sdk="Microsoft.NET.Sdk">
+<Project Sdk="Microsoft.NET.Sdk">
 
 	<PropertyGroup>
 		<TargetFrameworks>net9.0-android;net9.0-ios;net9.0-maccatalyst</TargetFrameworks>
@@ -54,8 +54,8 @@
 	  <AndroidKeyStore>True</AndroidKeyStore>
 	  <AndroidSigningKeyStore>$(MSBuildProjectDirectory)\my-release-key.keystore</AndroidSigningKeyStore>
 	  <AndroidSigningKeyAlias>my-key-alias</AndroidSigningKeyAlias>
-      <AndroidSigningKeyPass>***</AndroidSigningKeyPass>
-      <AndroidSigningStorePass>***</AndroidSigningStorePass>
+      <AndroidSigningKeyPass>$(ANDROID_SIGNING_KEY_PASS)</AndroidSigningKeyPass>
+      <AndroidSigningStorePass>$(ANDROID_SIGNING_STORE_PASS)</AndroidSigningStorePass>
 	  <!-- R8 Code Shrinking yapÄ±landÄ±rmasÄ± -->
 	  <AndroidLinkTool>r8</AndroidLinkTool>
 	  <AndroidLinkMode>Release</AndroidLinkMode>

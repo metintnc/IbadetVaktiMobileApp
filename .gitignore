@@ -13,9 +13,19 @@
 # Güvenlik - Keystore dosyaları
 *.keystore
 *.jks
+eski.my-release-key.keystore
+
+# Build log ve hata dosyaları
+build.log
+build_log.txt
+build_error.txt
+errors_only.txt
+info_debug.txt
+
+# Geçici dosyalar
+temp_layout.txt
 
 # İşletim sistemi dosyaları
 .DS_Store
 Thumbs.db
 /hadis/Models/DuaModel.cs
-/build_log.txt
