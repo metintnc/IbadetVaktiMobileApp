@@ -53,7 +53,7 @@ namespace hadis
                 return;
             }
             Compass.Default.ReadingChanged += PusulaVerisiGeldi;
-            Compass.Default.Start(SensorSpeed.Game);
+            Compass.Default.Start(SensorSpeed.UI);
             _pusulaAktifMi = true;
         }
         public void PusulaVerisiGeldi(object sender, CompassChangedEventArgs e)

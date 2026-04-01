@@ -20,6 +20,10 @@
             
             // Hemen arka planda başlat - Task.Run UI thread'i bloklamaz
             _ = Task.Run(PrewarmPages);
+
+            // Uygulama açılışında beyaz parlama (flicker) olmaması için
+            // TabBar rengini hemen ayarla
+            UpdateTabBarColor();
         }
 
         /// <summary>
@@ -81,8 +85,8 @@
             {
                 // Cache'li tema kullan
                 string savedTheme = GetCachedTheme();
-                var currentPage = Current.CurrentPage;
-                bool isMainPage = currentPage is MainPage;
+                var currentPage = Current?.CurrentPage;
+                bool isMainPage = currentPage is MainPage || currentPage == null; // Varsayılan olarak anasayfa yükleniyor varsayıyoruz (açılışta beyaz patlamaması için)
 
                 if (savedTheme == "MainLight")
                 {
