@@ -10,10 +10,11 @@
 *.user
 *.apk
 
-# Güvenlik - Keystore dosyaları
+# Güvenlik - Keystore ve Secret dosyaları
 *.keystore
 *.jks
 eski.my-release-key.keystore
+ApiSecrets.cs
 
 # Build log ve hata dosyaları
 build.log
