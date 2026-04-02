@@ -11,6 +11,7 @@ namespace hadis.Platforms.Android.Services
     {
         private SensorManager _sensorManager;
         private Sensor _magnetometer;
+        private SensorStatus _lastAccuracy = SensorStatus.NoContact;
         public event Action<CompassAccuracy> AccuracyChanged;
 
         public AndroidCompassService()
@@ -54,9 +55,14 @@ namespace hadis.Platforms.Android.Services
 
         public void OnSensorChanged(SensorEvent e)
         {
-            // We don't need the values here, just the accuracy event.
-            // But sometimes accuracy updates come through here or are implicitly updated.
-            // For SensorType.MagneticField, accuracy changes trigger OnAccuracyChanged.
+            if (e.Sensor.Type == SensorType.MagneticField)
+            {
+                if (_lastAccuracy != e.Accuracy)
+                {
+                    _lastAccuracy = e.Accuracy;
+                    OnAccuracyChanged(e.Sensor, e.Accuracy);
+                }
+            }
         }
     }
 }
