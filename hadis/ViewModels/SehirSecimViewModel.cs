@@ -33,6 +33,7 @@ namespace hadis.ViewModels
 
         private City? _selectedCityForDistrict;
         private bool _isSelectingDistrict;
+        private bool _isSelectingCountry = true;
 
         [ObservableProperty]
         private City? _selectedCity;
@@ -148,12 +149,23 @@ namespace hadis.ViewModels
                 new City("Düzce", 40.8438, 31.1565)
             };
 
-            FilteredCities = new ObservableCollection<City>(_allCities.OrderBy(c => c.Name));
+            SwitchToCountries();
         }
 
         partial void OnSearchTextChanged(string value)
         {
             var searchTerm = value?.ToLower();
+
+            if (_isSelectingCountry)
+            {
+                var countries = new List<City> { new City("T\u00fcrkiye", 0, 0) };
+                if (!string.IsNullOrWhiteSpace(searchTerm))
+                {
+                    countries = countries.Where(c => c.Name.ToLower().Contains(searchTerm)).ToList();
+                }
+                FilteredCities = new ObservableCollection<City>(countries);
+                return;
+            }
 
             if (_isSelectingDistrict && _selectedCityForDistrict != null)
             {
@@ -188,7 +200,11 @@ namespace hadis.ViewModels
         {
             if (city == null) return;
 
-            if (_isSelectingDistrict)
+            if (_isSelectingCountry)
+            {
+                SwitchToCities();
+            }
+            else if (_isSelectingDistrict)
             {
                 await FinalizeSelection(city.Name);
             }
@@ -196,6 +212,19 @@ namespace hadis.ViewModels
             {
                 SwitchToDistricts(city);
             }
+        }
+
+        private void SwitchToCountries()
+        {
+            _isSelectingCountry = true;
+            _isSelectingDistrict = false;
+            
+            Title = "\u00dclke Se\u00e7";
+            SearchText = "";
+            SearchPlaceholder = "\u00dclke ara...";
+            
+            var countries = new List<City> { new City("T\u00fcrkiye", 0, 0) };
+            FilteredCities = new ObservableCollection<City>(countries);
         }
 
         private void SwitchToDistricts(City city)
@@ -221,12 +250,13 @@ namespace hadis.ViewModels
 
         private void SwitchToCities()
         {
+            _isSelectingCountry = false;
             _isSelectingDistrict = false;
             _selectedCityForDistrict = null;
             
-            Title = "Konum Seç";
+            Title = "Konum Se\u00e7";
             SearchText = "";
-            SearchPlaceholder = "Şehir ara...";
+            SearchPlaceholder = "\u015eehir ara...";
             
             FilteredCities = new ObservableCollection<City>(_allCities.OrderBy(c => c.Name));
         }
@@ -387,6 +417,10 @@ namespace hadis.ViewModels
             {
                 SwitchToCities();
             }
+            else if (!_isSelectingCountry)
+            {
+                SwitchToCountries();
+            }
             else
             {
                 await Shell.Current.GoToAsync("..");
@@ -398,6 +432,11 @@ namespace hadis.ViewModels
             if (_isSelectingDistrict)
             {
                 SwitchToCities();
+                return true;
+            }
+            else if (!_isSelectingCountry)
+            {
+                SwitchToCountries();
                 return true;
             }
             return false;
