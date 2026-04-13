@@ -211,8 +211,9 @@ namespace hadis.Services
         {
             if (string.IsNullOrWhiteSpace(input)) return "";
             return input.ToUpper(new System.Globalization.CultureInfo("tr-TR"))
-                        .Replace("Ö", "O").Replace("Ü", "U").Replace("Ş", "S")
-                        .Replace("Ç", "C").Replace("Ğ", "G").Replace("İ", "I").Replace("I", "I");
+                        .Replace("\u00d6", "O").Replace("\u00dc", "U").Replace("\u015e", "S")
+                        .Replace("\u00C7", "C").Replace("\u011e", "G").Replace("\u0130", "I").Replace("I", "I")
+                        .Replace("\u018f", "E").Replace("\u0259", "e"); // Added ə / Ə
         }
 
         /// <summary>
@@ -248,6 +249,21 @@ namespace hadis.Services
 
                 if (il == null)
                 {
+                    // Azerbaycan sehirlerini kontrol et (State ID = 658)
+                    var azeIlceler = await GetIlceler(658);
+                    if (azeIlceler != null && azeIlceler.Count > 0)
+                    {
+                        var azeMatch = azeIlceler.FirstOrDefault(i =>
+                            NormalizeForSearch(i.Name) == NormalizeForSearch(sehirAdi) ||
+                            NormalizeForSearch(i.Name).Contains(NormalizeForSearch(sehirAdi)));
+
+                        if (azeMatch != null)
+                        {
+                            System.Diagnostics.Debug.WriteLine($"Azerbaycan sehri bulundu: {azeMatch.Name} (ID: {azeMatch.Id})");
+                            return azeMatch.Id;
+                        }
+                    }
+
                     System.Diagnostics.Debug.WriteLine($"Il bulunamadi: {sehirAdi}");
                     System.Diagnostics.Debug.WriteLine($"   Mevcut iller: {string.Join(", ", iller.Select(i => i.Name).Take(10))}");
                     return null;

@@ -11,7 +11,11 @@ namespace hadis.ViewModels
     {
         private readonly PrayerTimesService _prayerTimesService;
         private readonly NamazVaktiApiService _namazVaktiApiService;
-        private List<City> _allCities;
+        private List<City> _allCities = new();
+        private List<City> _turkeyCities;
+        private List<City> _azerbaijanCities;
+        private List<City> _countriesList;
+        private string _selectedCountryName;
         
         [ObservableProperty]
         private ObservableCollection<City> _filteredCities;
@@ -64,7 +68,7 @@ namespace hadis.ViewModels
 
         private void InitializeCities()
         {
-            _allCities = new List<City>
+            _turkeyCities = new List<City>
             {
                 new City("Adana", 37.0000, 35.3213),
                 new City("Adıyaman", 37.7648, 38.2786),
@@ -146,7 +150,53 @@ namespace hadis.ViewModels
                 new City("Karabük", 41.2061, 32.6204),
                 new City("Kilis", 36.7184, 37.1212),
                 new City("Osmaniye", 37.0742, 36.2467),
-                new City("Düzce", 40.8438, 31.1565)
+                new City("D\u00fczce", 40.8438, 31.1565)
+            };
+
+            _azerbaijanCities = new List<City>
+            {
+                new City("Askeran", 0, 0),
+                new City("S\u0131yazan", 0, 0),
+                new City("Qarasu", 0, 0),
+                new City("Al\u0131 Bayranl\u0131", 0, 0),
+                new City("Salyan", 0, 0),
+                new City("M\u0131ngacevir", 0, 0),
+                new City("Tovuz", 0, 0),
+                new City("Goycay", 0, 0),
+                new City("Mastaga", 0, 0),
+                new City("Sarur", 0, 0),
+                new City("Xudat", 0, 0),
+                new City("Baku", 0, 0),
+                new City("Kuba", 0, 0),
+                new City("Kusary", 0, 0),
+                new City("Gence", 0, 0),
+                new City("Sek\u0131", 0, 0),
+                new City("Lach\u0131n", 0, 0),
+                new City("Nahc\u0131van", 0, 0),
+                new City("Yevlax", 0, 0),
+                new City("Agdam", 0, 0),
+                new City("Kacmaz", 0, 0),
+                new City("Sumqay\u0131t", 0, 0),
+                new City("Astara", 0, 0),
+                new City("Samax\u0131", 0, 0),
+                new City("Ordubad", 0, 0),
+                new City("Lenkeran", 0, 0),
+                new City("Kazakh", 0, 0),
+                new City("Sab\u0131rabad", 0, 0),
+                new City("Susa", 0, 0),
+                new City("Zakataly", 0, 0),
+                new City("Kelbecer Rayonu", 0, 0),
+                new City("Horad\u0131z", 0, 0),
+                new City("Agbend", 0, 0),
+                new City("Cebray\u0131l", 0, 0),
+                new City("Fuzul\u0131", 0, 0),
+                new City("Zeng\u0131lan", 0, 0)
+            };
+
+            _countriesList = new List<City>
+            {
+                new City("T\u00fcrkiye", 0, 0),
+                new City("Azerbaycan", 0, 0)
             };
 
             SwitchToCountries();
@@ -158,7 +208,7 @@ namespace hadis.ViewModels
 
             if (_isSelectingCountry)
             {
-                var countries = new List<City> { new City("T\u00fcrkiye", 0, 0) };
+                var countries = _countriesList;
                 if (!string.IsNullOrWhiteSpace(searchTerm))
                 {
                     countries = countries.Where(c => c.Name.ToLower().Contains(searchTerm)).ToList();
@@ -202,6 +252,7 @@ namespace hadis.ViewModels
 
             if (_isSelectingCountry)
             {
+                _selectedCountryName = city.Name;
                 SwitchToCities();
             }
             else if (_isSelectingDistrict)
@@ -218,25 +269,27 @@ namespace hadis.ViewModels
         {
             _isSelectingCountry = true;
             _isSelectingDistrict = false;
+            _selectedCountryName = null;
             
             Title = "\u00dclke Se\u00e7";
             SearchText = "";
             SearchPlaceholder = "\u00dclke ara...";
             
-            var countries = new List<City> { new City("T\u00fcrkiye", 0, 0) };
-            FilteredCities = new ObservableCollection<City>(countries);
+            FilteredCities = new ObservableCollection<City>(_countriesList);
         }
 
-        private void SwitchToDistricts(City city)
+        private async void SwitchToDistricts(City city)
         {
             if (TurkeyDistricts.All.TryGetValue(city.Name, out var districts))
             {
                 _selectedCityForDistrict = city;
                 _isSelectingDistrict = true;
                 
-                Title = $"{city.Name} - İlçe Seç";
+                Title = $"{city.Name} - \u0130l\u00e7e Se\u00e7";
                 SearchText = "";
-                SearchPlaceholder = "İlçe ara...";
+                SearchPlaceholder = "\u0130l\u00e7e ara...";
+                
+                await Task.Delay(50); // Prevent MAUI CollectionView binding crash from rapid double-updates due to SearchText
                 
                 var districtObjs = districts.OrderBy(d => d).Select(d => new City(d, 0, 0)).ToList();
                 FilteredCities = new ObservableCollection<City>(districtObjs);
@@ -248,7 +301,7 @@ namespace hadis.ViewModels
             }
         }
 
-        private void SwitchToCities()
+        private async void SwitchToCities()
         {
             _isSelectingCountry = false;
             _isSelectingDistrict = false;
@@ -258,6 +311,9 @@ namespace hadis.ViewModels
             SearchText = "";
             SearchPlaceholder = "\u015eehir ara...";
             
+            _allCities = _selectedCountryName == "Azerbaycan" ? _azerbaijanCities : _turkeyCities;
+            
+            await Task.Delay(50); // Prevent MAUI UI freeze
             FilteredCities = new ObservableCollection<City>(_allCities.OrderBy(c => c.Name));
         }
 
