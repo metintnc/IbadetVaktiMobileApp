@@ -1,9 +1,11 @@
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
+using hadis.Helpers;
 using hadis.Models;
 using hadis.Services;
 using hadis.Data;
 using System.Collections.ObjectModel;
+using System.Text.Json;
 
 namespace hadis.ViewModels
 {
@@ -14,6 +16,8 @@ namespace hadis.ViewModels
         private List<City> _allCities = new();
         private List<City> _turkeyCities;
         private List<City> _azerbaijanCities;
+        private List<City> _germanyCities;
+        private List<City> _saudiArabiaCities;
         private List<City> _countriesList;
         private string _selectedCountryName;
         
@@ -68,6 +72,39 @@ namespace hadis.ViewModels
 
         private void InitializeCities()
         {
+            _saudiArabiaCities = new List<City>
+            {
+                new City("Riyad", 24.7136, 46.6753),
+                new City("Medine", 24.5247, 39.5692),
+                new City("Mekke", 21.3891, 39.8579),
+                new City("Cidde", 21.4858, 39.1925),
+                new City("Ad Dammam", 26.4207, 50.0888),
+                new City("Hail", 27.5114, 41.7208),
+                new City("Shaqra", 25.2486, 45.2461),
+                new City("Al Hufuf", 25.3647, 49.5876),
+                new City("Buraydah", 26.3592, 43.9818),
+                new City("Tabuk", 28.3838, 36.5662)
+            };
+
+            _germanyCities = new List<City>
+            {
+                new City("Berlin", 52.5200, 13.4050),
+                new City("Hamburg", 53.5511, 9.9937),
+                new City("München", 48.1351, 11.5820),
+                new City("Köln", 50.9375, 6.9603),
+                new City("Frankfurt am Main", 50.1109, 8.6821),
+                new City("Stuttgart", 48.7758, 9.1829),
+                new City("Düsseldorf", 51.2277, 6.7735),
+                new City("Dortmund", 51.5136, 7.4653),
+                new City("Essen", 51.4556, 7.0116),
+                new City("Leipzig", 51.3397, 12.3731),
+                new City("Bremen", 53.0793, 8.8017),
+                new City("Dresden", 51.0504, 13.7373),
+                new City("Hannover", 52.3759, 9.7320),
+                new City("Nürnberg", 49.4521, 11.0767),
+                new City("Duisburg", 51.4344, 6.7623)
+            };
+
             _turkeyCities = new List<City>
             {
                 new City("Adana", 37.0000, 35.3213),
@@ -196,8 +233,10 @@ namespace hadis.ViewModels
 
             _countriesList = new List<City>
             {
-                new City("T\u00fcrkiye", 0, 0),
-                new City("Azerbaycan", 0, 0)
+                new City("Türkiye", 0, 0),
+                new City("Azerbaycan", 0, 0),
+                new City("Almanya", 0, 0),
+                new City("Suudi Arabistan", 0, 0)
             };
 
             SwitchToCountries();
@@ -256,13 +295,10 @@ namespace hadis.ViewModels
                 _selectedCountryName = city.Name;
                 SwitchToCities();
             }
-            else if (_isSelectingDistrict)
-            {
-                await FinalizeSelection(city.Name);
-            }
             else
             {
-                SwitchToDistricts(city);
+                _selectedCityForDistrict = city;
+                await FinalizeSelection(city.Name);
             }
         }
 
@@ -285,13 +321,13 @@ namespace hadis.ViewModels
             {
                 _selectedCityForDistrict = city;
                 _isSelectingDistrict = true;
-                
-                Title = $"{city.Name} - \u0130l\u00e7e Se\u00e7";
+
+                Title = $"{city.Name} - İlçe Seç";
                 SearchText = "";
-                SearchPlaceholder = "\u0130l\u00e7e ara...";
-                
+                SearchPlaceholder = "İlçe ara...";
+
                 await Task.Delay(50); // Prevent MAUI CollectionView binding crash from rapid double-updates due to SearchText
-                
+
                 var districtObjs = districts.OrderBy(d => d).Select(d => new City(d, 0, 0)).ToList();
                 FilteredCities = new ObservableCollection<City>(districtObjs);
             }
@@ -310,10 +346,16 @@ namespace hadis.ViewModels
             
             Title = "Konum Se\u00e7";
             SearchText = "";
-            SearchPlaceholder = "\u015eehir ara...";
-            
-            _allCities = _selectedCountryName == "Azerbaycan" ? _azerbaijanCities : _turkeyCities;
-            
+            SearchPlaceholder = "Şehir ara...";
+
+            _allCities = _selectedCountryName switch
+            {
+                "Azerbaycan" => _azerbaijanCities,
+                "Almanya" => _germanyCities,
+                "Suudi Arabistan" => _saudiArabiaCities,
+                _ => _turkeyCities
+            };
+
             await Task.Delay(50); // Prevent MAUI UI freeze
             FilteredCities = new ObservableCollection<City>(_allCities.OrderBy(c => c.Name));
         }
@@ -325,9 +367,12 @@ namespace hadis.ViewModels
             // Kayıt İşlemleri
             Preferences.Default.Set("ManuelSehir", _selectedCityForDistrict.Name);
             Preferences.Default.Set("ManuelIlce", district);
+            Preferences.Default.Set("ManuelUlke", _selectedCountryName ?? "Türkiye");
             Preferences.Default.Set("ManuelLatitude", _selectedCityForDistrict.Latitude);
             Preferences.Default.Set("ManuelLongitude", _selectedCityForDistrict.Longitude);
             Preferences.Default.Set("OtomatikKonum", false);
+
+            SaveAddedCity(_selectedCityForDistrict.Name, district, _selectedCountryName ?? "Türkiye", _selectedCityForDistrict.Latitude, _selectedCityForDistrict.Longitude);
             
             // Widget için
             var sharedName = $"{AppInfo.PackageName}.xamarinessentials";
@@ -450,9 +495,12 @@ namespace hadis.ViewModels
         {
             Preferences.Default.Set("ManuelSehir", city.Name);
             Preferences.Default.Set("ManuelIlce", "Otomatik Konum");
+            Preferences.Default.Set("ManuelUlke", _selectedCountryName ?? "Türkiye");
             Preferences.Default.Set("ManuelLatitude", lat);
             Preferences.Default.Set("ManuelLongitude", lon);
             Preferences.Default.Set("OtomatikKonum", true);
+
+            SaveAddedCity(city.Name, "Otomatik Konum", _selectedCountryName ?? "Türkiye", lat, lon);
 
              var sharedName = $"{AppInfo.PackageName}.xamarinessentials";
             Preferences.Set("ManuelLatitude", lat.ToString(System.Globalization.CultureInfo.InvariantCulture), sharedName);
@@ -465,6 +513,45 @@ namespace hadis.ViewModels
              MessagingCenter.Send(this, "UpdateWidget");
 #endif
             await Shell.Current.GoToAsync("..");
+        }
+
+        private void SaveAddedCity(string sehir, string ilce, string ulke, double latitude, double longitude)
+        {
+            try
+            {
+                var json = Preferences.Default.Get(AppConstants.PREF_ADDED_CITIES, string.Empty);
+                var addedCities = string.IsNullOrWhiteSpace(json)
+                    ? new List<AddedCity>()
+                    : JsonSerializer.Deserialize<List<AddedCity>>(json) ?? new List<AddedCity>();
+
+                var existing = addedCities.FirstOrDefault(x =>
+                    x.Sehir.Equals(sehir, StringComparison.OrdinalIgnoreCase) &&
+                    x.Ilce.Equals(ilce, StringComparison.OrdinalIgnoreCase));
+
+                if (existing == null)
+                {
+                    addedCities.Add(new AddedCity
+                    {
+                        Sehir = sehir,
+                        Ilce = ilce,
+                        Ulke = ulke,
+                        Latitude = latitude,
+                        Longitude = longitude
+                    });
+                }
+                else
+                {
+                    existing.Ulke = ulke;
+                    existing.Latitude = latitude;
+                    existing.Longitude = longitude;
+                }
+
+                Preferences.Default.Set(AppConstants.PREF_ADDED_CITIES, JsonSerializer.Serialize(addedCities));
+            }
+            catch
+            {
+                // ignore malformed cache
+            }
         }
 
         [RelayCommand]
@@ -483,7 +570,7 @@ namespace hadis.ViewModels
                 await Shell.Current.GoToAsync("..");
             }
         }
-        
+
         public bool TryHandleBack()
         {
             if (_isSelectingDistrict)

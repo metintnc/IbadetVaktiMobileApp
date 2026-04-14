@@ -13,11 +13,15 @@ namespace hadis.Services
         // API URL'sini ApiSecrets üzerinden alır, böylece github'da gözükmez
         private static readonly string BaseUrl = ApiSecrets.ApiUrl;
         
-        // Turkiye ulke ID'si (API'de sabit)
+        // Ülke ID'leri (API'de sabit)
         private const int TurkiyeCountryId = 2;
+        private const int AzerbaijanCountryId = 5;
+        private const int GermanyCountryId = 13;
+        private const int SaudiArabiaCountryId = 64;
         
-        // Onbelleklenmis il ve ilce listeleri
+        // Önbelleklenmiş il ve ilçe listeleri
         private List<PlaceInfo> _cachedStates;
+        private readonly Dictionary<int, List<PlaceInfo>> _cachedStatesByCountry = new();
         private Dictionary<int, List<PlaceInfo>> _cachedCities = new();
 
         public NamazVaktiApiService()
@@ -129,21 +133,29 @@ namespace hadis.Services
         // ================================================================
 
         /// <summary>
-        /// Turkiye'deki tum illeri getirir
+        /// Türkiye'deki tüm illeri getirir
         /// </summary>
         public async Task<List<PlaceInfo>> GetTumIller()
         {
+            return await GetIllerByCountryId(TurkiyeCountryId);
+        }
+
+        private async Task<List<PlaceInfo>> GetIllerByCountryId(int countryId)
+        {
             try
             {
-                if (_cachedStates != null)
+                if (countryId == TurkiyeCountryId && _cachedStates != null)
                     return _cachedStates;
 
-                System.Diagnostics.Debug.WriteLine($"GetTumIller basliyor...");
-                
-                var response = await _httpClient.GetAsync($"api/Place/States/{TurkiyeCountryId}");
-                
+                if (_cachedStatesByCountry.TryGetValue(countryId, out var cachedStates))
+                    return cachedStates;
+
+                System.Diagnostics.Debug.WriteLine($"GetIllerByCountryId basliyor (countryId: {countryId})...");
+
+                var response = await _httpClient.GetAsync($"api/Place/States/{countryId}");
+
                 System.Diagnostics.Debug.WriteLine($"   HTTP Status: {response.StatusCode}");
-                
+
                 if (!response.IsSuccessStatusCode)
                 {
                     var errorContent = await response.Content.ReadAsStringAsync();
@@ -152,19 +164,23 @@ namespace hadis.Services
                 }
 
                 var apiResponse = await response.Content.ReadFromJsonAsync<ApiResponse<List<PlaceInfo>>>();
-                
+
                 if (apiResponse?.Success == true && apiResponse.Data != null)
                 {
-                    _cachedStates = apiResponse.Data;
-                    System.Diagnostics.Debug.WriteLine($"{_cachedStates.Count} il basariyla yuklendi");
-                    return _cachedStates;
+                    _cachedStatesByCountry[countryId] = apiResponse.Data;
+
+                    if (countryId == TurkiyeCountryId)
+                        _cachedStates = apiResponse.Data;
+
+                    System.Diagnostics.Debug.WriteLine($"{apiResponse.Data.Count} il basariyla yuklendi (countryId: {countryId})");
+                    return apiResponse.Data;
                 }
-                
+
                 return null;
             }
             catch (Exception ex)
             {
-                System.Diagnostics.Debug.WriteLine($"GetTumIller Hatasi: {ex.GetType().Name}: {ex.Message}");
+                System.Diagnostics.Debug.WriteLine($"GetIllerByCountryId Hatasi: {ex.GetType().Name}: {ex.Message}");
                 return null;
             }
         }
@@ -207,13 +223,76 @@ namespace hadis.Services
             }
         }
 
+        private static PlaceInfo? FindBestPlaceMatch(IEnumerable<PlaceInfo> places, string value)
+        {
+            if (places == null || string.IsNullOrWhiteSpace(value))
+                return null;
+
+            var normalized = NormalizeForSearch(value);
+
+            var exact = places.FirstOrDefault(i =>
+                NormalizeForSearch(i.Name) == normalized ||
+                NormalizeForSearch(i.Code) == normalized);
+
+            if (exact != null)
+                return exact;
+
+            return places.FirstOrDefault(i =>
+                NormalizeForSearch(i.Name).Contains(normalized) ||
+                NormalizeForSearch(i.Code).Contains(normalized));
+        }
+
+        private async Task<int?> FindCityIdInCountry(int countryId, string sehirAdi, string ilceAdi = null)
+        {
+            var states = await GetIllerByCountryId(countryId);
+            if (states == null || states.Count == 0)
+                return null;
+
+            var stateMatch = FindBestPlaceMatch(states, sehirAdi);
+            if (stateMatch != null)
+            {
+                var stateCities = await GetIlceler(stateMatch.Id);
+                if (stateCities != null && stateCities.Count > 0)
+                {
+                    var ilceMatch = FindBestPlaceMatch(stateCities, ilceAdi);
+                    if (ilceMatch != null)
+                        return ilceMatch.Id;
+
+                    var sehirAsCityMatch = FindBestPlaceMatch(stateCities, sehirAdi);
+                    if (sehirAsCityMatch != null)
+                        return sehirAsCityMatch.Id;
+
+                    return stateCities[0].Id;
+                }
+
+                return stateMatch.Id;
+            }
+
+            foreach (var state in states)
+            {
+                var stateCities = await GetIlceler(state.Id);
+                if (stateCities == null || stateCities.Count == 0)
+                    continue;
+
+                var cityMatch = FindBestPlaceMatch(stateCities, sehirAdi);
+                if (cityMatch != null)
+                    return cityMatch.Id;
+
+                var ilceMatch = FindBestPlaceMatch(stateCities, ilceAdi);
+                if (ilceMatch != null)
+                    return ilceMatch.Id;
+            }
+
+            return null;
+        }
+
         private static string NormalizeForSearch(string? input)
         {
             if (string.IsNullOrWhiteSpace(input)) return "";
             return input.ToUpper(new System.Globalization.CultureInfo("tr-TR"))
-                        .Replace("\u00d6", "O").Replace("\u00dc", "U").Replace("\u015e", "S")
-                        .Replace("\u00C7", "C").Replace("\u011e", "G").Replace("\u0130", "I").Replace("I", "I")
-                        .Replace("\u018f", "E").Replace("\u0259", "e"); // Added ə / Ə
+                        .Replace("Ö", "O").Replace("Ü", "U").Replace("Ş", "S")
+                        .Replace("Ç", "C").Replace("Ğ", "G").Replace("İ", "I").Replace("I", "I")
+                        .Replace("Ə", "E").Replace("Ä", "A").Replace("ẞ", "SS");
         }
 
         /// <summary>
@@ -225,6 +304,37 @@ namespace hadis.Services
             try
             {
                 System.Diagnostics.Debug.WriteLine($"GetIlceIdBySehir cagrildi: {sehirAdi}/{ilceAdi}");
+
+                var manuelUlke = Preferences.Default.Get("ManuelUlke", "Türkiye");
+
+                if (NormalizeForSearch(manuelUlke) == NormalizeForSearch("Almanya"))
+                {
+                    var germanyCityId = await FindCityIdInCountry(GermanyCountryId, sehirAdi, ilceAdi);
+                    if (germanyCityId.HasValue)
+                    {
+                        System.Diagnostics.Debug.WriteLine($"Almanya sehir/ilce bulundu (ID: {germanyCityId})");
+                        return germanyCityId;
+                    }
+                }
+                else if (NormalizeForSearch(manuelUlke) == NormalizeForSearch("Azerbaycan"))
+                {
+                    var azerbaijanCityId = await FindCityIdInCountry(AzerbaijanCountryId, sehirAdi, ilceAdi);
+                    if (azerbaijanCityId.HasValue)
+                    {
+                        System.Diagnostics.Debug.WriteLine($"Azerbaycan sehir/ilce bulundu (ID: {azerbaijanCityId})");
+                        return azerbaijanCityId;
+                    }
+                }
+                else if (NormalizeForSearch(manuelUlke) == NormalizeForSearch("Suudi Arabistan") ||
+                         NormalizeForSearch(manuelUlke) == NormalizeForSearch("S. Arabistan"))
+                {
+                    var saudiCityId = await FindCityIdInCountry(SaudiArabiaCountryId, sehirAdi, ilceAdi);
+                    if (saudiCityId.HasValue)
+                    {
+                        System.Diagnostics.Debug.WriteLine($"Suudi Arabistan sehir/ilce bulundu (ID: {saudiCityId})");
+                        return saudiCityId;
+                    }
+                }
                 
                 // 1. Turkiye illerini al
                 var iller = await GetTumIller();
@@ -249,7 +359,7 @@ namespace hadis.Services
 
                 if (il == null)
                 {
-                    // Azerbaycan sehirlerini kontrol et (State ID = 658)
+                    // Azerbaycan sehirlerini kontrol et (legacy fallback - State ID = 658)
                     var azeIlceler = await GetIlceler(658);
                     if (azeIlceler != null && azeIlceler.Count > 0)
                     {

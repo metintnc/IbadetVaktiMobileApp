@@ -670,5 +670,54 @@ namespace hadis.ViewModels
 
             _disposed = true;
         }
+
+        public void ShowAddCityPlaceholder()
+        {
+            NamazIsmi = "Şehir Ekle";
+            KalanSure = "+";
+            ImsakVakit = "+";
+            GunesVakit = "+";
+            OgleVakit = "+";
+            IkindiVakit = "+";
+            AksamVakit = "+";
+            YatsiVakit = "+";
+
+            ImsakVakitColor = Colors.White;
+            GunesVakitColor = Colors.White;
+            OgleVakitColor = Colors.White;
+            IkindiVakitColor = Colors.White;
+            AksamVakitColor = Colors.White;
+            YatsiVakitColor = Colors.White;
+
+            IsInternetErrorVisible = false;
+            IsLocationErrorVisible = false;
+        }
+
+        public async Task<bool> ShowPrayerTimesForCityAsync(string sehir, string ilce, double latitude, double longitude)
+        {
+            try
+            {
+                var vakitler = await _prayerTimesService.GetPrayerTimesForDateAsync(DateTime.Now, ilce, sehir, latitude, longitude);
+                if (vakitler == null)
+                {
+                    return false;
+                }
+
+                _namazVakitleri = vakitler;
+                KonumText = string.IsNullOrWhiteSpace(ilce) || ilce.Equals(sehir, StringComparison.OrdinalIgnoreCase)
+                    ? sehir
+                    : $"{ilce} / {sehir}";
+
+                IsInternetErrorVisible = false;
+                IsLocationErrorVisible = false;
+                UpdateAllPrayerTimes();
+                UpdateCountdown();
+                return true;
+            }
+            catch
+            {
+                return false;
+            }
+        }
     }
 }

@@ -6,11 +6,6 @@ using hadis.Helpers;
 using hadis.ViewModels;
 using Microsoft.Extensions.DependencyInjection;
 
-#if ANDROID
-using Android.OS;
-using Android.Views;
-#endif
-
 namespace hadis
 {
     public partial class MainPage : ContentPage
@@ -20,6 +15,9 @@ namespace hadis
         private string _currentImageName;
         private bool _isDataLoaded = false;
         private string _lastLocationKey = "";
+        private List<AddedCity> _additionalCities = new();
+        private int _activeAdditionalCityIndex = -1; // -1: ana şehir
+        private bool _isSwipeTransitionRunning;
 
         // Animasyon için frame array'i - her seferinde yeniden oluşturulmuyor (allocation optimize)
         private Border[]? _allFrames;
@@ -115,6 +113,8 @@ namespace hadis
                     _lastLocationKey = currentLocationKey;
                     await _viewModel.LoadDataCommand.ExecuteAsync(null);
                 }
+
+                RefreshAdditionalCities();
             }
             catch (Exception ex)
             {
@@ -365,6 +365,135 @@ namespace hadis
             catch (Exception ex)
             {
                 System.Diagnostics.Debug.WriteLine($"⚠️ Ayet animasyon hatası: {ex.Message}");
+            }
+        }
+
+        private async void OnPrayerFramesSwiped(object? sender, SwipedEventArgs e)
+        {
+            if (e.Direction != SwipeDirection.Right || _isSwipeTransitionRunning)
+            {
+                return;
+            }
+
+            try
+            {
+                RefreshAdditionalCities();
+
+                if (_additionalCities.Count == 0)
+                {
+                    _activeAdditionalCityIndex = -1;
+                    await AnimatePrayerFramesSlideRightAsync(() =>
+                    {
+                        _viewModel.ShowAddCityPlaceholder();
+                        return Task.CompletedTask;
+                    });
+                    return;
+                }
+
+                if (_activeAdditionalCityIndex == -1)
+                {
+                    _activeAdditionalCityIndex = 0;
+                }
+                else if (_activeAdditionalCityIndex < _additionalCities.Count - 1)
+                {
+                    _activeAdditionalCityIndex++;
+                }
+                else
+                {
+                    _activeAdditionalCityIndex = -1;
+                    await AnimatePrayerFramesSlideRightAsync(async () =>
+                    {
+                        await _viewModel.LoadDataCommand.ExecuteAsync(null);
+                    });
+                    return;
+                }
+
+                var selected = _additionalCities[_activeAdditionalCityIndex];
+                await AnimatePrayerFramesSlideRightAsync(async () =>
+                {
+                    var loaded = await _viewModel.ShowPrayerTimesForCityAsync(selected.Sehir, selected.Ilce, selected.Latitude, selected.Longitude);
+                    if (!loaded)
+                    {
+                        _viewModel.ShowAddCityPlaceholder();
+                    }
+                });
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine($"Swipe şehir değiştirme hatası: {ex.Message}");
+            }
+        }
+
+        private async Task AnimatePrayerFramesSlideRightAsync(Func<Task> updateContent)
+        {
+            _isSwipeTransitionRunning = true;
+            try
+            {
+                var width = MainContentGrid.Width;
+                if (width <= 0)
+                {
+                    width = Width;
+                }
+                if (width <= 0)
+                {
+                    width = 350;
+                }
+
+                var outOffset = width * 0.42;
+                var inStartOffset = -width * 0.55;
+
+                await Task.WhenAll(
+                    MainContentGrid.TranslateTo(outOffset, 0, 180, Easing.CubicIn),
+                    MainContentGrid.FadeTo(0.18, 140, Easing.CubicIn),
+                    MainContentGrid.ScaleTo(0.965, 180, Easing.CubicIn));
+
+                await updateContent();
+
+                MainContentGrid.TranslationX = inStartOffset;
+                MainContentGrid.Opacity = 0;
+                MainContentGrid.Scale = 0.975;
+
+                await Task.WhenAll(
+                    MainContentGrid.TranslateTo(0, 0, 260, Easing.CubicOut),
+                    MainContentGrid.FadeTo(1, 220, Easing.CubicOut),
+                    MainContentGrid.ScaleTo(1, 240, Easing.SpringOut));
+            }
+            finally
+            {
+                MainContentGrid.TranslationX = 0;
+                MainContentGrid.Opacity = 1;
+                MainContentGrid.Scale = 1;
+                _isSwipeTransitionRunning = false;
+            }
+        }
+
+        private void RefreshAdditionalCities()
+        {
+            try
+            {
+                var currentSehir = Preferences.Default.Get("ManuelSehir", "");
+                var currentIlce = Preferences.Default.Get("ManuelIlce", "");
+
+                var json = Preferences.Default.Get(AppConstants.PREF_ADDED_CITIES, string.Empty);
+                var allCities = string.IsNullOrWhiteSpace(json)
+                    ? new List<AddedCity>()
+                    : JsonSerializer.Deserialize<List<AddedCity>>(json) ?? new List<AddedCity>();
+
+                _additionalCities = allCities
+                    .Where(c =>
+                        !string.Equals(c.Sehir, currentSehir, StringComparison.OrdinalIgnoreCase) ||
+                        !string.Equals(c.Ilce, currentIlce, StringComparison.OrdinalIgnoreCase))
+                    .ToList();
+
+                if (_activeAdditionalCityIndex >= _additionalCities.Count)
+                {
+                    _activeAdditionalCityIndex = -1;
+                }
+            }
+            catch
+            {
+                _additionalCities = new List<AddedCity>();
+                _activeAdditionalCityIndex = -1;
             }
         }
     }

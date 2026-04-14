@@ -86,11 +86,16 @@
         </Grid>
 
         <!-- İçerik - En üstte -->
-        <Grid RowDefinitions="Auto,Auto,Auto,*,Auto" 
+        <Grid x:Name="MainContentGrid"
+              RowDefinitions="Auto,Auto,Auto,*,Auto" 
               ColumnDefinitions="*" 
               Padding="20" 
               Margin="0,0,0,0"
               BackgroundColor="Transparent">
+
+            <Grid.GestureRecognizers>
+                <SwipeGestureRecognizer Direction="Right" Swiped="OnPrayerFramesSwiped" />
+            </Grid.GestureRecognizers>
 
             <!-- Ana Geri Sayım Frame -->
             <StackLayout Grid.Row="0" Spacing="10">

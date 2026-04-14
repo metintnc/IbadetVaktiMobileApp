@@ -30,6 +30,7 @@ namespace hadis.Helpers
         public const string PREF_APP_THEME = "AppTheme";
         public const string PREF_CUSTOM_THEME = "CustomTheme";
         public const string PREF_BACKGROUND_OPACITY = "BackgroundOpacity";
+        public const string PREF_ADDED_CITIES = "AddedCities";
 
         // Tema Değerleri
         public const string THEME_SYSTEM = "System";
