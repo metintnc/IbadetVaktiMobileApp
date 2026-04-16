@@ -9,7 +9,15 @@
         <CarouselView x:Name="PageCarousel"
                       Loop="False"
                       FlowDirection="RightToLeft"
-                      PositionChanged="OnPositionChanged">
+                      PositionChanged="OnPositionChanged"
+                      IsSwipeEnabled="True"
+                      PeekAreaInsets="0">
+            <CarouselView.ItemsLayout>
+                <LinearItemsLayout Orientation="Horizontal" 
+                                   ItemSpacing="0" 
+                                   SnapPointsType="MandatorySingle"
+                                   SnapPointsAlignment="Center" />
+            </CarouselView.ItemsLayout>
             <CarouselView.ItemTemplate>
                 <DataTemplate>
                     <Image Aspect="AspectFit"

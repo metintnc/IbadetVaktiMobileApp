@@ -31,9 +31,9 @@ namespace hadis
             // Standard Madini Mushaf has 604 pages
             for (int i = 1; i <= 604; i++)
             {
-                // Using android.quran.com source
-                // Format: https://android.quran.com/data/width_1024/page{0:D3}.png
-                _pages.Add($"https://android.quran.com/data/width_1024/page{i:D3}.png");
+                // Format: kuran-001.jpg
+                // Raw github link to your repository
+                _pages.Add($"https://raw.githubusercontent.com/metintnc/NamazVaktiMobileApp/main/hadis/kuransayfalar%C4%B1/kuran-{i:D3}.jpg");
             }
             PageCarousel.ItemsSource = _pages;
         }
