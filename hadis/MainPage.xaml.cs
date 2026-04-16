@@ -429,34 +429,7 @@ namespace hadis
             _isSwipeTransitionRunning = true;
             try
             {
-                var width = MainContentGrid.Width;
-                if (width <= 0)
-                {
-                    width = Width;
-                }
-                if (width <= 0)
-                {
-                    width = 350;
-                }
-
-                var outOffset = width * 0.42;
-                var inStartOffset = -width * 0.55;
-
-                await Task.WhenAll(
-                    MainContentGrid.TranslateTo(outOffset, 0, 180, Easing.CubicIn),
-                    MainContentGrid.FadeTo(0.18, 140, Easing.CubicIn),
-                    MainContentGrid.ScaleTo(0.965, 180, Easing.CubicIn));
-
                 await updateContent();
-
-                MainContentGrid.TranslationX = inStartOffset;
-                MainContentGrid.Opacity = 0;
-                MainContentGrid.Scale = 0.975;
-
-                await Task.WhenAll(
-                    MainContentGrid.TranslateTo(0, 0, 260, Easing.CubicOut),
-                    MainContentGrid.FadeTo(1, 220, Easing.CubicOut),
-                    MainContentGrid.ScaleTo(1, 240, Easing.SpringOut));
             }
             finally
             {

@@ -74,8 +74,6 @@ namespace hadis
             _isOverlayVisible = !_isOverlayVisible;
             OverlayGrid.IsVisible = _isOverlayVisible;
             OverlayGrid.InputTransparent = !_isOverlayVisible; // allow clicking buttons when visible
-            
-            // Should hide status bar? Maybe later.
         }
 
         private async void OnBackClicked(object sender, EventArgs e)

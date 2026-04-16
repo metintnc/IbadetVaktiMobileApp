@@ -51,7 +51,8 @@
 	</PropertyGroup>
 
 	<PropertyGroup Condition="'$(Configuration)|$(TargetFramework)'=='Release|net9.0-android'">
-	  <AndroidKeyStore>True</AndroidKeyStore>
+	  <AndroidKeyStore>False</AndroidKeyStore>
+	  <!-- Geçici olarak iptal edildi, eski haline (True) getirmeyi unutma -->
 	  <AndroidSigningKeyStore>$(MSBuildProjectDirectory)\my-release-key.keystore</AndroidSigningKeyStore>
 	  <AndroidSigningKeyAlias>my-key-alias</AndroidSigningKeyAlias>
 	  <AndroidSigningKeyPass>$(ANDROID_SIGNING_KEY_PASS)</AndroidSigningKeyPass>
