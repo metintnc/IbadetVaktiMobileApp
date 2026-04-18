@@ -85,16 +85,29 @@
             </VerticalStackLayout>
         </Grid>
 
+        <!-- Sayfa (Konum) Nokta Göstergesi -->
+        <HorizontalStackLayout x:Name="PageIndicator"
+                               HorizontalOptions="Center"
+                               VerticalOptions="End"
+                               Margin="0, 0, 0, 20"
+                               HeightRequest="15"
+                               Spacing="6"
+                               IsVisible="False"
+                               ZIndex="50">
+            <!-- Kod tarafından Ellipse (noktalar) eklenecek -->
+        </HorizontalStackLayout>
+
         <!-- İçerik - En üstte -->
         <Grid x:Name="MainContentGrid"
               RowDefinitions="Auto,Auto,Auto,*,Auto" 
               ColumnDefinitions="*" 
-              Padding="20" 
+              Padding="20,20,20,45" 
               Margin="0,0,0,0"
               BackgroundColor="Transparent">
 
             <Grid.GestureRecognizers>
                 <SwipeGestureRecognizer Direction="Right" Swiped="OnPrayerFramesSwiped" />
+                <SwipeGestureRecognizer Direction="Left" Swiped="OnPrayerFramesSwiped" />
             </Grid.GestureRecognizers>
 
             <!-- Ana Geri Sayım Frame -->

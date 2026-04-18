@@ -103,6 +103,10 @@
 		<MauiImage Include="Resources\Images\vakitler.svg" />
 		<MauiImage Include="Resources\Images\zikirmatik.svg" />
 		<MauiImage Include="Resources\Images\z_light.webp" />
+		<MauiImage Include="Resources\Images\trash.svg" />
+		<MauiImage Include="Resources\Images\plus.svg" />
+		<MauiImage Include="Resources\Images\back.svg" />
+		<MauiImage Include="Resources\Images\location_off.svg" />
 
 		<!-- Custom Fonts -->
 		<MauiFont Include="Resources\Fonts\*" />
@@ -165,6 +169,9 @@
 	    <Generator>MSBuild:Compile</Generator>
 	  </MauiXaml>
 	  <MauiXaml Update="kible.xaml">
+	    <Generator>MSBuild:Compile</Generator>
+	  </MauiXaml>
+	  <MauiXaml Update="KonumPage.xaml">
 	    <Generator>MSBuild:Compile</Generator>
 	  </MauiXaml>
 	  <MauiXaml Update="Kuran.xaml">

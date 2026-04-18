@@ -48,7 +48,7 @@ namespace hadis
 
         private async void KonumButton_Clicked(object sender, TappedEventArgs e)
         {
-            var page = _serviceProvider.GetRequiredService<SehirSecim>();
+            var page = _serviceProvider.GetRequiredService<KonumPage>();
             await Navigation.PushAsync(page);
         }
 

@@ -50,6 +50,9 @@ namespace hadis
 #endif
             // Konum hatasında şehir seçim sayfasına yönlendir
             _viewModel.NavigateToSehirSecim += OnNavigateToSehirSecim;
+            
+            // Başlangıçta indicator kontrolü yapalım
+            UpdatePageIndicator();
         }
 
         private void OnNavigateToSehirSecim()
@@ -58,8 +61,8 @@ namespace hadis
             {
                 try
                 {
-                    var sehirSecimPage = _serviceProvider.GetRequiredService<SehirSecim>();
-                    await Navigation.PushAsync(sehirSecimPage);
+                    var konumPage = _serviceProvider.GetRequiredService<KonumPage>();
+                    await Navigation.PushAsync(konumPage);
                 }
                 catch (Exception ex)
                 {
@@ -115,6 +118,9 @@ namespace hadis
                 }
 
                 RefreshAdditionalCities();
+
+                // Animasyonları başlat
+                _ = AnimateFrames();
             }
             catch (Exception ex)
             {
@@ -126,6 +132,19 @@ namespace hadis
         {
             base.OnDisappearing();
             Connectivity.ConnectivityChanged -= Connectivity_ConnectivityChanged;
+
+            try
+            {
+                // Tüm animasyonları iptal et (optimize edilmiş)
+                AnimationHelpers.CancelAllAnimations(AllFrames);
+
+                // Hızlı çıkış animasyonu (fire-and-forget, bloklama yok)
+                _ = AnimationHelpers.AnimateOutParallel(AllFrames);
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine($"OnDisappearing animasyon hatası: {ex.Message}");
+            }
         }
 
         private void Connectivity_ConnectivityChanged(object? sender, ConnectivityChangedEventArgs e)
@@ -223,19 +242,6 @@ namespace hadis
         // ANİMASYONLAR (UI element referansı gerektiren kod)
         // ============================================================
 
-        protected override async void OnNavigatedTo(NavigatedToEventArgs args)
-        {
-            base.OnNavigatedTo(args);
-            try
-            {
-                await AnimateFrames();
-            }
-            catch (Exception ex)
-            {
-                System.Diagnostics.Debug.WriteLine($"Animasyon hatası: {ex.Message}");
-            }
-        }
-
         private async Task AnimateFrames()
         {
             // Tüm animasyonları iptal et (optimize edilmiş)
@@ -263,24 +269,6 @@ namespace hadis
             return border.AnimateIn();
         }
 
-        protected override async void OnNavigatedFrom(NavigatedFromEventArgs args)
-        {
-            base.OnNavigatedFrom(args);
-
-            try
-            {
-                // Tüm animasyonları iptal et (optimize edilmiş)
-                AnimationHelpers.CancelAllAnimations(AllFrames);
-
-                // Hızlı çıkış animasyonu (fire-and-forget, bloklama yok)
-                _ = AnimationHelpers.AnimateOutParallel(AllFrames);
-            }
-            catch (Exception ex)
-            {
-                System.Diagnostics.Debug.WriteLine($"Navigasyon animasyon hatası: {ex.Message}");
-            }
-        }
-
         // ============================================================
         // EVENT HANDLERS (Navigation)
         // ============================================================
@@ -289,8 +277,8 @@ namespace hadis
         {
             try
             {
-                var sehirSecimPage = _serviceProvider.GetRequiredService<SehirSecim>();
-                await Navigation.PushAsync(sehirSecimPage);
+                var konumPage = _serviceProvider.GetRequiredService<KonumPage>();
+                await Navigation.PushAsync(konumPage);
             }
             catch (Exception ex)
             {
@@ -302,8 +290,8 @@ namespace hadis
         {
             try
             {
-                var sehirSecimPage = _serviceProvider.GetRequiredService<SehirSecim>();
-                await Navigation.PushAsync(sehirSecimPage);
+                var konumPage = _serviceProvider.GetRequiredService<KonumPage>();
+                await Navigation.PushAsync(konumPage);
             }
             catch (Exception ex)
             {
@@ -370,7 +358,7 @@ namespace hadis
 
         private async void OnPrayerFramesSwiped(object? sender, SwipedEventArgs e)
         {
-            if (e.Direction != SwipeDirection.Right || _isSwipeTransitionRunning)
+            if (_isSwipeTransitionRunning || (e.Direction != SwipeDirection.Right && e.Direction != SwipeDirection.Left))
             {
                 return;
             }
@@ -378,45 +366,66 @@ namespace hadis
             try
             {
                 RefreshAdditionalCities();
+                bool isSwipeRight = e.Direction == SwipeDirection.Right;
 
                 if (_additionalCities.Count == 0)
                 {
                     _activeAdditionalCityIndex = -1;
-                    await AnimatePrayerFramesSlideRightAsync(() =>
-                    {
-                        _viewModel.ShowAddCityPlaceholder();
-                        return Task.CompletedTask;
-                    });
                     return;
                 }
 
-                if (_activeAdditionalCityIndex == -1)
+                if (isSwipeRight)
                 {
-                    _activeAdditionalCityIndex = 0;
-                }
-                else if (_activeAdditionalCityIndex < _additionalCities.Count - 1)
-                {
-                    _activeAdditionalCityIndex++;
+                    // Right swipe -> Go to previous (or circle to end)
+                    if (_activeAdditionalCityIndex == -1)
+                    {
+                        _activeAdditionalCityIndex = _additionalCities.Count - 1;
+                    }
+                    else if (_activeAdditionalCityIndex > 0)
+                    {
+                        _activeAdditionalCityIndex--;
+                    }
+                    else
+                    {
+                        _activeAdditionalCityIndex = -1;
+                        await AnimatePrayerFramesTransitionAsync(async () =>
+                        {
+                            await _viewModel.LoadDataCommand.ExecuteAsync(null);
+                        }, true);
+                        return;
+                    }
                 }
                 else
                 {
-                    _activeAdditionalCityIndex = -1;
-                    await AnimatePrayerFramesSlideRightAsync(async () =>
+                    // Left swipe -> Go to next (or circle back to start/main)
+                    if (_activeAdditionalCityIndex == -1)
                     {
-                        await _viewModel.LoadDataCommand.ExecuteAsync(null);
-                    });
-                    return;
+                        _activeAdditionalCityIndex = 0;
+                    }
+                    else if (_activeAdditionalCityIndex < _additionalCities.Count - 1)
+                    {
+                        _activeAdditionalCityIndex++;
+                    }
+                    else
+                    {
+                        _activeAdditionalCityIndex = -1;
+                        await AnimatePrayerFramesTransitionAsync(async () =>
+                        {
+                            await _viewModel.LoadDataCommand.ExecuteAsync(null);
+                        }, false);
+                        return;
+                    }
                 }
 
                 var selected = _additionalCities[_activeAdditionalCityIndex];
-                await AnimatePrayerFramesSlideRightAsync(async () =>
+                await AnimatePrayerFramesTransitionAsync(async () =>
                 {
                     var loaded = await _viewModel.ShowPrayerTimesForCityAsync(selected.Sehir, selected.Ilce, selected.Latitude, selected.Longitude);
                     if (!loaded)
                     {
                         _viewModel.ShowAddCityPlaceholder();
                     }
-                });
+                }, isSwipeRight);
             }
             catch (Exception ex)
             {
@@ -424,12 +433,33 @@ namespace hadis
             }
         }
 
-        private async Task AnimatePrayerFramesSlideRightAsync(Func<Task> updateContent)
+        private async Task AnimatePrayerFramesTransitionAsync(Func<Task> updateContent, bool slideRight)
         {
             _isSwipeTransitionRunning = true;
+            UpdatePageIndicator(); // Dot'ı hemen güncelle
             try
             {
+                double slideDistance = Application.Current?.MainPage?.Width ?? 300;
+                double outX = slideRight ? slideDistance : -slideDistance;
+                double inX = slideRight ? -slideDistance : slideDistance;
+
+                // Eski içeriği kaydırıp şeffaflaştırarak gizle
+                await Task.WhenAll(
+                    MainContentGrid.TranslateTo(outX, 0, 250, Easing.CubicIn),
+                    MainContentGrid.FadeTo(0, 250, Easing.CubicIn)
+                );
+
+                // İçeriği güncelle
                 await updateContent();
+
+                // Görünmezken ekranın ters tarafına al
+                MainContentGrid.TranslationX = inX;
+                
+                // Olduğu konuma geri kaydırarak şeffaflığı kaldırıp görünür yap
+                await Task.WhenAll(
+                    MainContentGrid.TranslateTo(0, 0, 300, Easing.CubicOut),
+                    MainContentGrid.FadeTo(1, 300, Easing.CubicOut)
+                );
             }
             finally
             {
@@ -462,12 +492,50 @@ namespace hadis
                 {
                     _activeAdditionalCityIndex = -1;
                 }
+                
+                UpdatePageIndicator();
             }
             catch
             {
                 _additionalCities = new List<AddedCity>();
                 _activeAdditionalCityIndex = -1;
+                UpdatePageIndicator();
             }
+        }
+
+        private void UpdatePageIndicator()
+        {
+            if (PageIndicator == null) return;
+
+            MainThread.BeginInvokeOnMainThread(() =>
+            {
+                if (_additionalCities == null || _additionalCities.Count == 0)
+                {
+                    PageIndicator.IsVisible = false;
+                    PageIndicator.Children.Clear();
+                    return;
+                }
+
+                PageIndicator.IsVisible = true;
+                PageIndicator.Children.Clear();
+
+                int totalPages = 1 + _additionalCities.Count;
+                int activeIndex = _activeAdditionalCityIndex + 1; // -1 -> 0, 0 -> 1...
+
+                for (int i = 0; i < totalPages; i++)
+                {
+                    var isCurrent = i == activeIndex;
+                    var dot = new Microsoft.Maui.Controls.Shapes.Ellipse
+                    {
+                        WidthRequest = isCurrent ? 10 : 8,
+                        HeightRequest = isCurrent ? 10 : 8,
+                        Fill = isCurrent ? Colors.White : Colors.White.WithAlpha(0.4f),
+                        VerticalOptions = LayoutOptions.Center
+                    };
+
+                    PageIndicator.Children.Add(dot);
+                }
+            });
         }
     }
 }

@@ -58,6 +58,8 @@ namespace hadis
             builder.Services.AddTransient<BildirimAyarlari>();
             builder.Services.AddTransient<SehirSecimViewModel>();
             builder.Services.AddTransient<SehirSecim>();
+            builder.Services.AddTransient<KonumViewModel>();
+            builder.Services.AddTransient<KonumPage>();
             builder.Services.AddTransient<TemaAyarlari>();
             builder.Services.AddTransient<YakindakiCamiler>();
             builder.Services.AddTransient<HicriTakvim>();

@@ -65,10 +65,10 @@ namespace hadis.ViewModels
         private bool _isLocationErrorVisible;
 
         [ObservableProperty]
-        private string _errorTitle = "Ä°nternet BaÄŸlantÄ±sÄ± Yok";
+        private string _errorTitle = "İnternet Bağlantısı Yok";
 
         [ObservableProperty]
-        private string _errorDescription = "Namaz vakitlerini gÃ¼ncellemek iÃ§in lÃ¼tfen internet baÄŸlantÄ±nÄ±zÄ± kontrol ediniz.";
+        private string _errorDescription = "Namaz vakitlerini güncellemek için lütfen internet bağlantınızı kontrol ediniz.";
 
         // --- Observable Properties: Aktif namaz vurgulama ---
         [ObservableProperty]
@@ -615,13 +615,13 @@ namespace hadis.ViewModels
         {
             if (isNoInternet)
             {
-                ErrorTitle = "Ä°nternet BaÄŸlantÄ±sÄ± Yok";
-                ErrorDescription = "Namaz vakitlerini gÃ¼ncellemek iÃ§in lÃ¼tfen internet baÄŸlantÄ±nÄ±zÄ± kontrol ediniz.";
+                ErrorTitle = "İnternet Bağlantısı Yok";
+                ErrorDescription = "Namaz vakitlerini güncellemek için lütfen internet bağlantınızı kontrol ediniz.";
             }
             else
             {
-                ErrorTitle = "Veri AlÄ±namadÄ±";
-                ErrorDescription = "Sunucu ile baÄŸlantÄ± kurulamadÄ±. LÃ¼tfen daha sonra tekrar deneyiniz.";
+                ErrorTitle = "Veri Alınamadı";
+                ErrorDescription = "Sunucu ile bağlantı kurulamadı. Lütfen daha sonra tekrar deneyiniz.";
             }
             IsInternetErrorVisible = true;
         }

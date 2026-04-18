@@ -1,0 +1,121 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:viewmodels="clr-namespace:hadis.ViewModels"
+             xmlns:models="clr-namespace:hadis.Models"
+             x:Class="hadis.KonumPage"
+             x:DataType="viewmodels:KonumViewModel"
+             Title="Kayıtlı Konumlar"
+             NavigationPage.HasNavigationBar="False"
+             Shell.TabBarIsVisible="False"
+             BackgroundColor="{AppThemeBinding Light=#F5F5F5, Dark=#121212}">
+
+    <Grid RowDefinitions="Auto, *, Auto">
+        <!-- Özel Üst Bar -->
+        <Border Grid.Row="0"
+                StrokeShape="RoundRectangle 20"
+                Padding="15"
+                Margin="20,10,20,10"
+                BackgroundColor="{AppThemeBinding Light=White, Dark=#1E1E1E}"
+                Stroke="{AppThemeBinding Light=#E0E0E0, Dark=#333333}"
+                StrokeThickness="1">
+            <Border.Shadow>
+                <Shadow Brush="Black" Offset="0,4" Radius="10" Opacity="0.05" />
+            </Border.Shadow>
+
+            <Grid ColumnDefinitions="Auto, *, Auto">
+                <ImageButton Grid.Column="0" 
+                             Source="back.svg" 
+                             WidthRequest="24" 
+                             HeightRequest="24"
+                             Clicked="OnBackClicked"
+                             BackgroundColor="Transparent"
+                             HorizontalOptions="Start" />
+
+                <Label Grid.Column="1"
+                       Text="Konumlarım"
+                       FontSize="20"
+                       FontAttributes="Bold"
+                       HorizontalOptions="Center"
+                       VerticalOptions="Center"
+                       TextColor="{AppThemeBinding Light=#2C3E50, Dark=White}" />
+
+                <ImageButton Grid.Column="2" 
+                             Source="plus.svg" 
+                             WidthRequest="24" 
+                             HeightRequest="24"
+                             Command="{Binding AddLocationCommand}"
+                             BackgroundColor="Transparent"
+                             HorizontalOptions="End" />
+            </Grid>
+        </Border>
+
+        <!-- Kayıtlı Konumlar Listesi -->
+        <CollectionView Grid.Row="1"
+                        ItemsSource="{Binding AddedLocations}"
+                        SelectionMode="None"
+                        Margin="20,0,20,20">
+            <CollectionView.ItemTemplate>
+                <DataTemplate x:DataType="models:AddedCity">
+                    <Border StrokeShape="RoundRectangle 15"
+                            Margin="0,0,0,10"
+                            Padding="15"
+                            BackgroundColor="{AppThemeBinding Light=White, Dark=#1E1E1E}"
+                            Stroke="{AppThemeBinding Light=#E0E0E0, Dark=#333333}"
+                            StrokeThickness="1">
+                        <Border.GestureRecognizers>
+                            <TapGestureRecognizer Command="{Binding Source={RelativeSource AncestorType={x:Type viewmodels:KonumViewModel}}, Path=SelectLocationCommand}"
+                                                  CommandParameter="{Binding .}" />
+                        </Border.GestureRecognizers>
+
+                        <Grid ColumnDefinitions="*, Auto">
+                            <VerticalStackLayout Grid.Column="0" VerticalOptions="Center">
+                                <Label Text="{Binding Ilce}" 
+                                       FontSize="18" 
+                                       FontAttributes="Bold"
+                                       TextColor="{AppThemeBinding Light=#2C3E50, Dark=White}" />
+                                <Label Text="{Binding Sehir}" 
+                                       FontSize="14" 
+                                       TextColor="{AppThemeBinding Light=#7F8C8D, Dark=#A0A0A0}" />
+                                <Label Text="{Binding Ulke}" 
+                                       FontSize="12" 
+                                       TextColor="#3498DB" />
+                            </VerticalStackLayout>
+
+                            <ImageButton Grid.Column="1"
+                                         Source="trash.svg"
+                                         WidthRequest="24"
+                                         HeightRequest="24"
+                                         BackgroundColor="Transparent"
+                                         VerticalOptions="Center"
+                                         Command="{Binding Source={RelativeSource AncestorType={x:Type viewmodels:KonumViewModel}}, Path=RemoveLocationCommand}"
+                                         CommandParameter="{Binding .}" />
+                        </Grid>
+                    </Border>
+                </DataTemplate>
+            </CollectionView.ItemTemplate>
+
+            <CollectionView.EmptyView>
+                <VerticalStackLayout HorizontalOptions="Center" VerticalOptions="Center" Spacing="15" Margin="0,50,0,0">
+                    <Image Source="location_off.svg" WidthRequest="64" HeightRequest="64" Opacity="0.5" />
+                    <Label Text="Kayıtlı konum bulunamadı." 
+                           FontSize="16" 
+                           TextColor="{AppThemeBinding Light=#7F8C8D, Dark=#A0A0A0}" 
+                           HorizontalOptions="Center" />
+                </VerticalStackLayout>
+            </CollectionView.EmptyView>
+        </CollectionView>
+
+        <!-- Yeni Konum Ekle Butonu -->
+        <Button Grid.Row="2"
+                Text="Yeni Konum Ekle" 
+                Command="{Binding AddLocationCommand}"
+                CornerRadius="20"
+                BackgroundColor="#3498DB"
+                TextColor="White"
+                FontAttributes="Bold"
+                Padding="20,15"
+                Margin="20,0,20,20"
+                HorizontalOptions="Fill" />
+    </Grid>
+</ContentPage>

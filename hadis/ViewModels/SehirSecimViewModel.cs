@@ -364,32 +364,29 @@ namespace hadis.ViewModels
         {
             if (_selectedCityForDistrict == null) return;
 
-            // Kayıt İşlemleri
-            Preferences.Default.Set("ManuelSehir", _selectedCityForDistrict.Name);
-            Preferences.Default.Set("ManuelIlce", district);
-            Preferences.Default.Set("ManuelUlke", _selectedCountryName ?? "Türkiye");
-            Preferences.Default.Set("ManuelLatitude", _selectedCityForDistrict.Latitude);
-            Preferences.Default.Set("ManuelLongitude", _selectedCityForDistrict.Longitude);
-            Preferences.Default.Set("OtomatikKonum", false);
-
-            SaveAddedCity(_selectedCityForDistrict.Name, district, _selectedCountryName ?? "Türkiye", _selectedCityForDistrict.Latitude, _selectedCityForDistrict.Longitude);
+            var mevcutAnaSehir = Preferences.Default.Get("ManuelSehir", string.Empty);
             
-            // Widget için
-            var sharedName = $"{AppInfo.PackageName}.xamarinessentials";
-            Preferences.Set("ManuelLatitude", _selectedCityForDistrict.Latitude.ToString(System.Globalization.CultureInfo.InvariantCulture), sharedName);
-            Preferences.Set("ManuelLongitude", _selectedCityForDistrict.Longitude.ToString(System.Globalization.CultureInfo.InvariantCulture), sharedName);
-            Preferences.Set("OtomatikKonum", false, sharedName);
+            if (string.IsNullOrEmpty(mevcutAnaSehir))
+            {
+                Preferences.Default.Set("ManuelSehir", _selectedCityForDistrict.Name);
+                Preferences.Default.Set("ManuelIlce", district);
+                Preferences.Default.Set("ManuelUlke", _selectedCountryName ?? "Türkiye");
+                Preferences.Default.Set("ManuelLatitude", _selectedCityForDistrict.Latitude);
+                Preferences.Default.Set("ManuelLongitude", _selectedCityForDistrict.Longitude);
+                Preferences.Default.Set("OtomatikKonum", false);
 
-            // Cache Temizle
+                var sharedName = $"{AppInfo.PackageName}.xamarinessentials";
+                Preferences.Set("ManuelLatitude", _selectedCityForDistrict.Latitude.ToString(System.Globalization.CultureInfo.InvariantCulture), sharedName);
+                Preferences.Set("ManuelLongitude", _selectedCityForDistrict.Longitude.ToString(System.Globalization.CultureInfo.InvariantCulture), sharedName);
+                Preferences.Set("OtomatikKonum", false, sharedName);
+            }
+            else
+            {
+                SaveAddedCity(_selectedCityForDistrict.Name, district, _selectedCountryName ?? "Türkiye", _selectedCityForDistrict.Latitude, _selectedCityForDistrict.Longitude);
+            }
+            
             _prayerTimesService.ClearCache();
 
-            // Widget Güncelleme Sinyali (Android Only logic is in Platform specific code, invoked via MessagingCenter or dependency, typically handled by View or Service, but simpler: fire MainThread invoke or similar)
-            // MVVM'de direkt Android API çağıramayız.
-            // Ama basitlik için burada DependencyService veya MessagingCenter kullanabiliriz.
-            // Veya sadece Page tarafında bu işi yapabiliriz? 
-            // Better: Invoke an event or MessagingCenter.
-            // For now, assume Widget Update is handled by app resuming or similar, OR invoke specific platform code via conditional compilation inside VM (ugly but works in MAUI shared project).
-            
 #if ANDROID
             UpdateAndroidWidget();
 #endif
@@ -493,19 +490,26 @@ namespace hadis.ViewModels
 
         private async Task FinalizeSelectionAuto(City city, double lat, double lon)
         {
-            Preferences.Default.Set("ManuelSehir", city.Name);
-            Preferences.Default.Set("ManuelIlce", "Otomatik Konum");
-            Preferences.Default.Set("ManuelUlke", _selectedCountryName ?? "Türkiye");
-            Preferences.Default.Set("ManuelLatitude", lat);
-            Preferences.Default.Set("ManuelLongitude", lon);
-            Preferences.Default.Set("OtomatikKonum", true);
+            var mevcutAnaSehir = Preferences.Default.Get("ManuelSehir", string.Empty);
 
-            SaveAddedCity(city.Name, "Otomatik Konum", _selectedCountryName ?? "Türkiye", lat, lon);
+            if (string.IsNullOrEmpty(mevcutAnaSehir))
+            {
+                Preferences.Default.Set("ManuelSehir", city.Name);
+                Preferences.Default.Set("ManuelIlce", "Otomatik Konum");
+                Preferences.Default.Set("ManuelUlke", _selectedCountryName ?? "Türkiye");
+                Preferences.Default.Set("ManuelLatitude", lat);
+                Preferences.Default.Set("ManuelLongitude", lon);
+                Preferences.Default.Set("OtomatikKonum", true);
 
-             var sharedName = $"{AppInfo.PackageName}.xamarinessentials";
-            Preferences.Set("ManuelLatitude", lat.ToString(System.Globalization.CultureInfo.InvariantCulture), sharedName);
-            Preferences.Set("ManuelLongitude", lon.ToString(System.Globalization.CultureInfo.InvariantCulture), sharedName);
-            Preferences.Set("OtomatikKonum", true, sharedName);
+                var sharedName = $"{AppInfo.PackageName}.xamarinessentials";
+                Preferences.Set("ManuelLatitude", lat.ToString(System.Globalization.CultureInfo.InvariantCulture), sharedName);
+                Preferences.Set("ManuelLongitude", lon.ToString(System.Globalization.CultureInfo.InvariantCulture), sharedName);
+                Preferences.Set("OtomatikKonum", true, sharedName);
+            }
+            else
+            {
+                SaveAddedCity(city.Name, "Otomatik Konum", _selectedCountryName ?? "Türkiye", lat, lon);
+            }
 
             _prayerTimesService.ClearCache();
             
@@ -528,22 +532,25 @@ namespace hadis.ViewModels
                     x.Sehir.Equals(sehir, StringComparison.OrdinalIgnoreCase) &&
                     x.Ilce.Equals(ilce, StringComparison.OrdinalIgnoreCase));
 
-                if (existing == null)
+                if (existing != null)
                 {
-                    addedCities.Add(new AddedCity
-                    {
-                        Sehir = sehir,
-                        Ilce = ilce,
-                        Ulke = ulke,
-                        Latitude = latitude,
-                        Longitude = longitude
-                    });
+                    addedCities.Remove(existing);
                 }
-                else
+
+                // Listeye en başa ekle (son eklenen en üstte)
+                addedCities.Insert(0, new AddedCity
                 {
-                    existing.Ulke = ulke;
-                    existing.Latitude = latitude;
-                    existing.Longitude = longitude;
+                    Sehir = sehir,
+                    Ilce = ilce,
+                    Ulke = ulke,
+                    Latitude = latitude,
+                    Longitude = longitude
+                });
+
+                // Toplamda en fazla 2 konum tutulmasını sağla (1 Ana Konum, 1 Eklenen Konum)
+                if (addedCities.Count > 2)
+                {
+                    addedCities = addedCities.Take(2).ToList();
                 }
 
                 Preferences.Default.Set(AppConstants.PREF_ADDED_CITIES, JsonSerializer.Serialize(addedCities));
