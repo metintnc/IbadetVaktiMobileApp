@@ -236,8 +236,9 @@ namespace hadis.Services
                     DateTime targetDate = DateTime.Now.Date.AddDays(dayOffset);
                     try
                     {
+                        string manuelUlke = Preferences.Default.Get("ManuelUlke", "Türkiye");
                         var vakitler = await _prayerTimesService.GetPrayerTimesForDateAsync(
-                            targetDate, ilce, sehir, lat, lon);
+                            targetDate, ilce, sehir, manuelUlke, lat, lon);
 
                         if (vakitler != null)
                         {

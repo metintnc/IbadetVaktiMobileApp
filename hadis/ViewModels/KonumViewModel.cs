@@ -31,16 +31,28 @@ namespace hadis.ViewModels
                 AddedLocations.Clear();
 
                 var temp = new List<AddedCity>();
-
+                
                 var mainCityName = Preferences.Default.Get("ManuelSehir", string.Empty);
                 var mainDistrictName = Preferences.Default.Get("ManuelIlce", string.Empty);
-
+                bool isAuto = Preferences.Default.Get("OtomatikKonum", false);
+                
                 double latitude = 0;
                 double longitude = 0;
                 try { latitude = Preferences.Default.Get("ManuelLatitude", 0.0); } catch { }
                 try { longitude = Preferences.Default.Get("ManuelLongitude", 0.0); } catch { }
 
-                if (!string.IsNullOrEmpty(mainCityName))
+                if (isAuto && string.IsNullOrEmpty(mainCityName))
+                {
+                    temp.Add(new AddedCity
+                    {
+                        Sehir = "GPS / Geçerli Konum",
+                        Ilce = "Otomatik Konum",
+                        Latitude = latitude,
+                        Longitude = longitude,
+                        Ulke = "Ana Konum"
+                    });
+                }
+                else if (!string.IsNullOrEmpty(mainCityName))
                 {
                     temp.Add(new AddedCity
                     {
@@ -140,21 +152,66 @@ namespace hadis.ViewModels
 
             AddedLocations.Remove(cityToRemove);
         }
-
+        
         [RelayCommand]
         private async Task SelectLocation(AddedCity city)
         {
             if (city == null) return;
+            
+            if (city.Ulke == "Ana Konum")
+            {
+                var n = Application.Current?.MainPage?.Navigation;
+                if (n != null)
+                {
+                    await n.PopToRootAsync();
+                }
+                return;
+            }
+
+            // Eðer eski konum bir manuel konumsa, onu ekstra listeye alýyoruz
+            var oldSehir = Preferences.Default.Get("ManuelSehir", string.Empty);
+            var oldIlce = Preferences.Default.Get("ManuelIlce", string.Empty);
+            bool oldIsAuto = Preferences.Default.Get("OtomatikKonum", false);
+
+            var json = Preferences.Default.Get(AppConstants.PREF_ADDED_CITIES, string.Empty);
+            var saved = string.IsNullOrWhiteSpace(json) ? new List<AddedCity>() : JsonSerializer.Deserialize<List<AddedCity>>(json) ?? new List<AddedCity>();
+
+            // Yeni seçileni listeden çýkar (çünkü Ana Konum olacak)
+            saved.RemoveAll(c => string.Equals(c.Sehir, city.Sehir, StringComparison.OrdinalIgnoreCase) && string.Equals(c.Ilce, city.Ilce, StringComparison.OrdinalIgnoreCase));
+
+            // Eðer eskinin üzerine yazýlýyorsa eskiyi listeye aktar
+            if (!oldIsAuto && !string.IsNullOrEmpty(oldSehir))
+            {
+                double oldLat = 0; double oldLon = 0;
+                try { oldLat = Preferences.Default.Get("ManuelLatitude", 0.0); } catch {}
+                try { oldLon = Preferences.Default.Get("ManuelLongitude", 0.0); } catch {}
+                
+                saved.Insert(0, new AddedCity
+                {
+                    Sehir = oldSehir,
+                    Ilce = oldIlce,
+                    Ulke = Preferences.Default.Get("ManuelUlke", "Türkiye"),
+                    Latitude = oldLat,
+                    Longitude = oldLon
+                });
+            }
+
+            if (saved.Count > 2)
+            {
+                saved = saved.Take(2).ToList();
+            }
+
+            Preferences.Default.Set(AppConstants.PREF_ADDED_CITIES, JsonSerializer.Serialize(saved));
 
             Preferences.Default.Set("ManuelSehir", city.Sehir);
             Preferences.Default.Set("ManuelIlce", city.Ilce);
             Preferences.Default.Set("ManuelLatitude", city.Latitude);
             Preferences.Default.Set("ManuelLongitude", city.Longitude);
+            Preferences.Default.Set("OtomatikKonum", false);
 
             var nav = Application.Current?.MainPage?.Navigation;
             if (nav != null)
             {
-                // Go back to main page (as we popped up from main)
                 await nav.PopToRootAsync();
             }
         }

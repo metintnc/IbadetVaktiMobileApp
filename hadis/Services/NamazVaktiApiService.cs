@@ -299,13 +299,13 @@ namespace hadis.Services
         /// Sehir adindan ilce/city ID'sini bulur
         /// Mevcut PrayerTimesService ile uyumluluk icin korunuyor
         /// </summary>
-        public async Task<int?> GetIlceIdBySehir(string sehirAdi, string ilceAdi = null)
+        public async Task<int?> GetIlceIdBySehir(string sehirAdi, string ilceAdi = null, string ulkeName = null)
         {
             try
             {
                 System.Diagnostics.Debug.WriteLine($"GetIlceIdBySehir cagrildi: {sehirAdi}/{ilceAdi}");
 
-                var manuelUlke = Preferences.Default.Get("ManuelUlke", "Türkiye");
+                var manuelUlke = !string.IsNullOrEmpty(ulkeName) ? ulkeName : Preferences.Default.Get("ManuelUlke", "Türkiye");
 
                 if (NormalizeForSearch(manuelUlke) == NormalizeForSearch("Almanya"))
                 {

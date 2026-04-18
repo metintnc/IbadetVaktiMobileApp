@@ -491,25 +491,35 @@ namespace hadis.ViewModels
         private async Task FinalizeSelectionAuto(City city, double lat, double lon)
         {
             var mevcutAnaSehir = Preferences.Default.Get("ManuelSehir", string.Empty);
+            var mevcutAnaIlce = Preferences.Default.Get("ManuelIlce", string.Empty);
 
-            if (string.IsNullOrEmpty(mevcutAnaSehir))
-            {
-                Preferences.Default.Set("ManuelSehir", city.Name);
-                Preferences.Default.Set("ManuelIlce", "Otomatik Konum");
-                Preferences.Default.Set("ManuelUlke", _selectedCountryName ?? "Türkiye");
-                Preferences.Default.Set("ManuelLatitude", lat);
-                Preferences.Default.Set("ManuelLongitude", lon);
-                Preferences.Default.Set("OtomatikKonum", true);
+            bool isCurrentlyAuto = Preferences.Default.Get("OtomatikKonum", false) && string.IsNullOrEmpty(mevcutAnaSehir);
 
-                var sharedName = $"{AppInfo.PackageName}.xamarinessentials";
-                Preferences.Set("ManuelLatitude", lat.ToString(System.Globalization.CultureInfo.InvariantCulture), sharedName);
-                Preferences.Set("ManuelLongitude", lon.ToString(System.Globalization.CultureInfo.InvariantCulture), sharedName);
-                Preferences.Set("OtomatikKonum", true, sharedName);
-            }
-            else
+            // Eğer hali hazırda "manuel" bir ana konum varsa ve otomatik moda yeni geçiliyorsa, manuel konumu listeye kaydedelim
+            if (!isCurrentlyAuto && !string.IsNullOrEmpty(mevcutAnaSehir) && mevcutAnaIlce != "Otomatik Konum")
             {
-                SaveAddedCity(city.Name, "Otomatik Konum", _selectedCountryName ?? "Türkiye", lat, lon);
+                double oldLat = 0.0;
+                double oldLon = 0.0;
+                try { oldLat = Preferences.Default.Get("ManuelLatitude", lat); } catch { }
+                try { oldLon = Preferences.Default.Get("ManuelLongitude", lon); } catch { }
+                
+                SaveAddedCity(mevcutAnaSehir, mevcutAnaIlce, Preferences.Default.Get("ManuelUlke", "Türkiye"), oldLat, oldLon);
             }
+
+            // Otomatik konumun özel adı veya verisi listeye KAYDEDİLMİYOR.
+            // Sadece Otomatik Konum modu genel olarak aktif ediliyor.
+            Preferences.Default.Remove("ManuelSehir");
+            Preferences.Default.Remove("ManuelIlce");
+            Preferences.Default.Remove("ManuelUlke");
+            
+            Preferences.Default.Set("ManuelLatitude", lat);
+            Preferences.Default.Set("ManuelLongitude", lon);
+            Preferences.Default.Set("OtomatikKonum", true);
+
+            var sharedName = $"{AppInfo.PackageName}.xamarinessentials";
+            Preferences.Set("ManuelLatitude", lat.ToString(System.Globalization.CultureInfo.InvariantCulture), sharedName);
+            Preferences.Set("ManuelLongitude", lon.ToString(System.Globalization.CultureInfo.InvariantCulture), sharedName);
+            Preferences.Set("OtomatikKonum", true, sharedName);
 
             _prayerTimesService.ClearCache();
             

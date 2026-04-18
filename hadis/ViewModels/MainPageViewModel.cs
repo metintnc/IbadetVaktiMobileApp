@@ -14,7 +14,7 @@ namespace hadis.ViewModels
         private readonly StatusBarService _statusBarService;
         private readonly IAppNotificationService _notificationService;
         private readonly PrayerTimesService _prayerTimesService;
-        private readonly System.Timers.Timer _timer;
+        private readonly IDispatcherTimer _timer;
         private Dictionary<string, DateTime>? _namazVakitleri;
         private bool _prefetchDone;
         private bool _disposed;
@@ -120,19 +120,20 @@ namespace hadis.ViewModels
             _notificationService = notificationService;
             _prayerTimesService = prayerTimesService;
 
-            // Timer baÅŸlat - Named method kullanarak memory leak Ã¶nleme
-            _timer = new System.Timers.Timer(AppConstants.TIMER_INTERVAL_MS);
-            _timer.Elapsed += OnTimerElapsed;
+            // Timer başlat - IDispatcherTimer kullanarak UI threading sorunlarını önleriz
+            _timer = Application.Current.Dispatcher.CreateTimer();
+            _timer.Interval = TimeSpan.FromMilliseconds(AppConstants.TIMER_INTERVAL_MS);
+            _timer.Tick += OnTimerElapsed;
             _timer.Start();
         }
 
         /// <summary>
-        /// Timer event handler - Lambda yerine named method kullanarak memory leak Ã¶nlenir
+        /// Timer event handler
         /// </summary>
-        private void OnTimerElapsed(object? sender, System.Timers.ElapsedEventArgs e)
+        private void OnTimerElapsed(object? sender, EventArgs e)
         {
             if (_disposed) return;
-            MainThread.BeginInvokeOnMainThread(UpdateCountdown);
+            UpdateCountdown();
         }
 
         /// <summary>
@@ -490,7 +491,8 @@ namespace hadis.ViewModels
                 }
 
                 System.Diagnostics.Debug.WriteLine($"📞 GetPrayerTimesForDateAsync çağrılıyor: {sehir}/{ilce}");
-                var vakitler = await _prayerTimesService.GetPrayerTimesForDateAsync(DateTime.Now, ilce, sehir, latitude, longitude);
+                string manuelUlke = Preferences.Default.Get("ManuelUlke", "Türkiye");
+                var vakitler = await _prayerTimesService.GetPrayerTimesForDateAsync(DateTime.Now, ilce, sehir, manuelUlke, latitude, longitude);
 
                 if (vakitler != null)
                 {
@@ -662,9 +664,8 @@ namespace hadis.ViewModels
             {
                 if (_timer != null)
                 {
-                    _timer.Elapsed -= OnTimerElapsed;
+                    _timer.Tick -= OnTimerElapsed;
                     _timer.Stop();
-                    _timer.Dispose();
                 }
             }
 
@@ -693,11 +694,11 @@ namespace hadis.ViewModels
             IsLocationErrorVisible = false;
         }
 
-        public async Task<bool> ShowPrayerTimesForCityAsync(string sehir, string ilce, double latitude, double longitude)
+        public async Task<bool> ShowPrayerTimesForCityAsync(string sehir, string ilce, string ulke, double latitude, double longitude)
         {
             try
             {
-                var vakitler = await _prayerTimesService.GetPrayerTimesForDateAsync(DateTime.Now, ilce, sehir, latitude, longitude);
+                var vakitler = await _prayerTimesService.GetPrayerTimesForDateAsync(DateTime.Now, ilce, sehir, ulke, latitude, longitude);
                 if (vakitler == null)
                 {
                     return false;

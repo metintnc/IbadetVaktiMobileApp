@@ -420,7 +420,7 @@ namespace hadis
                 var selected = _additionalCities[_activeAdditionalCityIndex];
                 await AnimatePrayerFramesTransitionAsync(async () =>
                 {
-                    var loaded = await _viewModel.ShowPrayerTimesForCityAsync(selected.Sehir, selected.Ilce, selected.Latitude, selected.Longitude);
+                    var loaded = await _viewModel.ShowPrayerTimesForCityAsync(selected.Sehir, selected.Ilce, selected.Ulke, selected.Latitude, selected.Longitude);
                     if (!loaded)
                     {
                         _viewModel.ShowAddCityPlaceholder();

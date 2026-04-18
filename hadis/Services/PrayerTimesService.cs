@@ -62,10 +62,10 @@ namespace hadis.Services
         /// 3. Offline Cache (fallback)
         /// </summary>
         public async Task<Dictionary<string, DateTime>?> GetPrayerTimesForDateAsync(
-            DateTime date, string ilce, string sehir, double? lat = null, double? lon = null)
+            DateTime date, string ilce, string sehir, string ulke = "Türkiye", double? lat = null, double? lon = null)
         {
             // 1. Bu ayı cache'den kontrol et
-            var cachedData = await LoadMonthCacheAsync(date);
+            var cachedData = await LoadMonthCacheAsync(sehir, ilce, date);
             if (cachedData != null)
             {
                 System.Diagnostics.Debug.WriteLine($"✅ Cache hit: {date:yyyy-MM-dd}");
@@ -75,9 +75,9 @@ namespace hadis.Services
             // 2. Azure API'den ilçe ID'sini bul ve veri çek
             try
             {
-                System.Diagnostics.Debug.WriteLine($"🔄 İlçe ID araniyor: {sehir}/{ilce}");
-                
-                var ilceId = await _namazVaktiApiService.GetIlceIdBySehir(sehir, ilce);
+                System.Diagnostics.Debug.WriteLine($"🔄 İlçe ID araniyor: {sehir}/{ilce} ({ulke})");
+
+                var ilceId = await _namazVaktiApiService.GetIlceIdBySehir(sehir, ilce, ulke);
                 
                 if (ilceId.HasValue)
                 {
@@ -103,7 +103,7 @@ namespace hadis.Services
                         var result = ConvertToDateTimeDictionary(vakitler, date);
                         
                         // Cache'e kaydet
-                        await SaveDateCacheAsync(date, vakitler);
+                        await SaveDateCacheAsync(sehir, ilce, date, vakitler);
                         
                         System.Diagnostics.Debug.WriteLine($"✅ Azure API'den çekildi: {date:yyyy-MM-dd}");
                         return result;
@@ -127,7 +127,7 @@ namespace hadis.Services
             }
 
             // 3. Offline fallback - Tüm cache dosyalarından ara
-            var offlineResult = await TryOfflineFallbackAsync(date);
+            var offlineResult = await TryOfflineFallbackAsync(sehir, ilce, date);
             if (offlineResult != null)
             {
                 System.Diagnostics.Debug.WriteLine($"⚠️ Offline fallback: {date:yyyy-MM-dd}");
@@ -148,7 +148,7 @@ namespace hadis.Services
                 var tomorrow = DateTime.Now.AddDays(1);
                 
                 // Cache'te var mı kontrol et
-                var cachedData = await LoadMonthCacheAsync(tomorrow);
+                var cachedData = await LoadMonthCacheAsync(sehir, ilce, tomorrow);
                 if (cachedData != null)
                 {
                     System.Diagnostics.Debug.WriteLine($"✅ Yarın verisi cache'te mevcut: {tomorrow:yyyy-MM-dd}");
@@ -162,7 +162,7 @@ namespace hadis.Services
                     var vakitler = await _namazVaktiApiService.GetTarihVakitleri(ilceId.Value, tomorrow);
                     if (vakitler != null)
                     {
-                        await SaveDateCacheAsync(tomorrow, vakitler);
+                        await SaveDateCacheAsync(sehir, ilce, tomorrow, vakitler);
                         System.Diagnostics.Debug.WriteLine($"✅ Prefetch tamamlandı: {tomorrow:yyyy-MM-dd}");
                     }
                 }
@@ -177,20 +177,22 @@ namespace hadis.Services
         // Cache I/O
         // ================================================================
 
-        private string GetCacheFilePath(DateTime date)
+        private string GetCacheFilePath(string sehir, string ilce, DateTime date)
         {
-            return Path.Combine(_cacheDir, $"prayer_{date:yyyy_MM_dd}.json");
+            var s = sehir?.Replace(" ", "").ToLowerInvariant() ?? "";
+            var i = ilce?.Replace(" ", "").ToLowerInvariant() ?? "";
+            return Path.Combine(_cacheDir, $"prayer_{s}_{i}_{date:yyyy_MM_dd}.json");
         }
 
         /// <summary>
         /// Ayın tamamı için cache'ten veri yüklemeye çalışır
         /// İçinde aradığımız tarihe ait veri varsa onu döndürür
         /// </summary>
-        private async Task<Dictionary<string, DateTime>?> LoadMonthCacheAsync(DateTime date)
+        private async Task<Dictionary<string, DateTime>?> LoadMonthCacheAsync(string sehir, string ilce, DateTime date)
         {
             try
             {
-                string filePath = GetCacheFilePath(date);
+                string filePath = GetCacheFilePath(sehir, ilce, date);
                 if (!File.Exists(filePath)) 
                     return null;
 
@@ -220,11 +222,11 @@ namespace hadis.Services
             }
         }
 
-        private async Task SaveDateCacheAsync(DateTime date, DailyNamazVakitleri vakitler)
+        private async Task SaveDateCacheAsync(string sehir, string ilce, DateTime date, DailyNamazVakitleri vakitler)
         {
             try
             {
-                string filePath = GetCacheFilePath(date);
+                string filePath = GetCacheFilePath(sehir, ilce, date);
                 string json = JsonSerializer.Serialize(vakitler);
                 await File.WriteAllTextAsync(filePath, json);
 
@@ -271,15 +273,19 @@ namespace hadis.Services
         // Offline Fallback
         // ================================================================
 
-        private async Task<Dictionary<string, DateTime>?> TryOfflineFallbackAsync(DateTime date)
+        private async Task<Dictionary<string, DateTime>?> TryOfflineFallbackAsync(string sehir, string ilce, DateTime date)
         {
             try
             {
                 if (!Directory.Exists(_cacheDir)) 
                     return null;
 
+                var s = sehir?.Replace(" ", "").ToLowerInvariant() ?? "";
+                var i = ilce?.Replace(" ", "").ToLowerInvariant() ?? "";
+                string pattern = $"prayer_{s}_{i}_*.json";
+
                 // Tüm cache dosyalarında aradığımız tarihi bul
-                foreach (var file in Directory.GetFiles(_cacheDir, "*.json"))
+                foreach (var file in Directory.GetFiles(_cacheDir, pattern))
                 {
                     try
                     {
