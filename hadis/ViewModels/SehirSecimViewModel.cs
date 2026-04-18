@@ -435,27 +435,45 @@ namespace hadis.ViewModels
                 {
                     // Reverse Geocoding...
                     string cityName = null;
+                    string countryName = null;
                     try
                     {
                         var placemarks = await Geocoding.Default.GetPlacemarksAsync(location.Latitude, location.Longitude);
                         var placemark = placemarks?.FirstOrDefault();
-                        if (placemark != null) cityName = placemark.AdminArea;
+                        if (placemark != null)
+                        {
+                            cityName = placemark.AdminArea;
+                            countryName = placemark.CountryName;
+                        }
                     }
                     catch { }
+
+                    // Determine the correct list based on the country
+                    List<City> searchList = _turkeyCities; // default
+
+                    if (!string.IsNullOrEmpty(countryName))
+                    {
+                        if (countryName.IndexOf("Azerbaijan", StringComparison.OrdinalIgnoreCase) >= 0 || countryName.IndexOf("Azerbaycan", StringComparison.OrdinalIgnoreCase) >= 0)
+                            searchList = _azerbaijanCities;
+                        else if (countryName.IndexOf("Germany", StringComparison.OrdinalIgnoreCase) >= 0 || countryName.IndexOf("Almanya", StringComparison.OrdinalIgnoreCase) >= 0)
+                            searchList = _germanyCities;
+                        else if (countryName.IndexOf("Saudi", StringComparison.OrdinalIgnoreCase) >= 0 || countryName.IndexOf("Arabia", StringComparison.OrdinalIgnoreCase) >= 0)
+                            searchList = _saudiArabiaCities;
+                    }
 
                     City foundCity = null;
                     if (!string.IsNullOrEmpty(cityName))
                     {
-                        foundCity = _allCities.FirstOrDefault(c => c.Name.Equals(cityName, StringComparison.OrdinalIgnoreCase));
+                        foundCity = searchList.FirstOrDefault(c => c.Name.Equals(cityName, StringComparison.OrdinalIgnoreCase));
                         if (foundCity == null)
                         {
-                             foundCity = _allCities.FirstOrDefault(c => c.Name.IndexOf(cityName, StringComparison.OrdinalIgnoreCase) >= 0);
+                             foundCity = searchList.FirstOrDefault(c => c.Name.IndexOf(cityName, StringComparison.OrdinalIgnoreCase) >= 0);
                         }
                     }
                     
                     if (foundCity == null)
                     {
-                        foundCity = _allCities
+                        foundCity = searchList
                             .OrderBy(c => Location.CalculateDistance(location.Latitude, location.Longitude, c.Latitude, c.Longitude, DistanceUnits.Kilometers))
                             .FirstOrDefault();
                     }

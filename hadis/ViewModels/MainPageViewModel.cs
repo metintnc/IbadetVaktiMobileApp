@@ -100,7 +100,7 @@ namespace hadis.ViewModels
         // Event: Konum hatasÄ± ? SehirSecim sayfasÄ±na yÃ¶nlendir
         public event Action? NavigateToSehirSecim;
 
-        // Namaz vakitleri dÄ±ÅŸarÄ±ya
+        // Namaz vakitleri dÄ±ŞarÄ±ya
         public Dictionary<string, DateTime>? NamazVakitleri => _namazVakitleri;
 
         // Geocoding sonuÃ§larÄ±nÄ± cache'lemek iÃ§in
@@ -145,10 +145,34 @@ namespace hadis.ViewModels
             HicriTarih = PrayerTimeHelper.GetHicriTarih();
             GununAyeti = PrayerTimeHelper.GetDailyAyet();
 
-            // Konum bilgisini al (ÅŸehir/ilÃ§e de cache'lenir)
+            bool otomatikKonum = Preferences.Default.Get("OtomatikKonum", true);
+
+            if (otomatikKonum)
+            {
+                // Show last cached auto location first so UI doesn't block while fetching GPS
+                string lastAutoSehir = Preferences.Default.Get("LastAutoSehir", "");
+                string lastAutoIlce = Preferences.Default.Get("LastAutoIlce", "");
+                double lat = Preferences.Default.Get("LastAutoLatitude", 0.0);
+                double lon = Preferences.Default.Get("LastAutoLongitude", 0.0);
+
+                if (!string.IsNullOrEmpty(lastAutoSehir))
+                {
+                    KonumText = (!string.IsNullOrEmpty(lastAutoIlce) && lastAutoIlce != lastAutoSehir)
+                        ? $"{lastAutoIlce} / {lastAutoSehir}"
+                        : lastAutoSehir;
+                        
+                    _cachedSehir = lastAutoSehir;
+                    _cachedIlce = lastAutoIlce;
+                    
+                    var tempLoc = new Location(lat, lon);
+                    _ = FetchPrayerTimesAsync(tempLoc, lastAutoSehir, lastAutoIlce); // Fire and update UI immediately from local cache if possible
+                }
+            }
+
+            // Konum bilgisini al (şehir/ilçe de cache'lenir)
             var locationInfo = await LoadKonumBilgisiAsync();
             
-            // Geocoding sonuÃ§larÄ±nÄ± FetchPrayerTimesAsync'e geÃ§ir (tekrar Geocoding yapÄ±lmasÄ±n)
+            // Geocoding sonuçlarını FetchPrayerTimesAsync'e geçir (tekrar Geocoding yapılmasın) ve taze veriyi internetten çek
             await FetchPrayerTimesAsync(locationInfo.Location, locationInfo.Sehir, locationInfo.Ilce);
         }
 
@@ -220,6 +244,11 @@ namespace hadis.ViewModels
                             
                             _cachedSehir = sehir;
                             _cachedIlce = ilce;
+
+                            Preferences.Default.Set("LastAutoSehir", sehir);
+                            Preferences.Default.Set("LastAutoIlce", ilce);
+                            Preferences.Default.Set("LastAutoLatitude", foundLocation.Latitude);
+                            Preferences.Default.Set("LastAutoLongitude", foundLocation.Longitude);
 
                             if (!string.IsNullOrEmpty(sehir) && !string.IsNullOrEmpty(ilce))
                                 KonumText = $"{ilce} / {sehir}";

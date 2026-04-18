@@ -130,6 +130,7 @@ namespace hadis.ViewModels
                 Preferences.Default.Remove("ManuelIlce");
                 Preferences.Default.Remove("ManuelLatitude");
                 Preferences.Default.Remove("ManuelLongitude");
+                Preferences.Default.Set("OtomatikKonum", false);
             }
             else
             {
