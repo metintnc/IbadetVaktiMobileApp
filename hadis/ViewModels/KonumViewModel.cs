@@ -1,4 +1,4 @@
-using CommunityToolkit.Mvvm.ComponentModel;
+ï»¿using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using hadis.Models;
 using hadis.Helpers;
@@ -45,7 +45,7 @@ namespace hadis.ViewModels
                 {
                     temp.Add(new AddedCity
                     {
-                        Sehir = "GPS / Geçerli Konum",
+                        Sehir = "GPS / Geï¿½erli Konum",
                         Ilce = "Otomatik Konum",
                         Latitude = latitude,
                         Longitude = longitude,
@@ -95,7 +95,7 @@ namespace hadis.ViewModels
             }
             catch (Exception ex)
             {
-                System.Diagnostics.Debug.WriteLine($"Ana yükleme hatasý: {ex.Message}");
+                System.Diagnostics.Debug.WriteLine($"Ana yï¿½kleme hatasï¿½: {ex.Message}");
             }
         }
 
@@ -131,6 +131,16 @@ namespace hadis.ViewModels
                 Preferences.Default.Remove("ManuelLatitude");
                 Preferences.Default.Remove("ManuelLongitude");
                 Preferences.Default.Set("OtomatikKonum", false);
+
+                // Otomatik konum cache'lerini de temizle
+                Preferences.Default.Remove("LastAutoSehir");
+                Preferences.Default.Remove("LastAutoIlce");
+                Preferences.Default.Remove("LastAutoLatitude");
+                Preferences.Default.Remove("LastAutoLongitude");
+
+                // Shared preferences'i da guncelle (widget icin)
+                var sharedName = $"{AppInfo.PackageName}.xamarinessentials";
+                Preferences.Set("OtomatikKonum", false, sharedName);
             }
             else
             {
@@ -169,7 +179,7 @@ namespace hadis.ViewModels
                 return;
             }
 
-            // Eðer eski konum bir manuel konumsa, onu ekstra listeye alýyoruz
+            // Eï¿½er eski konum bir manuel konumsa, onu ekstra listeye alï¿½yoruz
             var oldSehir = Preferences.Default.Get("ManuelSehir", string.Empty);
             var oldIlce = Preferences.Default.Get("ManuelIlce", string.Empty);
             bool oldIsAuto = Preferences.Default.Get("OtomatikKonum", false);
@@ -177,10 +187,10 @@ namespace hadis.ViewModels
             var json = Preferences.Default.Get(AppConstants.PREF_ADDED_CITIES, string.Empty);
             var saved = string.IsNullOrWhiteSpace(json) ? new List<AddedCity>() : JsonSerializer.Deserialize<List<AddedCity>>(json) ?? new List<AddedCity>();
 
-            // Yeni seçileni listeden çýkar (çünkü Ana Konum olacak)
+            // Yeni seï¿½ileni listeden ï¿½ï¿½kar (ï¿½ï¿½nkï¿½ Ana Konum olacak)
             saved.RemoveAll(c => string.Equals(c.Sehir, city.Sehir, StringComparison.OrdinalIgnoreCase) && string.Equals(c.Ilce, city.Ilce, StringComparison.OrdinalIgnoreCase));
 
-            // Eðer eskinin üzerine yazýlýyorsa eskiyi listeye aktar
+            // Eï¿½er eskinin ï¿½zerine yazï¿½lï¿½yorsa eskiyi listeye aktar
             if (!oldIsAuto && !string.IsNullOrEmpty(oldSehir))
             {
                 double oldLat = 0; double oldLon = 0;
@@ -191,7 +201,7 @@ namespace hadis.ViewModels
                 {
                     Sehir = oldSehir,
                     Ilce = oldIlce,
-                    Ulke = Preferences.Default.Get("ManuelUlke", "Türkiye"),
+                    Ulke = Preferences.Default.Get("ManuelUlke", "Tï¿½rkiye"),
                     Latitude = oldLat,
                     Longitude = oldLon
                 });

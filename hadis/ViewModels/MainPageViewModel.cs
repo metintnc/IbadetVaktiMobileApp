@@ -145,7 +145,7 @@ namespace hadis.ViewModels
             HicriTarih = PrayerTimeHelper.GetHicriTarih();
             GununAyeti = PrayerTimeHelper.GetDailyAyet();
 
-            bool otomatikKonum = Preferences.Default.Get("OtomatikKonum", true);
+            bool otomatikKonum = Preferences.Default.Get("OtomatikKonum", false);
 
             if (otomatikKonum)
             {
@@ -187,7 +187,7 @@ namespace hadis.ViewModels
             
             try
             {
-                bool otomatikKonum = Preferences.Default.Get("OtomatikKonum", true);
+                bool otomatikKonum = Preferences.Default.Get("OtomatikKonum", false);
 
                 if (!otomatikKonum)
                 {
@@ -310,7 +310,7 @@ namespace hadis.ViewModels
                 string sehir = cachedSehir ?? "";
                 double? latitude = null;
                 double? longitude = null;
-                bool otomatikKonum = Preferences.Default.Get("OtomatikKonum", true);
+                bool otomatikKonum = Preferences.Default.Get("OtomatikKonum", false);
 
                 if (locationOverride != null)
                 {

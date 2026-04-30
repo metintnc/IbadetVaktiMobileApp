@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Text.Json;
 using hadis.Models;
 using hadis.Services;
@@ -107,6 +107,23 @@ namespace hadis
 
                 // Connectivity event her OnAppearing'de bağlanır
                 Connectivity.ConnectivityChanged += Connectivity_ConnectivityChanged;
+
+                // İlk açılışta konum seçili mi kontrol et
+                bool isFirstLaunch = !Preferences.Default.ContainsKey("OtomatikKonum") 
+                    && string.IsNullOrEmpty(Preferences.Default.Get("ManuelSehir", ""));
+
+                if (isFirstLaunch)
+                {
+                    // İlk kez açılıyor - konum seçtir
+                    await DisplayAlert(
+                        "Konum Seçimi", 
+                        "Namaz vakitlerini görebilmek için lütfen bir konum seçiniz.",
+                        "Tamam");
+
+                    var konumPage = _serviceProvider.GetRequiredService<KonumPage>();
+                    await Navigation.PushAsync(konumPage);
+                    return;
+                }
 
                 // Konum değişikliği kontrolü
                 var currentLocationKey = GetLocationKey();
@@ -344,7 +361,7 @@ namespace hadis
         /// </summary>
         private string GetLocationKey()
         {
-            var otomatik = Preferences.Default.Get("OtomatikKonum", true);
+            var otomatik = Preferences.Default.Get("OtomatikKonum", false);
             var sehir = Preferences.Default.Get("ManuelSehir", "");
             var ilce = Preferences.Default.Get("ManuelIlce", "");
             var lat = Preferences.Default.Get("ManuelLatitude", 0.0);

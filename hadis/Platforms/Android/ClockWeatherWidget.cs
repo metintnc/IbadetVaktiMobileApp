@@ -232,7 +232,7 @@ namespace hadis.Platforms.Android
                 // .NET MAUI Preferences klasor adi: PackageName + ".xamarinessentials"
                 
                 // OtomatikKonum kontrolu
-                bool otomatikKonum = true;
+                bool otomatikKonum = false;
                 double manuelLat = 0;
                 double manuelLon = 0;
                 
@@ -243,7 +243,7 @@ namespace hadis.Platforms.Android
                 if (prefs != null)
                 {
                     // Boolean degerleri oku
-                    otomatikKonum = prefs.GetBoolean("OtomatikKonum", true);
+                    otomatikKonum = prefs.GetBoolean("OtomatikKonum", false);
                     
                     // Double degerleri oku - MAUI string olarak sakliyor
                     var latStr = prefs.GetString("ManuelLatitude", "0");

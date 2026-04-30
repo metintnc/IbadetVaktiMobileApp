@@ -1,4 +1,4 @@
-﻿using hadis.Models;
+using hadis.Models;
 using hadis.Services;
 using System.Collections.ObjectModel;
 
@@ -104,7 +104,7 @@ namespace hadis
             try
             {
                 // Konum bilgilerini al
-                bool otomatikKonum = Preferences.Default.Get("OtomatikKonum", true);
+                bool otomatikKonum = Preferences.Default.Get("OtomatikKonum", false);
                 string sehir = Preferences.Default.Get("ManuelSehir", "");
                 string ilce = Preferences.Default.Get("ManuelIlce", "");
 
