@@ -295,10 +295,15 @@ namespace hadis.ViewModels
                 _selectedCountryName = city.Name;
                 SwitchToCities();
             }
+            else if (_isSelectingDistrict)
+            {
+                // Kullanıcı ilçe seçiyor → doğrudan kaydet
+                await FinalizeSelection(city.Name);
+            }
             else
             {
-                _selectedCityForDistrict = city;
-                await FinalizeSelection(city.Name);
+                // Kullanıcı şehir seçiyor → ilçe listesine geç (Türkiye için)
+                SwitchToDistricts(city);
             }
         }
 

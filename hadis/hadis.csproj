@@ -22,7 +22,7 @@
 		<ApplicationDisplayVersion>1.1.4</ApplicationDisplayVersion>
 		<ApplicationVersion>8</ApplicationVersion>
 
-		<WindowsPackageType>None</WindowsPackageType>
+		<!-- <WindowsPackageType>None</WindowsPackageType> -->
 
 		<SupportedOSPlatformVersion Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'ios'">15.0</SupportedOSPlatformVersion>
 		<SupportedOSPlatformVersion Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'maccatalyst'">15.0</SupportedOSPlatformVersion>
@@ -55,10 +55,10 @@
 	<PropertyGroup Condition="'$(Configuration)|$(TargetFramework)'=='Release|net9.0-android'">
 	  <AndroidKeyStore>True</AndroidKeyStore>
 	  <!-- Geçici olarak iptal edildi, eski haline (True) getirmeyi unutma -->
-	  <AndroidSigningKeyStore>$(MSBuildProjectDirectory)\my-release-key.keystore</AndroidSigningKeyStore>
-	  <AndroidSigningKeyAlias>my-key-alias</AndroidSigningKeyAlias>
-	  <AndroidSigningKeyPass>$(ANDROID_SIGNING_KEY_PASS)</AndroidSigningKeyPass>
-	  <AndroidSigningStorePass>$(ANDROID_SIGNING_STORE_PASS)</AndroidSigningStorePass>
+	  <AndroidSigningKeyStore>$(MSBuildProjectDirectory)\namazvakti.keystore</AndroidSigningKeyStore>
+	  <AndroidSigningKeyAlias>namazvakti</AndroidSigningKeyAlias>
+	  <AndroidSigningKeyPass>123456</AndroidSigningKeyPass>
+	  <AndroidSigningStorePass>123456</AndroidSigningStorePass>
 	  <!-- R8 Code Shrinking yapÄ±landÄ±rmasÄ± -->
 	  <AndroidLinkTool>r8</AndroidLinkTool>
 	  <AndroidLinkMode>Release</AndroidLinkMode>
