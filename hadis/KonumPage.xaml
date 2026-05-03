@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="utf-8" ?>
+<?xml version="1.0" encoding="utf-8" ?>
 <ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              xmlns:viewmodels="clr-namespace:hadis.ViewModels"
@@ -82,14 +82,38 @@
                                        TextColor="#3498DB" />
                             </VerticalStackLayout>
 
-                            <ImageButton Grid.Column="1"
-                                         Source="trash.svg"
-                                         WidthRequest="24"
-                                         HeightRequest="24"
-                                         BackgroundColor="Transparent"
-                                         VerticalOptions="Center"
-                                         Command="{Binding Source={RelativeSource AncestorType={x:Type viewmodels:KonumViewModel}}, Path=RemoveLocationCommand}"
-                                         CommandParameter="{Binding .}" />
+                            <HorizontalStackLayout Grid.Column="1" Spacing="15" VerticalOptions="Center">
+                                <VerticalStackLayout Spacing="0" VerticalOptions="Center">
+                                    <Button Text="▲" 
+                                            FontSize="16" 
+                                            BackgroundColor="Transparent" 
+                                            TextColor="{AppThemeBinding Light=#7F8C8D, Dark=#A0A0A0}"
+                                            Padding="0" 
+                                            Margin="0,-5,0,-5"
+                                            HeightRequest="26"
+                                            WidthRequest="30"
+                                            Command="{Binding Source={RelativeSource AncestorType={x:Type viewmodels:KonumViewModel}}, Path=MoveUpCommand}"
+                                            CommandParameter="{Binding .}"/>
+                                    <Button Text="▼" 
+                                            FontSize="16" 
+                                            BackgroundColor="Transparent" 
+                                            TextColor="{AppThemeBinding Light=#7F8C8D, Dark=#A0A0A0}"
+                                            Padding="0"
+                                            Margin="0,-5,0,-5"
+                                            HeightRequest="26"
+                                            WidthRequest="30"
+                                            Command="{Binding Source={RelativeSource AncestorType={x:Type viewmodels:KonumViewModel}}, Path=MoveDownCommand}"
+                                            CommandParameter="{Binding .}"/>
+                                </VerticalStackLayout>
+
+                                <ImageButton Source="trash.svg"
+                                             WidthRequest="24"
+                                             HeightRequest="24"
+                                             BackgroundColor="Transparent"
+                                             VerticalOptions="Center"
+                                             Command="{Binding Source={RelativeSource AncestorType={x:Type viewmodels:KonumViewModel}}, Path=RemoveLocationCommand}"
+                                             CommandParameter="{Binding .}" />
+                            </HorizontalStackLayout>
                         </Grid>
                     </Border>
                 </DataTemplate>

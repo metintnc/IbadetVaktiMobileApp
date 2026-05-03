@@ -486,9 +486,6 @@ namespace hadis.ViewModels
                     if (foundCity != null)
                     {
                         _selectedCityForDistrict = foundCity; // Set context
-                        await FinalizeSelection("Otomatik Konum"); // District as "Otomatik" or handle differently?
-                        // Original code passed "Otomatik Konum" as district name, and passed 'true' for isAuto.
-                        // I need to support 'isAuto' param in FinalizeSelection.
                         await FinalizeSelectionAuto(foundCity, location.Latitude, location.Longitude);
                     }
                     else

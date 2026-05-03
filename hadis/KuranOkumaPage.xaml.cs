@@ -31,8 +31,8 @@ namespace hadis
             // Standard Madini Mushaf has 604 pages
             for (int i = 1; i <= 604; i++)
             {
-                // Format: page_1.png (Mushaf Madina - dinex34/Quran-image)
-                _pages.Add($"https://raw.githubusercontent.com/dinex34/Quran-image/main/page_{i}.png");
+                // GitHub üzerinden kullanıcının kendi repository'sindeki resimleri çeker
+                _pages.Add($"https://raw.githubusercontent.com/metintnc/NamazVaktiMobileApp/main/hadis/kuransayfalar%C4%B1/kuran111-g%C3%B6r%C3%BCnt%C3%BCler-{i}.jpg");
             }
             PageCarousel.ItemsSource = _pages;
         }

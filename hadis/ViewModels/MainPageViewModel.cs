@@ -208,78 +208,85 @@ namespace hadis.ViewModels
                         
                         return (new Location(lat, lon), manuelSehir, manuelIlce);
                     }
-                }
-
-                var status = await Permissions.CheckStatusAsync<Permissions.LocationWhenInUse>();
-                if (status != PermissionStatus.Granted)
-                {
-                    status = await Permissions.RequestAsync<Permissions.LocationWhenInUse>();
-                }
-
-                if (status != PermissionStatus.Granted)
-                {
-                    KonumText = "Konum İzni Verilmedi";
-                    return (null, null, null);
-                }
-
-                foundLocation = await Geolocation.GetLastKnownLocationAsync();
-                if (foundLocation == null)
-                {
-                    var request = new GeolocationRequest(GeolocationAccuracy.Medium, TimeSpan.FromSeconds(10));
-                    foundLocation = await Geolocation.GetLocationAsync(request);
-                }
-
-                if (foundLocation != null)
-                {
-                    try
+                    else
                     {
-                        // Tek seferlik Geocoding çağrısı - sonuçlar cache'lenir
-                        var placemarks = await Geocoding.Default.GetPlacemarksAsync(foundLocation.Latitude, foundLocation.Longitude);
-                        var placemark = placemarks?.FirstOrDefault();
-
-                        if (placemark != null)
-                        {
-                            sehir = placemark.AdminArea ?? "";
-                            ilce = placemark.SubAdminArea ?? placemark.Locality ?? "";
-                            
-                            _cachedSehir = sehir;
-                            _cachedIlce = ilce;
-
-                            Preferences.Default.Set("LastAutoSehir", sehir);
-                            Preferences.Default.Set("LastAutoIlce", ilce);
-                            Preferences.Default.Set("LastAutoLatitude", foundLocation.Latitude);
-                            Preferences.Default.Set("LastAutoLongitude", foundLocation.Longitude);
-
-                            if (!string.IsNullOrEmpty(sehir) && !string.IsNullOrEmpty(ilce))
-                                KonumText = $"{ilce} / {sehir}";
-                            else if (!string.IsNullOrEmpty(sehir))
-                                KonumText = sehir;
-                            else
-                                KonumText = $"Lat: {foundLocation.Latitude:F2}, Lon: {foundLocation.Longitude:F2}";
-
-                            // Bulunan konumu manuel konuma kaydet (bir sonraki sefer hızlı olsun)
-                            Preferences.Default.Set("ManuelSehir", sehir);
-                            Preferences.Default.Set("ManuelIlce", ilce);
-                            Preferences.Default.Set("ManuelLatitude", foundLocation.Latitude);
-                            Preferences.Default.Set("ManuelLongitude", foundLocation.Longitude);
-                            
-                            System.Diagnostics.Debug.WriteLine($"✅ Konum kaydedildi: {sehir}/{ilce} (Lat: {foundLocation.Latitude:F2}, Lon: {foundLocation.Longitude:F2})");
-                        }
-                        else
-                        {
-                            KonumText = $"Lat: {foundLocation.Latitude:F2}, Lon: {foundLocation.Longitude:F2}";
-                            System.Diagnostics.Debug.WriteLine($"⚠️ Geocoding sonucu null geldi");
-                        }
-                    }
-                    catch (Exception ex)
-                    {
-                        KonumText = $"Lat: {foundLocation.Latitude:F2}, Lon: {foundLocation.Longitude:F2}";
-                        System.Diagnostics.Debug.WriteLine($"⚠️ Geocoding hatası: {ex.Message}");
+                        KonumText = "Konum Seçiniz";
+                        return (null, null, null);
                     }
                 }
                 else
                 {
-                    KonumText = "Konum Alınamadı";
+                    var status = await Permissions.CheckStatusAsync<Permissions.LocationWhenInUse>();
+                    if (status != PermissionStatus.Granted)
+                    {
+                        status = await Permissions.RequestAsync<Permissions.LocationWhenInUse>();
+                    }
+
+                    if (status != PermissionStatus.Granted)
+                    {
+                        KonumText = "Konum İzni Verilmedi";
+                        return (null, null, null);
+                    }
+
+                    foundLocation = await Geolocation.GetLastKnownLocationAsync();
+                    if (foundLocation == null)
+                    {
+                        var request = new GeolocationRequest(GeolocationAccuracy.Medium, TimeSpan.FromSeconds(10));
+                        foundLocation = await Geolocation.GetLocationAsync(request);
+                    }
+
+                    if (foundLocation != null)
+                    {
+                        try
+                        {
+                            // Tek seferlik Geocoding çağrısı - sonuçlar cache'lenir
+                            var placemarks = await Geocoding.Default.GetPlacemarksAsync(foundLocation.Latitude, foundLocation.Longitude);
+                            var placemark = placemarks?.FirstOrDefault();
+
+                            if (placemark != null)
+                            {
+                                sehir = placemark.AdminArea ?? "";
+                                ilce = placemark.SubAdminArea ?? placemark.Locality ?? "";
+                                
+                                _cachedSehir = sehir;
+                                _cachedIlce = ilce;
+
+                                Preferences.Default.Set("LastAutoSehir", sehir);
+                                Preferences.Default.Set("LastAutoIlce", ilce);
+                                Preferences.Default.Set("LastAutoLatitude", foundLocation.Latitude);
+                                Preferences.Default.Set("LastAutoLongitude", foundLocation.Longitude);
+
+                                if (!string.IsNullOrEmpty(sehir) && !string.IsNullOrEmpty(ilce))
+                                    KonumText = $"{ilce} / {sehir}";
+                                else if (!string.IsNullOrEmpty(sehir))
+                                    KonumText = sehir;
+                                else
+                                    KonumText = $"Lat: {foundLocation.Latitude:F2}, Lon: {foundLocation.Longitude:F2}";
+
+                                // Bulunan konumu manuel konuma kaydet (bir sonraki sefer hızlı olsun)
+                                Preferences.Default.Set("ManuelSehir", sehir);
+                                Preferences.Default.Set("ManuelIlce", ilce);
+                                Preferences.Default.Set("ManuelLatitude", foundLocation.Latitude);
+                                Preferences.Default.Set("ManuelLongitude", foundLocation.Longitude);
+                                
+                                System.Diagnostics.Debug.WriteLine($"✅ Konum kaydedildi: {sehir}/{ilce} (Lat: {foundLocation.Latitude:F2}, Lon: {foundLocation.Longitude:F2})");
+                            }
+                            else
+                            {
+                                KonumText = $"Lat: {foundLocation.Latitude:F2}, Lon: {foundLocation.Longitude:F2}";
+                                System.Diagnostics.Debug.WriteLine($"⚠️ Geocoding sonucu null geldi");
+                            }
+                        }
+                        catch (Exception ex)
+                        {
+                            KonumText = $"Lat: {foundLocation.Latitude:F2}, Lon: {foundLocation.Longitude:F2}";
+                            System.Diagnostics.Debug.WriteLine($"⚠️ Geocoding hatası: {ex.Message}");
+                        }
+                    }
+                    else
+                    {
+                        KonumText = "Konum Alınamadı";
+                    }
                 }
             }
             catch (FeatureNotSupportedException)

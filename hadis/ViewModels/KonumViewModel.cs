@@ -1,4 +1,4 @@
-﻿using CommunityToolkit.Mvvm.ComponentModel;
+using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using hadis.Models;
 using hadis.Helpers;
@@ -225,6 +225,82 @@ namespace hadis.ViewModels
             {
                 await nav.PopToRootAsync();
             }
+        }
+
+        [RelayCommand]
+        private void MoveUp(AddedCity city)
+        {
+            if (city == null) return;
+            int index = AddedLocations.IndexOf(city);
+            if (index > 0)
+            {
+                AddedLocations.Move(index, index - 1);
+                SaveOrder();
+            }
+        }
+
+        [RelayCommand]
+        private void MoveDown(AddedCity city)
+        {
+            if (city == null) return;
+            int index = AddedLocations.IndexOf(city);
+            if (index >= 0 && index < AddedLocations.Count - 1)
+            {
+                AddedLocations.Move(index, index + 1);
+                SaveOrder();
+            }
+        }
+
+        private void SaveOrder()
+        {
+            if (AddedLocations.Count == 0) return;
+
+            var newMain = AddedLocations[0];
+            bool isAuto = newMain.Sehir == "GPS / Geçerli Konum" && newMain.Ilce == "Otomatik Konum";
+
+            if (isAuto)
+            {
+                Preferences.Default.Remove("ManuelSehir");
+                Preferences.Default.Remove("ManuelIlce");
+                Preferences.Default.Remove("ManuelUlke");
+                Preferences.Default.Set("OtomatikKonum", true);
+                Preferences.Default.Set("ManuelLatitude", newMain.Latitude);
+                Preferences.Default.Set("ManuelLongitude", newMain.Longitude);
+            }
+            else
+            {
+                Preferences.Default.Set("ManuelSehir", newMain.Sehir);
+                Preferences.Default.Set("ManuelIlce", newMain.Ilce);
+                Preferences.Default.Set("ManuelUlke", newMain.Ulke == "Ana Konum" ? Preferences.Default.Get("ManuelUlke", "Türkiye") : newMain.Ulke);
+                Preferences.Default.Set("ManuelLatitude", newMain.Latitude);
+                Preferences.Default.Set("ManuelLongitude", newMain.Longitude);
+                Preferences.Default.Set("OtomatikKonum", false);
+            }
+
+            var sharedName = $"{AppInfo.PackageName}.xamarinessentials";
+            Preferences.Set("OtomatikKonum", isAuto, sharedName);
+            Preferences.Set("ManuelLatitude", newMain.Latitude.ToString(System.Globalization.CultureInfo.InvariantCulture), sharedName);
+            Preferences.Set("ManuelLongitude", newMain.Longitude.ToString(System.Globalization.CultureInfo.InvariantCulture), sharedName);
+
+            var extras = new List<AddedCity>();
+            for (int i = 1; i < AddedLocations.Count; i++)
+            {
+                var item = AddedLocations[i];
+                if (item.Sehir == "GPS / Geçerli Konum" && item.Ilce == "Otomatik Konum")
+                    continue;
+
+                extras.Add(new AddedCity
+                {
+                    Sehir = item.Sehir,
+                    Ilce = item.Ilce,
+                    Ulke = item.Ulke == "Ana Konum" ? Preferences.Default.Get("ManuelUlke", "Türkiye") : item.Ulke,
+                    Latitude = item.Latitude,
+                    Longitude = item.Longitude
+                });
+            }
+
+            Preferences.Default.Set(AppConstants.PREF_ADDED_CITIES, JsonSerializer.Serialize(extras));
+            LoadAddedLocations();
         }
     }
 }
