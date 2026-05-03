@@ -122,12 +122,13 @@ namespace hadis.ViewModels
         {
             if (cityToRemove == null) return;
 
-            bool isMain = cityToRemove.Ulke == "Ana Konum";
+            AddedLocations.Remove(cityToRemove);
 
-            if (isMain)
+            if (AddedLocations.Count == 0)
             {
                 Preferences.Default.Remove("ManuelSehir");
                 Preferences.Default.Remove("ManuelIlce");
+                Preferences.Default.Remove("ManuelUlke");
                 Preferences.Default.Remove("ManuelLatitude");
                 Preferences.Default.Remove("ManuelLongitude");
                 Preferences.Default.Set("OtomatikKonum", false);
@@ -141,27 +142,13 @@ namespace hadis.ViewModels
                 // Shared preferences'i da guncelle (widget icin)
                 var sharedName = $"{AppInfo.PackageName}.xamarinessentials";
                 Preferences.Set("OtomatikKonum", false, sharedName);
+                
+                Preferences.Default.Remove(AppConstants.PREF_ADDED_CITIES);
             }
             else
             {
-                var json = Preferences.Default.Get(AppConstants.PREF_ADDED_CITIES, string.Empty);
-                if (!string.IsNullOrWhiteSpace(json))
-                {
-                    var extraCities = JsonSerializer.Deserialize<List<AddedCity>>(json);
-                    if (extraCities != null)
-                    {
-                        var item = extraCities.FirstOrDefault(c => string.Equals(c.Sehir, cityToRemove.Sehir, StringComparison.OrdinalIgnoreCase) && 
-                                                                     string.Equals(c.Ilce, cityToRemove.Ilce, StringComparison.OrdinalIgnoreCase));
-                        if (item != null)
-                        {
-                            extraCities.Remove(item);
-                            Preferences.Default.Set(AppConstants.PREF_ADDED_CITIES, JsonSerializer.Serialize(extraCities));
-                        }
-                    }
-                }
+                SaveOrder();
             }
-
-            AddedLocations.Remove(cityToRemove);
         }
         
         [RelayCommand]
@@ -227,31 +214,7 @@ namespace hadis.ViewModels
             }
         }
 
-        [RelayCommand]
-        private void MoveUp(AddedCity city)
-        {
-            if (city == null) return;
-            int index = AddedLocations.IndexOf(city);
-            if (index > 0)
-            {
-                AddedLocations.Move(index, index - 1);
-                SaveOrder();
-            }
-        }
-
-        [RelayCommand]
-        private void MoveDown(AddedCity city)
-        {
-            if (city == null) return;
-            int index = AddedLocations.IndexOf(city);
-            if (index >= 0 && index < AddedLocations.Count - 1)
-            {
-                AddedLocations.Move(index, index + 1);
-                SaveOrder();
-            }
-        }
-
-        private void SaveOrder()
+        public void SaveOrder()
         {
             if (AddedLocations.Count == 0) return;
 

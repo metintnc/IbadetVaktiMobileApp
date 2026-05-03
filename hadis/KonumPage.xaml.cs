@@ -25,5 +25,13 @@ namespace hadis
         {
             await Navigation.PopAsync();
         }
+
+        private void OnReorderCompleted(object sender, EventArgs e)
+        {
+            if (BindingContext is KonumViewModel vm)
+            {
+                vm.SaveOrder();
+            }
+        }
     }
 }
