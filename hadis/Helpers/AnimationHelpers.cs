@@ -1,12 +1,12 @@
 namespace hadis.Helpers
 {
     /// <summary>
-    /// Tekrar kullanýlabilir animasyon yardýmcý sýnýfý
-    /// Allocation overhead'i azaltmak için optimize edilmiþ
+    /// Tekrar kullanÄ±labilir animasyon yardÄ±mcÄ± sÄ±nÄ±fÄ±
+    /// Allocation overhead'i azaltmak iÃ§in optimize edilmiÅŸ
     /// </summary>
     public static class AnimationHelpers
     {
-        // Sabit deðerler - her seferinde yeniden oluþturulmuyor
+        // Sabit deÄŸerler - her seferinde yeniden oluÅŸturulmuyor
         private const uint DefaultFadeInDuration = 400;
         private const uint DefaultScaleInDuration = 500;
         private const uint DefaultFadeOutDuration = 300;
@@ -14,19 +14,20 @@ namespace hadis.Helpers
         private const uint SequentialDelay = 80;
 
         /// <summary>
-        /// Element'i fade ve scale animasyonu ile görünür yapar
+        /// Element'i fade ve scale animasyonu ile gÃ¶rÃ¼nÃ¼r yapar
         /// </summary>
         public static Task AnimateIn(this VisualElement element, 
             uint fadeDuration = DefaultFadeInDuration, 
-            uint scaleDuration = DefaultScaleInDuration)
+            uint translationDuration = DefaultScaleInDuration)
         {
             element.CancelAnimations();
             element.Opacity = 0;
-            element.Scale = 0.7;
+            element.TranslationY = 25;
+            element.Scale = 1;
             
             return Task.WhenAll(
                 element.FadeTo(1, fadeDuration, Easing.CubicOut),
-                element.ScaleTo(1.0, scaleDuration, Easing.SpringOut)
+                element.TranslateTo(0, 0, translationDuration, Easing.CubicOut)
             );
         }
 
@@ -35,18 +36,18 @@ namespace hadis.Helpers
         /// </summary>
         public static Task AnimateOut(this VisualElement element,
             uint fadeDuration = DefaultFadeOutDuration,
-            uint scaleDuration = DefaultScaleOutDuration)
+            uint translationDuration = DefaultScaleOutDuration)
         {
             element.CancelAnimations();
             
             return Task.WhenAll(
                 element.FadeTo(0, fadeDuration, Easing.CubicIn),
-                element.ScaleTo(0.7, scaleDuration, Easing.CubicIn)
+                element.TranslateTo(0, 25, translationDuration, Easing.CubicIn)
             );
         }
 
         /// <summary>
-        /// Birden fazla elementi sýrayla animasyonlu olarak görünür yapar
+        /// Birden fazla elementi sÄ±rayla animasyonlu olarak gÃ¶rÃ¼nÃ¼r yapar
         /// Fire-and-forget pattern ile allocation minimize edilir
         /// </summary>
         public static async Task AnimateInSequential(uint delay = SequentialDelay, params VisualElement[] elements)
@@ -59,7 +60,7 @@ namespace hadis.Helpers
         }
 
         /// <summary>
-        /// Birden fazla elementi ayný anda animasyonlu olarak görünür yapar
+        /// Birden fazla elementi aynÄ± anda animasyonlu olarak gÃ¶rÃ¼nÃ¼r yapar
         /// </summary>
         public static Task AnimateInParallel(params VisualElement[] elements)
         {
@@ -72,7 +73,7 @@ namespace hadis.Helpers
         }
 
         /// <summary>
-        /// Birden fazla elementi ayný anda animasyonlu olarak gizler
+        /// Birden fazla elementi aynÄ± anda animasyonlu olarak gizler
         /// </summary>
         public static Task AnimateOutParallel(params VisualElement[] elements)
         {
@@ -85,7 +86,7 @@ namespace hadis.Helpers
         }
 
         /// <summary>
-        /// Tüm animasyonlarý iptal eder
+        /// TÃ¼m animasyonlarÄ± iptal eder
         /// </summary>
         public static void CancelAllAnimations(params VisualElement[] elements)
         {
@@ -96,19 +97,20 @@ namespace hadis.Helpers
         }
 
         /// <summary>
-        /// Elementleri baþlangýç durumuna getirir (görünmez, küçük)
+        /// Elementleri baÅŸlangÄ±Ã§ durumuna getirir (gÃ¶rÃ¼nmez, kÃ¼Ã§Ã¼k)
         /// </summary>
         public static void PrepareForAnimation(params VisualElement[] elements)
         {
             foreach (var element in elements)
             {
                 element.Opacity = 0;
-                element.Scale = 0.7;
+                element.TranslationY = 25;
+                element.Scale = 1;
             }
         }
 
         /// <summary>
-        /// Basýldýðýnda küçülüp büyüme efekti (buton/kart için)
+        /// BasÄ±ldÄ±ÄŸÄ±nda kÃ¼Ã§Ã¼lÃ¼p bÃ¼yÃ¼me efekti (buton/kart iÃ§in)
         /// </summary>
         public static async Task TapBounce(this VisualElement element, 
             double scaleDown = 0.85, 
@@ -119,7 +121,7 @@ namespace hadis.Helpers
         }
 
         /// <summary>
-        /// Kýble oku gibi sürekli dönen elementler için smooth rotation
+        /// KÄ±ble oku gibi sÃ¼rekli dÃ¶nen elementler iÃ§in smooth rotation
         /// </summary>
         public static Task SmoothRotateTo(this VisualElement element, 
             double targetRotation, 
@@ -131,7 +133,7 @@ namespace hadis.Helpers
             targetRotation = targetRotation % 360;
             if (targetRotation < 0) targetRotation += 360;
 
-            // En kýsa yolu bul
+            // En kÄ±sa yolu bul
             double diff = targetRotation - currentRotation;
             while (diff < -180) diff += 360;
             while (diff > 180) diff -= 360;
@@ -142,3 +144,4 @@ namespace hadis.Helpers
         }
     }
 }
+

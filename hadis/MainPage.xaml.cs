@@ -471,14 +471,14 @@ namespace hadis
             UpdatePageIndicator(); // Dot'ı hemen güncelle
             try
             {
-                double slideDistance = Application.Current?.MainPage?.Width ?? 300;
+                double slideDistance = 40; // Çok daha kısa ve akıcı bir kayma
                 double outX = slideRight ? slideDistance : -slideDistance;
                 double inX = slideRight ? -slideDistance : slideDistance;
 
                 // Eski içeriği kaydırıp şeffaflaştırarak gizle
                 await Task.WhenAll(
-                    MainContentGrid.TranslateTo(outX, 0, 250, Easing.CubicIn),
-                    MainContentGrid.FadeTo(0, 250, Easing.CubicIn)
+                    MainContentGrid.TranslateTo(outX, 0, 180, Easing.CubicIn),
+                    MainContentGrid.FadeTo(0, 180, Easing.CubicIn)
                 );
 
                 // İçeriği güncelle
@@ -489,8 +489,8 @@ namespace hadis
                 
                 // Olduğu konuma geri kaydırarak şeffaflığı kaldırıp görünür yap
                 await Task.WhenAll(
-                    MainContentGrid.TranslateTo(0, 0, 300, Easing.CubicOut),
-                    MainContentGrid.FadeTo(1, 300, Easing.CubicOut)
+                    MainContentGrid.TranslateTo(0, 0, 220, Easing.CubicOut),
+                    MainContentGrid.FadeTo(1, 220, Easing.CubicOut)
                 );
             }
             finally
