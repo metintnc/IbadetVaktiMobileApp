@@ -101,8 +101,8 @@ namespace hadis
                     else
                     {
                         ShowPermissionOverlay(
-                            "Konum Alýnamadý", 
-                            "Konum bilgisi alýnamadý. Lütfen cihazýnýzýn konum (GPS) özelliðinin açýk olduðundan emin olun.", 
+                            "Konum Alï¿½namadï¿½", 
+                            "Konum bilgisi alï¿½namadï¿½. Lï¿½tfen cihazï¿½nï¿½zï¿½n konum (GPS) ï¿½zelliï¿½inin aï¿½ï¿½k olduï¿½undan emin olun.", 
                             "Tamam",
                             () => { },
                             "");
@@ -115,7 +115,7 @@ namespace hadis
         
         private void StopCompassLogic()
         {
-            // Guard: Zaten durmuþsa tekrar durdurma
+            // Guard: Zaten durmuï¿½sa tekrar durdurma
             if (!_isCompassRunning) return;
             
             compass.PusulaDurdur();
@@ -140,8 +140,8 @@ namespace hadis
             if (Permissions.ShouldShowRationale<Permissions.LocationWhenInUse>())
             {
                 ShowPermissionOverlay(
-                    "Konum Ýzni", 
-                    "Kýble yönünü doðru hesaplayabilmek için konum iznine ihtiyacýmýz var.", 
+                    "Konum ï¿½zni", 
+                    "Kï¿½ble yï¿½nï¿½nï¿½ doï¿½ru hesaplayabilmek iï¿½in konum iznine ihtiyacï¿½mï¿½z var.", 
                     "Tamam",
                     async () => 
                     {
@@ -160,15 +160,15 @@ namespace hadis
             else
             {
                 ShowPermissionOverlay(
-                    "Ýzin Gerekli", 
-                    "Konum izni verilmediði için kýble yönü hesaplanamýyor. Ayarlardan izin vermek ister misiniz?", 
+                    "ï¿½zin Gerekli", 
+                    "Konum izni verilmediï¿½i iï¿½in kï¿½ble yï¿½nï¿½ hesaplanamï¿½yor. Ayarlardan izin vermek ister misiniz?", 
                     "Ayarlara Git",
                     () => { AppInfo.ShowSettingsUI(); },
-                    "Ýptal");
+                    "ï¿½ptal");
             }
         }
 
-        private void ShowPermissionOverlay(string title, string message, string confirmText, Action onConfirm, string cancelText = "Ýptal")
+        private void ShowPermissionOverlay(string title, string message, string confirmText, Action onConfirm, string cancelText = "ï¿½ptal")
         {
             PermissionOverlayTitle.Text = title;
             PermissionOverlayMessage.Text = message;
@@ -271,7 +271,7 @@ namespace hadis
                 
                 if (displayAngle == 360) displayAngle = 0;
 
-                AciDegeri.Text = $"{displayAngle}°";
+                AciDegeri.Text = $"{displayAngle}ï¿½";
                 
                 if (displayAngle == 0)
                 {

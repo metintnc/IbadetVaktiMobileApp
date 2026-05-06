@@ -266,7 +266,7 @@ namespace hadis.ViewModels
 
                 if (liveLocation == null)
                 {
-                    SetLocationRefreshState(false, "Konum kapalı - son kayıt");
+                    SetLocationRefreshState(false, "Konum Doğrulanamadı");
                     return;
                 }
 
@@ -277,11 +277,11 @@ namespace hadis.ViewModels
             }
             catch (FeatureNotEnabledException)
             {
-                SetLocationRefreshState(false, "Konum kapalı - son kayıt");
+                    SetLocationRefreshState(false, "Konum Doğrulanamadı");
             }
             catch (PermissionException)
             {
-                SetLocationRefreshState(false, "Konum izni yok - son kayıt");
+                    SetLocationRefreshState(false, "Konum Doğrulanamadı");
             }
             catch (Exception ex)
             {
