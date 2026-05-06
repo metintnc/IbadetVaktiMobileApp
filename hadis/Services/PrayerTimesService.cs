@@ -1,5 +1,8 @@
 using hadis.Models;
+using System.Globalization;
+using System.Net.Http.Json;
 using System.Text.Json;
+using System.Text.RegularExpressions;
 
 namespace hadis.Services
 {
@@ -11,6 +14,7 @@ namespace hadis.Services
     {
         private readonly NamazVaktiApiService _namazVaktiApiService;
         private readonly string _cacheDir;
+        private static readonly HttpClient _calendarHttpClient = new();
         private const int CACHE_TTL_DAYS = 45; // 45 gün sonra cache expire olur
 
         public PrayerTimesService(NamazVaktiApiService namazVaktiApiService)
@@ -72,7 +76,31 @@ namespace hadis.Services
                 return cachedData;
             }
 
-            // 2. Azure API'den ilçe ID'sini bul ve veri çek
+            // 2. Koordinatlar mevcutsa aylık takvim kaynağından çek
+            if (HasValidCoordinates(lat, lon))
+            {
+                var calendarMonth = await GetPrayerTimesMonthFromCalendarAsync(date, lat!.Value, lon!.Value);
+                if (calendarMonth != null && calendarMonth.Count > 0)
+                {
+                    DailyNamazVakitleri? requestedDay = null;
+
+                    foreach (var item in calendarMonth)
+                    {
+                        await SaveDateCacheAsync(sehir, ilce, item.Date, item.Vakitler);
+
+                        if (item.Date.Date == date.Date)
+                            requestedDay = item.Vakitler;
+                    }
+
+                    if (requestedDay != null)
+                    {
+                        System.Diagnostics.Debug.WriteLine($"✅ Takvim kaynağından çekildi: {date:yyyy-MM-dd}");
+                        return ConvertToDateTimeDictionary(requestedDay, date);
+                    }
+                }
+            }
+
+            // 3. Azure API'den ilçe ID'sini bul ve veri çek
             try
             {
                 System.Diagnostics.Debug.WriteLine($"🔄 İlçe ID araniyor: {sehir}/{ilce} ({ulke})");
@@ -126,7 +154,7 @@ namespace hadis.Services
                     System.Diagnostics.Debug.WriteLine($"   Inner: {ex.InnerException.Message}");
             }
 
-            // 3. Offline fallback - Tüm cache dosyalarından ara
+            // 4. Offline fallback - Tüm cache dosyalarından ara
             var offlineResult = await TryOfflineFallbackAsync(sehir, ilce, date);
             if (offlineResult != null)
             {
@@ -139,31 +167,31 @@ namespace hadis.Services
         }
 
         /// <summary>
-        /// Yarınki vakitleri arka planda prefetch eder (widget, bildirim için)
+        /// Sonraki günlerin vakitlerini arka planda önceden yükler.
+        /// Varsayılan olarak 15 gün cache'lenir.
         /// </summary>
-        public async Task PrefetchNextDaysAsync(string ilce, string sehir, double? lat = null, double? lon = null)
+        public async Task PrefetchNextDaysAsync(string ilce, string sehir, double? lat = null, double? lon = null, int dayCount = 15)
         {
             try
             {
-                var tomorrow = DateTime.Now.AddDays(1);
-                
-                // Cache'te var mı kontrol et
-                var cachedData = await LoadMonthCacheAsync(sehir, ilce, tomorrow);
-                if (cachedData != null)
-                {
-                    System.Diagnostics.Debug.WriteLine($"✅ Yarın verisi cache'te mevcut: {tomorrow:yyyy-MM-dd}");
+                if (dayCount <= 0)
                     return;
-                }
 
-                // Azure API'den çek
-                var ilceId = await _namazVaktiApiService.GetIlceIdBySehir(sehir, ilce);
-                if (ilceId.HasValue)
+                var startDate = DateTime.Now.Date.AddDays(1);
+                var manuelUlke = Preferences.Default.Get("ManuelUlke", "Türkiye");
+
+                for (int offset = 0; offset < dayCount; offset++)
                 {
-                    var vakitler = await _namazVaktiApiService.GetTarihVakitleri(ilceId.Value, tomorrow);
+                    var targetDate = startDate.AddDays(offset);
+
+                    var vakitler = await GetPrayerTimesForDateAsync(targetDate, ilce, sehir, manuelUlke, lat, lon);
                     if (vakitler != null)
                     {
-                        await SaveDateCacheAsync(sehir, ilce, tomorrow, vakitler);
-                        System.Diagnostics.Debug.WriteLine($"✅ Prefetch tamamlandı: {tomorrow:yyyy-MM-dd}");
+                        System.Diagnostics.Debug.WriteLine($"✅ Prefetch tamamlandı: {targetDate:yyyy-MM-dd}");
+                    }
+                    else
+                    {
+                        System.Diagnostics.Debug.WriteLine($"⚠️ Prefetch veri döndürmedi: {targetDate:yyyy-MM-dd}");
                     }
                 }
             }
@@ -267,6 +295,117 @@ namespace hadis.Services
             {
                 System.Diagnostics.Debug.WriteLine($"Cache temizleme hatası: {ex.Message}");
             }
+        }
+
+        private static bool HasValidCoordinates(double? lat, double? lon)
+        {
+            return lat.HasValue && lon.HasValue &&
+                   Math.Abs(lat.Value) > 0.0001 && Math.Abs(lon.Value) > 0.0001;
+        }
+
+        private async Task<List<(DateTime Date, DailyNamazVakitleri Vakitler)>?> GetPrayerTimesMonthFromCalendarAsync(DateTime date, double latitude, double longitude)
+        {
+            try
+            {
+                var url = string.Format(
+                    CultureInfo.InvariantCulture,
+                    "https://api.aladhan.com/v1/calendar/{0}/{1}?latitude={2}&longitude={3}&method=13",
+                    date.Year,
+                    date.Month,
+                    latitude,
+                    longitude);
+
+                var response = await _calendarHttpClient.GetFromJsonAsync<CalendarResponse>(url);
+                var monthData = response?.Data;
+                if (monthData == null || monthData.Count == 0)
+                    return null;
+
+                var result = new List<(DateTime Date, DailyNamazVakitleri Vakitler)>();
+
+                for (int index = 0; index < monthData.Count; index++)
+                {
+                    var day = monthData[index];
+                    if (day?.Timings == null)
+                        continue;
+
+                    var dayDate = ResolveCalendarDate(day, date.Year, date.Month, index);
+                    if (dayDate == null)
+                        continue;
+
+                    result.Add((dayDate.Value, new DailyNamazVakitleri
+                    {
+                        Imsak = NormalizeCalendarTime(day.Timings.Fajr),
+                        Gunes = NormalizeCalendarTime(day.Timings.Sunrise),
+                        Ogle = NormalizeCalendarTime(day.Timings.Dhuhr),
+                        Ikindi = NormalizeCalendarTime(day.Timings.Asr),
+                        Aksam = NormalizeCalendarTime(day.Timings.Maghrib),
+                        Yatsi = NormalizeCalendarTime(day.Timings.Isha),
+                        GregorianDateShort = ParseGregorianShortDate(day.Date?.Gregorian?.Date) ?? dayDate.Value.ToString("dd.MM.yyyy"),
+                        GregorianDateLong = day.Date?.Readable ?? dayDate.Value.ToString("dd.MM.yyyy"),
+                        GregorianDateIso = ParseGregorianIsoDate(day.Date?.Gregorian?.Date) ?? dayDate.Value.ToString("yyyy-MM-dd"),
+                        HijriDateShort = string.Empty,
+                        HijriDateLong = string.Empty,
+                        QiblaTime = string.Empty,
+                        ShapeMoonUrl = string.Empty,
+                        AstronomicalSunset = string.Empty,
+                        AstronomicalSunrise = string.Empty
+                    }));
+                }
+
+                return result;
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine($"Calendar API hatası: {ex.Message}");
+                return null;
+            }
+        }
+
+        private static DateTime? ResolveCalendarDate(CalendarData day, int year, int month, int index)
+        {
+            var rawDate = day?.Date?.Gregorian?.Date;
+            if (!string.IsNullOrWhiteSpace(rawDate) && DateTime.TryParse(rawDate, CultureInfo.InvariantCulture, DateTimeStyles.None, out var parsedDate))
+                return parsedDate.Date;
+
+            try
+            {
+                return new DateTime(year, month, index + 1);
+            }
+            catch
+            {
+                return null;
+            }
+        }
+
+        private static string NormalizeCalendarTime(string? value)
+        {
+            if (string.IsNullOrWhiteSpace(value))
+                return string.Empty;
+
+            var match = Regex.Match(value, @"\d{1,2}:\d{2}");
+            return match.Success ? match.Value : value.Trim();
+        }
+
+        private static string? ParseGregorianIsoDate(string? value)
+        {
+            if (string.IsNullOrWhiteSpace(value))
+                return null;
+
+            if (DateTime.TryParse(value, CultureInfo.InvariantCulture, DateTimeStyles.None, out var parsed))
+                return parsed.ToString("yyyy-MM-dd");
+
+            return null;
+        }
+
+        private static string? ParseGregorianShortDate(string? value)
+        {
+            if (string.IsNullOrWhiteSpace(value))
+                return null;
+
+            if (DateTime.TryParse(value, CultureInfo.InvariantCulture, DateTimeStyles.None, out var parsed))
+                return parsed.ToString("dd.MM.yyyy");
+
+            return null;
         }
 
         // ================================================================

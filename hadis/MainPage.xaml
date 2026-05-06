@@ -140,14 +140,39 @@
                                 <Shadow Brush="Black" Offset="1,1" Radius="2" Opacity="0.5" />
                             </Label.Shadow>
                         </Label>
-                        <Label Style="{StaticResource AnaLabel}" x:Name="Konum" Text="{Binding KonumText}" HorizontalOptions="Center" FontSize="10">
-                            <Label.Shadow>
-                                <Shadow Brush="Black" Offset="1,1" Radius="1" Opacity="0.4" />
-                            </Label.Shadow>
-                            <Label.GestureRecognizers>
-                                <TapGestureRecognizer Tapped="Konum_Tapped"/>
-                            </Label.GestureRecognizers>
-                        </Label>
+                        <VerticalStackLayout Spacing="2" HorizontalOptions="Center">
+                            <Grid ColumnDefinitions="Auto,Auto" ColumnSpacing="4" HorizontalOptions="Center">
+                                <Label Grid.Column="0"
+                                       Style="{StaticResource AnaLabel}"
+                                       x:Name="Konum"
+                                       Text="{Binding KonumText}"
+                                       HorizontalOptions="Center"
+                                       FontSize="10">
+                                    <Label.Shadow>
+                                        <Shadow Brush="Black" Offset="1,1" Radius="1" Opacity="0.4" />
+                                    </Label.Shadow>
+                                    <Label.GestureRecognizers>
+                                        <TapGestureRecognizer Tapped="Konum_Tapped"/>
+                                    </Label.GestureRecognizers>
+                                </Label>
+
+                                <ActivityIndicator Grid.Column="1"
+                                                   IsRunning="{Binding IsLocationRefreshing}"
+                                                   IsVisible="{Binding IsLocationRefreshing}"
+                                                   Color="White"
+                                                   WidthRequest="10"
+                                                   HeightRequest="10"
+                                                   HorizontalOptions="Center"
+                                                   VerticalOptions="Center" />
+                            </Grid>
+
+                            <Label Text="{Binding LocationStatusText}"
+                                   IsVisible="{Binding LocationStatusText, Converter={StaticResource StringNotNullOrEmptyConverter}}"
+                                   FontSize="9"
+                                   TextColor="#FFD54F"
+                                   HorizontalOptions="Center"
+                                   HorizontalTextAlignment="Center" />
+                        </VerticalStackLayout>
                         <Label Style="{StaticResource AnaLabel}" Text="{Binding HicriTarih}" HorizontalOptions="Center" FontSize="13" Margin="0,5,0,0">
                             <Label.Shadow>
                                 <Shadow Brush="Black" Offset="1,1" Radius="1" Opacity="0.4" />

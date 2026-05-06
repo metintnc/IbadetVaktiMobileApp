@@ -114,6 +114,12 @@ namespace hadis
 
                 if (isFirstLaunch)
                 {
+                    // Artık ilk açılış olmadığını kaydet ki geri tuşuna basınca tekrar tekrar uyarı popup'ı vermesin
+                    Preferences.Default.Set("OtomatikKonum", false);
+                    
+                    // Ana sayfadaki arka plan uyarı arayüzünü (overlay) hemen görünür yap
+                    _viewModel.IsLocationErrorVisible = true;
+
                     // İlk kez açılıyor - konum seçtir
                     await DisplayAlert(
                         "Konum Seçimi", 
@@ -125,27 +131,24 @@ namespace hadis
                     return;
                 }
 
-                // Konum değişikliği kontrolü
+                // Her girişte veriyi tazele; cache ve son kayıt sayesinde bu hafif kalır
                 var currentLocationKey = GetLocationKey();
-                if (!_isDataLoaded || currentLocationKey != _lastLocationKey)
+                _isDataLoaded = true;
+                _lastLocationKey = currentLocationKey;
+                await _viewModel.LoadDataCommand.ExecuteAsync(null);
+
+                if (_viewModel.IsLocationErrorVisible)
                 {
-                    _isDataLoaded = true;
-                    _lastLocationKey = currentLocationKey;
-                    await _viewModel.LoadDataCommand.ExecuteAsync(null);
+                    bool redirect = await DisplayAlert(
+                        "Konum Seçimi Gerekli", 
+                        "Namaz vakitlerini görebilmek için bir şehir seçmelisiniz veya konum izni vermelisiniz.\nŞimdi şehir seçmek ister misiniz?", 
+                        "Evet", 
+                        "Hayır");
 
-                    if (_viewModel.IsLocationErrorVisible)
+                    if (redirect)
                     {
-                        bool redirect = await DisplayAlert(
-                            "Konum Seçimi Gerekli", 
-                            "Namaz vakitlerini görebilmek için bir şehir seçmelisiniz veya konum izni vermelisiniz.\nŞimdi şehir seçmek ister misiniz?", 
-                            "Evet", 
-                            "Hayır");
-
-                        if (redirect)
-                        {
-                            var konumPage = _serviceProvider.GetRequiredService<KonumPage>();
-                            await Navigation.PushAsync(konumPage);
-                        }
+                        var konumPage = _serviceProvider.GetRequiredService<KonumPage>();
+                        await Navigation.PushAsync(konumPage);
                     }
                 }
 

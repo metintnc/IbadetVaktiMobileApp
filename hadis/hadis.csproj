@@ -19,8 +19,8 @@
 		<ApplicationId>com.metintnc.namazvakti</ApplicationId>
 
 		<!-- Versions -->
-		<ApplicationDisplayVersion>1.1.4</ApplicationDisplayVersion>
-		<ApplicationVersion>8</ApplicationVersion>
+		<ApplicationDisplayVersion>1.1.5</ApplicationDisplayVersion>
+		<ApplicationVersion>9</ApplicationVersion>
 
 		<!-- <WindowsPackageType>None</WindowsPackageType> -->
 
@@ -55,10 +55,10 @@
 	<PropertyGroup Condition="'$(Configuration)|$(TargetFramework)'=='Release|net9.0-android'">
 	  <AndroidKeyStore>True</AndroidKeyStore>
 	  <!-- Geçici olarak iptal edildi, eski haline (True) getirmeyi unutma -->
-	  <AndroidSigningKeyStore>$(MSBuildProjectDirectory)\namazvakti.keystore</AndroidSigningKeyStore>
-	  <AndroidSigningKeyAlias>namazvakti</AndroidSigningKeyAlias>
-	  <AndroidSigningKeyPass>123456</AndroidSigningKeyPass>
-	  <AndroidSigningStorePass>123456</AndroidSigningStorePass>
+	  <AndroidSigningKeyStore>$(MSBuildProjectDirectory)\my-release-key.keystore</AndroidSigningKeyStore>
+	  <AndroidSigningKeyAlias>my-key-alias</AndroidSigningKeyAlias>
+	  <AndroidSigningKeyPass>metin8997</AndroidSigningKeyPass>
+	  <AndroidSigningStorePass>metin8997</AndroidSigningStorePass>
 	  <!-- R8 Code Shrinking yapÄ±landÄ±rmasÄ± -->
 	  <AndroidLinkTool>r8</AndroidLinkTool>
 	  <AndroidLinkMode>Release</AndroidLinkMode>

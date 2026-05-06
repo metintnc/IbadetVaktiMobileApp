@@ -30,6 +30,12 @@ namespace hadis.ViewModels
         [ObservableProperty]
         private string _konumText = "";
 
+        [ObservableProperty]
+        private bool _isLocationRefreshing;
+
+        [ObservableProperty]
+        private string _locationStatusText = "";
+
         // --- Observable Properties: Hicri Tarih ---
         [ObservableProperty]
         private string _hicriTarih = "";
@@ -146,34 +152,174 @@ namespace hadis.ViewModels
             GununAyeti = PrayerTimeHelper.GetDailyAyet();
 
             bool otomatikKonum = Preferences.Default.Get("OtomatikKonum", false);
+            var storedSnapshot = GetStoredLocationSnapshot();
+            bool isOffline = Connectivity.NetworkAccess == NetworkAccess.None;
 
-            if (otomatikKonum)
+            if (storedSnapshot.HasValue)
             {
-                // Show last cached auto location first so UI doesn't block while fetching GPS
-                string lastAutoSehir = Preferences.Default.Get("LastAutoSehir", "");
-                string lastAutoIlce = Preferences.Default.Get("LastAutoIlce", "");
-                double lat = Preferences.Default.Get("LastAutoLatitude", 0.0);
-                double lon = Preferences.Default.Get("LastAutoLongitude", 0.0);
+                ApplyLocationSnapshot(storedSnapshot.Value.Sehir, storedSnapshot.Value.Ilce);
+                SetLocationRefreshState(!isOffline, isOffline ? "İnternet yok - son kayıt" : "Yenileniyor...");
 
-                if (!string.IsNullOrEmpty(lastAutoSehir))
+                if (otomatikKonum && !isOffline)
                 {
-                    KonumText = (!string.IsNullOrEmpty(lastAutoIlce) && lastAutoIlce != lastAutoSehir)
-                        ? $"{lastAutoIlce} / {lastAutoSehir}"
-                        : lastAutoSehir;
-                        
-                    _cachedSehir = lastAutoSehir;
-                    _cachedIlce = lastAutoIlce;
-                    
-                    var tempLoc = new Location(lat, lon);
-                    _ = FetchPrayerTimesAsync(tempLoc, lastAutoSehir, lastAutoIlce); // Fire and update UI immediately from local cache if possible
+                    _ = ValidateLiveLocationAsync(storedSnapshot.Value.Sehir, storedSnapshot.Value.Ilce);
                 }
             }
 
-            // Konum bilgisini al (şehir/ilçe de cache'lenir)
-            var locationInfo = await LoadKonumBilgisiAsync();
-            
-            // Geocoding sonuçlarını FetchPrayerTimesAsync'e geçir (tekrar Geocoding yapılmasın) ve taze veriyi internetten çek
-            await FetchPrayerTimesAsync(locationInfo.Location, locationInfo.Sehir, locationInfo.Ilce);
+            try
+            {
+                if (!isOffline || !storedSnapshot.HasValue)
+                {
+                    // Konum bilgisini al ve tazele; son kayıt ekranda kalmaya devam eder
+                    var locationInfo = await LoadKonumBilgisiAsync();
+                    bool liveLocationUnavailable = otomatikKonum && locationInfo.Location == null && string.IsNullOrWhiteSpace(locationInfo.Sehir);
+
+                    var refreshLocation = locationInfo.Location ?? storedSnapshot?.Location;
+                    var refreshSehir = !string.IsNullOrWhiteSpace(locationInfo.Sehir) ? locationInfo.Sehir : storedSnapshot?.Sehir;
+                    var refreshIlce = !string.IsNullOrWhiteSpace(locationInfo.Ilce) ? locationInfo.Ilce : storedSnapshot?.Ilce;
+
+                    if (!string.IsNullOrWhiteSpace(refreshSehir))
+                    {
+                        ApplyLocationSnapshot(refreshSehir!, refreshIlce ?? string.Empty);
+                    }
+
+                    if (refreshLocation == null && !string.IsNullOrWhiteSpace(refreshSehir) && !string.IsNullOrWhiteSpace(refreshIlce))
+                    {
+                        var lat = Preferences.Default.Get("ManuelLatitude", 0.0);
+                        var lon = Preferences.Default.Get("ManuelLongitude", 0.0);
+                        if (lat != 0.0 || lon != 0.0)
+                            refreshLocation = new Location(lat, lon);
+                    }
+
+                    if (isOffline)
+                    {
+                        SetLocationRefreshState(false, "İnternet yok - son kayıt");
+                    }
+                    else if (liveLocationUnavailable && storedSnapshot.HasValue)
+                    {
+                        SetLocationRefreshState(false, "Konum alınamadı - son kayıt");
+                    }
+                    else if (storedSnapshot.HasValue)
+                    {
+                        SetLocationRefreshState(true, "Yenileniyor...");
+                    }
+
+                    await FetchPrayerTimesAsync(refreshLocation, refreshSehir, refreshIlce);
+                }
+                else if (storedSnapshot.HasValue)
+                {
+                    SetLocationRefreshState(false, "İnternet yok - son kayıt");
+                    await FetchPrayerTimesAsync(storedSnapshot.Value.Location, storedSnapshot.Value.Sehir, storedSnapshot.Value.Ilce);
+                }
+                else
+                {
+                    await FetchPrayerTimesAsync();
+                }
+            }
+            finally
+            {
+                var finalStatus = LocationStatusText;
+                if (string.IsNullOrWhiteSpace(finalStatus) || finalStatus == "Yenileniyor...")
+                {
+                    finalStatus = storedSnapshot.HasValue && Connectivity.NetworkAccess == NetworkAccess.None
+                        ? "İnternet yok - son kayıt"
+                        : string.Empty;
+                }
+
+                SetLocationRefreshState(false, finalStatus);
+            }
+        }
+
+        private void ApplyLocationSnapshot(string? sehir, string? ilce)
+        {
+            if (string.IsNullOrWhiteSpace(sehir))
+                return;
+
+            KonumText = (!string.IsNullOrWhiteSpace(ilce) && !ilce.Equals(sehir, StringComparison.OrdinalIgnoreCase))
+                ? $"{ilce} / {sehir}"
+                : sehir;
+
+            _cachedSehir = sehir;
+            _cachedIlce = ilce;
+        }
+
+        private void SetLocationRefreshState(bool isRefreshing, string statusText)
+        {
+            void ApplyState()
+            {
+                IsLocationRefreshing = isRefreshing;
+                LocationStatusText = statusText ?? string.Empty;
+            }
+
+            if (MainThread.IsMainThread)
+                ApplyState();
+            else
+                MainThread.BeginInvokeOnMainThread(ApplyState);
+        }
+
+        private async Task ValidateLiveLocationAsync(string sehir, string ilce)
+        {
+            try
+            {
+                var request = new GeolocationRequest(GeolocationAccuracy.Low, TimeSpan.FromSeconds(2));
+                var liveLocation = await Geolocation.GetLocationAsync(request);
+
+                if (liveLocation == null)
+                {
+                    SetLocationRefreshState(false, "Konum kapalı - son kayıt");
+                    return;
+                }
+
+                if (!string.IsNullOrWhiteSpace(sehir) && !string.IsNullOrWhiteSpace(ilce))
+                {
+                    SetLocationRefreshState(false, string.Empty);
+                }
+            }
+            catch (FeatureNotEnabledException)
+            {
+                SetLocationRefreshState(false, "Konum kapalı - son kayıt");
+            }
+            catch (PermissionException)
+            {
+                SetLocationRefreshState(false, "Konum izni yok - son kayıt");
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine($"Live location validation hatası: {ex.Message}");
+            }
+        }
+
+        private (Location? Location, string Sehir, string Ilce)? GetStoredLocationSnapshot()
+        {
+            string manuelSehir = Preferences.Default.Get("ManuelSehir", "");
+            string manuelIlce = Preferences.Default.Get("ManuelIlce", "");
+            double manuelLat = Preferences.Default.Get("ManuelLatitude", 0.0);
+            double manuelLon = Preferences.Default.Get("ManuelLongitude", 0.0);
+
+            if (!string.IsNullOrEmpty(manuelSehir))
+            {
+                var location = (manuelLat != 0.0 || manuelLon != 0.0)
+                    ? new Location(manuelLat, manuelLon)
+                    : null;
+
+                return (location, manuelSehir, manuelIlce);
+            }
+
+            string lastAutoSehir = Preferences.Default.Get("LastAutoSehir", "");
+            string lastAutoIlce = Preferences.Default.Get("LastAutoIlce", "");
+            double lastAutoLat = Preferences.Default.Get("LastAutoLatitude", 0.0);
+            double lastAutoLon = Preferences.Default.Get("LastAutoLongitude", 0.0);
+
+            if (!string.IsNullOrEmpty(lastAutoSehir))
+            {
+                var location = (lastAutoLat != 0.0 || lastAutoLon != 0.0)
+                    ? new Location(lastAutoLat, lastAutoLon)
+                    : null;
+
+                return (location, lastAutoSehir, lastAutoIlce);
+            }
+
+            return null;
         }
 
         /// <summary>
@@ -517,7 +663,7 @@ namespace hadis.ViewModels
 
                 IsLocationErrorVisible = false;
 
-                if (Connectivity.NetworkAccess == NetworkAccess.None)
+                if (Connectivity.NetworkAccess == NetworkAccess.None && string.IsNullOrEmpty(sehir) && string.IsNullOrEmpty(ilce))
                 {
                     if (_namazVakitleri == null || _namazVakitleri.Count == 0)
                     {
@@ -535,6 +681,8 @@ namespace hadis.ViewModels
                     _namazVakitleri = vakitler;
                     IsInternetErrorVisible = false;
                     IsLocationErrorVisible = false;
+                    if (string.IsNullOrEmpty(LocationStatusText) || LocationStatusText == "Yenileniyor...")
+                        LocationStatusText = string.Empty;
                     UpdateAllPrayerTimes();
 
                     try
@@ -561,9 +709,17 @@ namespace hadis.ViewModels
                 }
                 else
                 {
-                    ResetPrayerTimes();
-                    _namazVakitleri = null;
-                    ShowInternetError(false);
+                    if (_namazVakitleri == null || _namazVakitleri.Count == 0)
+                    {
+                        ResetPrayerTimes();
+                        _namazVakitleri = null;
+                        ShowInternetError(false);
+                    }
+                    else
+                    {
+                        if (string.IsNullOrWhiteSpace(LocationStatusText))
+                            LocationStatusText = "Son kayıt gösteriliyor";
+                    }
                 }
             }
             catch (FeatureNotEnabledException)
