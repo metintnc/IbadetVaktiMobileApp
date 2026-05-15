@@ -3,6 +3,10 @@
     "Windows Machine": {
       "commandName": "Project",
       "nativeDebugging": false
+    },
+    "hadis (Package)": {
+      "commandName": "MsixPackage",
+      "nativeDebugging": false
     }
   }
 }

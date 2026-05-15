@@ -323,7 +323,7 @@ namespace hadis.Services
                     {
                         System.Diagnostics.Debug.WriteLine($"Azerbaycan sehir/ilce bulundu (ID: {azerbaijanCityId})");
                         return azerbaijanCityId;
-                    }   """"""""""""
+                    }
                 }
                 else if (NormalizeForSearch(manuelUlke) == NormalizeForSearch("Suudi Arabistan") ||
                          NormalizeForSearch(manuelUlke) == NormalizeForSearch("S. Arabistan"))
