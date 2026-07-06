@@ -33,19 +33,10 @@ namespace hadis
 
         protected override bool OnBackButtonPressed()
         {
-            if (Navigation.NavigationStack.Count > 1)
-            {
-                MainThread.BeginInvokeOnMainThread(async () =>
-                {
-                    await Navigation.PopAsync();
-                });
-                return true;
-            }
-            
-            // Ana sayfaya (Vakitler) dön
+            // Push navigation ile açıldığı için PopAsync ile geri dön
             MainThread.BeginInvokeOnMainThread(async () =>
             {
-                await Shell.Current.GoToAsync("//MainPage");
+                await Navigation.PopAsync();
             });
             return true;
         }

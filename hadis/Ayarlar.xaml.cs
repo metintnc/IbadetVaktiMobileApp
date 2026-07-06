@@ -86,12 +86,12 @@ namespace hadis
 
         protected override bool OnBackButtonPressed()
         {
-            // Geri tuşuna basıldığında Ana Sayfaya (Vakitler Sekmesine) git
+            // Push navigation ile açıldığı için PopAsync ile geri dön
             MainThread.BeginInvokeOnMainThread(async () =>
             {
-                await Shell.Current.GoToAsync("//MainPage");
+                await Navigation.PopAsync();
             });
-            return true; // Olayı biz yönettik
+            return true;
         }
     }
 }

@@ -1,4 +1,4 @@
-﻿namespace hadis
+namespace hadis
 {
     using hadis.Helpers;
     using hadis.Services;
@@ -8,11 +8,6 @@
     {
         private readonly IServiceProvider _serviceProvider;
         
-        // Tema cache - Preferences okuma overhead'ini önler
-        private string? _cachedTheme;
-        private DateTime _themeCacheTime;
-        private static readonly TimeSpan ThemeCacheExpiry = TimeSpan.FromSeconds(5);
-        
         public AppShell(IServiceProvider serviceProvider)
         {
             InitializeComponent();
@@ -20,10 +15,6 @@
             
             // Hemen arka planda başlat - Task.Run UI thread'i bloklamaz
             _ = Task.Run(PrewarmPages);
-
-            // Uygulama açılışında beyaz parlama (flicker) olmaması için
-            // TabBar rengini hemen ayarla
-            UpdateTabBarColor();
         }
 
         /// <summary>
@@ -51,73 +42,6 @@
             catch (Exception ex)
             {
                 System.Diagnostics.Debug.WriteLine($"⚠️ Sayfa prewarm hatası: {ex.Message}");
-            }
-        }
-
-        /// <summary>
-        /// Tema cache'ini invalidate et (tema değiştiğinde çağrılmalı)
-        /// </summary>
-        public void InvalidateThemeCache() => _cachedTheme = null;
-
-        /// <summary>
-        /// Cache'li tema değerini al
-        /// </summary>
-        private string GetCachedTheme()
-        {
-            var now = DateTime.UtcNow;
-            if (_cachedTheme == null || (now - _themeCacheTime) > ThemeCacheExpiry)
-            {
-                _cachedTheme = Preferences.Default.Get(AppConstants.PREF_APP_THEME, "MainDark");
-                _themeCacheTime = now;
-            }
-            return _cachedTheme;
-        }
-
-        protected override void OnNavigated(ShellNavigatedEventArgs args)
-        {
-            base.OnNavigated(args);
-            UpdateTabBarColor();
-        }
-
-        private void UpdateTabBarColor()
-        {
-            try
-            {
-                // Cache'li tema kullan
-                string savedTheme = GetCachedTheme();
-                var currentPage = Current?.CurrentPage;
-                bool isMainPage = currentPage is MainPage || currentPage == null; // Varsayılan olarak anasayfa yükleniyor varsayıyoruz (açılışta beyaz patlamaması için)
-
-                if (savedTheme == "MainLight")
-                {
-                    if (isMainPage)
-                    {
-                        var now = DateTime.Now;
-                        var info = TimeBasedBackgroundConfig.GetBackgroundForTime(now.Hour, now.Minute);
-                        Shell.SetTabBarBackgroundColor(this, info.TabBarColorParsed);
-                    }
-                    else
-                    {
-                        Shell.SetTabBarBackgroundColor(this, Colors.White);
-                    }
-                }
-                else if (savedTheme == "MainDark")
-                {
-                    if (isMainPage)
-                    {
-                        var now = DateTime.Now;
-                        var info = TimeBasedBackgroundConfig.GetBackgroundForTime(now.Hour, now.Minute);
-                        Shell.SetTabBarBackgroundColor(this, info.TabBarColorParsed);
-                    }
-                    else
-                    {
-                        Shell.SetTabBarBackgroundColor(this, Colors.Black);
-                    }
-                }
-            }
-            catch (Exception ex)
-            {
-                System.Diagnostics.Debug.WriteLine($"TabBar update error: {ex.Message}");
             }
         }
     }

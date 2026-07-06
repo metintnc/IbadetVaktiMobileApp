@@ -242,21 +242,12 @@ namespace hadis
                 return true;
             }
 
-            if (Navigation.NavigationStack.Count > 1)
-            {
-                MainThread.BeginInvokeOnMainThread(async () =>
-                {
-                    await Navigation.PopAsync();
-                });
-                return true;
-            }
-
-            // Geri tuşuna basıldığında Ana Sayfaya (Vakitler Sekmesine) git
+            // Push navigation ile açıldığı için PopAsync ile geri dön
             MainThread.BeginInvokeOnMainThread(async () =>
             {
-                await Shell.Current.GoToAsync("//MainPage");
+                await Navigation.PopAsync();
             });
-            return true; // Olayı biz yönettik
+            return true;
         }
 
         private void MealAyarlar_Clicked(object sender, EventArgs e)

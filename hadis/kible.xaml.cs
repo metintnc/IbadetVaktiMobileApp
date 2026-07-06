@@ -301,9 +301,10 @@ namespace hadis
         
         protected override bool OnBackButtonPressed()
         {
+            // Push navigation ile açıldığı için PopAsync ile geri dön
             MainThread.BeginInvokeOnMainThread(async () =>
             {
-                await Shell.Current.GoToAsync("//MainPage");
+                await Navigation.PopAsync();
             });
             return true;
         }

@@ -4,32 +4,10 @@
     xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
     xmlns:local="clr-namespace:hadis"
     Title="hadis"
-    
     Shell.NavBarIsVisible="False"
-    Shell.TabBarForegroundColor="{AppThemeBinding Light=#00BCD4, Dark=#00BCD4}"
-    Shell.TabBarTitleColor="{AppThemeBinding Light=#00BCD4, Dark=#666666}"
-    Shell.TabBarUnselectedColor="{AppThemeBinding Light=#757575, Dark=#666666}">
+    Shell.TabBarIsVisible="False">
     
-    <TabBar>
-        
-        <Tab Title="Vakitler" Icon="vakitler.webp">
-            <ShellContent Route="MainPage" ContentTemplate="{DataTemplate local:MainPage}" />
-        </Tab>
-        <Tab Title="Kütüphane" Icon="kuran.webp">
-            <ShellContent ContentTemplate="{DataTemplate local:Kutuphane}"  />
-        </Tab>
-        <Tab Title="Kıble" Icon="kiblesekme.webp"> 
-            <ShellContent ContentTemplate="{DataTemplate local:kible}" />
-        </Tab>
-        <Tab Title="Zikir" Icon="zikirmatik.webp">
-            <ShellContent ContentTemplate="{DataTemplate local:zikirmatik}" />
-        </Tab>
-        <Tab Title="Ayarlar" Icon="ayarlar.svg"> 
-            <ShellContent ContentTemplate="{DataTemplate local:Ayarlar}" />
-        </Tab>
-
-    </TabBar>
-    
+    <ShellContent Route="MainPage" ContentTemplate="{DataTemplate local:MainPage}" />
    
 </Shell>
 
