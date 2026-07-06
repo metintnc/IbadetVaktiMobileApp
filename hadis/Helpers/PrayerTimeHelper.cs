@@ -1,4 +1,4 @@
-﻿using System.Globalization;
+using System.Globalization;
 
 namespace hadis.Helpers
 {
@@ -115,7 +115,10 @@ namespace hadis.Helpers
             "İnsan için ancak çalıştığının karşılığı vardır. (Necm, 39)",
             "Allah güzel davrananları sever. (Ali İmran, 134)",
             "Namaz, kötülüklerden alıkoyar. (Ankebut, 45)",
-            "De ki: Rabbim, beni doğru yola ilet. (Müminun, 93)"
+            "De ki: Rabbim, beni doğru yola ilet. (Müminun, 93)",
+            "Olabilir ki siz, bir şeyden hoşlanmazsınız; oysa ki o sizin için bir hayırdır. Yine olabilir ki, siz bir şeyi seversiniz, oysaki o sizin için bir kötülüktür. Allah bilir, siz bilmezsiniz. (Bakara, 216)",
+            "Mallarını gece gündüz; gizli ve açık Allah yolunda harcayanlar var ya, onların Rableri katında mükâfatları vardır. Onlara korku yoktur, onlar üzüntü de çekmeyeceklerdir. (Bakara, 274)",
+            "Sevdiğiniz şeylerden Allah yolunda harcamadıkça iyiliğe asla erişemezsiniz. Her ne harcarsanız Allah onu bilir. (Ali İmran, 92)"
         };
 
         private static readonly Random _random = new Random();
