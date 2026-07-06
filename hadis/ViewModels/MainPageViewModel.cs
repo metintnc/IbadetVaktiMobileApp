@@ -385,6 +385,37 @@ namespace hadis.ViewModels
                     {
                         try
                         {
+                            // Mesafe Kontrolü: Eğer son konum bilgisi varsa ve mesafe farkı 500 metreden azsa harici Geocoding'i atla
+                            double lastAutoLat = Preferences.Default.Get("LastAutoLatitude", 0.0);
+                            double lastAutoLon = Preferences.Default.Get("LastAutoLongitude", 0.0);
+                            
+                            if (lastAutoLat != 0.0 && lastAutoLon != 0.0)
+                            {
+                                var lastLoc = new Location(lastAutoLat, lastAutoLon);
+                                double distance = Location.CalculateDistance(lastLoc, foundLocation, DistanceUnits.Kilometers);
+                                if (distance < 0.5) // 500 metre limit
+                                {
+                                    string savedSehir = Preferences.Default.Get("LastAutoSehir", "");
+                                    string savedIlce = Preferences.Default.Get("LastAutoIlce", "");
+                                    
+                                    if (!string.IsNullOrEmpty(savedSehir))
+                                    {
+                                        sehir = savedSehir;
+                                        ilce = savedIlce;
+                                        _cachedSehir = sehir;
+                                        _cachedIlce = ilce;
+                                        
+                                        if (!string.IsNullOrEmpty(sehir) && !string.IsNullOrEmpty(ilce))
+                                            KonumText = $"{ilce} / {sehir}";
+                                        else if (!string.IsNullOrEmpty(sehir))
+                                            KonumText = sehir;
+                                            
+                                        System.Diagnostics.Debug.WriteLine($"ℹ️ Konum çok az değişti ({distance:F3} km), Geocoding atlandı. Kayıtlı konum: {sehir}/{ilce}");
+                                        return (foundLocation, sehir, ilce);
+                                    }
+                                }
+                            }
+
                             // Tek seferlik Geocoding çağrısı - sonuçlar cache'lenir
                             var placemarks = await Geocoding.Default.GetPlacemarksAsync(foundLocation.Latitude, foundLocation.Longitude);
                             var placemark = placemarks?.FirstOrDefault();
@@ -687,8 +718,19 @@ namespace hadis.ViewModels
 
                     try
                     {
-                        await _notificationService.ScheduleNotificationsAsync(vakitler);
-                        _ = _notificationService.ScheduleMultiDayNotificationsAsync(7);
+                        // Bildirim zamanlamasını arka planda çalıştırarak UI'ın (kartların) anında yüklenmesini sağlıyoruz
+                        _ = Task.Run(async () =>
+                        {
+                            try
+                            {
+                                await _notificationService.ScheduleNotificationsAsync(vakitler);
+                                await _notificationService.ScheduleMultiDayNotificationsAsync(7);
+                            }
+                            catch (Exception ex)
+                            {
+                                System.Diagnostics.Debug.WriteLine($"🔔 Bildirim zamanlama arka plan hatası: {ex.Message}");
+                            }
+                        });
 
                         if (Preferences.Default.Get("PersistentNotificationEnabled", false))
                         {
@@ -704,7 +746,7 @@ namespace hadis.ViewModels
                     }
                     catch (Exception notifEx)
                     {
-                        System.Diagnostics.Debug.WriteLine($"🔔 Bildirim zamanlama hatası: {notifEx.Message}");
+                        System.Diagnostics.Debug.WriteLine($"🔔 Diğer işlemler hatası: {notifEx.Message}");
                     }
                 }
                 else

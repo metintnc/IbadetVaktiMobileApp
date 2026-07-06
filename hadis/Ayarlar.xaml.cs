@@ -78,9 +78,9 @@ namespace hadis
             await Navigation.PushAsync(page);
         }
 
-        private async void KutuphaneButton_Clicked(object sender, TappedEventArgs e)
+        private async void KuranButton_Clicked(object sender, TappedEventArgs e)
         {
-            var page = _serviceProvider.GetRequiredService<Kutuphane>();
+            var page = _serviceProvider.GetRequiredService<Kuran>();
             await Navigation.PushAsync(page);
         }
 

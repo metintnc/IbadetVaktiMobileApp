@@ -32,6 +32,13 @@ namespace hadis
         {
             base.OnAppearing();
             _statusBarService.SetStatusBarColor("#000000"); // Hızlı, UI thread'i bloklamaz
+            Shell.SetTabBarIsVisible(this, false);
+        }
+
+        protected override void OnDisappearing()
+        {
+            base.OnDisappearing();
+            Shell.SetTabBarIsVisible(this, true);
         }
 
         protected override async void OnNavigatedTo(NavigatedToEventArgs args)
@@ -232,6 +239,15 @@ namespace hadis
             if (MealSelectionOverlay.IsVisible)
             {
                 MealSelectionOverlay.IsVisible = false;
+                return true;
+            }
+
+            if (Navigation.NavigationStack.Count > 1)
+            {
+                MainThread.BeginInvokeOnMainThread(async () =>
+                {
+                    await Navigation.PopAsync();
+                });
                 return true;
             }
 

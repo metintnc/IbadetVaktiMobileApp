@@ -1,6 +1,7 @@
-﻿<?xml version="1.0" encoding="utf-8" ?>
+<?xml version="1.0" encoding="utf-8" ?>
 <ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:local="clr-namespace:hadis"
              x:Class="hadis.NamazHocasi"
              Title="Namaz Hocası">
     
@@ -56,7 +57,7 @@
                           Loop="False"
                           IndicatorView="indicatorView">
                 <CarouselView.ItemTemplate>
-                    <DataTemplate>
+                    <DataTemplate x:DataType="local:NamazTuru">
                         <Border Margin="20,10,20,10"
                                StrokeShape="RoundRectangle 25"
                                Padding="0"
@@ -85,7 +86,7 @@
                                 <ScrollView Grid.Row="1" Padding="20">
                                     <VerticalStackLayout Spacing="15" BindableLayout.ItemsSource="{Binding Adimlar}">
                                         <BindableLayout.ItemTemplate>
-                                            <DataTemplate>
+                                            <DataTemplate x:DataType="local:NamazAdimi">
                                                 <VerticalStackLayout Spacing="5" Margin="0,0,0,10">
                                                     <Label Text="{Binding Baslik, StringFormat='🔹 {0}'}" 
                                                            FontSize="16" 

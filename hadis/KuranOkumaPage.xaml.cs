@@ -1,4 +1,7 @@
 using System.Collections.ObjectModel;
+using hadis.Controls;
+using Microsoft.Maui.Graphics;
+using System.ComponentModel;
 
 namespace hadis
 {
@@ -9,10 +12,20 @@ namespace hadis
         private ObservableCollection<string> _pages = new();
         private int _currentPageNumber = 1;
         private bool _initialPageLoaded = false;
+        private CircularProgressDrawable _circleDrawable;
+        private Image? _currentPageImage;
 
         public KuranOkumaPage(int startPage = 1)
         {
             InitializeComponent();
+            // Create and attach circular progress drawable
+            _circleDrawable = new CircularProgressDrawable
+            {
+                Progress = 0f,
+                StrokeWidth = 6f,
+                ProgressColor = Colors.White
+            };
+            LoadingCircle.Drawable = _circleDrawable;
             ShowLoadingOverlay();
             InitializePages();
             
@@ -50,6 +63,13 @@ namespace hadis
             UpdateTitle(pageNumber);
             UpdateLoadingProgress(pageNumber);
             ShowLoadingOverlay();
+
+            // Detach previous image handler if any — we'll attach when the new page's Image fires Loaded
+            if (_currentPageImage != null)
+            {
+                _currentPageImage.PropertyChanged -= OnPageImagePropertyChanged;
+                _currentPageImage = null;
+            }
             
             // Save progress
             Preferences.Set("LastReadPage", pageNumber);
@@ -58,22 +78,23 @@ namespace hadis
         private void UpdateLoadingProgress(int pageNumber)
         {
             var progress = TotalPages > 0 ? (double)pageNumber / TotalPages : 0;
-            LoadingProgressLabel.Text = $"Sayfa {pageNumber} / {TotalPages}";
-            LoadingProgressBar.Progress = Math.Clamp(progress, 0.0, 1.0);
+            var normalized = (float)Math.Clamp(progress, 0.0, 1.0);
+            if (_circleDrawable != null)
+            {
+                _circleDrawable.Progress = normalized;
+                LoadingCircle.Invalidate();
+            }
         }
 
         private void ShowLoadingOverlay()
         {
             LoadingOverlay.IsVisible = true;
-            LoadingSpinner.IsRunning = true;
-            LoadingMessageLabel.Text = "Arapça Kur'an yükleniyor...";
             UpdateLoadingProgress(_currentPageNumber);
         }
 
         private void HideLoadingOverlay()
         {
             LoadingOverlay.IsVisible = false;
-            LoadingSpinner.IsRunning = false;
         }
 
         private void OnPageImageLoaded(object sender, EventArgs e)
@@ -82,15 +103,25 @@ namespace hadis
             {
                 return;
             }
-
             var imageSource = image.BindingContext as string;
             var expectedSuffix = $"-{_currentPageNumber}.jpg";
 
+            // Only attach to and react for the image that belongs to the currently visible page
             if (string.IsNullOrWhiteSpace(imageSource) || !imageSource.EndsWith(expectedSuffix, StringComparison.OrdinalIgnoreCase))
             {
                 return;
             }
 
+            // Detach previous if somehow still attached
+            if (_currentPageImage != null && _currentPageImage != image)
+            {
+                _currentPageImage.PropertyChanged -= OnPageImagePropertyChanged;
+            }
+
+            _currentPageImage = image;
+            _currentPageImage.PropertyChanged += OnPageImagePropertyChanged;
+
+            // If image is still loading, show overlay. Otherwise hide after a tiny delay for smoother UX.
             if (image.IsLoading)
             {
                 ShowLoadingOverlay();
@@ -107,6 +138,36 @@ namespace hadis
 
                 HideLoadingOverlay();
             });
+        }
+
+        private void OnPageImagePropertyChanged(object? sender, PropertyChangedEventArgs e)
+        {
+            if (e.PropertyName != nameof(Image.IsLoading))
+                return;
+
+            if (sender is not Image img)
+                return;
+
+            // Only respond for the currently tracked image
+            if (!ReferenceEquals(img, _currentPageImage))
+                return;
+
+            if (img.IsLoading)
+            {
+                MainThread.BeginInvokeOnMainThread(() => ShowLoadingOverlay());
+            }
+            else
+            {
+                MainThread.BeginInvokeOnMainThread(async () =>
+                {
+                    if (!_initialPageLoaded)
+                    {
+                        _initialPageLoaded = true;
+                        await Task.Delay(100);
+                    }
+                    HideLoadingOverlay();
+                });
+            }
         }
 
         private void UpdatePageLabel(int pageNumber)

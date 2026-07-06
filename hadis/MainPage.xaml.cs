@@ -18,6 +18,7 @@ namespace hadis
         private List<AddedCity> _additionalCities = new();
         private int _activeAdditionalCityIndex = -1; // -1: ana şehir
         private bool _isSwipeTransitionRunning;
+        private DateTime _lastLoadedDate = DateTime.MinValue;
 
         // Animasyon için frame array'i - her seferinde yeniden oluşturulmuyor (allocation optimize)
         private Border[]? _allFrames;
@@ -133,8 +134,19 @@ namespace hadis
 
                 // Her girişte veriyi tazele; cache ve son kayıt sayesinde bu hafif kalır
                 var currentLocationKey = GetLocationKey();
+                var today = DateTime.Today;
+
+                if (_isDataLoaded && currentLocationKey == _lastLocationKey && _lastLoadedDate == today)
+                {
+                    System.Diagnostics.Debug.WriteLine("ℹ️ Konum ve gün değişmedi, veri yükleme atlandı.");
+                    RefreshAdditionalCities();
+                    _ = AnimateFrames();
+                    return;
+                }
+
                 _isDataLoaded = true;
                 _lastLocationKey = currentLocationKey;
+                _lastLoadedDate = today;
                 await _viewModel.LoadDataCommand.ExecuteAsync(null);
 
                 if (_viewModel.IsLocationErrorVisible)

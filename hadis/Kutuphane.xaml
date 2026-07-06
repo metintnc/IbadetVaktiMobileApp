@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="utf-8" ?>
+<?xml version="1.0" encoding="utf-8" ?>
 <ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              x:Class="hadis.Kutuphane"
@@ -49,6 +49,42 @@
                                HorizontalOptions="Center"
                                TextColor="{AppThemeBinding Light=#757575, Dark=#BDBDBD}"/>
                     </VerticalStackLayout>
+                </Border>
+
+                <!-- Kur'an-ı Kerim ve Meali Card -->
+                <Border x:Name="KuranMealFrame"
+                       StrokeShape="RoundRectangle 20"
+                       Padding="25"
+                       Stroke="{AppThemeBinding Light=#80009688, Dark=#80FFFFFF}"
+                       BackgroundColor="{AppThemeBinding Light=#22FFFFFF, Dark=#33000000}">
+                    <Border.GestureRecognizers>
+                        <TapGestureRecognizer Tapped="KuranMealButton_Clicked"/>
+                    </Border.GestureRecognizers>
+                    <Grid ColumnDefinitions="Auto,*,Auto" ColumnSpacing="15">
+                        <Label Grid.Column="0"
+                               Text="📗"
+                               FontSize="48"
+                               VerticalOptions="Center"/>
+                        <VerticalStackLayout Grid.Column="1" Spacing="5" VerticalOptions="Center">
+                            <Label Text="Kur'an-ı Kerim ve Meali"
+                                   FontSize="18"
+                                   FontAttributes="Bold"
+                                   TextColor="{AppThemeBinding Light=#00796B, Dark=#FFFFFF}"/>
+                            <Label Text="Sureler, Türkçe mealler, ayet arama ve yer işaretleri"
+                                   FontSize="12"
+                                   TextColor="{AppThemeBinding Light=#757575, Dark=#BDBDBD}"/>
+                            <Label Text="Türkçe Mealli okuma"
+                                   FontSize="11"
+                                   FontAttributes="Bold"
+                                   TextColor="{AppThemeBinding Light=#009688, Dark=#80CBC4}"/>
+                        </VerticalStackLayout>
+                        <Image Grid.Column="2"
+                               Source="gerigit.svg"
+                               Rotation="180"
+                               HeightRequest="24"
+                               WidthRequest="24"
+                               VerticalOptions="Center" />
+                    </Grid>
                 </Border>
 
                 <!-- Arapça Kur'an Card -->

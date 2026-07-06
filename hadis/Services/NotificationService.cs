@@ -1,4 +1,4 @@
-﻿using Plugin.LocalNotification;
+using Plugin.LocalNotification;
 using hadis.Models;
 using hadis.Helpers;
 
@@ -29,7 +29,10 @@ namespace hadis.Services
 #if ANDROID || IOS
                 if (await LocalNotificationCenter.Current.AreNotificationsEnabled() == false)
                 {
-                    await LocalNotificationCenter.Current.RequestNotificationPermission();
+                    await Microsoft.Maui.ApplicationModel.MainThread.InvokeOnMainThreadAsync(async () =>
+                    {
+                        await LocalNotificationCenter.Current.RequestNotificationPermission();
+                    });
                 }
                 System.Diagnostics.Debug.WriteLine("✅ Bildirim izinleri kontrol edildi.");
 #endif
@@ -61,7 +64,10 @@ namespace hadis.Services
                 if (await LocalNotificationCenter.Current.AreNotificationsEnabled() == false)
                 {
                     System.Diagnostics.Debug.WriteLine("⚠️ Bildirim izni yok, izin isteniyor...");
-                    await LocalNotificationCenter.Current.RequestNotificationPermission();
+                    await Microsoft.Maui.ApplicationModel.MainThread.InvokeOnMainThreadAsync(async () =>
+                    {
+                        await LocalNotificationCenter.Current.RequestNotificationPermission();
+                    });
                 }
 #endif
             }
@@ -285,7 +291,10 @@ namespace hadis.Services
 #elif IOS
                 if (await LocalNotificationCenter.Current.AreNotificationsEnabled() == false)
                 {
-                    await LocalNotificationCenter.Current.RequestNotificationPermission();
+                    await Microsoft.Maui.ApplicationModel.MainThread.InvokeOnMainThreadAsync(async () =>
+                    {
+                        await LocalNotificationCenter.Current.RequestNotificationPermission();
+                    });
                 }
 
                 var request = new NotificationRequest

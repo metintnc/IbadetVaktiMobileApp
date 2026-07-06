@@ -24,7 +24,7 @@
                         <Image x:Name="PageImage"
                                Aspect="AspectFit"
                                Source="{Binding .}"
-                               BackgroundColor="White"
+                               BackgroundColor="#FEF1D1"
                                Loaded="OnPageImageLoaded">
                             <Image.GestureRecognizers>
                                 <TapGestureRecognizer Tapped="OnPageTapped"/>
@@ -86,33 +86,11 @@
               ZIndex="1000"
               HorizontalOptions="FillAndExpand"
               VerticalOptions="FillAndExpand">
-            <VerticalStackLayout Spacing="14"
-                                 HorizontalOptions="Center"
-                                 VerticalOptions="Center"
-                                 Padding="30">
-                <ActivityIndicator x:Name="LoadingSpinner"
-                                   IsRunning="True"
-                                   Color="White"
-                                   HorizontalOptions="Center"/>
-                <Label x:Name="LoadingMessageLabel"
-                       Text="Arapça Kur'an yükleniyor..."
-                       TextColor="White"
-                       FontSize="18"
-                       FontAttributes="Bold"
-                       HorizontalOptions="Center"
-                       HorizontalTextAlignment="Center"/>
-                <Label x:Name="LoadingProgressLabel"
-                       Text="Sayfa 1 / 604"
-                       TextColor="#DADADA"
-                       FontSize="13"
-                       HorizontalOptions="Center"
-                       HorizontalTextAlignment="Center"/>
-                <ProgressBar x:Name="LoadingProgressBar"
-                             Progress="0.0016"
-                             ProgressColor="#81C784"
-                             HeightRequest="4"
-                             WidthRequest="220"/>
-            </VerticalStackLayout>
+            <GraphicsView x:Name="LoadingCircle"
+                          HeightRequest="120"
+                          WidthRequest="120"
+                          HorizontalOptions="Center"
+                          VerticalOptions="Center" />
         </Grid>
     </Grid>
 </ContentPage>

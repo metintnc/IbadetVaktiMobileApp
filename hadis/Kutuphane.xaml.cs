@@ -2,21 +2,18 @@ namespace hadis
 {
     public partial class Kutuphane : ContentPage
     {
-        public Kutuphane()
+        private readonly IServiceProvider _serviceProvider;
+
+        public Kutuphane(IServiceProvider serviceProvider)
         {
             InitializeComponent();
+            _serviceProvider = serviceProvider;
         }
 
-        protected override void OnAppearing()
+        private async void KuranMealButton_Clicked(object sender, TappedEventArgs e)
         {
-            base.OnAppearing();
-            Shell.SetTabBarIsVisible(this, false);
-        }
-
-        protected override void OnDisappearing()
-        {
-            base.OnDisappearing();
-            Shell.SetTabBarIsVisible(this, true);
+            var page = _serviceProvider.GetRequiredService<Kuran>();
+            await Navigation.PushAsync(page);
         }
 
         private async void ArapcaKuranButton_Clicked(object sender, TappedEventArgs e)
@@ -44,7 +41,13 @@ namespace hadis
                 });
                 return true;
             }
-            return base.OnBackButtonPressed();
+            
+            // Ana sayfaya (Vakitler) dön
+            MainThread.BeginInvokeOnMainThread(async () =>
+            {
+                await Shell.Current.GoToAsync("//MainPage");
+            });
+            return true;
         }
     }
 }

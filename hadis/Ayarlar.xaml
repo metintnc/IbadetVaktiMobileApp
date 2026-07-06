@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="utf-8" ?>
+<?xml version="1.0" encoding="utf-8" ?>
 <ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              x:Class="hadis.Ayarlar"
@@ -57,29 +57,29 @@
                           RowSpacing="15"
                           ColumnSpacing="15">
                         
-                        <!-- Kütüphane Card -->
+                        <!-- Kur'an-ı Kerim Card -->
                         <Border Grid.Row="0" Grid.Column="0"
-                               x:Name="KutuphaneFrame"
+                               x:Name="KuranFrame"
                                StrokeShape="RoundRectangle 20"
                                Padding="20"
                                Stroke="{AppThemeBinding Light=#80009688, Dark=#80FFFFFF}"
                                BackgroundColor="{AppThemeBinding Light=#22FFFFFF, Dark=#33000000}">
                             <Border.GestureRecognizers>
-                                <TapGestureRecognizer Tapped="KutuphaneButton_Clicked"/>
+                                <TapGestureRecognizer Tapped="KuranButton_Clicked"/>
                             </Border.GestureRecognizers>
                             <VerticalStackLayout Spacing="10" HorizontalOptions="Center">
-                                <Label Text="📚"
+                                <Label Text="📖"
                                        FontSize="48"
                                        HorizontalOptions="Center"/>
-                                <Label x:Name="KutuphaneTitle"
-                                       Text="Kütüphane"
+                                <Label x:Name="KuranTitle"
+                                       Text="Kur'an-ı Kerim"
                                        FontSize="16"
                                        FontAttributes="Bold"
                                        HorizontalOptions="Center"
                                        HorizontalTextAlignment="Center"
                                        TextColor="{AppThemeBinding Light=#00796B, Dark=#FFFFFF}"/>
-                                <Label x:Name="KutuphaneSubtitle"
-                                       Text="Okuma ve İlim"
+                                <Label x:Name="KuranSubtitle"
+                                       Text="Meal ve Okuma"
                                        FontSize="12"
                                        HorizontalOptions="Center"
                                        HorizontalTextAlignment="Center"
