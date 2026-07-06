@@ -23,8 +23,10 @@
                     <Grid>
                         <Image x:Name="PageImage"
                                Aspect="AspectFit"
-                               Source="{Binding .}"
                                BackgroundColor="#FEF1D1">
+                            <Image.Source>
+                                <UriImageSource Uri="{Binding .}" CachingEnabled="True" CacheValidity="30.00:00:00" />
+                            </Image.Source>
                             <Image.GestureRecognizers>
                                 <TapGestureRecognizer Tapped="OnPageTapped"/>
                             </Image.GestureRecognizers>

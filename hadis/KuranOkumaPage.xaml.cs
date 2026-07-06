@@ -11,6 +11,7 @@ namespace hadis
         private bool _isOverlayVisible = false;
         private ObservableCollection<string> _pages = new();
         private int _currentPageNumber = 1;
+        private readonly HashSet<string> _prefetchedUrls = new();
 
         public KuranOkumaPage(int startPage = 1)
         {
@@ -28,6 +29,9 @@ namespace hadis
             PageCarousel.Position = targetPage - 1;
             UpdatePageLabel(targetPage);
             UpdateTitle(targetPage);
+            
+            // Prefetch pages around the start page
+            PrefetchPages(targetPage);
         }
 
         private void InitializePages()
@@ -50,6 +54,66 @@ namespace hadis
             
             // Save progress
             Preferences.Set("LastReadPage", pageNumber);
+
+            // Prefetch pages around the current page
+            PrefetchPages(pageNumber);
+        }
+
+        private void PrefetchPages(int centerPageNumber)
+        {
+            var pagesToPrefetch = new List<int>();
+            for (int offset = -2; offset <= 2; offset++)
+            {
+                if (offset == 0) continue;
+                int page = centerPageNumber + offset;
+                if (page >= 1 && page <= TotalPages)
+                {
+                    pagesToPrefetch.Add(page);
+                }
+            }
+
+            Task.Run(async () =>
+            {
+                foreach (int page in pagesToPrefetch)
+                {
+                    string url = $"https://raw.githubusercontent.com/metintnc/NamazVaktiMobileApp/main/hadis/kuransayfalar%C4%B1/kuran111-g%C3%B6r%C3%BCnt%C3%BCler-{page}.jpg";
+                    
+                    lock (_prefetchedUrls)
+                    {
+                        if (_prefetchedUrls.Contains(url))
+                        {
+                            continue;
+                        }
+                        _prefetchedUrls.Add(url);
+                    }
+
+                    try
+                    {
+                        var uriSource = new UriImageSource
+                        {
+                            Uri = new Uri(url),
+                            CachingEnabled = true,
+                            CacheValidity = TimeSpan.FromDays(30)
+                        };
+
+                        if (uriSource is IStreamImageSource streamImageSource)
+                        {
+                            using (var stream = await streamImageSource.GetStreamAsync(System.Threading.CancellationToken.None))
+                            {
+                                // Prefetched and cached
+                            }
+                        }
+                    }
+                    catch (Exception ex)
+                    {
+                        lock (_prefetchedUrls)
+                        {
+                            _prefetchedUrls.Remove(url);
+                        }
+                        System.Diagnostics.Debug.WriteLine($"⚠️ Preloading failed for page {page}: {ex.Message}");
+                    }
+                }
+            });
         }
 
         private void UpdatePageLabel(int pageNumber)
