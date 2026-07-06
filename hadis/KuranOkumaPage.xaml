@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="utf-8" ?>
+<?xml version="1.0" encoding="utf-8" ?>
 <ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              x:Class="hadis.KuranOkumaPage"
@@ -24,12 +24,23 @@
                         <Image x:Name="PageImage"
                                Aspect="AspectFit"
                                Source="{Binding .}"
-                               BackgroundColor="#FEF1D1"
-                               Loaded="OnPageImageLoaded">
+                               BackgroundColor="#FEF1D1">
                             <Image.GestureRecognizers>
                                 <TapGestureRecognizer Tapped="OnPageTapped"/>
                             </Image.GestureRecognizers>
                         </Image>
+
+                        <Grid BackgroundColor="#CC000000"
+                              IsVisible="{Binding Source={x:Reference PageImage}, Path=IsLoading}"
+                              HorizontalOptions="FillAndExpand"
+                              VerticalOptions="FillAndExpand">
+                            <ActivityIndicator IsRunning="{Binding Source={x:Reference PageImage}, Path=IsLoading}"
+                                               Color="White"
+                                               HeightRequest="60"
+                                               WidthRequest="60"
+                                               HorizontalOptions="Center"
+                                               VerticalOptions="Center" />
+                        </Grid>
                     </Grid>
                 </DataTemplate>
             </CarouselView.ItemTemplate>
@@ -78,19 +89,6 @@
                 </VerticalStackLayout>
             </Grid>
             
-        </Grid>
-
-        <Grid x:Name="LoadingOverlay"
-              BackgroundColor="#CC000000"
-              IsVisible="True"
-              ZIndex="1000"
-              HorizontalOptions="FillAndExpand"
-              VerticalOptions="FillAndExpand">
-            <GraphicsView x:Name="LoadingCircle"
-                          HeightRequest="120"
-                          WidthRequest="120"
-                          HorizontalOptions="Center"
-                          VerticalOptions="Center" />
         </Grid>
     </Grid>
 </ContentPage>
