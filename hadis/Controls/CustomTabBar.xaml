@@ -15,11 +15,11 @@
             VerticalOptions="Center">
         
         <Border.Stroke>
-            <AppThemeBinding Light="#15000000" Dark="#25FFFFFF" />
+            <Color>#25FFFFFF</Color>
         </Border.Stroke>
         
         <Border.Background>
-            <AppThemeBinding Light="#F8FFFFFF" Dark="#EE121212" />
+            <Color>#E6151515</Color>
         </Border.Background>
 
         <Border.Shadow>

@@ -74,10 +74,10 @@ namespace hadis.Controls
             if (img == null || lbl == null || dot == null) return;
             img.Scale = 1.0;
             img.Opacity = 0.55;
-            lbl.SetAppThemeColor(Label.TextColorProperty, Color.FromArgb("#757575"), Color.FromArgb("#BDBDBD"));
+            lbl.TextColor = Colors.White;
             lbl.FontAttributes = FontAttributes.None;
             dot.Opacity = 0;
-            ApplyTint(img, null);
+            ApplyTint(img, Colors.White);
         }
 
         private void SetActiveTab(Image img, Label lbl, Microsoft.Maui.Controls.Shapes.Shape dot)
