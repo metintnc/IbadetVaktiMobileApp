@@ -144,6 +144,35 @@ namespace hadis
             OverlayGrid.InputTransparent = !_isOverlayVisible; // allow clicking buttons when visible
         }
 
+        private async void OnGoToPageClicked(object sender, EventArgs e)
+        {
+            // Kullanıcıdan sayfa numarası iste
+            string result = await DisplayPromptAsync("Sayfaya Git", 
+                "Gitmek istediğiniz sayfa numarasını girin (1 - 604):", 
+                "Git", 
+                "İptal", 
+                placeholder: _currentPageNumber.ToString(), 
+                maxLength: 3, 
+                keyboard: Keyboard.Numeric);
+
+            if (!string.IsNullOrWhiteSpace(result) && int.TryParse(result, out int targetPage))
+            {
+                if (targetPage >= 1 && targetPage <= TotalPages)
+                {
+                    PageCarousel.Position = targetPage - 1;
+                    _currentPageNumber = targetPage;
+                    UpdatePageLabel(targetPage);
+                    UpdateTitle(targetPage);
+                    PrefetchPages(targetPage);
+                    Preferences.Set("LastReadPage", targetPage);
+                }
+                else
+                {
+                    await DisplayAlert("Hata", "Lütfen 1 ile 604 arasında geçerli bir sayfa numarası girin.", "Tamam");
+                }
+            }
+        }
+
         private async void OnBackClicked(object sender, EventArgs e)
         {
             await Navigation.PopAsync();
