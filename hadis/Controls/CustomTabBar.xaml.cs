@@ -1,4 +1,10 @@
-using Microsoft.Maui.Controls;
+using Microsoft.Maui.Platform;
+
+#if ANDROID
+using Android.Widget;
+#elif IOS || MACCATALYST
+using UIKit;
+#endif
 
 namespace hadis.Controls
 {
@@ -71,6 +77,7 @@ namespace hadis.Controls
             lbl.SetAppThemeColor(Label.TextColorProperty, Color.FromArgb("#757575"), Color.FromArgb("#BDBDBD"));
             lbl.FontAttributes = FontAttributes.None;
             dot.Opacity = 0;
+            ApplyTint(img, null);
         }
 
         private void SetActiveTab(Image img, Label lbl, Microsoft.Maui.Controls.Shapes.Shape dot)
@@ -81,6 +88,7 @@ namespace hadis.Controls
             lbl.TextColor = Color.FromArgb("#00BCD4"); // Cyan Accent
             lbl.FontAttributes = FontAttributes.Bold;
             dot.Opacity = 1;
+            ApplyTint(img, Color.FromArgb("#00BCD4"));
         }
 
         private void OnTabTapped(object sender, TappedEventArgs e)
@@ -105,6 +113,59 @@ namespace hadis.Controls
                     tabBar.CurrentItem = tabBar.Items[index];
                 }
             }
+        }
+
+        private void ApplyTint(Image img, Color? color)
+        {
+            if (img == null) return;
+
+            // Apply immediately if handler is available
+            SetNativeTint(img, color);
+
+            // Also listen to HandlerChanged in case handler is not created yet
+            img.HandlerChanged -= OnImageHandlerChanged;
+            img.HandlerChanged += OnImageHandlerChanged;
+
+            void OnImageHandlerChanged(object? sender, EventArgs e)
+            {
+                if (sender is Image senderImg)
+                {
+                    SetNativeTint(senderImg, color);
+                }
+            }
+        }
+
+        private void SetNativeTint(Image img, Color? color)
+        {
+#if ANDROID
+            if (img.Handler?.PlatformView is ImageView imageView)
+            {
+                if (color == null)
+                {
+                    imageView.ClearColorFilter();
+                }
+                else
+                {
+                    imageView.SetColorFilter(color.ToPlatform());
+                }
+            }
+#elif IOS || MACCATALYST
+            if (img.Handler?.PlatformView is UIImageView imageView)
+            {
+                if (imageView.Image != null)
+                {
+                    if (color == null)
+                    {
+                        imageView.Image = imageView.Image.ImageWithRenderingMode(UIImageRenderingMode.AlwaysOriginal);
+                    }
+                    else
+                    {
+                        imageView.Image = imageView.Image.ImageWithRenderingMode(UIImageRenderingMode.AlwaysTemplate);
+                        imageView.TintColor = color.ToPlatform();
+                    }
+                }
+            }
+#endif
         }
     }
 }
