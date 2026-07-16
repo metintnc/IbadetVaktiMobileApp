@@ -1,0 +1,148 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentView xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             x:Class="hadis.Controls.CustomTabBar"
+             x:Name="self"
+             HorizontalOptions="FillAndExpand"
+             VerticalOptions="End">
+
+    <!-- Yüzen Kapsül/Dock Tasarımı -->
+    <Border StrokeShape="RoundRectangle 26"
+            StrokeThickness="1"
+            Margin="16, 0, 16, 12"
+            HeightRequest="68"
+            HorizontalOptions="FillAndExpand"
+            VerticalOptions="Center">
+        
+        <Border.Stroke>
+            <AppThemeBinding Light="#15000000" Dark="#25FFFFFF" />
+        </Border.Stroke>
+        
+        <Border.Background>
+            <AppThemeBinding Light="#F8FFFFFF" Dark="#EE121212" />
+        </Border.Background>
+
+        <Border.Shadow>
+            <Shadow Brush="Black"
+                    Offset="0,4"
+                    Radius="12"
+                    Opacity="0.25" />
+        </Border.Shadow>
+
+        <Grid ColumnDefinitions="*,*,*,*,*"
+              Padding="10, 2">
+
+            <!-- 1. Vakitler Sekmesi -->
+            <Grid Grid.Column="0" x:Name="TabVakitler" BackgroundColor="Transparent" Padding="0, 4">
+                <Grid.GestureRecognizers>
+                    <TapGestureRecognizer Tapped="OnTabTapped" CommandParameter="Vakitler" />
+                </Grid.GestureRecognizers>
+                <VerticalStackLayout Spacing="2" VerticalOptions="Center" HorizontalOptions="Center">
+                    <Image x:Name="ImgVakitler" 
+                           Source="vakitler.svg" 
+                           HeightRequest="23" WidthRequest="23"
+                           HorizontalOptions="Center" />
+                    <Label x:Name="LblVakitler" 
+                           Text="Vakitler" 
+                           FontSize="10" 
+                           HorizontalOptions="Center" />
+                    <Ellipse x:Name="DotVakitler" 
+                             WidthRequest="4" HeightRequest="4" 
+                             Fill="#00BCD4" 
+                             HorizontalOptions="Center" 
+                             Margin="0, 1, 0, 0" />
+                </VerticalStackLayout>
+            </Grid>
+
+            <!-- 2. Kütüphane Sekmesi -->
+            <Grid Grid.Column="1" x:Name="TabKutuphane" BackgroundColor="Transparent" Padding="0, 4">
+                <Grid.GestureRecognizers>
+                    <TapGestureRecognizer Tapped="OnTabTapped" CommandParameter="Kutuphane" />
+                </Grid.GestureRecognizers>
+                <VerticalStackLayout Spacing="2" VerticalOptions="Center" HorizontalOptions="Center">
+                    <Image x:Name="ImgKutuphane" 
+                           Source="kuran.svg" 
+                           HeightRequest="23" WidthRequest="23"
+                           HorizontalOptions="Center" />
+                    <Label x:Name="LblKutuphane" 
+                           Text="Kütüphane" 
+                           FontSize="10" 
+                           HorizontalOptions="Center" />
+                    <Ellipse x:Name="DotKutuphane" 
+                             WidthRequest="4" HeightRequest="4" 
+                             Fill="#00BCD4" 
+                             HorizontalOptions="Center" 
+                             Margin="0, 1, 0, 0" />
+                </VerticalStackLayout>
+            </Grid>
+
+            <!-- 3. Kıble Sekmesi -->
+            <Grid Grid.Column="2" x:Name="TabKible" BackgroundColor="Transparent" Padding="0, 4">
+                <Grid.GestureRecognizers>
+                    <TapGestureRecognizer Tapped="OnTabTapped" CommandParameter="Kible" />
+                </Grid.GestureRecognizers>
+                <VerticalStackLayout Spacing="2" VerticalOptions="Center" HorizontalOptions="Center">
+                    <Image x:Name="ImgKible" 
+                           Source="kiblesekme.svg" 
+                           HeightRequest="23" WidthRequest="23"
+                           HorizontalOptions="Center" />
+                    <Label x:Name="LblKible" 
+                           Text="Kıble" 
+                           FontSize="10" 
+                           HorizontalOptions="Center" />
+                    <Ellipse x:Name="DotKible" 
+                             WidthRequest="4" HeightRequest="4" 
+                             Fill="#00BCD4" 
+                             HorizontalOptions="Center" 
+                             Margin="0, 1, 0, 0" />
+                </VerticalStackLayout>
+            </Grid>
+
+            <!-- 4. Zikir Sekmesi -->
+            <Grid Grid.Column="3" x:Name="TabZikir" BackgroundColor="Transparent" Padding="0, 4">
+                <Grid.GestureRecognizers>
+                    <TapGestureRecognizer Tapped="OnTabTapped" CommandParameter="Zikir" />
+                </Grid.GestureRecognizers>
+                <VerticalStackLayout Spacing="2" VerticalOptions="Center" HorizontalOptions="Center">
+                    <Image x:Name="ImgZikir" 
+                           Source="zikirmatik.svg" 
+                           HeightRequest="23" WidthRequest="23"
+                           HorizontalOptions="Center" />
+                    <Label x:Name="LblZikir" 
+                           Text="Zikir" 
+                           FontSize="10" 
+                           HorizontalOptions="Center" />
+                    <Ellipse x:Name="DotZikir" 
+                             WidthRequest="4" HeightRequest="4" 
+                             Fill="#00BCD4" 
+                             HorizontalOptions="Center" 
+                             Margin="0, 1, 0, 0" />
+                </VerticalStackLayout>
+            </Grid>
+
+            <!-- 5. Ayarlar Sekmesi -->
+            <Grid Grid.Column="4" x:Name="TabAyarlar" BackgroundColor="Transparent" Padding="0, 4">
+                <Grid.GestureRecognizers>
+                    <TapGestureRecognizer Tapped="OnTabTapped" CommandParameter="Ayarlar" />
+                </Grid.GestureRecognizers>
+                <VerticalStackLayout Spacing="2" VerticalOptions="Center" HorizontalOptions="Center">
+                    <Image x:Name="ImgAyarlar" 
+                           Source="ayarlar.svg" 
+                           HeightRequest="23" WidthRequest="23"
+                           HorizontalOptions="Center" />
+                    <Label x:Name="LblAyarlar" 
+                           Text="Ayarlar" 
+                           FontSize="10" 
+                           HorizontalOptions="Center" />
+                    <Ellipse x:Name="DotDotAyarlar" 
+                             x:FieldModifier="public" 
+                             WidthRequest="4" HeightRequest="4" 
+                             Fill="#00BCD4" 
+                             HorizontalOptions="Center" 
+                             Margin="0, 1, 0, 0" />
+                </VerticalStackLayout>
+            </Grid>
+
+        </Grid>
+    </Border>
+</ContentView>

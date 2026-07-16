@@ -2,6 +2,7 @@
 <ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              xmlns:vm="clr-namespace:hadis.ViewModels"
+             xmlns:controls="clr-namespace:hadis.Controls"
              x:Class="hadis.MainPage" 
              x:DataType="vm:MainPageViewModel"
              Shell.NavBarIsVisible="False"
@@ -101,7 +102,7 @@
         <Grid x:Name="MainContentGrid"
               RowDefinitions="Auto,Auto,Auto,*,Auto" 
               ColumnDefinitions="*" 
-              Padding="20,20,20,20" 
+              Padding="20,20,20,85" 
               Margin="0,0,0,0"
               BackgroundColor="Transparent">
 
@@ -376,196 +377,8 @@
 
         </Grid>
 
-        <!-- Blur Overlay - Menü açıldığında arkaplanı karartır -->
-        <BoxView x:Name="BlurOverlay"
-                 BackgroundColor="Black"
-                 Opacity="0"
-                 IsVisible="False"
-                 HorizontalOptions="FillAndExpand"
-                 VerticalOptions="FillAndExpand"
-                 ZIndex="100">
-            <BoxView.GestureRecognizers>
-                <TapGestureRecognizer Tapped="BlurOverlay_Tapped" />
-            </BoxView.GestureRecognizers>
-        </BoxView>
-
-        <!-- Swipe-Up Menü Paneli -->
-        <Grid x:Name="MenuPanel"
-              VerticalOptions="End"
-              HorizontalOptions="FillAndExpand"
-              HeightRequest="340"
-              TranslationY="400"
-              ZIndex="200"
-              Padding="0">
-
-            <Grid.GestureRecognizers>
-                <PanGestureRecognizer PanUpdated="MenuPanel_PanUpdated" />
-            </Grid.GestureRecognizers>
-
-            <!-- Panel Arkaplanı - Glassmorphism -->
-            <Border StrokeShape="RoundRectangle 28,28,0,0"
-                    Stroke="#40FFFFFF"
-                    StrokeThickness="1"
-                    HorizontalOptions="FillAndExpand"
-                    VerticalOptions="FillAndExpand">
-                <Border.Background>
-                    <LinearGradientBrush StartPoint="0,0" EndPoint="0,1">
-                        <GradientStop Color="#E8111111" Offset="0.0" />
-                        <GradientStop Color="#F5080808" Offset="1.0" />
-                    </LinearGradientBrush>
-                </Border.Background>
-            </Border>
-
-            <VerticalStackLayout Spacing="20" Padding="24,8,24,30">
-                <!-- Grip Bar -->
-                <BoxView HeightRequest="4"
-                         WidthRequest="40"
-                         CornerRadius="2"
-                         BackgroundColor="#60FFFFFF"
-                         HorizontalOptions="Center"
-                         Margin="0,8,0,4" />
-
-                <!-- Menü Başlığı -->
-                <Label Text="Menü"
-                       FontSize="20"
-                       FontAttributes="Bold"
-                       TextColor="White"
-                       HorizontalOptions="Start"
-                       Margin="4,0,0,0" />
-
-                <!-- 2x2 Menü Grid -->
-                <Grid ColumnDefinitions="*,*" 
-                      RowDefinitions="Auto,Auto" 
-                      ColumnSpacing="14" 
-                      RowSpacing="14">
-
-                    <!-- Kütüphane -->
-                    <Border Grid.Row="0" Grid.Column="0"
-                            StrokeShape="RoundRectangle 18"
-                            Stroke="#30FFFFFF"
-                            StrokeThickness="1"
-                            Padding="16,20"
-                            HeightRequest="100">
-                        <Border.Background>
-                            <LinearGradientBrush StartPoint="0,0" EndPoint="1,1">
-                                <GradientStop Color="#35FFFFFF" Offset="0.0" />
-                                <GradientStop Color="#18FFFFFF" Offset="1.0" />
-                            </LinearGradientBrush>
-                        </Border.Background>
-                        <Border.GestureRecognizers>
-                            <TapGestureRecognizer Tapped="MenuKutuphane_Tapped" />
-                        </Border.GestureRecognizers>
-                        <VerticalStackLayout Spacing="8" VerticalOptions="Center" HorizontalOptions="Center">
-                            <Image Source="kuran.svg" 
-                                   HeightRequest="32" WidthRequest="32" 
-                                   HorizontalOptions="Center" />
-                            <Label Text="Kütüphane" 
-                                   FontSize="14" 
-                                   TextColor="White" 
-                                   HorizontalOptions="Center"
-                                   FontAttributes="Bold" />
-                        </VerticalStackLayout>
-                    </Border>
-
-                    <!-- Kıble -->
-                    <Border Grid.Row="0" Grid.Column="1"
-                            StrokeShape="RoundRectangle 18"
-                            Stroke="#30FFFFFF"
-                            StrokeThickness="1"
-                            Padding="16,20"
-                            HeightRequest="100">
-                        <Border.Background>
-                            <LinearGradientBrush StartPoint="0,0" EndPoint="1,1">
-                                <GradientStop Color="#35FFFFFF" Offset="0.0" />
-                                <GradientStop Color="#18FFFFFF" Offset="1.0" />
-                            </LinearGradientBrush>
-                        </Border.Background>
-                        <Border.GestureRecognizers>
-                            <TapGestureRecognizer Tapped="MenuKible_Tapped" />
-                        </Border.GestureRecognizers>
-                        <VerticalStackLayout Spacing="8" VerticalOptions="Center" HorizontalOptions="Center">
-                            <Image Source="kiblesekme.svg" 
-                                   HeightRequest="32" WidthRequest="32" 
-                                   HorizontalOptions="Center" />
-                            <Label Text="Kıble" 
-                                   FontSize="14" 
-                                   TextColor="White" 
-                                   HorizontalOptions="Center"
-                                   FontAttributes="Bold" />
-                        </VerticalStackLayout>
-                    </Border>
-
-                    <!-- Zikir -->
-                    <Border Grid.Row="1" Grid.Column="0"
-                            StrokeShape="RoundRectangle 18"
-                            Stroke="#30FFFFFF"
-                            StrokeThickness="1"
-                            Padding="16,20"
-                            HeightRequest="100">
-                        <Border.Background>
-                            <LinearGradientBrush StartPoint="0,0" EndPoint="1,1">
-                                <GradientStop Color="#35FFFFFF" Offset="0.0" />
-                                <GradientStop Color="#18FFFFFF" Offset="1.0" />
-                            </LinearGradientBrush>
-                        </Border.Background>
-                        <Border.GestureRecognizers>
-                            <TapGestureRecognizer Tapped="MenuZikir_Tapped" />
-                        </Border.GestureRecognizers>
-                        <VerticalStackLayout Spacing="8" VerticalOptions="Center" HorizontalOptions="Center">
-                            <Image Source="zikirmatik.svg" 
-                                   HeightRequest="32" WidthRequest="32" 
-                                   HorizontalOptions="Center" />
-                            <Label Text="Zikir" 
-                                   FontSize="14" 
-                                   TextColor="White" 
-                                   HorizontalOptions="Center"
-                                   FontAttributes="Bold" />
-                        </VerticalStackLayout>
-                    </Border>
-
-                    <!-- Ayarlar -->
-                    <Border Grid.Row="1" Grid.Column="1"
-                            StrokeShape="RoundRectangle 18"
-                            Stroke="#30FFFFFF"
-                            StrokeThickness="1"
-                            Padding="16,20"
-                            HeightRequest="100">
-                        <Border.Background>
-                            <LinearGradientBrush StartPoint="0,0" EndPoint="1,1">
-                                <GradientStop Color="#35FFFFFF" Offset="0.0" />
-                                <GradientStop Color="#18FFFFFF" Offset="1.0" />
-                            </LinearGradientBrush>
-                        </Border.Background>
-                        <Border.GestureRecognizers>
-                            <TapGestureRecognizer Tapped="MenuAyarlar_Tapped" />
-                        </Border.GestureRecognizers>
-                        <VerticalStackLayout Spacing="8" VerticalOptions="Center" HorizontalOptions="Center">
-                            <Image Source="ayarlar.svg" 
-                                   HeightRequest="32" WidthRequest="32" 
-                                   HorizontalOptions="Center" />
-                            <Label Text="Ayarlar" 
-                                   FontSize="14" 
-                                   TextColor="White" 
-                                   HorizontalOptions="Center"
-                                   FontAttributes="Bold" />
-                        </VerticalStackLayout>
-                    </Border>
-
-                </Grid>
-            </VerticalStackLayout>
-        </Grid>
-
-        <!-- Swipe-Up Tetikleyici (Sayfa Altından) -->
-        <BoxView x:Name="SwipeUpTrigger"
-                 BackgroundColor="Transparent"
-                 HeightRequest="60"
-                 VerticalOptions="End"
-                 HorizontalOptions="FillAndExpand"
-                 ZIndex="90">
-            <BoxView.GestureRecognizers>
-                <PanGestureRecognizer PanUpdated="SwipeUpTrigger_PanUpdated" />
-            </BoxView.GestureRecognizers>
-        </BoxView>
+        <!-- Özel Yüzen TabBar -->
+        <controls:CustomTabBar CurrentTab="Vakitler" ZIndex="10" />
 
     </Grid>
 </ContentPage>

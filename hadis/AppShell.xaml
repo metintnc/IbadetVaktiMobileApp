@@ -7,8 +7,23 @@
     Shell.NavBarIsVisible="False"
     Shell.TabBarIsVisible="False">
     
-    <ShellContent Route="MainPage" ContentTemplate="{DataTemplate local:MainPage}" />
-   
+    <TabBar>
+        <Tab Route="MainPage">
+            <ShellContent x:Name="ContentVakitler" />
+        </Tab>
+        <Tab Route="Kutuphane">
+            <ShellContent x:Name="ContentKutuphane" />
+        </Tab>
+        <Tab Route="kible">
+            <ShellContent x:Name="ContentKible" />
+        </Tab>
+        <Tab Route="zikirmatik">
+            <ShellContent x:Name="ContentZikirmatik" />
+        </Tab>
+        <Tab Route="Ayarlar">
+            <ShellContent x:Name="ContentAyarlar" />
+        </Tab>
+    </TabBar>
 </Shell>
 
 

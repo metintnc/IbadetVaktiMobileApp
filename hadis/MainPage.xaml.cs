@@ -19,8 +19,6 @@ namespace hadis
         private int _activeAdditionalCityIndex = -1; // -1: ana şehir
         private bool _isSwipeTransitionRunning;
         private DateTime _lastLoadedDate = DateTime.MinValue;
-        private bool _isMenuOpen = false;
-        private bool _isMenuAnimating = false;
 
         // Animasyon için frame array'i - her seferinde yeniden oluşturulmuyor (allocation optimize)
         private Border[]? _allFrames;
@@ -102,8 +100,6 @@ namespace hadis
         {
             base.OnAppearing();
 
-            // Menü panelini sıfırla (sayfadan geri dönüldüğünde)
-            ResetMenuState();
 
             try
             {
@@ -590,173 +586,6 @@ namespace hadis
             });
         }
 
-        // ============================================================
-        // SWIPE-UP MENÜ PANELİ
-        // ============================================================
-
-        private void ResetMenuState()
-        {
-            _isMenuOpen = false;
-            _isMenuAnimating = false;
-            BlurOverlay.IsVisible = false;
-            BlurOverlay.Opacity = 0;
-            MenuPanel.TranslationY = 400;
-            MainContentGrid.Scale = 1;
-            MainContentGrid.TranslationY = 0;
-            SwipeUpTrigger.IsVisible = true;
-        }
-
-        private async Task OpenMenuAsync()
-        {
-            if (_isMenuOpen || _isMenuAnimating) return;
-            _isMenuAnimating = true;
-
-            try
-            {
-                // Swipe trigger'ı gizle
-                SwipeUpTrigger.IsVisible = false;
-
-                // Blur overlay'i göster
-                BlurOverlay.IsVisible = true;
-                BlurOverlay.Opacity = 0;
-
-                // Paralel animasyonlar
-                var overlayFade = BlurOverlay.FadeTo(0.55, 300, Easing.CubicOut);
-                var contentScale = MainContentGrid.ScaleTo(0.92, 350, Easing.CubicOut);
-                var contentTranslate = MainContentGrid.TranslateTo(0, -60, 350, Easing.CubicOut);
-                var menuSlide = MenuPanel.TranslateTo(0, 0, 350, Easing.SpringOut);
-
-                await Task.WhenAll(overlayFade, contentScale, contentTranslate, menuSlide);
-
-                _isMenuOpen = true;
-            }
-            finally
-            {
-                _isMenuAnimating = false;
-            }
-        }
-
-        private async Task CloseMenuAsync()
-        {
-            if (!_isMenuOpen || _isMenuAnimating) return;
-            _isMenuAnimating = true;
-
-            try
-            {
-                // Paralel animasyonlar (tersine)
-                var overlayFade = BlurOverlay.FadeTo(0, 250, Easing.CubicIn);
-                var contentScale = MainContentGrid.ScaleTo(1, 300, Easing.CubicOut);
-                var contentTranslate = MainContentGrid.TranslateTo(0, 0, 300, Easing.CubicOut);
-                var menuSlide = MenuPanel.TranslateTo(0, 400, 300, Easing.CubicIn);
-
-                await Task.WhenAll(overlayFade, contentScale, contentTranslate, menuSlide);
-
-                BlurOverlay.IsVisible = false;
-                SwipeUpTrigger.IsVisible = true;
-
-                _isMenuOpen = false;
-            }
-            finally
-            {
-                _isMenuAnimating = false;
-            }
-        }
-
-        // Sayfanın altından yukarı swipe ile menü açma
-        private void SwipeUpTrigger_PanUpdated(object? sender, PanUpdatedEventArgs e)
-        {
-            if (e.StatusType == GestureStatus.Completed || e.StatusType == GestureStatus.Canceled)
-            {
-                return;
-            }
-
-            if (e.StatusType == GestureStatus.Running && e.TotalY < -30)
-            {
-                // Yukarı doğru yeterince sürüklendi → menüyü aç
-                _ = OpenMenuAsync();
-            }
-        }
-
-        // Menü paneli üzerinde aşağı swipe ile kapatma
-        private void MenuPanel_PanUpdated(object? sender, PanUpdatedEventArgs e)
-        {
-            if (e.StatusType == GestureStatus.Completed || e.StatusType == GestureStatus.Canceled)
-            {
-                return;
-            }
-
-            if (e.StatusType == GestureStatus.Running && e.TotalY > 40)
-            {
-                // Aşağı doğru yeterince sürüklendi → menüyü kapat
-                _ = CloseMenuAsync();
-            }
-        }
-
-        // Blur overlay'e tıklayınca menüyü kapat
-        private void BlurOverlay_Tapped(object? sender, EventArgs e)
-        {
-            _ = CloseMenuAsync();
-        }
-
-        // ============================================================
-        // MENÜ NAVIGASYON HANDLER'LARI
-        // ============================================================
-
-        private async void MenuKutuphane_Tapped(object? sender, EventArgs e)
-        {
-            await CloseMenuAsync();
-            try
-            {
-                var page = _serviceProvider.GetRequiredService<Kutuphane>();
-                await Navigation.PushAsync(page);
-            }
-            catch (Exception ex)
-            {
-                System.Diagnostics.Debug.WriteLine($"Kütüphane navigasyon hatası: {ex.Message}");
-            }
-        }
-
-        private async void MenuKible_Tapped(object? sender, EventArgs e)
-        {
-            await CloseMenuAsync();
-            try
-            {
-                var page = _serviceProvider.GetRequiredService<kible>();
-                await Navigation.PushAsync(page);
-            }
-            catch (Exception ex)
-            {
-                System.Diagnostics.Debug.WriteLine($"Kıble navigasyon hatası: {ex.Message}");
-            }
-        }
-
-        private async void MenuZikir_Tapped(object? sender, EventArgs e)
-        {
-            await CloseMenuAsync();
-            try
-            {
-                var page = _serviceProvider.GetRequiredService<zikirmatik>();
-                await Navigation.PushAsync(page);
-            }
-            catch (Exception ex)
-            {
-                System.Diagnostics.Debug.WriteLine($"Zikir navigasyon hatası: {ex.Message}");
-            }
-        }
-
-        private async void MenuAyarlar_Tapped(object? sender, EventArgs e)
-        {
-            await CloseMenuAsync();
-            try
-            {
-                var page = _serviceProvider.GetRequiredService<Ayarlar>();
-                await Navigation.PushAsync(page);
-            }
-            catch (Exception ex)
-            {
-                System.Diagnostics.Debug.WriteLine($"Ayarlar navigasyon hatası: {ex.Message}");
-            }
-        }
     }
 }
 

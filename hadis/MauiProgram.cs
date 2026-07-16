@@ -1,4 +1,4 @@
-﻿using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Logging;
 using hadis.Services;
 using hadis.ViewModels;
 using Plugin.LocalNotification;
@@ -49,12 +49,12 @@ namespace hadis
 #endif
 
             // Pages
-            builder.Services.AddTransient<MainPageViewModel>();
-            builder.Services.AddTransient<MainPage>();
-            builder.Services.AddTransient<kible>();
-            builder.Services.AddTransient<zikirmatik>();
+            builder.Services.AddSingleton<MainPageViewModel>();
+            builder.Services.AddSingleton<MainPage>();
+            builder.Services.AddSingleton<kible>();
+            builder.Services.AddSingleton<zikirmatik>();
             builder.Services.AddTransient<Kuran>();
-            builder.Services.AddTransient<Ayarlar>();
+            builder.Services.AddSingleton<Ayarlar>();
             builder.Services.AddTransient<BildirimAyarlari>();
             builder.Services.AddTransient<SehirSecimViewModel>();
             builder.Services.AddTransient<SehirSecim>();
@@ -63,7 +63,7 @@ namespace hadis
             builder.Services.AddTransient<TemaAyarlari>();
             builder.Services.AddTransient<YakindakiCamiler>();
             builder.Services.AddTransient<HicriTakvim>();
-            builder.Services.AddTransient<Kutuphane>();
+            builder.Services.AddSingleton<Kutuphane>();
 
             // Notification Service
             builder.Services.AddSingleton<IAppNotificationService, NotificationService>();

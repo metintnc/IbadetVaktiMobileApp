@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8" ?>
 <ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:controls="clr-namespace:hadis.Controls"
              x:Class="hadis.Ayarlar"
              Title="Ayarlar">
     
@@ -48,7 +49,7 @@
             <ScrollView Grid.Row="1"
                         VerticalScrollBarVisibility="Never"
                         HorizontalScrollBarVisibility="Never"
-                        Padding="20">
+                        Padding="20,20,20,90">
                 <VerticalStackLayout Spacing="20">
                     
                     <!-- Grid for main settings cards -->
@@ -336,6 +337,10 @@
                 </VerticalStackLayout>
             </ScrollView>
         </Grid>
+
+        <!-- Özel Yüzen TabBar -->
+        <controls:CustomTabBar CurrentTab="Ayarlar" ZIndex="10" />
+
     </Grid>
 </ContentPage>
 

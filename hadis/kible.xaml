@@ -1,6 +1,7 @@
-﻿<?xml version="1.0" encoding="utf-8" ?>
+<?xml version="1.0" encoding="utf-8" ?>
 <ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:controls="clr-namespace:hadis.Controls"
              x:Class="hadis.kible">
     <Grid>
         <Image x:Name="BackgroundImage"
@@ -20,7 +21,7 @@
                 <AppThemeBinding Light="0" Dark="0.3" />
             </BoxView.Opacity>
         </BoxView>
-        <Grid RowDefinitions="Auto,*"  Style="{StaticResource Background}" >
+        <Grid RowDefinitions="Auto,*"  Style="{StaticResource Background}" Margin="0,0,0,85">
         <!-- Header - Kuran Page Style -->
         <Label Grid.Row="0"
                Text="Kıble Pusulası"
@@ -183,8 +184,9 @@
             </Border>
         </Grid>
 
+        <!-- Özel Yüzen TabBar -->
+        <controls:CustomTabBar CurrentTab="Kible" ZIndex="10" />
 
     </Grid>
-
 </ContentPage>
 
