@@ -1,4 +1,4 @@
-﻿using System.Net.Http;
+using System.Net.Http;
 using System.Text.Json;
 using System.Threading.Tasks;
 using System.Collections.Generic;
@@ -106,6 +106,7 @@ namespace hadis.Services
             var ayahs = new List<Ayah>();
             if (surahData?.Verses != null)
             {
+                var surahName = KuranDataService.GetSureByNo(surahNo)?.Ad ?? "";
                 foreach (var v in surahData.Verses)
                 {
                     ayahs.Add(new Ayah
@@ -114,6 +115,9 @@ namespace hadis.Services
                         ArabicText = v.Verse,
                         Translation = v.Translation?.Text ?? "",
                         Transliteration = v.Transcription ?? "",
+                        Page = v.Page,
+                        SurahId = surahNo,
+                        SurahName = surahName,
                         IsSaved = false // Will be set by ViewModel
                     });
                 }
@@ -163,6 +167,77 @@ namespace hadis.Services
                 System.Diagnostics.Debug.WriteLine($"Download Error: {ex.Message}");
                 throw;
             }
+        }
+
+        public async Task<List<Ayah>> GetPageTranslationAsync(int pageNumber)
+        {
+            int apiPageNumber = pageNumber - 1;
+            string fileName = $"page_{pageNumber}.json";
+            string filePath = Path.Combine(_cacheDir, fileName);
+            
+            // 1. Try cache first
+            if (File.Exists(filePath))
+            {
+                try
+                {
+                    string json = await File.ReadAllTextAsync(filePath);
+                    var apiResponse = JsonSerializer.Deserialize<AcikKuranPageResponse>(json);
+                    if (apiResponse?.Data != null)
+                    {
+                        return MapToAyahs(apiResponse.Data);
+                    }
+                }
+                catch (Exception ex)
+                {
+                    System.Diagnostics.Debug.WriteLine($"Page cache read error: {ex.Message}");
+                }
+            }
+            
+            // 2. Fetch from API if online
+            if (Connectivity.NetworkAccess != NetworkAccess.Internet)
+            {
+                return null;
+            }
+            
+            try
+            {
+                var authorId = Preferences.Default.Get("MealAuthorId", "11");
+                var url = $"https://api.acikkuran.com/page/{apiPageNumber}?author={authorId}";
+                var responseString = await _client.GetStringAsync(url);
+                var apiResponse = JsonSerializer.Deserialize<AcikKuranPageResponse>(responseString);
+                
+                if (apiResponse?.Data != null)
+                {
+                    // Cache it immediately
+                    await File.WriteAllTextAsync(filePath, responseString);
+                    return MapToAyahs(apiResponse.Data);
+                }
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine($"Error fetching page translation from API: {ex.Message}");
+            }
+            
+            return null;
+        }
+
+        private List<Ayah> MapToAyahs(List<AcikKuranVerse> verses)
+        {
+            var ayahs = new List<Ayah>();
+            foreach (var v in verses)
+            {
+                ayahs.Add(new Ayah
+                {
+                    Number = v.VerseNumber,
+                    ArabicText = v.Verse,
+                    Translation = v.Translation?.Text ?? "",
+                    Transliteration = v.Transcription ?? "",
+                    Page = v.Page,
+                    SurahId = v.Surah?.Id ?? 0,
+                    SurahName = v.Surah?.Name ?? ""
+                });
+            }
+            return ayahs;
         }
     }
 }

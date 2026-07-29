@@ -49,6 +49,7 @@ namespace hadis
             {
                 _isInitialized = true;
                 // IReadOnlyList kullanımı - artık direkt referans alıyoruz
+
                 _tumSureler = KuranDataService.GetSureler();
                 _filtreSureler = _tumSureler.ToList();
                 SureListesi.ItemsSource = _filtreSureler;
@@ -299,6 +300,5 @@ namespace hadis
                 await DisplayAlert("Meal Değiştirildi", $"Meal: {mealName}\n\nSureleri açtığınızda yeni mealle yüklenecektir.", "Tamam");
             }
         }
-
     }
 }

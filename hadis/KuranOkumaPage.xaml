@@ -5,8 +5,49 @@
              Title="Kur'an-ı Kerim"
              BackgroundColor="Black">
 
-    <Grid>
-        <CarouselView x:Name="PageCarousel"
+    <Grid RowDefinitions="Auto, 5.5*, 4.5*" RowSpacing="0">
+        
+        <!-- Row 0: Header (Controls) -->
+        <Grid Grid.Row="0" BackgroundColor="Black" Padding="15, 10" ColumnDefinitions="Auto,*,Auto">
+            <ImageButton Grid.Column="0"
+                         Source="gerigit.svg"
+                         BackgroundColor="Transparent"
+                         Clicked="OnBackClicked"
+                         HeightRequest="40"
+                         WidthRequest="40"/>
+
+            <VerticalStackLayout Grid.Column="1" 
+                                 VerticalOptions="Center" 
+                                 HorizontalOptions="Center"
+                                 Spacing="2">
+                <Label x:Name="SurahNameLabel"
+                       TextColor="White"
+                       FontSize="18"
+                       FontAttributes="Bold"
+                       HorizontalOptions="Center"/>
+                <Label x:Name="JuzLabel"
+                       TextColor="#DDDDDD"
+                       FontSize="14"
+                       HorizontalOptions="Center"/>
+            </VerticalStackLayout>
+
+            <Label Grid.Column="2"
+                   Text="🔍 Git"
+                   TextColor="White"
+                   FontSize="16"
+                   FontAttributes="Bold"
+                   VerticalOptions="Center"
+                   HorizontalOptions="End"
+                   Margin="0,0,10,0">
+                <Label.GestureRecognizers>
+                    <TapGestureRecognizer Tapped="OnGoToPageClicked"/>
+                </Label.GestureRecognizers>
+            </Label>
+        </Grid>
+
+        <!-- Row 1: CarouselView for Arabic Kuran pages -->
+        <CarouselView Grid.Row="1"
+                      x:Name="PageCarousel"
                       Loop="False"
                       FlowDirection="RightToLeft"
                       PositionChanged="OnPositionChanged"
@@ -27,9 +68,6 @@
                             <Image.Source>
                                 <UriImageSource Uri="{Binding .}" CachingEnabled="True" CacheValidity="30.00:00:00" />
                             </Image.Source>
-                            <Image.GestureRecognizers>
-                                <TapGestureRecognizer Tapped="OnPageTapped"/>
-                            </Image.GestureRecognizers>
                         </Image>
 
                         <Grid BackgroundColor="#CC000000"
@@ -48,68 +86,52 @@
             </CarouselView.ItemTemplate>
         </CarouselView>
 
-        <!-- Overlay Controls (Hidden by default, shown on tap) -->
-        <Grid x:Name="OverlayGrid"
-              RowDefinitions="Auto,*,Auto"
-              IsVisible="False"
-              InputTransparent="True"
-              CascadeInputTransparent="False">
-            
-            <BoxView Grid.Row="0" Color="Black" Opacity="0.7" HeightRequest="80" VerticalOptions="Start"/>
-            <BoxView Grid.Row="2" Color="Black" Opacity="0.7" HeightRequest="60" VerticalOptions="End"/>
-
-            <Label x:Name="PageNumberLabel"
-                   Grid.Row="2"
-                   TextColor="White"
-                   FontSize="18"
-                   HorizontalOptions="Center"
-                   VerticalOptions="Center"
-                   Text="Sayfa 1"
-                   InputTransparent="False">
-                <Label.GestureRecognizers>
-                    <TapGestureRecognizer Tapped="OnGoToPageClicked"/>
-                </Label.GestureRecognizers>
-            </Label>
-            
-            <Grid Grid.Row="0" ColumnDefinitions="Auto,*,Auto" Padding="15,0">
-                <ImageButton Grid.Column="0"
-                             Source="gerigit.svg"
-                             BackgroundColor="Transparent"
-                             Clicked="OnBackClicked"
-                             HeightRequest="40"
-                             WidthRequest="40"
-                             InputTransparent="False"/>
-
-                <VerticalStackLayout Grid.Column="1" 
-                                     VerticalOptions="Center" 
-                                     HorizontalOptions="Center"
-                                     Spacing="2">
-                    <Label x:Name="SurahNameLabel"
-                           TextColor="White"
-                           FontSize="18"
+        <!-- Row 2: Synchronized Türkçe Meali Border -->
+        <Border Grid.Row="2"
+                StrokeThickness="1"
+                Stroke="#33FFFFFF"
+                BackgroundColor="#1A1A1A"
+                Padding="15, 10">
+            <Grid RowDefinitions="Auto, *">
+                
+                <!-- Translation Title Bar -->
+                <Grid Grid.Row="0" ColumnDefinitions="*, Auto" Margin="0,0,0,8">
+                    <Label Grid.Column="0"
+                           x:Name="TranslationSectionTitle"
+                           Text="Türkçe Meali"
+                           FontSize="15"
                            FontAttributes="Bold"
-                           HorizontalOptions="Center"/>
-                    <Label x:Name="JuzLabel"
-                           TextColor="#DDDDDD"
+                           TextColor="#00BCD4"
+                           VerticalOptions="Center"/>
+                    
+                    <Label Grid.Column="1"
+                           x:Name="PageNumberLabel"
+                           Text="Sayfa 1"
                            FontSize="14"
-                           HorizontalOptions="Center"/>
-                </VerticalStackLayout>
+                           TextColor="#CCCCCC"
+                           VerticalOptions="Center">
+                        <Label.GestureRecognizers>
+                            <TapGestureRecognizer Tapped="OnGoToPageClicked"/>
+                        </Label.GestureRecognizers>
+                    </Label>
+                </Grid>
 
-                <Label Grid.Column="2"
-                       Text="🔍 Git"
-                       TextColor="White"
-                       FontSize="16"
-                       FontAttributes="Bold"
-                       VerticalOptions="Center"
-                       HorizontalOptions="End"
-                       InputTransparent="False"
-                       Margin="0,0,10,0">
-                    <Label.GestureRecognizers>
-                        <TapGestureRecognizer Tapped="OnGoToPageClicked"/>
-                    </Label.GestureRecognizers>
-                </Label>
+                <!-- Scrollable verses list -->
+                <ScrollView Grid.Row="1">
+                    <Grid>
+                        <VerticalStackLayout x:Name="TranslationListContainer" Spacing="15" Padding="0,5"/>
+                        
+                        <ActivityIndicator x:Name="TranslationLoadingIndicator"
+                                           IsRunning="False"
+                                           IsVisible="False"
+                                           Color="#00BCD4"
+                                           HorizontalOptions="Center"
+                                           VerticalOptions="Center"
+                                           HeightRequest="40" WidthRequest="40"/>
+                    </Grid>
+                </ScrollView>
             </Grid>
-            
-        </Grid>
+        </Border>
+
     </Grid>
 </ContentPage>

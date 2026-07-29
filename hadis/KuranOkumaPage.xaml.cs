@@ -1,21 +1,29 @@
 using System.Collections.ObjectModel;
-using hadis.Controls;
-using Microsoft.Maui.Graphics;
-using System.ComponentModel;
+using System.Collections.Generic;
+using System.Threading.Tasks;
+using System;
+using Microsoft.Maui.Controls;
+using Microsoft.Maui.Devices;
+using Microsoft.Maui.Storage;
+using Microsoft.Maui.ApplicationModel;
+using hadis.Models;
+using hadis.Services;
 
 namespace hadis
 {
     public partial class KuranOkumaPage : ContentPage
     {
         private const int TotalPages = 604;
-        private bool _isOverlayVisible = false;
         private ObservableCollection<string> _pages = new();
         private int _currentPageNumber = 1;
+        private int _loadingPageNumber = 0;
         private readonly HashSet<string> _prefetchedUrls = new();
+        private readonly QuranApiService _quranApiService;
 
-        public KuranOkumaPage(int startPage = 1)
+        public KuranOkumaPage(QuranApiService quranApiService, int startPage = 1)
         {
             InitializeComponent();
+            _quranApiService = quranApiService;
             InitializePages();
             
             // If starting from default (1), try to load last saved page
@@ -27,11 +35,15 @@ namespace hadis
 
             // Set initial position (0-indexed)
             PageCarousel.Position = targetPage - 1;
+            _currentPageNumber = targetPage;
             UpdatePageLabel(targetPage);
             UpdateTitle(targetPage);
             
             // Prefetch pages around the start page
             PrefetchPages(targetPage);
+            
+            // Load translation for the initial page
+            _ = LoadPageTranslationAsync(targetPage);
         }
 
         private void InitializePages()
@@ -39,7 +51,6 @@ namespace hadis
             // Standard Madini Mushaf has 604 pages
             for (int i = 1; i <= TotalPages; i++)
             {
-                // GitHub üzerinden kullanıcının kendi repository'sindeki resimleri çeker
                 _pages.Add($"https://raw.githubusercontent.com/metintnc/NamazVaktiMobileApp/main/hadis/kuransayfalar%C4%B1/kuran111-g%C3%B6r%C3%BCnt%C3%BCler-{i}.jpg");
             }
             PageCarousel.ItemsSource = _pages;
@@ -57,6 +68,9 @@ namespace hadis
 
             // Prefetch pages around the current page
             PrefetchPages(pageNumber);
+            
+            // Load translation automatically for the active page
+            _ = LoadPageTranslationAsync(pageNumber);
         }
 
         private void PrefetchPages(int centerPageNumber)
@@ -100,7 +114,7 @@ namespace hadis
                         {
                             using (var stream = await streamImageSource.GetStreamAsync(System.Threading.CancellationToken.None))
                             {
-                                // Prefetched and cached
+                                // Cached
                             }
                         }
                     }
@@ -123,30 +137,19 @@ namespace hadis
 
         private void UpdateTitle(int pageNumber)
         {
-            var sure = Services.KuranDataService.GetSureFromPage(pageNumber);
-            int juz = Services.KuranDataService.GetCuzNo(pageNumber);
+            var sure = KuranDataService.GetSureFromPage(pageNumber);
+            int juz = KuranDataService.GetCuzNo(pageNumber);
 
             if (sure != null)
             {
-                // Update Overlay Labels
                 SurahNameLabel.Text = $"{sure.Ad} Sûresi";
                 JuzLabel.Text = $"{juz}. Cüz";
-                
-                // Update Window Title (keeping it too just in case)
                 this.Title = $"{sure.Ad} - {juz}. Cüz";
             }
         }
 
-        private void OnPageTapped(object sender, EventArgs e)
-        {
-            _isOverlayVisible = !_isOverlayVisible;
-            OverlayGrid.IsVisible = _isOverlayVisible;
-            OverlayGrid.InputTransparent = !_isOverlayVisible; // allow clicking buttons when visible
-        }
-
         private async void OnGoToPageClicked(object sender, EventArgs e)
         {
-            // Kullanıcıdan sayfa numarası iste
             string result = await DisplayPromptAsync("Sayfaya Git", 
                 "Gitmek istediğiniz sayfa numarasını girin (1 - 604):", 
                 "Git", 
@@ -165,10 +168,132 @@ namespace hadis
                     UpdateTitle(targetPage);
                     PrefetchPages(targetPage);
                     Preferences.Set("LastReadPage", targetPage);
+                    _ = LoadPageTranslationAsync(targetPage);
                 }
                 else
                 {
                     await DisplayAlert("Hata", "Lütfen 1 ile 604 arasında geçerli bir sayfa numarası girin.", "Tamam");
+                }
+            }
+        }
+
+        private async Task LoadPageTranslationAsync(int pageNumber)
+        {
+            _loadingPageNumber = pageNumber;
+            
+            // Show loading
+            TranslationLoadingIndicator.IsVisible = true;
+            TranslationLoadingIndicator.IsRunning = true;
+            TranslationListContainer.Children.Clear();
+
+            try
+            {
+                var verses = await _quranApiService.GetPageTranslationAsync(pageNumber);
+                
+                // If user swiped away while we were loading, discard results
+                if (_loadingPageNumber != pageNumber)
+                {
+                    return;
+                }
+
+                TranslationListContainer.Children.Clear();
+
+                if (verses == null || verses.Count == 0)
+                {
+                    var errorLabel = new Label
+                    {
+                        Text = "Bu sayfa meali yüklenemedi. İnternet bağlantınızı kontrol edin veya tüm sureleri indirmiş olduğunuzdan emin olun.",
+                        TextColor = Colors.Red,
+                        FontSize = 14,
+                        HorizontalOptions = LayoutOptions.Center,
+                        HorizontalTextAlignment = TextAlignment.Center,
+                        Margin = new Thickness(10, 20)
+                    };
+                    TranslationListContainer.Children.Add(errorLabel);
+                }
+                else
+                {
+                    int lastSurahId = -1;
+                    foreach (var ayah in verses)
+                    {
+                        // If this ayah belongs to a different Surah, show a header
+                        if (ayah.SurahId != lastSurahId)
+                        {
+                            lastSurahId = ayah.SurahId;
+                            var surahHeaderLabel = new Label
+                            {
+                                Text = $"{ayah.SurahName} Sûresi",
+                                FontSize = 16,
+                                FontAttributes = FontAttributes.Bold,
+                                TextColor = Color.FromArgb("#00BCD4"),
+                                Margin = new Thickness(0, 10, 0, 5),
+                                HorizontalOptions = LayoutOptions.Center
+                            };
+                            TranslationListContainer.Children.Add(surahHeaderLabel);
+                        }
+
+                        var verseStack = new VerticalStackLayout { Spacing = 4 };
+
+                        // Arabic text
+                        var arabicLabel = new Label
+                        {
+                            Text = ayah.ArabicText,
+                            FontSize = 22,
+                            TextColor = Color.FromArgb("#00BCD4"),
+                            HorizontalOptions = LayoutOptions.End,
+                            HorizontalTextAlignment = TextAlignment.End,
+                            Margin = new Thickness(0, 0, 5, 0)
+                        };
+                        verseStack.Children.Add(arabicLabel);
+
+                        // Translation text
+                        var trLabel = new Label
+                        {
+                            FontSize = 14,
+                            LineBreakMode = LineBreakMode.WordWrap,
+                            HorizontalOptions = LayoutOptions.FillAndExpand
+                        };
+                        
+                        var formattedText = new FormattedString();
+                        formattedText.Spans.Add(new Span
+                        {
+                            Text = $"[{ayah.Number}] ",
+                            FontAttributes = FontAttributes.Bold,
+                            TextColor = Color.FromArgb("#00796B")
+                        });
+                        formattedText.Spans.Add(new Span
+                        {
+                            Text = ayah.Translation,
+                            TextColor = AppInfo.Current.RequestedTheme == AppTheme.Dark ? Colors.White : Colors.Black
+                        });
+                        trLabel.FormattedText = formattedText;
+                        
+                        verseStack.Children.Add(trLabel);
+
+                        // Separator line
+                        var separator = new BoxView
+                        {
+                            HeightRequest = 1,
+                            BackgroundColor = Color.FromArgb("#33FFFFFF"),
+                            Opacity = 0.15,
+                            Margin = new Thickness(0, 8, 0, 4)
+                        };
+                        verseStack.Children.Add(separator);
+
+                        TranslationListContainer.Children.Add(verseStack);
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine($"Error loading page translation: {ex.Message}");
+            }
+            finally
+            {
+                if (_loadingPageNumber == pageNumber)
+                {
+                    TranslationLoadingIndicator.IsRunning = false;
+                    TranslationLoadingIndicator.IsVisible = false;
                 }
             }
         }
@@ -182,13 +307,32 @@ namespace hadis
         {
             base.OnAppearing();
             Shell.SetTabBarIsVisible(this, false);
-            // On Android, we might want to hide status bar for immersive experience
+            
+            // Prevent screen from sleeping/locking while reading Quran
+            try
+            {
+                DeviceDisplay.Current.KeepScreenOn = true;
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine($"KeepScreenOn activation failed: {ex.Message}");
+            }
         }
 
         protected override void OnDisappearing()
         {
             base.OnDisappearing();
             Shell.SetTabBarIsVisible(this, true);
+            
+            // Allow screen to lock/sleep again
+            try
+            {
+                DeviceDisplay.Current.KeepScreenOn = false;
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine($"KeepScreenOn deactivation failed: {ex.Message}");
+            }
         }
     }
 }

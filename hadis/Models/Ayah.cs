@@ -9,6 +9,9 @@ namespace hadis.Models
         public string ArabicText { get; set; }
         public string Translation { get; set; }
         public string Transliteration { get; set; }
+        public int Page { get; set; }
+        public int SurahId { get; set; }
+        public string SurahName { get; set; }
 
         private bool _isSaved;
         public bool IsSaved

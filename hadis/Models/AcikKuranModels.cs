@@ -21,6 +21,15 @@ namespace hadis.Models
         public List<AcikKuranVerse> Verses { get; set; }
     }
 
+    public class AcikKuranSurahMetadata
+    {
+        [JsonPropertyName("id")]
+        public int Id { get; set; }
+
+        [JsonPropertyName("name")]
+        public string Name { get; set; }
+    }
+
     public class AcikKuranVerse
     {
         [JsonPropertyName("id")]
@@ -35,6 +44,12 @@ namespace hadis.Models
         [JsonPropertyName("transcription")]
         public string Transcription { get; set; }
 
+        [JsonPropertyName("page")]
+        public int Page { get; set; }
+
+        [JsonPropertyName("surah")]
+        public AcikKuranSurahMetadata Surah { get; set; }
+
         [JsonPropertyName("translation")]
         public AcikKuranTranslation Translation { get; set; }
     }
@@ -43,5 +58,11 @@ namespace hadis.Models
     {
         [JsonPropertyName("text")]
         public string Text { get; set; }
+    }
+
+    public class AcikKuranPageResponse
+    {
+        [JsonPropertyName("data")]
+        public List<AcikKuranVerse> Data { get; set; }
     }
 }

@@ -1,3 +1,5 @@
+using hadis.Services;
+
 namespace hadis
 {
     public partial class Kutuphane : ContentPage
@@ -18,7 +20,8 @@ namespace hadis
 
         private async void ArapcaKuranButton_Clicked(object sender, TappedEventArgs e)
         {
-            await Navigation.PushAsync(new KuranOkumaPage(1));
+            var quranApi = _serviceProvider.GetRequiredService<QuranApiService>();
+            await Navigation.PushAsync(new KuranOkumaPage(quranApi, 1));
         }
 
         private async void IlmihalButton_Clicked(object sender, TappedEventArgs e)

@@ -1,4 +1,4 @@
-﻿<Project Sdk="Microsoft.NET.Sdk">
+<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
     <TargetFramework>net9.0</TargetFramework>
@@ -14,9 +14,10 @@
     <PackageReference Include="xunit.runner.visualstudio" Version="3.1.4" />
   </ItemGroup>
 
-  <!-- PrayerTimeHelper doğrudan link olarak dahil (MAUI bağımlılığı yok) -->
+  <!-- Helper sınıfları doğrudan link olarak dahil (MAUI bağımlılığı yok) -->
   <ItemGroup>
     <Compile Include="..\hadis\Helpers\PrayerTimeHelper.cs" Link="Helpers\PrayerTimeHelper.cs" />
+    <Compile Include="..\hadis\Helpers\DiyanetHicriHelper.cs" Link="Helpers\DiyanetHicriHelper.cs" />
   </ItemGroup>
 
   <ItemGroup>
