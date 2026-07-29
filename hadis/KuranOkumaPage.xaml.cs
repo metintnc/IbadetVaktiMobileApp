@@ -143,8 +143,14 @@ namespace hadis
                         {
                             using (var stream = await streamImageSource.GetStreamAsync(System.Threading.CancellationToken.None))
                             {
-                                // Cached
+                                // Cached image
                             }
+                        }
+
+                        // Prefetch page translation as well if not already cached
+                        if (!_quranApiService.IsPageTranslationCached(page))
+                        {
+                            await _quranApiService.GetPageTranslationAsync(page);
                         }
                     }
                     catch (Exception ex)
@@ -221,10 +227,20 @@ namespace hadis
 
             _loadingPageNumber = pageNumber;
             
-            // Show loading
-            TranslationLoadingIndicator.IsVisible = true;
-            TranslationLoadingIndicator.IsRunning = true;
-            TranslationListContainer.Children.Clear();
+            bool isCached = _quranApiService.IsPageTranslationCached(pageNumber);
+
+            // Only show spinner if data is NOT in cache and needs network fetch
+            if (!isCached)
+            {
+                TranslationLoadingIndicator.IsVisible = true;
+                TranslationLoadingIndicator.IsRunning = true;
+                TranslationListContainer.Children.Clear();
+            }
+            else
+            {
+                TranslationLoadingIndicator.IsVisible = false;
+                TranslationLoadingIndicator.IsRunning = false;
+            }
 
             try
             {

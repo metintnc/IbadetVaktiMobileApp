@@ -53,6 +53,14 @@ namespace hadis.Services
             return fatiha && nas;
         }
 
+        public bool IsPageTranslationCached(int pageNumber)
+        {
+            var authorId = Preferences.Default.Get("MealAuthorId", "11");
+            string fileName = $"page_{pageNumber}_author_{authorId}.json";
+            string filePath = Path.Combine(_cacheDir, fileName);
+            return File.Exists(filePath);
+        }
+
         public async Task<List<Ayah>> GetSurahAsync(int surahNo)
         {
             var authorId = Preferences.Default.Get("MealAuthorId", "11");
