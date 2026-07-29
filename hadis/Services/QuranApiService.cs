@@ -61,14 +61,14 @@ namespace hadis.Services
             return File.Exists(filePath);
         }
 
-        public async Task<List<Ayah>> GetSurahAsync(int surahNo)
+        public async Task<List<Ayah>> GetSurahAsync(int surahNo, CancellationToken cancellationToken = default)
         {
             var authorId = Preferences.Default.Get("MealAuthorId", "11");
             string fileName = $"surah_{surahNo}_author_{authorId}.json";
             string filePath = Path.Combine(_cacheDir, fileName);
 
             var fileLock = GetFileLock(filePath);
-            await fileLock.WaitAsync();
+            await fileLock.WaitAsync(cancellationToken);
 
             AcikKuranData surahData = null;
 
@@ -79,12 +79,16 @@ namespace hadis.Services
                 {
                     try
                     {
-                        string json = await File.ReadAllTextAsync(filePath);
+                        string json = await File.ReadAllTextAsync(filePath, cancellationToken);
                         var response = JsonSerializer.Deserialize<AcikKuranData>(json);
                         if (response != null)
                         {
                             surahData = response;
                         }
+                    }
+                    catch (OperationCanceledException)
+                    {
+                        throw;
                     }
                     catch (Exception ex)
                     {
@@ -103,7 +107,9 @@ namespace hadis.Services
                     try
                     {
                         var url = $"https://api.acikkuran.com/surah/{surahNo}?author={authorId}";
-                        var responseString = await _client.GetStringAsync(url);
+                        var response = await _client.GetAsync(url, cancellationToken);
+                        response.EnsureSuccessStatusCode();
+                        var responseString = await response.Content.ReadAsStringAsync(cancellationToken);
                         var apiResponse = JsonSerializer.Deserialize<AcikKuranResponse>(responseString);
                         
                         if (apiResponse?.Data != null)
@@ -112,8 +118,12 @@ namespace hadis.Services
                             
                             // Cache it immediately with authorId suffix
                             string jsonToSave = JsonSerializer.Serialize(surahData);
-                            await File.WriteAllTextAsync(filePath, jsonToSave);
+                            await File.WriteAllTextAsync(filePath, jsonToSave, cancellationToken);
                         }
+                    }
+                    catch (OperationCanceledException)
+                    {
+                        throw;
                     }
                     catch (Exception ex)
                     {
@@ -174,7 +184,7 @@ namespace hadis.Services
                         
                         if (!File.Exists(filePath))
                         {
-                            await GetSurahAsync(surahNo);
+                            await GetSurahAsync(surahNo, cancellationToken);
                         }
 
                         int current = Interlocked.Increment(ref completedCount);
