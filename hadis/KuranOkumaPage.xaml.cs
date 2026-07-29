@@ -44,7 +44,6 @@ namespace hadis
             // Set initial position (0-indexed)
             int targetIndex = targetPage - 1;
             PageCarousel.Position = targetIndex;
-            PageCarousel.ScrollTo(targetIndex, position: ScrollToPosition.Center, animate: false);
             _currentPageNumber = targetPage;
             UpdatePageLabel(targetPage);
             UpdateTitle(targetPage);
@@ -198,17 +197,8 @@ namespace hadis
                 if (targetPage >= 1 && targetPage <= TotalPages)
                 {
                     int targetIndex = targetPage - 1;
-                    PageCarousel.ScrollTo(targetIndex, position: ScrollToPosition.Center, animate: false);
-                    PageCarousel.Position = targetIndex;
                     _currentPageNumber = targetPage;
-                    UpdatePageLabel(targetPage);
-                    UpdateTitle(targetPage);
-                    PrefetchPages(targetPage);
-                    Preferences.Set("LastReadPage", targetPage);
-                    if (_isTranslationVisible)
-                    {
-                        _ = LoadPageTranslationAsync(targetPage);
-                    }
+                    PageCarousel.ScrollTo(targetIndex, position: ScrollToPosition.Center, animate: false);
                 }
                 else
                 {
