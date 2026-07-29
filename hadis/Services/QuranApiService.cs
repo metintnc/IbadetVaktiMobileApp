@@ -2,8 +2,10 @@ using System.Net.Http;
 using System.Text.Json;
 using System.Threading.Tasks;
 using System.Collections.Generic;
+using System.Collections.Concurrent;
 using hadis.Models;
 using System.IO;
+using System.Threading;
 using Microsoft.Maui.Storage;
 using Microsoft.Maui.Networking;
 
@@ -13,12 +15,18 @@ namespace hadis.Services
     {
         private readonly HttpClient _client;
         private readonly string _cacheDir;
+        private static readonly ConcurrentDictionary<string, SemaphoreSlim> _fileLocks = new();
 
         public QuranApiService(IHttpClientFactory httpClientFactory)
         {
             _client = httpClientFactory.CreateClient("QuranApi");
             _cacheDir = Path.Combine(FileSystem.AppDataDirectory, "quran_cache_v2");
             EnsureCacheDirectory();
+        }
+
+        private static SemaphoreSlim GetFileLock(string filePath)
+        {
+            return _fileLocks.GetOrAdd(filePath, _ => new SemaphoreSlim(1, 1));
         }
 
         private void EnsureCacheDirectory()
@@ -38,68 +46,77 @@ namespace hadis.Services
 
         public bool CheckCacheStatus()
         {
-            // Check if Fatiha (1) and Nas (114) exist in new format
-            bool fatiha = File.Exists(Path.Combine(_cacheDir, "surah_1.json"));
-            bool nas = File.Exists(Path.Combine(_cacheDir, "surah_114.json"));
+            var authorId = Preferences.Default.Get("MealAuthorId", "11");
+            bool fatiha = File.Exists(Path.Combine(_cacheDir, $"surah_1_author_{authorId}.json"));
+            bool nas = File.Exists(Path.Combine(_cacheDir, $"surah_114_author_{authorId}.json"));
             
             return fatiha && nas;
         }
 
         public async Task<List<Ayah>> GetSurahAsync(int surahNo)
         {
-            string fileName = $"surah_{surahNo}.json";
+            var authorId = Preferences.Default.Get("MealAuthorId", "11");
+            string fileName = $"surah_{surahNo}_author_{authorId}.json";
             string filePath = Path.Combine(_cacheDir, fileName);
+
+            var fileLock = GetFileLock(filePath);
+            await fileLock.WaitAsync();
 
             AcikKuranData surahData = null;
 
-            // 1. Check Cache
-            if (File.Exists(filePath))
+            try
             {
-                try
+                // 1. Check Cache
+                if (File.Exists(filePath))
                 {
-                    string json = await File.ReadAllTextAsync(filePath);
-                    var response = JsonSerializer.Deserialize<AcikKuranData>(json);
-                    if (response != null)
+                    try
                     {
-                        surahData = response;
+                        string json = await File.ReadAllTextAsync(filePath);
+                        var response = JsonSerializer.Deserialize<AcikKuranData>(json);
+                        if (response != null)
+                        {
+                            surahData = response;
+                        }
+                    }
+                    catch (Exception ex)
+                    {
+                        System.Diagnostics.Debug.WriteLine($"Cache read error ({fileName}): {ex.Message}");
                     }
                 }
-                catch (Exception ex)
+
+                // 2. Fetch from API if not in cache
+                if (surahData == null)
                 {
-                    System.Diagnostics.Debug.WriteLine($"Cache read error ({fileName}): {ex.Message}");
+                    if (Connectivity.NetworkAccess != NetworkAccess.Internet)
+                    {
+                        return new List<Ayah>();
+                    }
+
+                    try
+                    {
+                        var url = $"https://api.acikkuran.com/surah/{surahNo}?author={authorId}";
+                        var responseString = await _client.GetStringAsync(url);
+                        var apiResponse = JsonSerializer.Deserialize<AcikKuranResponse>(responseString);
+                        
+                        if (apiResponse?.Data != null)
+                        {
+                            surahData = apiResponse.Data;
+                            
+                            // Cache it immediately with authorId suffix
+                            string jsonToSave = JsonSerializer.Serialize(surahData);
+                            await File.WriteAllTextAsync(filePath, jsonToSave);
+                        }
+                    }
+                    catch (Exception ex)
+                    {
+                        System.Diagnostics.Debug.WriteLine($"API Request error: {ex.Message}");
+                        return new List<Ayah>();
+                    }
                 }
             }
-
-            // 2. Fetch from API if not in cache
-            if (surahData == null)
+            finally
             {
-                if (Connectivity.NetworkAccess != NetworkAccess.Internet)
-                {
-                    return new List<Ayah>();
-                }
-
-                try
-                {
-                    // Seçili meal yazarını Preferences'tan al (varsayılan: 11 = Diyanet İşleri)
-                    var authorId = Preferences.Default.Get("MealAuthorId", "11");
-                    var url = $"https://api.acikkuran.com/surah/{surahNo}?author={authorId}";
-                    var responseString = await _client.GetStringAsync(url);
-                    var apiResponse = JsonSerializer.Deserialize<AcikKuranResponse>(responseString);
-                    
-                    if (apiResponse?.Data != null)
-                    {
-                        surahData = apiResponse.Data;
-                        
-                        // Cache it immediately (saving per-surah usage is fine)
-                        string jsonToSave = JsonSerializer.Serialize(surahData);
-                        await File.WriteAllTextAsync(filePath, jsonToSave);
-                    }
-                }
-                catch (Exception ex)
-                {
-                    System.Diagnostics.Debug.WriteLine($"API Request error: {ex.Message}");
-                    return new List<Ayah>();
-                }
+                fileLock.Release();
             }
 
             // 3. Map to Ayah Model
@@ -126,41 +143,47 @@ namespace hadis.Services
             return ayahs;
         }
 
-        public async Task DownloadAndCacheFullQuranAsync(IProgress<string> progress)
+        public async Task DownloadAndCacheFullQuranAsync(IProgress<string> progress, CancellationToken cancellationToken = default)
         {
             try
             {
                 progress?.Report("Kur'an verileri indiriliyor...");
                 
-                // AcikKuran API is per-surah. We need to fetch 114 surahs.
-                // To be nice to the API and efficient, we can do it in batches or sequentially.
-                // 114 is small enough for sequential with progress updates, ensuring order and less timeout risk.
-                
                 int totalSurahs = 114;
-                for (int i = 1; i <= totalSurahs; i++)
-                {
-                    progress?.Report($"Sureler indiriliyor... ({i}/{totalSurahs})");
-                    
-                    // Reuse GetSurahAsync which allows logic for fetching and caching
-                    // BUT GetSurahAsync returns mapped list. We want to ensure it fetches from NET if not cached.
-                    // Actually GetSurahAsync logic "Check Cache -> If Null -> Fetch & Cache" is exactly what we want.
-                    // If the user already visited some surahs, they are cached. We just fill the gaps.
-                    // However, we want to force download if we are "Downloading Full Quran"? 
-                    // Usually "Download" implies "Ensure Offline Availability". Relying on CheckCacheStatus logic is fine.
-                    
-                    // Optimization: We could check File.Exists here to skip 'await' overhead if we want.
-                    string fileName = $"surah_{i}.json";
-                    string filePath = Path.Combine(_cacheDir, fileName);
-                    
-                    if (!File.Exists(filePath))
-                    {
-                        await GetSurahAsync(i);
-                        // Add a small delay to be polite to the API
-                        await Task.Delay(50);
-                    }
-                }
+                int completedCount = 0;
+                var authorId = Preferences.Default.Get("MealAuthorId", "11");
 
+                // Aynı anda en fazla 4 paralel indirme isteği (API dostu ve 4-5 kat daha hızlı)
+                using var semaphore = new SemaphoreSlim(4);
+
+                var tasks = Enumerable.Range(1, totalSurahs).Select(async surahNo =>
+                {
+                    await semaphore.WaitAsync(cancellationToken);
+                    try
+                    {
+                        string fileName = $"surah_{surahNo}_author_{authorId}.json";
+                        string filePath = Path.Combine(_cacheDir, fileName);
+                        
+                        if (!File.Exists(filePath))
+                        {
+                            await GetSurahAsync(surahNo);
+                        }
+
+                        int current = Interlocked.Increment(ref completedCount);
+                        progress?.Report($"Sureler indiriliyor... ({current}/{totalSurahs})");
+                    }
+                    finally
+                    {
+                        semaphore.Release();
+                    }
+                });
+
+                await Task.WhenAll(tasks);
                 progress?.Report("Tamamlandı");
+            }
+            catch (OperationCanceledException)
+            {
+                // İptal edildi
             }
             catch (Exception ex)
             {
@@ -171,19 +194,55 @@ namespace hadis.Services
 
         public async Task<List<Ayah>> GetPageTranslationAsync(int pageNumber, CancellationToken cancellationToken = default)
         {
-            int apiPageNumber = pageNumber - 1;
-            string fileName = $"page_{pageNumber}.json";
+            var authorId = Preferences.Default.Get("MealAuthorId", "11");
+            string fileName = $"page_{pageNumber}_author_{authorId}.json";
             string filePath = Path.Combine(_cacheDir, fileName);
-            
-            // 1. Try cache first
-            if (File.Exists(filePath))
+
+            var fileLock = GetFileLock(filePath);
+            await fileLock.WaitAsync(cancellationToken);
+
+            try
             {
+                // 1. Try cache first
+                if (File.Exists(filePath))
+                {
+                    try
+                    {
+                        string json = await File.ReadAllTextAsync(filePath, cancellationToken);
+                        var apiResponse = JsonSerializer.Deserialize<AcikKuranPageResponse>(json);
+                        if (apiResponse?.Data != null)
+                        {
+                            return MapToAyahs(apiResponse.Data);
+                        }
+                    }
+                    catch (OperationCanceledException)
+                    {
+                        throw;
+                    }
+                    catch (Exception ex)
+                    {
+                        System.Diagnostics.Debug.WriteLine($"Page cache read error: {ex.Message}");
+                    }
+                }
+                
+                // 2. Fetch from API if online
+                if (Connectivity.NetworkAccess != NetworkAccess.Internet)
+                {
+                    return null;
+                }
+                
                 try
                 {
-                    string json = await File.ReadAllTextAsync(filePath, cancellationToken);
-                    var apiResponse = JsonSerializer.Deserialize<AcikKuranPageResponse>(json);
+                    var url = $"https://api.acikkuran.com/page/{pageNumber}?author={authorId}";
+                    var response = await _client.GetAsync(url, cancellationToken);
+                    response.EnsureSuccessStatusCode();
+                    var responseString = await response.Content.ReadAsStringAsync(cancellationToken);
+                    var apiResponse = JsonSerializer.Deserialize<AcikKuranPageResponse>(responseString);
+                    
                     if (apiResponse?.Data != null)
                     {
+                        // Cache it immediately with authorId suffix
+                        await File.WriteAllTextAsync(filePath, responseString, cancellationToken);
                         return MapToAyahs(apiResponse.Data);
                     }
                 }
@@ -193,39 +252,12 @@ namespace hadis.Services
                 }
                 catch (Exception ex)
                 {
-                    System.Diagnostics.Debug.WriteLine($"Page cache read error: {ex.Message}");
+                    System.Diagnostics.Debug.WriteLine($"Error fetching page translation from API: {ex.Message}");
                 }
             }
-            
-            // 2. Fetch from API if online
-            if (Connectivity.NetworkAccess != NetworkAccess.Internet)
+            finally
             {
-                return null;
-            }
-            
-            try
-            {
-                var authorId = Preferences.Default.Get("MealAuthorId", "11");
-                var url = $"https://api.acikkuran.com/page/{apiPageNumber}?author={authorId}";
-                var response = await _client.GetAsync(url, cancellationToken);
-                response.EnsureSuccessStatusCode();
-                var responseString = await response.Content.ReadAsStringAsync(cancellationToken);
-                var apiResponse = JsonSerializer.Deserialize<AcikKuranPageResponse>(responseString);
-                
-                if (apiResponse?.Data != null)
-                {
-                    // Cache it immediately
-                    await File.WriteAllTextAsync(filePath, responseString, cancellationToken);
-                    return MapToAyahs(apiResponse.Data);
-                }
-            }
-            catch (OperationCanceledException)
-            {
-                throw;
-            }
-            catch (Exception ex)
-            {
-                System.Diagnostics.Debug.WriteLine($"Error fetching page translation from API: {ex.Message}");
+                fileLock.Release();
             }
             
             return null;
@@ -251,4 +283,3 @@ namespace hadis.Services
         }
     }
 }
-
