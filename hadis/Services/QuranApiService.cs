@@ -169,7 +169,7 @@ namespace hadis.Services
             }
         }
 
-        public async Task<List<Ayah>> GetPageTranslationAsync(int pageNumber)
+        public async Task<List<Ayah>> GetPageTranslationAsync(int pageNumber, CancellationToken cancellationToken = default)
         {
             int apiPageNumber = pageNumber - 1;
             string fileName = $"page_{pageNumber}.json";
@@ -180,12 +180,16 @@ namespace hadis.Services
             {
                 try
                 {
-                    string json = await File.ReadAllTextAsync(filePath);
+                    string json = await File.ReadAllTextAsync(filePath, cancellationToken);
                     var apiResponse = JsonSerializer.Deserialize<AcikKuranPageResponse>(json);
                     if (apiResponse?.Data != null)
                     {
                         return MapToAyahs(apiResponse.Data);
                     }
+                }
+                catch (OperationCanceledException)
+                {
+                    throw;
                 }
                 catch (Exception ex)
                 {
@@ -203,15 +207,21 @@ namespace hadis.Services
             {
                 var authorId = Preferences.Default.Get("MealAuthorId", "11");
                 var url = $"https://api.acikkuran.com/page/{apiPageNumber}?author={authorId}";
-                var responseString = await _client.GetStringAsync(url);
+                var response = await _client.GetAsync(url, cancellationToken);
+                response.EnsureSuccessStatusCode();
+                var responseString = await response.Content.ReadAsStringAsync(cancellationToken);
                 var apiResponse = JsonSerializer.Deserialize<AcikKuranPageResponse>(responseString);
                 
                 if (apiResponse?.Data != null)
                 {
                     // Cache it immediately
-                    await File.WriteAllTextAsync(filePath, responseString);
+                    await File.WriteAllTextAsync(filePath, responseString, cancellationToken);
                     return MapToAyahs(apiResponse.Data);
                 }
+            }
+            catch (OperationCanceledException)
+            {
+                throw;
             }
             catch (Exception ex)
             {

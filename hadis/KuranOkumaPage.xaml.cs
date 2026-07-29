@@ -19,6 +19,9 @@ namespace hadis
         private int _loadingPageNumber = 0;
         private readonly HashSet<string> _prefetchedUrls = new();
         private readonly QuranApiService _quranApiService;
+        private CancellationTokenSource _translationCts;
+
+        private bool _isTranslationVisible = false;
 
         public KuranOkumaPage(QuranApiService quranApiService, int startPage = 1)
         {
@@ -26,6 +29,11 @@ namespace hadis
             _quranApiService = quranApiService;
             InitializePages();
             
+            // Restore meal panel visibility preference (default false for full-screen Mushaf)
+            _isTranslationVisible = Preferences.Get("IsQuranTranslationVisible", false);
+            TranslationBorder.IsVisible = _isTranslationVisible;
+            MealToggleLabel.TextColor = _isTranslationVisible ? Color.FromArgb("#00BCD4") : Colors.White;
+
             // If starting from default (1), try to load last saved page
             int targetPage = startPage;
             if (startPage == 1 && Preferences.ContainsKey("LastReadPage"))
@@ -42,8 +50,11 @@ namespace hadis
             // Prefetch pages around the start page
             PrefetchPages(targetPage);
             
-            // Load translation for the initial page
-            _ = LoadPageTranslationAsync(targetPage);
+            // Load translation if panel is visible
+            if (_isTranslationVisible)
+            {
+                _ = LoadPageTranslationAsync(targetPage);
+            }
         }
 
         private void InitializePages()
@@ -54,6 +65,19 @@ namespace hadis
                 _pages.Add($"https://raw.githubusercontent.com/metintnc/NamazVaktiMobileApp/main/hadis/kuransayfalar%C4%B1/kuran111-g%C3%B6r%C3%BCnt%C3%BCler-{i}.jpg");
             }
             PageCarousel.ItemsSource = _pages;
+        }
+
+        private void OnToggleTranslationClicked(object sender, EventArgs e)
+        {
+            _isTranslationVisible = !_isTranslationVisible;
+            TranslationBorder.IsVisible = _isTranslationVisible;
+            MealToggleLabel.TextColor = _isTranslationVisible ? Color.FromArgb("#00BCD4") : Colors.White;
+
+            if (_isTranslationVisible && TranslationListContainer.Children.Count == 0)
+            {
+                _ = LoadPageTranslationAsync(_currentPageNumber);
+            }
+            Preferences.Set("IsQuranTranslationVisible", _isTranslationVisible);
         }
 
         private void OnPositionChanged(object sender, PositionChangedEventArgs e)
@@ -69,8 +93,11 @@ namespace hadis
             // Prefetch pages around the current page
             PrefetchPages(pageNumber);
             
-            // Load translation automatically for the active page
-            _ = LoadPageTranslationAsync(pageNumber);
+            // Load translation for the active page if panel is open
+            if (_isTranslationVisible)
+            {
+                _ = LoadPageTranslationAsync(pageNumber);
+            }
         }
 
         private void PrefetchPages(int centerPageNumber)
@@ -179,6 +206,12 @@ namespace hadis
 
         private async Task LoadPageTranslationAsync(int pageNumber)
         {
+            // Cancel previous active HTTP / I/O request on rapid swipe
+            _translationCts?.Cancel();
+            _translationCts?.Dispose();
+            _translationCts = new CancellationTokenSource();
+            var token = _translationCts.Token;
+
             _loadingPageNumber = pageNumber;
             
             // Show loading
@@ -188,10 +221,10 @@ namespace hadis
 
             try
             {
-                var verses = await _quranApiService.GetPageTranslationAsync(pageNumber);
+                var verses = await _quranApiService.GetPageTranslationAsync(pageNumber, token);
                 
                 // If user swiped away while we were loading, discard results
-                if (_loadingPageNumber != pageNumber)
+                if (token.IsCancellationRequested || _loadingPageNumber != pageNumber)
                 {
                     return;
                 }
@@ -284,6 +317,10 @@ namespace hadis
                     }
                 }
             }
+            catch (OperationCanceledException)
+            {
+                // Active request canceled due to page swipe - ignore cleanly
+            }
             catch (Exception ex)
             {
                 System.Diagnostics.Debug.WriteLine($"Error loading page translation: {ex.Message}");
@@ -323,6 +360,11 @@ namespace hadis
         {
             base.OnDisappearing();
             Shell.SetTabBarIsVisible(this, true);
+
+            // Cancel any active background translation requests when navigating away
+            _translationCts?.Cancel();
+            _translationCts?.Dispose();
+            _translationCts = null;
             
             // Allow screen to lock/sleep again
             try

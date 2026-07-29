@@ -3,49 +3,75 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              x:Class="hadis.KuranOkumaPage"
              Title="Kur'an-ı Kerim"
-             BackgroundColor="Black">
+             BackgroundColor="#121212">
 
-    <Grid RowDefinitions="Auto, 5.5*, 4.5*" RowSpacing="0">
+    <Grid x:Name="MainGrid" RowDefinitions="Auto, *, Auto" RowSpacing="0">
         
         <!-- Row 0: Header (Controls) -->
-        <Grid Grid.Row="0" BackgroundColor="Black" Padding="15, 10" ColumnDefinitions="Auto,*,Auto">
-            <ImageButton Grid.Column="0"
-                         Source="gerigit.svg"
-                         BackgroundColor="Transparent"
-                         Clicked="OnBackClicked"
-                         HeightRequest="40"
-                         WidthRequest="40"/>
+        <Border Grid.Row="0"
+                BackgroundColor="#1E1E1E"
+                StrokeThickness="0"
+                Padding="12, 10">
+            <Grid ColumnDefinitions="Auto, *, Auto" ColumnSpacing="8">
+                <!-- Back Button -->
+                <ImageButton Grid.Column="0"
+                             Source="gerigit.svg"
+                             BackgroundColor="Transparent"
+                             Clicked="OnBackClicked"
+                             HeightRequest="36"
+                             WidthRequest="36"
+                             VerticalOptions="Center"/>
 
-            <VerticalStackLayout Grid.Column="1" 
-                                 VerticalOptions="Center" 
-                                 HorizontalOptions="Center"
-                                 Spacing="2">
-                <Label x:Name="SurahNameLabel"
-                       TextColor="White"
-                       FontSize="18"
-                       FontAttributes="Bold"
-                       HorizontalOptions="Center"/>
-                <Label x:Name="JuzLabel"
-                       TextColor="#DDDDDD"
-                       FontSize="14"
-                       HorizontalOptions="Center"/>
-            </VerticalStackLayout>
+                <!-- Title, Juz & Page info -->
+                <VerticalStackLayout Grid.Column="1" 
+                                     VerticalOptions="Center" 
+                                     HorizontalOptions="Center"
+                                     Spacing="2">
+                    <Label x:Name="SurahNameLabel"
+                           TextColor="White"
+                           FontSize="17"
+                           FontAttributes="Bold"
+                           HorizontalOptions="Center"/>
+                    <Label x:Name="JuzLabel"
+                           TextColor="#B0BEC5"
+                           FontSize="13"
+                           HorizontalOptions="Center"/>
+                </VerticalStackLayout>
 
-            <Label Grid.Column="2"
-                   Text="🔍 Git"
-                   TextColor="White"
-                   FontSize="16"
-                   FontAttributes="Bold"
-                   VerticalOptions="Center"
-                   HorizontalOptions="End"
-                   Margin="0,0,10,0">
-                <Label.GestureRecognizers>
-                    <TapGestureRecognizer Tapped="OnGoToPageClicked"/>
-                </Label.GestureRecognizers>
-            </Label>
-        </Grid>
+                <!-- Action Buttons: Meal Toggle & Go to Page -->
+                <HorizontalStackLayout Grid.Column="2" Spacing="8" VerticalOptions="Center">
+                    <Border BackgroundColor="#2A2A2A"
+                            StrokeShape="RoundRectangle 16"
+                            StrokeThickness="1"
+                            Stroke="#44FFFFFF"
+                            Padding="10, 6">
+                        <Border.GestureRecognizers>
+                            <TapGestureRecognizer Tapped="OnToggleTranslationClicked"/>
+                        </Border.GestureRecognizers>
+                        <HorizontalStackLayout Spacing="4">
+                            <Label Text="📖" FontSize="14" VerticalOptions="Center"/>
+                            <Label x:Name="MealToggleLabel" Text="Meal" TextColor="White" FontSize="13" FontAttributes="Bold" VerticalOptions="Center"/>
+                        </HorizontalStackLayout>
+                    </Border>
 
-        <!-- Row 1: CarouselView for Arabic Kuran pages -->
+                    <Border BackgroundColor="#2A2A2A"
+                            StrokeShape="RoundRectangle 16"
+                            StrokeThickness="1"
+                            Stroke="#44FFFFFF"
+                            Padding="10, 6">
+                        <Border.GestureRecognizers>
+                            <TapGestureRecognizer Tapped="OnGoToPageClicked"/>
+                        </Border.GestureRecognizers>
+                        <HorizontalStackLayout Spacing="4">
+                            <Label Text="🔍" FontSize="14" VerticalOptions="Center"/>
+                            <Label x:Name="PageNumberLabel" Text="Sayfa 1" TextColor="#00BCD4" FontSize="13" FontAttributes="Bold" VerticalOptions="Center"/>
+                        </HorizontalStackLayout>
+                    </Border>
+                </HorizontalStackLayout>
+            </Grid>
+        </Border>
+
+        <!-- Row 1: CarouselView for Full-Screen Arabic Kuran pages -->
         <CarouselView Grid.Row="1"
                       x:Name="PageCarousel"
                       Loop="False"
@@ -61,23 +87,24 @@
             </CarouselView.ItemsLayout>
             <CarouselView.ItemTemplate>
                 <DataTemplate>
-                    <Grid>
+                    <Grid BackgroundColor="#121212">
                         <Image x:Name="PageImage"
                                Aspect="AspectFit"
-                               BackgroundColor="#FEF1D1">
+                               BackgroundColor="#FDF8EC"
+                               Margin="0">
                             <Image.Source>
                                 <UriImageSource Uri="{Binding .}" CachingEnabled="True" CacheValidity="30.00:00:00" />
                             </Image.Source>
                         </Image>
 
-                        <Grid BackgroundColor="#CC000000"
+                        <Grid BackgroundColor="#80000000"
                               IsVisible="{Binding Source={x:Reference PageImage}, Path=IsLoading}"
-                              HorizontalOptions="FillAndExpand"
-                              VerticalOptions="FillAndExpand">
+                              HorizontalOptions="Fill"
+                              VerticalOptions="Fill">
                             <ActivityIndicator IsRunning="{Binding Source={x:Reference PageImage}, Path=IsLoading}"
-                                               Color="White"
-                                               HeightRequest="60"
-                                               WidthRequest="60"
+                                               Color="#00BCD4"
+                                               HeightRequest="50"
+                                               WidthRequest="50"
                                                HorizontalOptions="Center"
                                                VerticalOptions="Center" />
                         </Grid>
@@ -86,32 +113,40 @@
             </CarouselView.ItemTemplate>
         </CarouselView>
 
-        <!-- Row 2: Synchronized Türkçe Meali Border -->
+        <!-- Row 2: Synchronized Türkçe Meali Bottom Sheet Panel (Toggleable) -->
         <Border Grid.Row="2"
+                x:Name="TranslationBorder"
+                IsVisible="False"
+                HeightRequest="320"
                 StrokeThickness="1"
                 Stroke="#33FFFFFF"
-                BackgroundColor="#1A1A1A"
-                Padding="15, 10">
+                BackgroundColor="#1E1E1E"
+                StrokeShape="RoundRectangle 20,20,0,0"
+                Padding="16, 12">
             <Grid RowDefinitions="Auto, *">
                 
-                <!-- Translation Title Bar -->
-                <Grid Grid.Row="0" ColumnDefinitions="*, Auto" Margin="0,0,0,8">
-                    <Label Grid.Column="0"
-                           x:Name="TranslationSectionTitle"
-                           Text="Türkçe Meali"
-                           FontSize="15"
-                           FontAttributes="Bold"
-                           TextColor="#00BCD4"
-                           VerticalOptions="Center"/>
+                <!-- Translation Title Bar & Drag Handle -->
+                <Grid Grid.Row="0" ColumnDefinitions="Auto, *, Auto" Margin="0,0,0,10">
+                    <HorizontalStackLayout Grid.Column="0" Spacing="8" VerticalOptions="Center">
+                        <Label Text="📖" FontSize="16" VerticalOptions="Center"/>
+                        <Label Text="Sayfa Meali"
+                               FontSize="15"
+                               FontAttributes="Bold"
+                               TextColor="#00BCD4"
+                               VerticalOptions="Center"/>
+                    </HorizontalStackLayout>
                     
-                    <Label Grid.Column="1"
-                           x:Name="PageNumberLabel"
-                           Text="Sayfa 1"
-                           FontSize="14"
-                           TextColor="#CCCCCC"
-                           VerticalOptions="Center">
+                    <BoxView Grid.Column="1" WidthRequest="36" HeightRequest="4" Color="#55FFFFFF" CornerRadius="2" HorizontalOptions="Center" VerticalOptions="Center"/>
+
+                    <Label Grid.Column="2"
+                           Text="✕ Kapat"
+                           FontSize="13"
+                           TextColor="#B0BEC5"
+                           FontAttributes="Bold"
+                           VerticalOptions="Center"
+                           Padding="8,4">
                         <Label.GestureRecognizers>
-                            <TapGestureRecognizer Tapped="OnGoToPageClicked"/>
+                            <TapGestureRecognizer Tapped="OnToggleTranslationClicked"/>
                         </Label.GestureRecognizers>
                     </Label>
                 </Grid>
@@ -119,7 +154,7 @@
                 <!-- Scrollable verses list -->
                 <ScrollView Grid.Row="1">
                     <Grid>
-                        <VerticalStackLayout x:Name="TranslationListContainer" Spacing="15" Padding="0,5"/>
+                        <VerticalStackLayout x:Name="TranslationListContainer" Spacing="14" Padding="0,4"/>
                         
                         <ActivityIndicator x:Name="TranslationLoadingIndicator"
                                            IsRunning="False"
