@@ -3,7 +3,7 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              x:Class="hadis.KuranOkumaPage"
              Title="Kur'an-ı Kerim"
-             BackgroundColor="#121212">
+             BackgroundColor="#FFF1D1">
 
     <Grid x:Name="MainGrid" RowDefinitions="Auto, *, Auto" RowSpacing="0">
         
@@ -87,10 +87,10 @@
             </CarouselView.ItemsLayout>
             <CarouselView.ItemTemplate>
                 <DataTemplate>
-                    <Grid BackgroundColor="#121212">
+                    <Grid BackgroundColor="#FFF1D1">
                         <Image x:Name="PageImage"
                                Aspect="AspectFit"
-                               BackgroundColor="#FDF8EC"
+                               BackgroundColor="#FFF1D1"
                                Margin="0">
                             <Image.Source>
                                 <UriImageSource Uri="{Binding .}" CachingEnabled="True" CacheValidity="30.00:00:00" />
@@ -112,6 +112,55 @@
                 </DataTemplate>
             </CarouselView.ItemTemplate>
         </CarouselView>
+
+        <!-- Zoom (Yakınlaştırma/Uzaklaştırma) Yüzen Paneli (Sağ Alt Köşe) -->
+        <Border Grid.Row="1"
+                HorizontalOptions="End"
+                VerticalOptions="End"
+                Margin="0,0,16,16"
+                StrokeShape="RoundRectangle 20"
+                StrokeThickness="1"
+                Stroke="#30000000"
+                BackgroundColor="#EEFFFFFF"
+                Padding="6,4">
+            <Border.Shadow>
+                <Shadow Brush="#000000" Offset="0,2" Radius="10" Opacity="0.3" />
+            </Border.Shadow>
+            <HorizontalStackLayout Spacing="2" VerticalOptions="Center">
+                <!-- Zoom Out (-) -->
+                <Button Text="➖"
+                        Clicked="OnZoomOutClicked"
+                        BackgroundColor="Transparent"
+                        TextColor="#00796B"
+                        FontSize="13"
+                        WidthRequest="36"
+                        HeightRequest="36"
+                        Padding="0"
+                        CornerRadius="18"/>
+
+                <!-- Zoom Level Indicator -->
+                <Label x:Name="ZoomLevelLabel"
+                       Text="100%"
+                       FontSize="11"
+                       FontAttributes="Bold"
+                       TextColor="#00796B"
+                       VerticalOptions="Center"
+                       HorizontalOptions="Center"
+                       WidthRequest="38"
+                       HorizontalTextAlignment="Center"/>
+
+                <!-- Zoom In (+) -->
+                <Button Text="➕"
+                        Clicked="OnZoomInClicked"
+                        BackgroundColor="Transparent"
+                        TextColor="#00796B"
+                        FontSize="13"
+                        WidthRequest="36"
+                        HeightRequest="36"
+                        Padding="0"
+                        CornerRadius="18"/>
+            </HorizontalStackLayout>
+        </Border>
 
         <!-- Row 2: Synchronized Türkçe Meali Bottom Sheet Panel (Toggleable) -->
         <Border Grid.Row="2"
