@@ -20,7 +20,7 @@
 		<ApplicationId>com.metintnc.namazvakti</ApplicationId>
 
 		<!-- Versions -->
-		<ApplicationDisplayVersion>1.1.5</ApplicationDisplayVersion>
+		<ApplicationDisplayVersion>1.1.0</ApplicationDisplayVersion>
 		<ApplicationVersion>9</ApplicationVersion>
 
 		<!-- <WindowsPackageType>None</WindowsPackageType> -->
@@ -158,6 +158,7 @@
 
 	<ItemGroup Condition="$(TargetFramework.Contains('android'))">
 		<PackageReference Include="Xamarin.AndroidX.Work.Runtime" Version="2.11.0.1" />
+		<PackageReference Include="Xamarin.Google.Android.Play.App.Update" Version="2.1.0.6" />
 		<ProguardConfiguration Include="proguard-rules.pro" />
 	</ItemGroup>
 

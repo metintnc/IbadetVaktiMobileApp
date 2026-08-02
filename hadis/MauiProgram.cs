@@ -39,6 +39,7 @@ namespace hadis
             builder.Services.AddSingleton<NamazVaktiApiService>();
             builder.Services.AddSingleton<PrayerTimesService>();
             builder.Services.AddSingleton<QuranApiService>(); // Artık DI ile yönetiliyor
+            builder.Services.AddSingleton<UpdateCheckerService>();
             
 #if ANDROID
             builder.Services.AddSingleton<INativeCompassService, hadis.Platforms.Android.Services.AndroidCompassService>();

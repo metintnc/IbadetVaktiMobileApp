@@ -169,11 +169,110 @@ namespace hadis
 
                 // Animasyonları başlat
                 _ = AnimateFrames();
+
+                // Arka planda güncelleme kontrolünü başlat (Sayfa açıldıktan 2 sn sonra)
+                _ = Task.Run(async () =>
+                {
+                    await Task.Delay(2000);
+                    await CheckAppUpdateAsync();
+                });
             }
             catch (Exception ex)
             {
                 System.Diagnostics.Debug.WriteLine($"OnAppearing hatası: {ex.Message}");
             }
+        }
+
+        private string? _detectedUpdateVersion;
+        private bool _isForceUpdate;
+
+        private async Task CheckAppUpdateAsync()
+        {
+            try
+            {
+                var updateChecker = _serviceProvider.GetService<UpdateCheckerService>();
+                if (updateChecker == null) return;
+
+                var result = await updateChecker.CheckForUpdateAsync();
+                if (result.Status == UpdateStatus.None || result.Info == null) return;
+
+                _detectedUpdateVersion = result.Info.LatestVersion;
+                _isForceUpdate = (result.Status == UpdateStatus.Force);
+
+                MainThread.BeginInvokeOnMainThread(async () =>
+                {
+                    await ShowUpdateBottomSheetAsync(result);
+                });
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine($"Update check hatası: {ex.Message}");
+            }
+        }
+
+        private async Task ShowUpdateBottomSheetAsync(UpdateCheckResult result)
+        {
+            if (result.Info == null) return;
+
+            UpdateSheetTitle.Text = string.IsNullOrWhiteSpace(result.Info.UpdateTitle) 
+                ? "Yeni Güncelleme Mevcut! 🚀" 
+                : result.Info.UpdateTitle;
+
+            UpdateSheetVersion.Text = $"Sürüm {result.Info.LatestVersion}";
+            
+            UpdateSheetMessage.Text = string.IsNullOrWhiteSpace(result.Info.UpdateMessage)
+                ? "Namaz Vakti uygulamasının yeni sürümü Play Store'da yayınlandı. Kesintisiz bir deneyim için lütfen güncelleyin."
+                : result.Info.UpdateMessage;
+
+            if (result.Status == UpdateStatus.Force)
+            {
+                UpdateSheetDismissButton.IsVisible = false;
+                Grid.SetColumnSpan(UpdateSheetActionButton, 2);
+            }
+            else
+            {
+                UpdateSheetDismissButton.IsVisible = true;
+                Grid.SetColumnSpan(UpdateSheetActionButton, 1);
+            }
+
+            UpdateBottomSheetOverlay.IsVisible = true;
+            UpdateBottomSheetCard.TranslationY = 350;
+            await Task.Delay(30);
+
+            // Yumuşak Alttan Kayma Animasyonu
+            await UpdateBottomSheetCard.TranslateTo(0, 0, 350, Easing.CubicOut);
+        }
+
+        private async Task HideUpdateBottomSheetAsync()
+        {
+            await UpdateBottomSheetCard.TranslateTo(0, 400, 250, Easing.CubicIn);
+            UpdateBottomSheetOverlay.IsVisible = false;
+        }
+
+        private async void OnUpdateNowClicked(object sender, EventArgs e)
+        {
+            var updateChecker = _serviceProvider.GetService<UpdateCheckerService>();
+            if (updateChecker != null)
+            {
+                await updateChecker.OpenPlayStoreAsync();
+            }
+        }
+
+        private async void OnUpdateDismissClicked(object sender, EventArgs e)
+        {
+            await HideUpdateBottomSheetAsync();
+
+            var updateChecker = _serviceProvider.GetService<UpdateCheckerService>();
+            if (updateChecker != null && _detectedUpdateVersion != null)
+            {
+                updateChecker.DismissUpdate(_detectedUpdateVersion);
+            }
+        }
+
+        private async void OnUpdateBackdropTapped(object sender, EventArgs e)
+        {
+            if (_isForceUpdate) return; // Zorunlu güncellemede arka plana tıklanarak kapatılamaz
+            await HideUpdateBottomSheetAsync();
         }
 
         protected override void OnDisappearing()
