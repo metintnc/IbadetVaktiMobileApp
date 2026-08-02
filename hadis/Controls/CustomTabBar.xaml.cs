@@ -8,7 +8,7 @@ using UIKit;
 
 namespace hadis.Controls
 {
-    public partial class CustomTabBar : ContentView
+    public partial class CustomTabBar : Microsoft.Maui.Controls.ContentView
     {
         public static readonly BindableProperty CurrentTabProperty =
             BindableProperty.Create(nameof(CurrentTab), typeof(string), typeof(CustomTabBar), "Vakitler",
