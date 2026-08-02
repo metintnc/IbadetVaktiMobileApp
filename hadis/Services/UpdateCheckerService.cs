@@ -12,16 +12,16 @@ namespace hadis.Services
     public class UpdateInfoModel
     {
         [JsonPropertyName("latest_version")]
-        public string LatestVersion { get; set; } = "1.0.0";
+        public string LatestVersion { get; set; } = "1.2.0";
 
         [JsonPropertyName("minimum_required_version")]
-        public string MinimumRequiredVersion { get; set; } = "1.0.0";
+        public string MinimumRequiredVersion { get; set; } = "1.2.0";
 
         [JsonPropertyName("update_title")]
         public string UpdateTitle { get; set; } = "Yeni Güncelleme Mevcut! 🚀";
 
         [JsonPropertyName("update_message")]
-        public string UpdateMessage { get; set; } = "Uygulamamıza yeni özellikler ve performans iyileştirmeleri eklendi. Kesintisiz bir deneyim için lütfen güncelleyin.";
+        public string UpdateMessage { get; set; } = "Uygulamamıza Kur'an-ı Kerim yakınlaştırma, sayfa düzeltmeleri ve performans iyileştirmeleri eklendi. Kesintisiz bir deneyim için lütfen güncelleyin.";
 
         [JsonPropertyName("is_force_update")]
         public bool IsForceUpdate { get; set; } = false;
