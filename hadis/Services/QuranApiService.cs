@@ -213,6 +213,38 @@ namespace hadis.Services
         public async Task<List<Ayah>> GetPageTranslationAsync(int pageNumber, CancellationToken cancellationToken = default)
         {
             var authorId = Preferences.Default.Get("MealAuthorId", "11");
+            
+            // AcikKuran API sayfa numaralarını 0'dan başlatır (Sayfa 1 Fatiha -> API Page 0, Sayfa 2 Bakara 1-5 -> API Page 1)
+            int apiTargetPage = pageNumber - 1;
+
+            // 1. Sure önbelleğinden o sayfadaki ayetleri süzmeyi dene (Kesin ve hatasız sayfa ayrıştırması)
+            var primarySurah = KuranDataService.GetSureFromPage(pageNumber);
+            if (primarySurah != null)
+            {
+                var surahAyahs = await GetSurahAsync(primarySurah.SureNo, cancellationToken);
+                var pageAyahs = surahAyahs?.Where(a => a.Page == apiTargetPage).ToList() ?? new List<Ayah>();
+
+                // Eğer sayfanın son ayeti sure bitimine denk geliyorsa ve bir sonraki sure bu sayfada başlıyorsa
+                if (primarySurah.SureNo < 114)
+                {
+                    int nextSurahStartPage = KuranDataService.GetBaslangicSayfasi(primarySurah.SureNo + 1);
+                    if (nextSurahStartPage == pageNumber)
+                    {
+                        var nextSurahAyahs = await GetSurahAsync(primarySurah.SureNo + 1, cancellationToken);
+                        if (nextSurahAyahs != null)
+                        {
+                            pageAyahs.AddRange(nextSurahAyahs.Where(a => a.Page == apiTargetPage));
+                        }
+                    }
+                }
+
+                if (pageAyahs.Count > 0)
+                {
+                    return pageAyahs;
+                }
+            }
+
+            // 2. Eğer sure önbelleğinde yoksa direct page API'ye başvur (apiTargetPage kullanarak)
             string fileName = $"page_{pageNumber}_author_{authorId}.json";
             string filePath = Path.Combine(_cacheDir, fileName);
 
@@ -221,7 +253,7 @@ namespace hadis.Services
 
             try
             {
-                // 1. Try cache first
+                // Try cache first
                 if (File.Exists(filePath))
                 {
                     try
@@ -230,7 +262,7 @@ namespace hadis.Services
                         var apiResponse = JsonSerializer.Deserialize<AcikKuranPageResponse>(json);
                         if (apiResponse?.Data != null)
                         {
-                            return MapToAyahs(apiResponse.Data);
+                            return MapToAyahs(apiResponse.Data, pageNumber);
                         }
                     }
                     catch (OperationCanceledException)
@@ -243,7 +275,7 @@ namespace hadis.Services
                     }
                 }
                 
-                // 2. Fetch from API if online
+                // Fetch from API if online
                 if (Connectivity.NetworkAccess != NetworkAccess.Internet)
                 {
                     return null;
@@ -251,7 +283,7 @@ namespace hadis.Services
                 
                 try
                 {
-                    var url = $"https://api.acikkuran.com/page/{pageNumber}?author={authorId}";
+                    var url = $"https://api.acikkuran.com/page/{apiTargetPage}?author={authorId}";
                     var response = await _client.GetAsync(url, cancellationToken);
                     response.EnsureSuccessStatusCode();
                     var responseString = await response.Content.ReadAsStringAsync(cancellationToken);
@@ -261,7 +293,7 @@ namespace hadis.Services
                     {
                         // Cache it immediately with authorId suffix
                         await File.WriteAllTextAsync(filePath, responseString, cancellationToken);
-                        return MapToAyahs(apiResponse.Data);
+                        return MapToAyahs(apiResponse.Data, pageNumber);
                     }
                 }
                 catch (OperationCanceledException)
@@ -281,18 +313,25 @@ namespace hadis.Services
             return null;
         }
 
-        private List<Ayah> MapToAyahs(List<AcikKuranVerse> verses)
+        private List<Ayah> MapToAyahs(List<AcikKuranVerse> verses, int targetPageNumber)
         {
+            int apiTargetPage = targetPageNumber - 1;
             var ayahs = new List<Ayah>();
             foreach (var v in verses)
             {
+                // AcikKuran API 0-index kullandığı için v.Page == (targetPageNumber - 1) kontrolü yapılır
+                if (v.Page != apiTargetPage)
+                {
+                    continue;
+                }
+
                 ayahs.Add(new Ayah
                 {
                     Number = v.VerseNumber,
                     ArabicText = v.Verse,
                     Translation = v.Translation?.Text ?? "",
                     Transliteration = v.Transcription ?? "",
-                    Page = v.Page,
+                    Page = targetPageNumber,
                     SurahId = v.Surah?.Id ?? 0,
                     SurahName = v.Surah?.Name ?? ""
                 });

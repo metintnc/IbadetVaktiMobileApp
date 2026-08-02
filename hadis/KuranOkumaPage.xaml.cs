@@ -280,18 +280,6 @@ namespace hadis
 
                         var verseStack = new VerticalStackLayout { Spacing = 4 };
 
-                        // Arabic text
-                        var arabicLabel = new Label
-                        {
-                            Text = ayah.ArabicText,
-                            FontSize = 22,
-                            TextColor = Color.FromArgb("#00BCD4"),
-                            HorizontalOptions = LayoutOptions.End,
-                            HorizontalTextAlignment = TextAlignment.End,
-                            Margin = new Thickness(0, 0, 5, 0)
-                        };
-                        verseStack.Children.Add(arabicLabel);
-
                         // Translation text
                         var trLabel = new Label
                         {
