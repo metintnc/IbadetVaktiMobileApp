@@ -39,7 +39,6 @@ namespace hadis
             _currentScale = Preferences.Get("QuranZoomScale", 1.0f);
             if (Math.Abs(_currentScale - 1.0) > 0.01)
             {
-                ZoomLevelLabel.Text = $"{Math.Round(_currentScale * 100)}%";
                 PageCarousel.Scale = _currentScale;
             }
 
@@ -87,7 +86,6 @@ namespace hadis
 
         private async Task UpdateZoomAsync()
         {
-            ZoomLevelLabel.Text = $"{Math.Round(_currentScale * 100)}%";
             Preferences.Set("QuranZoomScale", (float)_currentScale);
             await PageCarousel.ScaleTo(_currentScale, 150, Easing.CubicOut);
         }
