@@ -9,6 +9,7 @@
         
         <!-- Row 0: Header (Controls) -->
         <Border Grid.Row="0"
+                ZIndex="50"
                 BackgroundColor="#1E1E1E"
                 StrokeThickness="0"
                 Padding="12, 10">
@@ -71,53 +72,55 @@
             </Grid>
         </Border>
 
-        <!-- Row 1: CarouselView for Full-Screen Arabic Kuran pages -->
-        <CarouselView Grid.Row="1"
-                      x:Name="PageCarousel"
-                      Loop="False"
-                      FlowDirection="RightToLeft"
-                      PositionChanged="OnPositionChanged"
-                      IsSwipeEnabled="True"
-                      PeekAreaInsets="0">
-            <CarouselView.ItemsLayout>
-                <LinearItemsLayout Orientation="Horizontal" 
-                                   ItemSpacing="0" 
-                                   SnapPointsType="MandatorySingle"
-                                   SnapPointsAlignment="Center" />
-            </CarouselView.ItemsLayout>
-            <CarouselView.ItemTemplate>
-                <DataTemplate>
-                    <Grid BackgroundColor="#FFF1D1">
-                        <Image x:Name="PageImage"
-                               Aspect="AspectFit"
-                               BackgroundColor="#FFF1D1"
-                               Margin="0">
-                            <Image.Source>
-                                <UriImageSource Uri="{Binding .}" CachingEnabled="True" CacheValidity="30.00:00:00" />
-                            </Image.Source>
-                        </Image>
+        <!-- Row 1: CarouselView Container (IsClippedToBounds so zoom doesn't cover top header) -->
+        <Grid Grid.Row="1" IsClippedToBounds="True">
+            <CarouselView x:Name="PageCarousel"
+                          Loop="False"
+                          FlowDirection="RightToLeft"
+                          PositionChanged="OnPositionChanged"
+                          IsSwipeEnabled="True"
+                          PeekAreaInsets="0">
+                <CarouselView.ItemsLayout>
+                    <LinearItemsLayout Orientation="Horizontal" 
+                                       ItemSpacing="0" 
+                                       SnapPointsType="MandatorySingle"
+                                       SnapPointsAlignment="Center" />
+                </CarouselView.ItemsLayout>
+                <CarouselView.ItemTemplate>
+                    <DataTemplate>
+                        <Grid BackgroundColor="#FFF1D1">
+                            <Image x:Name="PageImage"
+                                   Aspect="AspectFit"
+                                   BackgroundColor="#FFF1D1"
+                                   Margin="0">
+                                <Image.Source>
+                                    <UriImageSource Uri="{Binding .}" CachingEnabled="True" CacheValidity="30.00:00:00" />
+                                </Image.Source>
+                            </Image>
 
-                        <Grid BackgroundColor="#80000000"
-                              IsVisible="{Binding Source={x:Reference PageImage}, Path=IsLoading}"
-                              HorizontalOptions="Fill"
-                              VerticalOptions="Fill">
-                            <ActivityIndicator IsRunning="{Binding Source={x:Reference PageImage}, Path=IsLoading}"
-                                               Color="#00BCD4"
-                                               HeightRequest="50"
-                                               WidthRequest="50"
-                                               HorizontalOptions="Center"
-                                               VerticalOptions="Center" />
+                            <Grid BackgroundColor="#80000000"
+                                  IsVisible="{Binding Source={x:Reference PageImage}, Path=IsLoading}"
+                                  HorizontalOptions="Fill"
+                                  VerticalOptions="Fill">
+                                <ActivityIndicator IsRunning="{Binding Source={x:Reference PageImage}, Path=IsLoading}"
+                                                   Color="#00BCD4"
+                                                   HeightRequest="50"
+                                                   WidthRequest="50"
+                                                   HorizontalOptions="Center"
+                                                   VerticalOptions="Center" />
+                            </Grid>
                         </Grid>
-                    </Grid>
-                </DataTemplate>
-            </CarouselView.ItemTemplate>
-        </CarouselView>
+                    </DataTemplate>
+                </CarouselView.ItemTemplate>
+            </CarouselView>
+        </Grid>
 
-        <!-- Zoom (Yakınlaştırma/Uzaklaştırma) Yüzen Paneli (Sağ Alt Köşe) -->
+        <!-- Zoom (Yakınlaştırma/Uzaklaştırma) Yüzen Paneli (Sağ Üst Köşe) -->
         <Border Grid.Row="1"
+                ZIndex="20"
                 HorizontalOptions="End"
-                VerticalOptions="End"
-                Margin="0,0,16,16"
+                VerticalOptions="Start"
+                Margin="0,12,16,0"
                 StrokeShape="RoundRectangle 20"
                 StrokeThickness="1"
                 Stroke="#30000000"
