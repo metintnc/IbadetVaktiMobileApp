@@ -22,6 +22,7 @@ namespace hadis
         private CancellationTokenSource _translationCts;
 
         private bool _isTranslationVisible = false;
+        private double _currentScale = 1.0;
 
         public KuranOkumaPage(QuranApiService quranApiService, int startPage = 1)
         {
@@ -33,6 +34,14 @@ namespace hadis
             _isTranslationVisible = Preferences.Get("IsQuranTranslationVisible", false);
             TranslationBorder.IsVisible = _isTranslationVisible;
             MealToggleLabel.TextColor = _isTranslationVisible ? Color.FromArgb("#00BCD4") : Colors.White;
+
+            // Restore saved zoom level
+            _currentScale = Preferences.Get("QuranZoomScale", 1.0f);
+            if (Math.Abs(_currentScale - 1.0) > 0.01)
+            {
+                ZoomLevelLabel.Text = $"{Math.Round(_currentScale * 100)}%";
+                PageCarousel.Scale = _currentScale;
+            }
 
             // If starting from default (1), try to load last saved page
             int targetPage = startPage;
@@ -56,6 +65,31 @@ namespace hadis
             {
                 _ = LoadPageTranslationAsync(targetPage);
             }
+        }
+
+        private async void OnZoomInClicked(object sender, EventArgs e)
+        {
+            if (_currentScale < 2.2)
+            {
+                _currentScale = Math.Min(2.2, _currentScale + 0.15);
+                await UpdateZoomAsync();
+            }
+        }
+
+        private async void OnZoomOutClicked(object sender, EventArgs e)
+        {
+            if (_currentScale > 1.0)
+            {
+                _currentScale = Math.Max(1.0, _currentScale - 0.15);
+                await UpdateZoomAsync();
+            }
+        }
+
+        private async Task UpdateZoomAsync()
+        {
+            ZoomLevelLabel.Text = $"{Math.Round(_currentScale * 100)}%";
+            Preferences.Set("QuranZoomScale", (float)_currentScale);
+            await PageCarousel.ScaleTo(_currentScale, 150, Easing.CubicOut);
         }
 
         private void InitializePages()
