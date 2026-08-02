@@ -40,25 +40,6 @@
                         Stroke="{AppThemeBinding Light=#4000796B, Dark=#30FFFFFF}"
                         BackgroundColor="{AppThemeBinding Light=#44FFFFFF, Dark=#33000000}">
                     <VerticalStackLayout Spacing="8" HorizontalOptions="Center">
-                        <!-- Parlak İkon Rozeti -->
-                        <Border StrokeShape="RoundRectangle 20"
-                                WidthRequest="64"
-                                HeightRequest="64"
-                                HorizontalOptions="Center"
-                                Stroke="Transparent"
-                                Margin="0,0,0,4">
-                            <Border.Background>
-                                <LinearGradientBrush StartPoint="0,0" EndPoint="1,1">
-                                    <GradientStop Color="#009688" Offset="0.0"/>
-                                    <GradientStop Color="#004D40" Offset="1.0"/>
-                                </LinearGradientBrush>
-                            </Border.Background>
-                            <Label Text="📚" 
-                                   FontSize="30" 
-                                   HorizontalOptions="Center"
-                                   VerticalOptions="Center"/>
-                        </Border>
-
                         <Label Text="İslami Kütüphane"
                                FontSize="26"
                                FontAttributes="Bold"
