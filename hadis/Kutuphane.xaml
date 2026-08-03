@@ -28,7 +28,7 @@
         </BoxView>
         
         <!-- İçerik Alanı -->
-        <Grid RowDefinitions="Auto, *" Padding="20,15,20,0">
+        <Grid x:Name="MainContentGrid" RowDefinitions="Auto, *" Padding="20,15,20,0">
             <!-- Sabit Header (Aşağı kaysa bile yukarıda kalır) -->
             <Border Grid.Row="0"
                     x:Name="HeaderFrame"

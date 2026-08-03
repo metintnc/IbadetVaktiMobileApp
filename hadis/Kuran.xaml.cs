@@ -33,6 +33,16 @@ namespace hadis
             base.OnAppearing();
             _statusBarService.SetStatusBarColor("#000000"); // Hızlı, UI thread'i bloklamaz
             Shell.SetTabBarIsVisible(this, false);
+
+            if (MainContentGrid != null)
+            {
+                MainContentGrid.Opacity = 0;
+                MainContentGrid.TranslationY = 15;
+                _ = Task.WhenAll(
+                    MainContentGrid.FadeTo(1, 180, Easing.CubicOut),
+                    MainContentGrid.TranslateTo(0, 0, 180, Easing.CubicOut)
+                );
+            }
         }
 
         protected override void OnDisappearing()
@@ -48,8 +58,6 @@ namespace hadis
             if (!_isInitialized)
             {
                 _isInitialized = true;
-                // IReadOnlyList kullanımı - artık direkt referans alıyoruz
-
                 _tumSureler = KuranDataService.GetSureler();
                 _filtreSureler = _tumSureler.ToList();
                 SureListesi.ItemsSource = _filtreSureler;
@@ -93,7 +101,7 @@ namespace hadis
             var sonSureNo = Preferences.Default.Get("KuranSonSureNo", 0);
             if (sonSureNo > 0)
             {
-                await Navigation.PushAsync(new SurePage(sonSureNo, _quranApiService));
+                await Navigation.PushAsync(new SurePage(sonSureNo, _quranApiService), false);
             }
             else
             {
@@ -126,7 +134,7 @@ namespace hadis
                 Preferences.Default.Set("KuranSonSureNo", sureNo);
                 Preferences.Default.Set("KuranSonAyetNo", 1); // ilk ayet
                 SonOkunanYukle();
-                await Navigation.PushAsync(new SurePage(sureNo, _quranApiService));
+                await Navigation.PushAsync(new SurePage(sureNo, _quranApiService), false);
             }
         }
 
@@ -137,13 +145,13 @@ namespace hadis
                 Preferences.Default.Set("KuranSonSureNo", sureNo);
                 Preferences.Default.Set("KuranSonAyetNo", 1); // ilk ayet
                 SonOkunanYukle();
-                await Navigation.PushAsync(new SurePage(sureNo, _quranApiService));
+                await Navigation.PushAsync(new SurePage(sureNo, _quranApiService), false);
             }
         }
 
         private async void KaydedilenlerButonu_Clicked(object sender, TappedEventArgs e)
         {
-            await Navigation.PushAsync(new KaydedilenlerPage(_quranApiService));
+            await Navigation.PushAsync(new KaydedilenlerPage(_quranApiService), false);
         }
 
         private void CheckDownloadStatus()

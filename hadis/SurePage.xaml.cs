@@ -29,6 +29,17 @@ namespace hadis
         {
             base.OnAppearing();
             Shell.SetTabBarIsVisible(this, false);
+
+            if (MainGrid != null)
+            {
+                MainGrid.Opacity = 0;
+                MainGrid.TranslationY = 15;
+                _ = Task.WhenAll(
+                    MainGrid.FadeTo(1, 180, Easing.CubicOut),
+                    MainGrid.TranslateTo(0, 0, 180, Easing.CubicOut)
+                );
+            }
+
             var percent = Preferences.Default.Get($"KuranScrollPercent_{_sureNo}", 0.0);
             _pendingScrollPercent = percent;
             _scrollRestored = false;
@@ -85,7 +96,7 @@ namespace hadis
         private async void OnBackButtonClicked(object sender, EventArgs e)
         {
             if (Navigation.NavigationStack.Count > 1)
-                await Navigation.PopAsync();
+                await Navigation.PopAsync(false);
         }
 
         private async void OnSaveAyahClicked(object sender, EventArgs e)

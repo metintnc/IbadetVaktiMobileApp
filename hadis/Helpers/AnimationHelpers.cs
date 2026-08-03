@@ -113,8 +113,8 @@ namespace hadis.Helpers
         /// Basıldığında küçülüp büyüme efekti (buton/kart için)
         /// </summary>
         public static async Task TapBounce(this VisualElement element, 
-            double scaleDown = 0.85, 
-            uint duration = 150)
+            double scaleDown = 0.94, 
+            uint duration = 80)
         {
             await element.ScaleTo(scaleDown, duration, Easing.CubicIn);
             await element.ScaleTo(1.0, duration, Easing.CubicOut);

@@ -6,7 +6,7 @@
              x:DataType="viewModels:KuranViewModel"
              Title="{Binding SureTitle}"
              BackgroundColor="#FDFBF2">
-    <Grid RowDefinitions="Auto,*">
+    <Grid x:Name="MainGrid" RowDefinitions="Auto,*">
         <Image Aspect="AspectFill"
                Grid.RowSpan="2"
                IsVisible="True">

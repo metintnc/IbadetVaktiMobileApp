@@ -34,6 +34,16 @@ namespace hadis
         {
             base.OnAppearing();
             Shell.SetTabBarIsVisible(this, false);
+
+            if (MainContentGrid != null)
+            {
+                MainContentGrid.Opacity = 0;
+                MainContentGrid.TranslationY = 15;
+                _ = Task.WhenAll(
+                    MainContentGrid.FadeTo(1, 180, Easing.CubicOut),
+                    MainContentGrid.TranslateTo(0, 0, 180, Easing.CubicOut)
+                );
+            }
         }
 
         protected override void OnDisappearing()
@@ -45,7 +55,7 @@ namespace hadis
         private async void OnBackButtonClicked(object sender, EventArgs e)
         {
             if (Navigation.NavigationStack.Count > 1)
-                await Navigation.PopAsync();
+                await Navigation.PopAsync(false);
         }
 
         protected override bool OnBackButtonPressed()
@@ -54,7 +64,7 @@ namespace hadis
             {
                 MainThread.BeginInvokeOnMainThread(async () =>
                 {
-                    await Navigation.PopAsync();
+                    await Navigation.PopAsync(false);
                 });
                 return true;
             }
