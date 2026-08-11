@@ -34,6 +34,22 @@ namespace hadis
             _statusBarService.SetStatusBarColor("#000000"); // Hızlı, UI thread'i bloklamaz
             Shell.SetTabBarIsVisible(this, false);
 
+            if (!_isInitialized)
+            {
+                _isInitialized = true;
+                _tumSureler = KuranDataService.GetSureler();
+                _filtreSureler = _tumSureler.ToList();
+                SureListesi.ItemsSource = _filtreSureler;
+                CheckDownloadStatus();
+            }
+
+            // Her gezinişte taze 'son okunan' verisini göster (Preferences okuma hızlı)
+            SonOkunanYukle();
+
+            // Aktif meal etiketini güncelle
+            var authorId = Preferences.Default.Get("MealAuthorId", "11");
+            AktifMealLabel.Text = $"Aktif: {(MealIsimleri.ContainsKey(authorId) ? MealIsimleri[authorId] : "Diyanet İşleri")}";
+
             if (MainContentGrid != null)
             {
                 MainContentGrid.Opacity = 0;
@@ -51,25 +67,9 @@ namespace hadis
             Shell.SetTabBarIsVisible(this, true);
         }
 
-        protected override async void OnNavigatedTo(NavigatedToEventArgs args)
+        protected override void OnNavigatedTo(NavigatedToEventArgs args)
         {
             base.OnNavigatedTo(args);
-
-            if (!_isInitialized)
-            {
-                _isInitialized = true;
-                _tumSureler = KuranDataService.GetSureler();
-                _filtreSureler = _tumSureler.ToList();
-                SureListesi.ItemsSource = _filtreSureler;
-                CheckDownloadStatus();
-            }
-
-            // Her gezinişte taze 'son okunan' verisini göster (Preferences okuma hızlı)
-            SonOkunanYukle();
-
-            // Aktif meal etiketini güncelle
-            var authorId = Preferences.Default.Get("MealAuthorId", "11");
-            AktifMealLabel.Text = $"Aktif: {(MealIsimleri.ContainsKey(authorId) ? MealIsimleri[authorId] : "Diyanet İşleri")}";
         }
 
 
