@@ -251,12 +251,24 @@ namespace hadis
                         
                         var mapsUrl = 'https://www.google.com/maps/dir/?api=1&destination=' + elLat + ',' + elLng;
                         
-                        var popup = '<div class=""mosque-popup"">' +
-                            '<h3>🕌 ' + name + '</h3>' +
-                            '<div class=""distance"">📏 ' + distText + ' uzaklıkta</div>' +
-                            '<a class=""nav-btn"" href=""' + mapsUrl + '"">🧭 Yol Tarifi Al</a>' +
-                            '</div>';
-                        
+                        var popup = document.createElement('div');
+                        popup.className = 'mosque-popup';
+
+                        var title = document.createElement('h3');
+                        title.textContent = '🕌 ' + name;
+                        popup.appendChild(title);
+
+                        var distance = document.createElement('div');
+                        distance.className = 'distance';
+                        distance.textContent = '📏 ' + distText + ' uzaklıkta';
+                        popup.appendChild(distance);
+
+                        var navigation = document.createElement('a');
+                        navigation.className = 'nav-btn';
+                        navigation.href = mapsUrl;
+                        navigation.textContent = '🧭 Yol Tarifi Al';
+                        popup.appendChild(navigation);
+
                         L.marker([elLat, elLng], {{icon: mosqueIcon}}).addTo(map).bindPopup(popup);
                         count++;
                     }});

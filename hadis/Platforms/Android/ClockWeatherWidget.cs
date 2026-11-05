@@ -243,7 +243,7 @@ namespace hadis.Platforms.Android
                         return "";
                     }
 
-                    return new Dictionary<string, DateTime>
+                    var prayerTimes = new Dictionary<string, DateTime>
                     {
                         { "Imsak", ParseTime(GetTimeProp(root, "fajr", "Fajr", "Imsak", "imsak")) },
                         { "Gunes", ParseTime(GetTimeProp(root, "sunrise", "Sunrise", "Gunes", "gunes")) },
@@ -252,6 +252,14 @@ namespace hadis.Platforms.Android
                         { "Aksam", ParseTime(GetTimeProp(root, "maghrib", "Maghrib", "Aksam", "aksam")) },
                         { "Yatsi", ParseTime(GetTimeProp(root, "isha", "Isha", "Yatsi", "yatsi")) }
                     };
+
+                    if (prayerTimes.Values.Any(value => value == DateTime.MinValue))
+                    {
+                        System.Diagnostics.Debug.WriteLine($"Widget cache eksik vakit içeriyor: {foundPath}");
+                        return null;
+                    }
+
+                    return prayerTimes;
                 }
             }
             catch (Exception ex)

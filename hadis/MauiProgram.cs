@@ -38,7 +38,6 @@ namespace hadis
             // Yeni Namaz Vakti API HttpClient
             builder.Services.AddHttpClient<NamazVaktiApiService>();
             
-            builder.Services.AddSingleton<NamazVaktiApiService>();
             builder.Services.AddSingleton<PrayerTimesService>();
             builder.Services.AddSingleton<QuranApiService>(); // Artık DI ile yönetiliyor
             builder.Services.AddSingleton<UpdateCheckerService>();

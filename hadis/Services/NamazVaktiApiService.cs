@@ -11,8 +11,6 @@ namespace hadis.Services
     {
         private readonly HttpClient _httpClient;
         // API URL'sini ApiSecrets üzerinden alır, böylece github'da gözükmez
-        private static readonly string BaseUrl = ApiSecrets.ApiUrl;
-        
         // Ülke ID'leri (API'de sabit)
         private const int TurkiyeCountryId = 2;
         private const int AzerbaijanCountryId = 5;
@@ -20,13 +18,14 @@ namespace hadis.Services
         private const int SaudiArabiaCountryId = 64;
         
         // Önbelleklenmiş il ve ilçe listeleri
-        private List<PlaceInfo> _cachedStates;
+        private List<PlaceInfo>? _cachedStates;
         private readonly Dictionary<int, List<PlaceInfo>> _cachedStatesByCountry = new();
-        private Dictionary<int, List<PlaceInfo>> _cachedCities = new();
+        private readonly Dictionary<int, List<PlaceInfo>> _cachedCities = new();
 
-        public NamazVaktiApiService()
+        public NamazVaktiApiService(HttpClient httpClient)
         {
-            _httpClient = new HttpClient { BaseAddress = new Uri(BaseUrl) };
+            _httpClient = httpClient;
+            _httpClient.BaseAddress ??= new Uri(ApiSecrets.ApiUrl);
             SetApiHeaders();
             // Azure App Service Cold Start (uyku modundan uyanma) genellikle 30-50 saniye sürer.
             // Bu sebeple timeout süresi 90 saniyeye çıkarıldı.
@@ -54,7 +53,7 @@ namespace hadis.Services
         /// <summary>
         /// Belirli bir ilce icin gunluk namaz vakitlerini alir
         /// </summary>
-        public async Task<DailyNamazVakitleri> GetBugunVakitleri(int cityId)
+        public async Task<DailyNamazVakitleri?> GetBugunVakitleri(int cityId)
         {
             try
             {
@@ -99,12 +98,15 @@ namespace hadis.Services
         /// <summary>
         /// Belirli bir ilce ve tarih icin namaz vakitlerini alir
         /// </summary>
-        public async Task<DailyNamazVakitleri> GetTarihVakitleri(int cityId, DateTime tarih)
+        public async Task<DailyNamazVakitleri?> GetTarihVakitleri(int cityId, DateTime tarih)
         {
             try
             {
-                // Daily endpoint sadece bugunu dondurur
-                var response = await _httpClient.GetAsync($"api/AwqatSalah/Daily/{cityId}");
+                if (tarih.Date == DateTime.Now.Date)
+                    return await GetBugunVakitleri(cityId);
+
+                // Monthly endpoint, Daily endpoint'in aksine istenen ayın tüm günlerini döndürür.
+                var response = await _httpClient.GetAsync($"api/AwqatSalah/Monthly/{cityId}");
                 
                 if (!response.IsSuccessStatusCode)
                 {
@@ -114,9 +116,15 @@ namespace hadis.Services
 
                 var apiResponse = await response.Content.ReadFromJsonAsync<ApiResponse<List<DailyNamazVakitleri>>>();
                 
-                if (apiResponse?.Success == true && apiResponse.Data?.Count > 0)
+                if (apiResponse?.Success == true && apiResponse.Data != null)
                 {
-                    return apiResponse.Data[0];
+                    var targetDate = tarih.Date;
+                    return apiResponse.Data.FirstOrDefault(item =>
+                        DateTime.TryParse(item.GregorianDateIso, out var isoDate) &&
+                        isoDate.Date == targetDate) ??
+                        apiResponse.Data.FirstOrDefault(item =>
+                            DateTime.TryParse(item.GregorianDateShort, out var shortDate) &&
+                            shortDate.Date == targetDate);
                 }
                 
                 return null;

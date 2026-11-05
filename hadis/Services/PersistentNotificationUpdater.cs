@@ -8,6 +8,7 @@ namespace hadis.Services
         private static IAppNotificationService? _notificationService;
         private static Dictionary<string, DateTime>? _prayerTimes;
         private static readonly object _lock = new object();
+        private static readonly SemaphoreSlim _updateGate = new(1, 1);
 
         public static void StartUpdating(IAppNotificationService notificationService, Dictionary<string, DateTime> prayerTimes)
         {
@@ -53,7 +54,12 @@ namespace hadis.Services
             }
         }
 
-        private static async void OnTimerElapsed(object? sender, ElapsedEventArgs e)
+        private static void OnTimerElapsed(object? sender, ElapsedEventArgs e)
+        {
+            _ = UpdateNotificationAsync();
+        }
+
+        private static async Task UpdateNotificationAsync()
         {
             IAppNotificationService? service;
             Dictionary<string, DateTime>? times;
@@ -71,6 +77,9 @@ namespace hadis.Services
             if (!Preferences.Default.Get("PersistentNotificationEnabled", false))
                 return;
 
+            if (!await _updateGate.WaitAsync(0))
+                return;
+
             try
             {
                 var (title, message) = hadis.Helpers.PrayerTimeHelper.BuildPersistentNotificationContent(times);
@@ -81,7 +90,10 @@ namespace hadis.Services
             {
                 System.Diagnostics.Debug.WriteLine($"⚠️ Sürekli bildirim güncelleme hatası: {ex.Message}");
             }
+            finally
+            {
+                _updateGate.Release();
+            }
         }
     }
 }
-
