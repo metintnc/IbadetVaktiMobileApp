@@ -198,6 +198,7 @@
                         <CollectionView.Footer>
                             <VerticalStackLayout Padding="0,20,0,80" Spacing="10">
                                 <Button x:Name="DownloadButton"
+                                        SemanticProperties.Description="Kur'an verilerini çevrimdışı kullanım için indir"
                                         Text="İnternetsiz Kullanım İçin İndir 📥"
                                         Clicked="DownloadButton_Clicked"
                                         BackgroundColor="{AppThemeBinding Light=#00796B, Dark=#009688}"
@@ -315,5 +316,4 @@
         </Grid>
     </Grid>
 </ContentPage>
-
 

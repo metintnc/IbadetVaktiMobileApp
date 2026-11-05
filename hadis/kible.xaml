@@ -44,6 +44,7 @@
                                  ZIndex="50">
                 <Label Text="0°" 
                        x:Name="AciDegeri" 
+                       SemanticProperties.Description="Kıble yönü açısı"
                        HorizontalOptions="Center"
                        FontSize="35" 
                        Style="{StaticResource AnaLabel}"/>
@@ -58,6 +59,8 @@
 
             <!-- Kıble Oku -->
             <Image x:Name="kibleoku" 
+                   SemanticProperties.Description="Kıble yönünü gösteren pusula oku"
+                   AutomationProperties.IsInAccessibleTree="True"
                    Style="{StaticResource KibleOk}" 
                    Aspect="AspectFit" 
                    VerticalOptions="Start"
@@ -189,4 +192,3 @@
 
     </Grid>
 </ContentPage>
-

@@ -118,8 +118,8 @@
 
         <div class="highlight">
             <p><strong>Özet:</strong> İbadet Vakti uygulaması gizliliğinize saygı duyar. Kişisel verilerinizi
-                üçüncü taraflarla paylaşmaz veya satmaz. Konum bilgileriniz yalnızca namaz vakitlerini, kıble
-                yönünü ve yakındaki camileri göstermek için kullanılır ve yalnızca cihazınızda saklanır.</p>
+                satmaz. Konum bilgileriniz namaz vakitleri ve kıble için cihazda işlenir; yakındaki camiler
+                özelliği kullanıldığında yaklaşık konumunuz harita servislerine gönderilebilir.</p>
         </div>
 
         <h2><span class="emoji">📍</span>Konum Verileri</h2>
@@ -128,8 +128,8 @@
             <li><strong>Namaz vakitleri:</strong> Bulunduğunuz konuma özel doğru vakitleri hesaplamak için</li>
             <li><strong>Kıble pusulası:</strong> Kabe'nin yönünü doğru göstermek için</li>
             <li><strong>Yakındaki camiler:</strong> Çevrenizde bulunan camileri haritada listelemek için</li>
-            <li><strong>Nasıl saklanır:</strong> Konum bilgileri yalnızca cihazınızda tutulur, sunucularımıza gönderilmez</li>
-            <li><strong>Paylaşım:</strong> Konum verileriniz hiçbir üçüncü tarafla paylaşılmaz</li>
+            <li><strong>Nasıl saklanır:</strong> Manuel konum ve son kullanılan konum tercihleri cihazda saklanır</li>
+            <li><strong>Paylaşım:</strong> Yakındaki camiler özelliğinde yaklaşık konumunuz Overpass/OpenStreetMap servislerine gönderilir</li>
         </ul>
         <p>Konum iznini dilediğiniz zaman cihaz ayarlarından iptal edebilirsiniz. Bu durumda, konumunuzu manuel
             olarak şehir listesinden seçebilirsiniz.</p>
@@ -139,9 +139,10 @@
         <ul>
             <li><strong>Namaz vakitleri:</strong> Güncel vakitleri almak için (veriler önbelleğe alınır; çevrimdışı çalışır)</li>
             <li><strong>Kuran-ı Kerim:</strong> Sure ve ayet verilerini yüklemek için</li>
-            <li><strong>Yakındaki camiler:</strong> Cami konumlarını almak için <a href="https://www.openstreetmap.org" target="_blank">OpenStreetMap</a> / <a href="https://overpass-api.de" target="_blank">Overpass API</a> hizmeti kullanılır. Bu hizmetlere yalnızca yaklaşık konumunuz iletilir ve sadece cami listesini getirmek için kullanılır.</li>
+            <li><strong>Yakındaki camiler:</strong> Cami konumlarını almak için <a href="https://www.openstreetmap.org" target="_blank">OpenStreetMap</a> / <a href="https://overpass-api.de" target="_blank">Overpass API</a> hizmeti kullanılır. Bu özellik açıkça kullanıldığında yaklaşık konumunuz cami listesini getirmek için bu servislere iletilir.</li>
+            <li><strong>Harita ve yol tarifi:</strong> Harita döşemeleri OpenStreetMap üzerinden alınır; yol tarifi bağlantısı seçildiğinde Google Maps veya cihazınızdaki uygun harita uygulaması açılabilir.</li>
+            <li><strong>Reklamlar:</strong> Uygulama AdMob reklam SDK'sı kullanır. Reklam sağlayıcısının cihaz bilgisi, reklam kimliği ve izin tercihleriyle ilgili politikaları geçerli olabilir.</li>
         </ul>
-        <p>Uygulama, reklam ağları, analitik araçlar veya veri takip servisleri içermez.</p>
 
         <h2><span class="emoji">🔔</span>Bildirimler</h2>
         <p>Uygulamamız, namaz vakitlerinde sizi bilgilendirmek için bildirim izni talep eder:</p>
@@ -165,7 +166,7 @@
             <li>Seçilen şehir / konum bilgisi</li>
             <li>Önbelleğe alınan namaz vakitleri</li>
         </ul>
-        <p>Uygulamayı sildiğinizde tüm bu veriler cihazınızdan kalıcı olarak kaldırılır.</p>
+        <p>Android uygulama yedeklemesi devre dışıdır. Uygulamayı sildiğinizde bu yerel veriler cihazdan kaldırılır.</p>
 
         <h2><span class="emoji">🔒</span>Güvenlik</h2>
         <p>Verilerinizin güvenliği bizim için önemlidir. Uygulamamız:</p>

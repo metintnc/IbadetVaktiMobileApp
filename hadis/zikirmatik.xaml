@@ -144,6 +144,8 @@
 
                 <!-- Ana Merkezi Daire (Tıklanabilir) -->
                 <Border x:Name="zikirbutton"
+                       SemanticProperties.Description="Zikir sayacını artır"
+                       AutomationProperties.IsInAccessibleTree="True"
                        StrokeShape="RoundRectangle 125"
                        WidthRequest="250"
                        HeightRequest="250"
@@ -544,4 +546,3 @@
 
     </Grid>
 </ContentPage>
-
