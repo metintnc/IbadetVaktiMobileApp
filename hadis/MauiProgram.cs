@@ -2,6 +2,7 @@ using Microsoft.Extensions.Logging;
 using hadis.Services;
 using hadis.ViewModels;
 using Plugin.LocalNotification;
+using Plugin.MauiMtAdmob;
 
 namespace hadis
 {
@@ -13,6 +14,7 @@ namespace hadis
             var builder = MauiApp.CreateBuilder();
             builder
                 .UseMauiApp<App>()
+                .UseMauiMTAdmob()
                 .ConfigureFonts(fonts =>
                 {
                     fonts.AddFont("OpenSans-Regular.ttf", "OpenSansRegular");

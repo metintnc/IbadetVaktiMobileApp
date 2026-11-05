@@ -258,6 +258,14 @@ namespace hadis.Services
                 string json = JsonSerializer.Serialize(vakitler);
                 await File.WriteAllTextAsync(filePath, json);
 
+                // Widget ve harici okuyucular için doğrudan tarih önbelleği de kaydedilir
+                try
+                {
+                    string genericPath = Path.Combine(_cacheDir, $"prayer_{date:yyyy_MM_dd}.json");
+                    await File.WriteAllTextAsync(genericPath, json);
+                }
+                catch { }
+
                 // Eski cache dosyalarını temizle
                 CleanExpiredCacheFiles();
             }

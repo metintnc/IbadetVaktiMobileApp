@@ -1,0 +1,13 @@
+<Project>
+  <!-- Bu dosya bir örnektir. Kendi yerel imzalama anahtarınız için: -->
+  <!-- 1. Bu dosyanın bir kopyasını 'signing.local.props' adıyla aynı klasöre oluşturun. -->
+  <!-- 2. Aşağıdaki şifre ve anahtar bilgilerini kendi bilgilerinizle doldurun. -->
+  <!-- 'signing.local.props' dosyası .gitignore tarafından korunur ve GitHub'a yüklenmez. -->
+  <PropertyGroup Condition="'$(Configuration)|$(TargetFramework)'=='Release|net9.0-android'">
+    <AndroidKeyStore>True</AndroidKeyStore>
+    <AndroidSigningKeyStore>$(MSBuildProjectDirectory)\my-release-key.keystore</AndroidSigningKeyStore>
+    <AndroidSigningKeyAlias>your-key-alias</AndroidSigningKeyAlias>
+    <AndroidSigningKeyPass>your-keystore-password</AndroidSigningKeyPass>
+    <AndroidSigningStorePass>your-keystore-password</AndroidSigningStorePass>
+  </PropertyGroup>
+</Project>

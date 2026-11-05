@@ -6,6 +6,7 @@
 
 # Visual Studio ayarları
 .vs/
+.vscode/
 *.suo
 *.user
 *.apk
@@ -15,6 +16,10 @@
 *.jks
 eski.my-release-key.keystore
 ApiSecrets.cs
+signing.local.props
+*.local.props
+passwords.txt
+*password*.txt
 
 # Build log ve hata dosyaları
 build.log

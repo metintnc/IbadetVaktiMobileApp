@@ -91,26 +91,15 @@ namespace hadis.Controls
             ApplyTint(img, Color.FromArgb("#00BCD4"));
         }
 
-        private void OnTabTapped(object sender, TappedEventArgs e)
+        private async void OnTabTapped(object sender, TappedEventArgs e)
         {
             if (e.Parameter is string targetTab)
             {
                 if (targetTab == CurrentTab) return;
 
-                int index = targetTab switch
+                if (Shell.Current is AppShell appShell)
                 {
-                    "Vakitler" => 0,
-                    "Kutuphane" => 1,
-                    "Kible" => 2,
-                    "Zikir" => 3,
-                    "Ayarlar" => 4,
-                    _ => 0
-                };
-
-                var tabBar = Shell.Current?.CurrentItem;
-                if (tabBar != null && index >= 0 && index < tabBar.Items.Count)
-                {
-                    tabBar.CurrentItem = tabBar.Items[index];
+                    await appShell.ChangeTabAsync(targetTab);
                 }
             }
         }

@@ -170,12 +170,16 @@ namespace hadis
                 // Animasyonları başlat
                 _ = AnimateFrames();
 
-                // Arka planda güncelleme kontrolünü başlat (Sayfa açıldıktan 2 sn sonra)
-                _ = Task.Run(async () =>
+                // Test süresince güncelleme uyarısını gösterme.
+                const bool updateCheckEnabled = false;
+                if (updateCheckEnabled)
                 {
-                    await Task.Delay(2000);
-                    await CheckAppUpdateAsync();
-                });
+                    _ = Task.Run(async () =>
+                    {
+                        await Task.Delay(2000);
+                        await CheckAppUpdateAsync();
+                    });
+                }
             }
             catch (Exception ex)
             {

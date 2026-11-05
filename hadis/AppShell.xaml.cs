@@ -8,6 +8,7 @@ namespace hadis
     public partial class AppShell : Shell
     {
         private readonly IServiceProvider _serviceProvider;
+        private bool _isTabTransitionRunning;
         
         public AppShell(IServiceProvider serviceProvider)
         {
@@ -23,6 +24,84 @@ namespace hadis
             
             // Servisleri arka planda önceden oluştur
             _ = Task.Run(PrewarmServices);
+        }
+
+        public async Task ChangeTabAsync(string targetTab)
+        {
+            if (_isTabTransitionRunning || CurrentItem == null)
+            {
+                return;
+            }
+
+            var targetIndex = targetTab switch
+            {
+                "Vakitler" => 0,
+                "Kutuphane" => 1,
+                "Kible" => 2,
+                "Zikir" => 3,
+                "Ayarlar" => 4,
+                _ => -1
+            };
+
+            if (targetIndex < 0 || targetIndex >= CurrentItem.Items.Count)
+            {
+                return;
+            }
+
+            var currentIndex = CurrentItem.Items.IndexOf(CurrentItem.CurrentItem);
+            if (currentIndex == targetIndex)
+            {
+                return;
+            }
+
+            _isTabTransitionRunning = true;
+
+            try
+            {
+                var direction = targetIndex > currentIndex ? 1 : -1;
+                var previousContent = (CurrentPage as ContentPage)?.Content as VisualElement;
+                var transitionWidth = GetTransitionWidth();
+
+                if (previousContent != null)
+                {
+                    previousContent.CancelAnimations();
+                    await Task.WhenAll(
+                        previousContent.FadeTo(0.92, 140, Easing.CubicIn),
+                        previousContent.TranslateTo(-direction * transitionWidth, 0, 180, Easing.CubicIn));
+                }
+
+                CurrentItem.CurrentItem = CurrentItem.Items[targetIndex];
+                await MainThread.InvokeOnMainThreadAsync(() => { });
+
+                var nextContent = (CurrentPage as ContentPage)?.Content as VisualElement;
+                if (nextContent == null)
+                {
+                    return;
+                }
+
+                nextContent.CancelAnimations();
+                nextContent.Opacity = 0.92;
+                nextContent.TranslationX = direction * transitionWidth;
+
+                await Task.WhenAll(
+                    nextContent.FadeTo(1, 240, Easing.CubicOut),
+                    nextContent.TranslateTo(0, 0, 280, Easing.CubicOut));
+            }
+            finally
+            {
+                _isTabTransitionRunning = false;
+            }
+        }
+
+        private static double GetTransitionWidth()
+        {
+            var width = Shell.Current?.CurrentPage?.Width ?? 0;
+            if (width > 0)
+            {
+                return width;
+            }
+
+            return DeviceDisplay.MainDisplayInfo.Width / DeviceDisplay.MainDisplayInfo.Density;
         }
 
         protected override void OnHandlerChanged()

@@ -172,11 +172,57 @@ namespace hadis.Platforms.Android
             try
             {
                 // FileSystem.AppDataDirectory karsiligi Context.FilesDir
-                var cachePath = System.IO.Path.Combine(context.FilesDir.AbsolutePath, "prayer_cache", $"prayer_{date:yyyy_MM_dd}.json");
-                
-                if (System.IO.File.Exists(cachePath))
+                var cacheDir = System.IO.Path.Combine(context.FilesDir.AbsolutePath, "prayer_cache");
+                if (!System.IO.Directory.Exists(cacheDir)) return null;
+
+                string targetDateStr = date.ToString("yyyy_MM_dd");
+                string foundPath = null;
+
+                // 1. Standart format: prayer_{date:yyyy_MM_dd}.json
+                var exactPath = System.IO.Path.Combine(cacheDir, $"prayer_{targetDateStr}.json");
+                if (System.IO.File.Exists(exactPath))
                 {
-                    var json = await System.IO.File.ReadAllTextAsync(cachePath);
+                    foundPath = exactPath;
+                }
+                else
+                {
+                    // 2. PrayerTimesService formatı: prayer_{sehir}_{ilce}_{date:yyyy_MM_dd}.json
+                    string sehir = "";
+                    string ilce = "";
+                    try
+                    {
+                        var prefs = context.GetSharedPreferences($"{context.PackageName}.xamarinessentials", FileCreationMode.Private);
+                        sehir = prefs?.GetString("ManuelSehir", "") ?? "";
+                        ilce = prefs?.GetString("ManuelIlce", "") ?? "";
+                    }
+                    catch { }
+
+                    var s = sehir.Replace(" ", "").ToLowerInvariant();
+                    var i = ilce.Replace(" ", "").ToLowerInvariant();
+
+                    if (!string.IsNullOrEmpty(s))
+                    {
+                        var specificPath = System.IO.Path.Combine(cacheDir, $"prayer_{s}_{i}_{targetDateStr}.json");
+                        if (System.IO.File.Exists(specificPath))
+                        {
+                            foundPath = specificPath;
+                        }
+                    }
+
+                    // 3. Bulunamadıysa o güne ait en güncel cache dosyasını al (*_{targetDateStr}.json)
+                    if (foundPath == null)
+                    {
+                        var matchingFiles = System.IO.Directory.GetFiles(cacheDir, $"*_{targetDateStr}.json");
+                        if (matchingFiles != null && matchingFiles.Length > 0)
+                        {
+                            foundPath = System.Linq.Enumerable.OrderByDescending(matchingFiles, f => new System.IO.FileInfo(f).LastWriteTime).First();
+                        }
+                    }
+                }
+
+                if (foundPath != null && System.IO.File.Exists(foundPath))
+                {
+                    var json = await System.IO.File.ReadAllTextAsync(foundPath);
                     using var doc = JsonDocument.Parse(json);
                     var root = doc.RootElement;
                     
@@ -187,14 +233,24 @@ namespace hadis.Platforms.Android
                         catch { return DateTime.MinValue; }
                     }
 
+                    string GetTimeProp(JsonElement el, params string[] names)
+                    {
+                        foreach (var name in names)
+                        {
+                            if (el.TryGetProperty(name, out var val))
+                                return val.GetString() ?? "";
+                        }
+                        return "";
+                    }
+
                     return new Dictionary<string, DateTime>
                     {
-                        { "Imsak", ParseTime(root.GetProperty("fajr").GetString()) },
-                        { "Gunes", ParseTime(root.GetProperty("sunrise").GetString()) },
-                        { "Ogle", ParseTime(root.GetProperty("dhuhr").GetString()) },
-                        { "Ikindi", ParseTime(root.GetProperty("asr").GetString()) },
-                        { "Aksam", ParseTime(root.GetProperty("maghrib").GetString()) },
-                        { "Yatsi", ParseTime(root.GetProperty("isha").GetString()) }
+                        { "Imsak", ParseTime(GetTimeProp(root, "fajr", "Fajr", "Imsak", "imsak")) },
+                        { "Gunes", ParseTime(GetTimeProp(root, "sunrise", "Sunrise", "Gunes", "gunes")) },
+                        { "Ogle", ParseTime(GetTimeProp(root, "dhuhr", "Dhuhr", "Ogle", "ogle")) },
+                        { "Ikindi", ParseTime(GetTimeProp(root, "asr", "Asr", "Ikindi", "ikindi")) },
+                        { "Aksam", ParseTime(GetTimeProp(root, "maghrib", "Maghrib", "Aksam", "aksam")) },
+                        { "Yatsi", ParseTime(GetTimeProp(root, "isha", "Isha", "Yatsi", "yatsi")) }
                     };
                 }
             }

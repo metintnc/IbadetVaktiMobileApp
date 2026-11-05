@@ -15,6 +15,9 @@ namespace hadis.Platforms.Android.Services
         {
             if (context == null) return;
 
+            // Arka plan işi bitene kadar Android'in process'i sonlandırmasını önlemek için GoAsync çağrılır
+            var pendingResult = GoAsync();
+
             try
             {
                 System.Diagnostics.Debug.WriteLine("⏰ Günlük bildirim alarmı tetiklendi");
@@ -24,15 +27,16 @@ namespace hadis.Platforms.Android.Services
                 {
                     try
                     {
-                        // DI'dan servisleri al
-                        var services = App.Current?.Handler?.MauiContext?.Services;
+                        // DI'dan servisleri al - MauiApplication.Current öncelikli (process ayağa kalktığında daima mevcuttur)
+                        var services = MauiApplication.Current?.Services 
+                                       ?? App.Current?.Handler?.MauiContext?.Services;
+
                         if (services == null)
                         {
                             System.Diagnostics.Debug.WriteLine("❌ DI container kullanılamıyor");
                             return;
                         }
 
-                        var namazVaktiApiService = services.GetService<NamazVaktiApiService>();
                         var prayerTimesService = services.GetService<PrayerTimesService>();
                         var notificationService = services.GetService<IAppNotificationService>();
 
@@ -54,6 +58,10 @@ namespace hadis.Platforms.Android.Services
                     {
                         System.Diagnostics.Debug.WriteLine($"❌ Arka plan zamanlama hatası: {ex.Message}");
                     }
+                    finally
+                    {
+                        pendingResult?.Finish();
+                    }
                 });
 
                 // Bir sonraki günün alarmını kur
@@ -62,6 +70,7 @@ namespace hadis.Platforms.Android.Services
             catch (Exception ex)
             {
                 System.Diagnostics.Debug.WriteLine($"❌ AlarmReceiver hatası: {ex.Message}");
+                pendingResult?.Finish();
             }
         }
     }

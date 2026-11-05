@@ -1,7 +1,7 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
 	<PropertyGroup>
-		<TargetFrameworks>net9.0-android36.0;net9.0-ios;net9.0-maccatalyst</TargetFrameworks>
+		<TargetFrameworks>net9.0-android;net9.0-ios;net9.0-maccatalyst</TargetFrameworks>
 		<TargetFrameworks Condition="$([MSBuild]::IsOSPlatform('windows'))">$(TargetFrameworks);net9.0-windows10.0.19041.0</TargetFrameworks>
 		<AndroidPackageFormat>aab</AndroidPackageFormat>
 
@@ -20,8 +20,8 @@
 		<ApplicationId>com.metintnc.namazvakti</ApplicationId>
 
 		<!-- Versions -->
-		<ApplicationDisplayVersion>1.2.0</ApplicationDisplayVersion>
-		<ApplicationVersion>10</ApplicationVersion>
+		<ApplicationDisplayVersion>1.2.1</ApplicationDisplayVersion>
+		<ApplicationVersion>11</ApplicationVersion>
 
 		<!-- <WindowsPackageType>None</WindowsPackageType> -->
 
@@ -54,16 +54,16 @@
 	  <EmbedAssembliesIntoApk>False</EmbedAssembliesIntoApk>
 	</PropertyGroup>
 
+	<!-- Yerel imzalama ayarları (varsa signing.local.props dosyasından okunur, bu dosya .gitignore'dadır ve GitHub'a yüklenmez) -->
+	<Import Project="signing.local.props" Condition="Exists('signing.local.props')" />
+
 	<PropertyGroup Condition="'$(Configuration)|$(TargetFramework)'=='Release|net9.0-android'">
-	  <AndroidKeyStore>True</AndroidKeyStore>
-	  <!-- Geçici olarak iptal edildi, eski haline (True) getirmeyi unutma -->
-	  <AndroidSigningKeyStore>$(MSBuildProjectDirectory)\my-release-key.keystore</AndroidSigningKeyStore>
-	  <AndroidSigningKeyAlias>my-key-alias</AndroidSigningKeyAlias>
-	  <AndroidSigningKeyPass>metin8997</AndroidSigningKeyPass>
-	  <AndroidSigningStorePass>metin8997</AndroidSigningStorePass>
-	  <!-- R8 Code Shrinking yapÄ±landÄ±rmasÄ± -->
+	  <!-- R8 Code Shrinking ve Obfuscation (Kod Karartma) yapılandırması -->
 	  <AndroidLinkTool>r8</AndroidLinkTool>
-	  <AndroidLinkMode>Release</AndroidLinkMode>
+	  <AndroidEnableCodeShrinking>true</AndroidEnableCodeShrinking>
+	  <AndroidLinkMode>SdkOnly</AndroidLinkMode>
+	  <AndroidR8ObfuscationMode>private-members</AndroidR8ObfuscationMode>
+	  <AndroidCreateProguardMappingFile>true</AndroidCreateProguardMappingFile>
 	  <AndroidEnableProguardMapping>true</AndroidEnableProguardMapping>
 	</PropertyGroup>
 
@@ -155,13 +155,29 @@
 		<PackageReference Include="Microsoft.Extensions.Logging.Debug" Version="9.0.10" />
 		<PackageReference Include="Microsoft.Maui.Essentials" Version="9.0.120" />
 		<PackageReference Include="Plugin.LocalNotification" Version="10.1.8" />
+		<PackageReference Include="Plugin.MauiMTAdmob" Version="2.3.0" />
 	</ItemGroup>
 
 	<ItemGroup Condition="$(TargetFramework.Contains('android'))">
 		<PackageReference Include="Xamarin.AndroidX.Work.Runtime" Version="2.11.0.1" />
 		<PackageReference Include="Xamarin.Google.Android.Play.App.Update" Version="2.1.0.6" />
+		<PackageReference Include="Xamarin.AndroidX.Compose.Runtime.Annotation.Jvm" Version="1.10.0.1" ExcludeAssets="all" />
+		<PackageReference Include="Xamarin.AndroidX.SavedState" Version="1.4.0.1" />
+		<PackageReference Include="Xamarin.AndroidX.SavedState.SavedState.Ktx" Version="1.2.1.16" ExcludeAssets="all" />
 		<ProguardConfiguration Include="proguard-rules.pro" />
 	</ItemGroup>
+
+	<!-- Target D8/R8 derlemesinde çakışan ktx/jvm jar dosyalarını temizler -->
+	<Target Name="RemoveDuplicateKtxJars" BeforeTargets="_CompileToDalvikWithD8;_CompileToDalvikWithR8;_CreateFullReportWithD8">
+		<ItemGroup>
+			<ExtractedJarImports Remove="@(ExtractedJarImports)" Condition="$([System.String]::Copy('%(FullPath)').Contains('lp\187')) Or $([System.String]::Copy('%(FullPath)').Contains('lp/187'))" />
+			<_JavaLibrariesToCompileForApp Remove="@(_JavaLibrariesToCompileForApp)" Condition="$([System.String]::Copy('%(FullPath)').Contains('lp\187')) Or $([System.String]::Copy('%(FullPath)').Contains('lp/187'))" />
+			<_JavaLibrariesToCompile Remove="@(_JavaLibrariesToCompile)" Condition="$([System.String]::Copy('%(FullPath)').Contains('lp\187')) Or $([System.String]::Copy('%(FullPath)').Contains('lp/187'))" />
+			<_AndroidLibraryImports Remove="@(_AndroidLibraryImports)" Condition="$([System.String]::Copy('%(FullPath)').Contains('lp\187')) Or $([System.String]::Copy('%(FullPath)').Contains('lp/187'))" />
+		</ItemGroup>
+		<Delete Files="$(MSBuildProjectDirectory)\obj\Debug\net9.0-android\lp\187\jl\classes.jar" Condition="Exists('$(MSBuildProjectDirectory)\obj\Debug\net9.0-android\lp\187\jl\classes.jar')" />
+	</Target>
+
 
 	<ItemGroup>
 	  <MauiXaml Update="ArkaplanSecim.xaml">
@@ -180,9 +196,6 @@
 	    <Generator>MSBuild:Compile</Generator>
 	  </MauiXaml>
 	  <MauiXaml Update="Kuran.xaml">
-	    <Generator>MSBuild:Compile</Generator>
-	  </MauiXaml>
-	  <MauiXaml Update="OnboardingPage.xaml">
 	    <Generator>MSBuild:Compile</Generator>
 	  </MauiXaml>
 	  <MauiXaml Update="SehirSecim.xaml">

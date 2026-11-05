@@ -9,7 +9,7 @@ namespace hadis
         const double kabeenlem = 21.4225;
         const double kabeboylam = 39.8262;
         private bool _pusulaAktifMi;
-        public event Action<double> AciDegisti;
+        public event Action<double>? AciDegisti;
         public async Task<bool> KontrolEt()
         {
             try
@@ -56,7 +56,7 @@ namespace hadis
             Compass.Default.Start(SensorSpeed.UI);
             _pusulaAktifMi = true;
         }
-        public void PusulaVerisiGeldi(object sender, CompassChangedEventArgs e)
+        public void PusulaVerisiGeldi(object? sender, CompassChangedEventArgs e)
         {
             double kuzey = e.Reading.HeadingMagneticNorth;
             double donusacisi = hedefKibleAcisi - kuzey;

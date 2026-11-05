@@ -12,10 +12,10 @@ namespace hadis.Services
     public class UpdateInfoModel
     {
         [JsonPropertyName("latest_version")]
-        public string LatestVersion { get; set; } = "1.2.0";
+        public string LatestVersion { get; set; } = "1.2.1";
 
         [JsonPropertyName("minimum_required_version")]
-        public string MinimumRequiredVersion { get; set; } = "1.2.0";
+        public string MinimumRequiredVersion { get; set; } = "1.2.1";
 
         [JsonPropertyName("update_title")]
         public string UpdateTitle { get; set; } = "Yeni Güncelleme Mevcut! 🚀";
