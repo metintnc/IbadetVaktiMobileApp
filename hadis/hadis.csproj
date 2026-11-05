@@ -159,11 +159,7 @@
 	</ItemGroup>
 
 	<ItemGroup Condition="$(TargetFramework.Contains('android'))">
-		<PackageReference Include="Xamarin.AndroidX.Work.Runtime" Version="2.11.0.1" />
 		<PackageReference Include="Xamarin.Google.Android.Play.App.Update" Version="2.1.0.6" />
-		<PackageReference Include="Xamarin.AndroidX.Compose.Runtime.Annotation.Jvm" Version="1.10.0.1" ExcludeAssets="all" />
-		<PackageReference Include="Xamarin.AndroidX.SavedState" Version="1.4.0.1" />
-		<PackageReference Include="Xamarin.AndroidX.SavedState.SavedState.Ktx" Version="1.2.1.16" ExcludeAssets="all" />
 		<ProguardConfiguration Include="proguard-rules.pro" />
 	</ItemGroup>
 
