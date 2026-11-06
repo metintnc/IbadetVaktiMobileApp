@@ -3,6 +3,9 @@ using hadis.Services;
 using hadis.ViewModels;
 using Plugin.LocalNotification;
 using Plugin.MauiMtAdmob;
+#if MAUI_DEVFLOW
+using Microsoft.Maui.DevFlow.Agent;
+#endif
 
 namespace hadis
 {
@@ -20,6 +23,10 @@ namespace hadis
                     fonts.AddFont("OpenSans-Regular.ttf", "OpenSansRegular");
                     fonts.AddFont("OpenSans-Semibold.ttf", "OpenSansSemibold");
                 });
+
+#if MAUI_DEVFLOW
+            builder.AddMauiDevFlowAgent();
+#endif
 
             // Servisleri kaydet
             builder.Services.AddSingleton<StatusBarService>();

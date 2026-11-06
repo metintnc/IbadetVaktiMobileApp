@@ -163,13 +163,23 @@
 		<ProguardConfiguration Include="proguard-rules.pro" />
 	</ItemGroup>
 
+	<ItemGroup Condition="$(TargetFramework.Contains('android'))">
+		<!-- These transitive KTX/JVM artifacts duplicate classes in their Android counterparts. -->
+		<PackageReference Update="Xamarin.AndroidX.Compose.Runtime.Annotation.Jvm" ExcludeAssets="all" />
+		<PackageReference Update="Xamarin.AndroidX.SavedState.SavedState.Ktx" ExcludeAssets="all" />
+	</ItemGroup>
+
 	<!-- Target D8/R8 derlemesinde çakışan ktx/jvm jar dosyalarını temizler -->
-	<Target Name="RemoveDuplicateKtxJars" BeforeTargets="_CompileToDalvikWithD8;_CompileToDalvikWithR8;_CreateFullReportWithD8">
+	<Target Name="RemoveDuplicateKtxJars" BeforeTargets="_CategorizeAndroidLibraries;_CompileToDalvikWithD8;_CompileToDalvikWithR8;_CreateFullReportWithD8">
 		<ItemGroup>
-			<ExtractedJarImports Remove="@(ExtractedJarImports)" Condition="$([System.String]::Copy('%(FullPath)').Contains('lp\187')) Or $([System.String]::Copy('%(FullPath)').Contains('lp/187'))" />
-			<_JavaLibrariesToCompileForApp Remove="@(_JavaLibrariesToCompileForApp)" Condition="$([System.String]::Copy('%(FullPath)').Contains('lp\187')) Or $([System.String]::Copy('%(FullPath)').Contains('lp/187'))" />
-			<_JavaLibrariesToCompile Remove="@(_JavaLibrariesToCompile)" Condition="$([System.String]::Copy('%(FullPath)').Contains('lp\187')) Or $([System.String]::Copy('%(FullPath)').Contains('lp/187'))" />
-			<_AndroidLibraryImports Remove="@(_AndroidLibraryImports)" Condition="$([System.String]::Copy('%(FullPath)').Contains('lp\187')) Or $([System.String]::Copy('%(FullPath)').Contains('lp/187'))" />
+			<AndroidLibrary Remove="@(AndroidLibrary)" Condition="$([System.String]::Copy('%(Identity)').Contains('compose.runtime.annotation.jvm')) Or $([System.String]::Copy('%(Identity)').Contains('runtime-annotation-jvm')) Or $([System.String]::Copy('%(Identity)').Contains('savedstate.savedstate.ktx')) Or $([System.String]::Copy('%(Identity)').Contains('savedstate-ktx'))" />
+			<ExtractedJarImports Remove="@(ExtractedJarImports)" Condition="$([System.String]::Copy('%(FullPath)').Contains('compose.runtime.annotation.jvm')) Or $([System.String]::Copy('%(FullPath)').Contains('runtime-annotation-jvm')) Or $([System.String]::Copy('%(FullPath)').Contains('lp\187')) Or $([System.String]::Copy('%(FullPath)').Contains('lp/187'))" />
+			<_JavaLibrariesToCompileForApp Remove="@(_JavaLibrariesToCompileForApp)" Condition="$([System.String]::Copy('%(FullPath)').Contains('compose.runtime.annotation.jvm')) Or $([System.String]::Copy('%(FullPath)').Contains('runtime-annotation-jvm')) Or $([System.String]::Copy('%(FullPath)').Contains('lp\187')) Or $([System.String]::Copy('%(FullPath)').Contains('lp/187'))" />
+			<_JavaLibrariesToCompile Remove="@(_JavaLibrariesToCompile)" Condition="$([System.String]::Copy('%(FullPath)').Contains('compose.runtime.annotation.jvm')) Or $([System.String]::Copy('%(FullPath)').Contains('runtime-annotation-jvm')) Or $([System.String]::Copy('%(FullPath)').Contains('lp\187')) Or $([System.String]::Copy('%(FullPath)').Contains('lp/187'))" />
+			<_AndroidLibraryImports Remove="@(_AndroidLibraryImports)" Condition="$([System.String]::Copy('%(FullPath)').Contains('compose.runtime.annotation.jvm')) Or $([System.String]::Copy('%(FullPath)').Contains('runtime-annotation-jvm')) Or $([System.String]::Copy('%(FullPath)').Contains('lp\187')) Or $([System.String]::Copy('%(FullPath)').Contains('lp/187'))" />
+			<AndroidJavaLibrary Remove="@(AndroidJavaLibrary)" Condition="$([System.String]::Copy('%(Identity)').Contains('compose.runtime.annotation.jvm')) Or $([System.String]::Copy('%(Identity)').Contains('runtime-annotation-jvm'))" />
+			<_AndroidJavaLibraries Remove="@(_AndroidJavaLibraries)" Condition="$([System.String]::Copy('%(Identity)').Contains('compose.runtime.annotation.jvm')) Or $([System.String]::Copy('%(Identity)').Contains('runtime-annotation-jvm'))" />
+			<AndroidAarLibrary Remove="@(AndroidAarLibrary)" Condition="$([System.String]::Copy('%(Identity)').Contains('savedstate.savedstate.ktx')) Or $([System.String]::Copy('%(Identity)').Contains('savedstate-ktx'))" />
 		</ItemGroup>
 		<Delete Files="$(MSBuildProjectDirectory)\obj\Debug\net9.0-android\lp\187\jl\classes.jar" Condition="Exists('$(MSBuildProjectDirectory)\obj\Debug\net9.0-android\lp\187\jl\classes.jar')" />
 	</Target>
@@ -209,7 +219,3 @@
 	</ItemGroup>
 
 </Project>
-
-
-
-
