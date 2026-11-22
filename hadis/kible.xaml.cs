@@ -214,6 +214,7 @@ namespace hadis
                 kibleoku.IsVisible = false;
                 AciDegeri.IsVisible = false;
                 DirectionHintBorder.IsVisible = false;
+                CompassBarContainer.IsVisible = false;
                 CalibrationWarningFrame.IsVisible = false;
 
                 StopCompassLogic();
@@ -224,6 +225,7 @@ namespace hadis
                 kibleoku.IsVisible = true;
                 AciDegeri.IsVisible = true;
                 DirectionHintBorder.IsVisible = true;
+                CompassBarContainer.IsVisible = true;
 
                 StartCompassLogic();
             }
@@ -419,6 +421,9 @@ namespace hadis
                 int diff = displayAngle <= 180 ? displayAngle : 360 - displayAngle;
                 AciDegeri.Text = $"{displayAngle}°";
 
+                // Yatay oyun tarzı kıble çubuğunu güncelle
+                UpdateHorizontalCompassBar(gelenaci, diff);
+
                 if (diff <= 3)
                 {
                     AciDegeri.TextColor = EmeraldColor;
@@ -426,8 +431,6 @@ namespace hadis
                     DirectionHintLabel.TextColor = EmeraldLightColor;
                     DirectionHintBorder.BackgroundColor = EmeraldBgColor;
                     DirectionHintBorder.Stroke = EmeraldStrokeColor;
-                    DiffAngleLabel.Text = "0° Tam İsabet";
-                    DiffAngleLabel.TextColor = EmeraldColor;
                 }
                 else
                 {
@@ -438,8 +441,6 @@ namespace hadis
                     DirectionHintLabel.TextColor = AmberLightColor;
                     DirectionHintBorder.BackgroundColor = AmberBgColor;
                     DirectionHintBorder.Stroke = AmberStrokeColor;
-                    DiffAngleLabel.Text = $"{diff}° Fark";
-                    DiffAngleLabel.TextColor = AmberColor;
                 }
 
                 if (diff <= 5 && QiblaCheckmark != null)
@@ -457,6 +458,45 @@ namespace hadis
                     }
                 }
             });
+        }
+
+        private void UpdateHorizontalCompassBar(double gelenaci, int diff)
+        {
+            // gelenaci: 0..360 (Kıble sağdaysa 0..180, soldaysa 180..360)
+            double normalized = ((gelenaci % 360) + 360) % 360;
+            double signedAngle = normalized <= 180 ? normalized : normalized - 360;
+
+            double barWidth = CompassBarContainer.Width > 0 ? CompassBarContainer.Width : 320;
+            double markerWidth = QiblaBarMarker.Width > 0 ? QiblaBarMarker.Width : 74;
+            double maxOffset = Math.Max(40, (barWidth - markerWidth) / 2.0 - 8);
+
+            // ±90° görüş açısını çubuk genişliğine ölçekle
+            double clamped = Math.Clamp(signedAngle / 90.0, -1.0, 1.0);
+            QiblaBarMarker.TranslationX = clamped * maxOffset;
+
+            // Arka plan cetvel çizgilerini açıya göre kaydır
+            double tickOffset = (signedAngle % 30.0) / 30.0 * 19.0;
+            CompassBarTicks.TranslationX = -tickOffset;
+
+            // 90° dışındaysa kenar yön oklarını göster
+            QiblaBarArrowLeft.IsVisible = signedAngle < -90;
+            QiblaBarArrowRight.IsVisible = signedAngle > 90;
+
+            bool isAligned = diff <= 3;
+            if (isAligned)
+            {
+                QiblaBarMarker.Stroke = EmeraldColor;
+                QiblaBarIcon.TextColor = EmeraldColor;
+                QiblaBarText.TextColor = EmeraldLightColor;
+                CompassBarCenterLine.Color = EmeraldColor;
+            }
+            else
+            {
+                QiblaBarMarker.Stroke = AmberColor;
+                QiblaBarIcon.TextColor = AmberColor;
+                QiblaBarText.TextColor = AmberLightColor;
+                CompassBarCenterLine.Color = Color.FromArgb("#80FFFFFF");
+            }
         }
 
         protected override bool OnBackButtonPressed()

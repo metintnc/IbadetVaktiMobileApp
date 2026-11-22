@@ -165,13 +165,108 @@
                        Aspect="AspectFit"
                        VerticalOptions="Center"
                        HorizontalOptions="Fill"
-                       MaximumHeightRequest="270"
+                       MaximumHeightRequest="240"
                        Margin="20,4,20,0" />
+
+                <!-- Oyun Tarzı Yatay Kıble Çubuğu -->
+                <Border x:Name="CompassBarContainer"
+                        StrokeShape="RoundRectangle 14"
+                        StrokeThickness="1"
+                        Stroke="#2EFFFFFF"
+                        BackgroundColor="#66121826"
+                        HeightRequest="48"
+                        Margin="6,8,6,0"
+                        Padding="0">
+                    <Grid IsClippedToBounds="True">
+                        <!-- Yatay Ölçek Çizgileri (Sabit Arka Plan Cetveli) -->
+                        <BoxView HeightRequest="1"
+                                 Color="#26FFFFFF"
+                                 VerticalOptions="Center"
+                                 HorizontalOptions="Fill"
+                                 Margin="16,0" />
+
+                        <HorizontalStackLayout x:Name="CompassBarTicks"
+                                               HorizontalOptions="Center"
+                                               VerticalOptions="Center"
+                                               Spacing="18"
+                                               Opacity="0.45">
+                            <BoxView WidthRequest="1" HeightRequest="10" Color="White" VerticalOptions="Center" />
+                            <BoxView WidthRequest="1" HeightRequest="6" Color="White" VerticalOptions="Center" />
+                            <BoxView WidthRequest="1.5" HeightRequest="14" Color="White" VerticalOptions="Center" />
+                            <BoxView WidthRequest="1" HeightRequest="6" Color="White" VerticalOptions="Center" />
+                            <BoxView WidthRequest="1" HeightRequest="10" Color="White" VerticalOptions="Center" />
+                            <BoxView WidthRequest="1" HeightRequest="6" Color="White" VerticalOptions="Center" />
+                            <BoxView WidthRequest="1.5" HeightRequest="14" Color="White" VerticalOptions="Center" />
+                            <BoxView WidthRequest="1" HeightRequest="6" Color="White" VerticalOptions="Center" />
+                            <BoxView WidthRequest="1" HeightRequest="10" Color="White" VerticalOptions="Center" />
+                            <BoxView WidthRequest="1" HeightRequest="6" Color="White" VerticalOptions="Center" />
+                            <BoxView WidthRequest="1.5" HeightRequest="14" Color="White" VerticalOptions="Center" />
+                            <BoxView WidthRequest="1" HeightRequest="6" Color="White" VerticalOptions="Center" />
+                            <BoxView WidthRequest="1" HeightRequest="10" Color="White" VerticalOptions="Center" />
+                            <BoxView WidthRequest="1" HeightRequest="6" Color="White" VerticalOptions="Center" />
+                            <BoxView WidthRequest="1.5" HeightRequest="14" Color="White" VerticalOptions="Center" />
+                            <BoxView WidthRequest="1" HeightRequest="6" Color="White" VerticalOptions="Center" />
+                            <BoxView WidthRequest="1" HeightRequest="10" Color="White" VerticalOptions="Center" />
+                        </HorizontalStackLayout>
+
+                        <!-- Merkez Nişangah Çizgisi (Kullanıcının Baktığı Yön) -->
+                        <Grid HorizontalOptions="Center" VerticalOptions="Fill" WidthRequest="18">
+                            <BoxView x:Name="CompassBarCenterLine"
+                                     WidthRequest="2"
+                                     HeightRequest="34"
+                                     Color="#80FFFFFF"
+                                     HorizontalOptions="Center"
+                                     VerticalOptions="Center" />
+                            <Label Text="▼"
+                                   FontSize="8"
+                                   TextColor="#CCFFFFFF"
+                                   HorizontalOptions="Center"
+                                   VerticalOptions="Start"
+                                   Margin="0,1,0,0" />
+                        </Grid>
+
+                        <!-- Kayan Kıble İşaretçisi -->
+                        <Border x:Name="QiblaBarMarker"
+                                HorizontalOptions="Center"
+                                VerticalOptions="Center"
+                                StrokeShape="RoundRectangle 10"
+                                StrokeThickness="1.5"
+                                Stroke="#FBBF24"
+                                BackgroundColor="#CC1E293B"
+                                Padding="8,3">
+                            <HorizontalStackLayout Spacing="4" VerticalOptions="Center">
+                                <Label x:Name="QiblaBarArrowLeft"
+                                       Text="◀"
+                                       FontSize="9"
+                                       TextColor="#FBBF24"
+                                       VerticalOptions="Center"
+                                       IsVisible="False" />
+                                <Label x:Name="QiblaBarIcon"
+                                       Text="◆"
+                                       FontSize="11"
+                                       TextColor="#FBBF24"
+                                       VerticalOptions="Center" />
+                                <Label x:Name="QiblaBarText"
+                                       Text="KÂBE"
+                                       FontSize="10"
+                                       FontAttributes="Bold"
+                                       TextColor="#FDE68A"
+                                       VerticalOptions="Center" />
+                                <Label x:Name="QiblaBarArrowRight"
+                                       Text="▶"
+                                       FontSize="9"
+                                       TextColor="#FBBF24"
+                                       VerticalOptions="Center"
+                                       IsVisible="False" />
+                            </HorizontalStackLayout>
+                        </Border>
+                    </Grid>
+                </Border>
             </VerticalStackLayout>
 
             <!-- Alt Bilgi Kartları -->
             <VerticalStackLayout Grid.Row="2" Spacing="8">
-                <!-- Mekke Mesafe ve Açı Farkı Kartı (Glass Card) -->
+                <!-- Mekke Mesafe Kartı (Glass Card) -->
                 <Border StrokeShape="RoundRectangle 18"
                         StrokeThickness="1"
                         Stroke="#2EFFFFFF"
@@ -180,7 +275,7 @@
                     <Border.Shadow>
                         <Shadow Brush="Black" Offset="0,6" Radius="18" Opacity="0.35" />
                     </Border.Shadow>
-                    <Grid ColumnDefinitions="Auto,*,Auto" ColumnSpacing="12">
+                    <Grid ColumnDefinitions="Auto,*" ColumnSpacing="12">
                         <Border Grid.Column="0"
                                 WidthRequest="38"
                                 HeightRequest="38"
@@ -204,19 +299,6 @@
                                    FontSize="14"
                                    FontAttributes="Bold"
                                    TextColor="White" />
-                        </VerticalStackLayout>
-
-                        <VerticalStackLayout Grid.Column="2" VerticalOptions="Center" HorizontalOptions="End" Spacing="1">
-                            <Label Text="Açı Farkı"
-                                   FontSize="12"
-                                   TextColor="#99FFFFFF"
-                                   HorizontalTextAlignment="End" />
-                            <Label x:Name="DiffAngleLabel"
-                                   Text="0° Tam İsabet"
-                                   FontSize="14"
-                                   FontAttributes="Bold"
-                                   TextColor="#34D399"
-                                   HorizontalTextAlignment="End" />
                         </VerticalStackLayout>
                     </Grid>
                 </Border>
