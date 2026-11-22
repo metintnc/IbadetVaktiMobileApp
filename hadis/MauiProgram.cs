@@ -38,7 +38,7 @@ namespace hadis
             builder.Services.AddHttpClient();
             builder.Services.AddHttpClient("QuranApi", client =>
             {
-                client.BaseAddress = new Uri("https://api.acikkuran.com/");
+                client.BaseAddress = new Uri("https://kuran-meali.com.tr/api/v1/");
                 client.Timeout = TimeSpan.FromSeconds(30);
             });
             

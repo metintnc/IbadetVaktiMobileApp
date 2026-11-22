@@ -28,7 +28,7 @@
         </BoxView>
 
         <!-- İçerik Alanı -->
-        <ScrollView VerticalScrollBarVisibility="Never"
+        <ScrollView x:Name="MainContentGrid" VerticalScrollBarVisibility="Never"
                     HorizontalScrollBarVisibility="Never"
                     Padding="20,15,20,90">
             <VerticalStackLayout Spacing="22">

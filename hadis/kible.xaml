@@ -21,7 +21,7 @@
                 <AppThemeBinding Light="0" Dark="0.3" />
             </BoxView.Opacity>
         </BoxView>
-        <Grid RowDefinitions="Auto,*"  Style="{StaticResource Background}" Margin="0,0,0,85">
+        <Grid x:Name="MainContentGrid" RowDefinitions="Auto,*"  Style="{StaticResource Background}" Margin="0,0,0,85">
         <!-- Header - Kuran Page Style -->
         <Label Grid.Row="0"
                Text="Kıble Pusulası"

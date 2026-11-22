@@ -17,6 +17,9 @@
   <!-- Helper sınıfları doğrudan link olarak dahil (MAUI bağımlılığı yok) -->
   <ItemGroup>
     <Compile Include="..\hadis\Helpers\PrayerTimeHelper.cs" Link="Helpers\PrayerTimeHelper.cs" />
+    <Compile Include="..\hadis\Helpers\PrayerCalendarDate.cs" Link="Helpers\PrayerCalendarDate.cs" />
+    <Compile Include="..\hadis\Models\Sure.cs" Link="Models\Sure.cs" />
+    <Compile Include="..\hadis\Services\KuranDataService.cs" Link="Services\KuranDataService.cs" />
     <Compile Include="..\hadis\Helpers\DiyanetHicriHelper.cs" Link="Helpers\DiyanetHicriHelper.cs" />
   </ItemGroup>
 

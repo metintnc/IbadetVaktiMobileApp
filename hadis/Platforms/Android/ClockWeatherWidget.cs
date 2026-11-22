@@ -126,19 +126,14 @@ namespace hadis.Platforms.Android
         {
             try
             {
-                // 1. Bugunun verisini App Cache'den oku
-                var cachedVakitler = await TryLoadFromAppCache(context, DateTime.Now);
-                if (cachedVakitler != null)
-                {
-                    return FindNextPrayer(cachedVakitler);
-                }
+                var today = DateTime.Today;
+                var times = await TryLoadFromAppCache(context, today);
+                if (times != null && times["Yatsi"] > DateTime.Now)
+                    return FindNextPrayer(times);
 
-                // 2. Eger bugunun verisi yoksa (gece yarisi vb), yarininkini bulmaya calis
-                var yarinVakitler = await TryLoadFromAppCache(context, DateTime.Now.AddDays(1));
-                if (yarinVakitler != null)
-                {
-                    return FindNextPrayer(yarinVakitler);
-                }
+                var tomorrow = await TryLoadFromAppCache(context, today.AddDays(1));
+                if (tomorrow != null)
+                    return FindNextPrayer(tomorrow);
 
                 return ("Veri Bekleniyor", TimeSpan.Zero);
             }
@@ -159,11 +154,7 @@ namespace hadis.Platforms.Android
              else if (namazVakitleri["Ikindi"] > now) return ("Ikindi", namazVakitleri["Ikindi"] - now);
              else if (namazVakitleri["Aksam"] > now) return ("Aksam", namazVakitleri["Aksam"] - now);
              else if (namazVakitleri["Yatsi"] > now) return ("Yatsi", namazVakitleri["Yatsi"] - now);
-             else
-             {
-                 var yarinImsak = namazVakitleri["Imsak"].AddDays(1);
-                 return ("Imsak", yarinImsak - now);
-             }
+             return ("Veri Bekleniyor", TimeSpan.Zero);
         }
 
         // Yeni Diyanet API Onbellek dosyasini okumaya calis
@@ -225,6 +216,10 @@ namespace hadis.Platforms.Android
                     var json = await System.IO.File.ReadAllTextAsync(foundPath);
                     using var doc = JsonDocument.Parse(json);
                     var root = doc.RootElement;
+                    if (root.TryGetProperty("gregorianDateLong", out var readable) &&
+                        Helpers.PrayerCalendarDate.TryReadOriginalDate(readable.GetString(), out var original) &&
+                        original != date.Date)
+                        return null;
                     
                     DateTime ParseTime(string timeStr)
                     {

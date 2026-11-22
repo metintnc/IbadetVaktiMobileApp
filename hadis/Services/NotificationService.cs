@@ -82,6 +82,7 @@ namespace hadis.Services
             foreach (var prayer in prayerTimes)
             {
                 string key = prayer.Key;
+                if (key == PrayerTimeHelper.NextImsakKey) continue;
                 DateTime time = prayer.Value;
                 
                 System.Diagnostics.Debug.WriteLine($"🕌 {key} vakti: {time:HH:mm}");
@@ -177,7 +178,7 @@ namespace hadis.Services
             System.Diagnostics.Debug.WriteLine($"📊 Toplam: {scheduledCount} bildirim zamanlandı, {skippedCount} atlandı");
             
             // Persistent notification'ı güncelle
-            if (Preferences.Default.Get("PersistentNotificationEnabled", false))
+            if (dayOffset == 0 && Preferences.Default.Get("PersistentNotificationEnabled", false))
             {
                 await UpdatePersistentNotification(prayerTimes);
             }
@@ -243,8 +244,9 @@ namespace hadis.Services
                     try
                     {
                         string manuelUlke = Preferences.Default.Get("ManuelUlke", "Türkiye");
-                        var vakitler = await _prayerTimesService.GetPrayerTimesForDateAsync(
-                            targetDate, ilce, sehir, manuelUlke, lat, lon);
+                        var vakitler = dayOffset == 0
+                            ? await _prayerTimesService.GetCountdownTimesAsync(targetDate, ilce, sehir, manuelUlke, lat, lon)
+                            : await _prayerTimesService.GetPrayerTimesForDateAsync(targetDate, ilce, sehir, manuelUlke, lat, lon);
 
                         if (vakitler != null)
                         {

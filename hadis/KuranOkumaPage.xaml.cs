@@ -13,13 +13,13 @@ namespace hadis
 {
     public partial class KuranOkumaPage : ContentPage
     {
-        private const int TotalPages = 604;
+        private static int TotalPages => KuranDataService.PageCount;
         private ObservableCollection<string> _pages = new();
         private int _currentPageNumber = 1;
-        private int _loadingPageNumber = 0;
+        private bool _isPageVisible;
         private readonly HashSet<string> _prefetchedUrls = new();
         private readonly QuranApiService _quranApiService;
-        private CancellationTokenSource _translationCts;
+        private CancellationTokenSource? _translationCts;
 
         private bool _isTranslationVisible = false;
         private double _currentScale = 1.0;
@@ -28,7 +28,7 @@ namespace hadis
         {
             InitializeComponent();
             _quranApiService = quranApiService;
-            InitializePages();
+
             
             // Restore meal panel visibility preference (default false for full-screen Mushaf)
             _isTranslationVisible = Preferences.Get("IsQuranTranslationVisible", false);
@@ -50,20 +50,15 @@ namespace hadis
             }
 
             // Set initial position (0-indexed)
+            targetPage = Math.Clamp(targetPage, 1, TotalPages);
+            InitializePages();
             int targetIndex = targetPage - 1;
             PageCarousel.Position = targetIndex;
             _currentPageNumber = targetPage;
             UpdatePageLabel(targetPage);
             UpdateTitle(targetPage);
             
-            // Prefetch pages around the start page
             PrefetchPages(targetPage);
-            
-            // Load translation if panel is visible
-            if (_isTranslationVisible)
-            {
-                _ = LoadPageTranslationAsync(targetPage);
-            }
         }
 
         private async void OnZoomInClicked(object sender, EventArgs e)
@@ -92,7 +87,7 @@ namespace hadis
 
         private void InitializePages()
         {
-            // Standard Madini Mushaf has 604 pages
+            // JPG 1 is Fâtiha (printed page 0), JPG 605 is printed page 604.
             for (int i = 1; i <= TotalPages; i++)
             {
                 _pages.Add($"https://raw.githubusercontent.com/metintnc/NamazVaktiMobileApp/main/hadis/kuransayfalar%C4%B1/kuran111-g%C3%B6r%C3%BCnt%C3%BCler-{i}.jpg");
@@ -106,9 +101,13 @@ namespace hadis
             TranslationBorder.IsVisible = _isTranslationVisible;
             MealToggleLabel.TextColor = _isTranslationVisible ? Color.FromArgb("#00BCD4") : Colors.White;
 
-            if (_isTranslationVisible && TranslationListContainer.Children.Count == 0)
+            if (_isTranslationVisible)
             {
                 _ = LoadPageTranslationAsync(_currentPageNumber);
+            }
+            else
+            {
+                _translationCts?.Cancel();
             }
             Preferences.Set("IsQuranTranslationVisible", _isTranslationVisible);
         }
@@ -116,6 +115,7 @@ namespace hadis
         private void OnPositionChanged(object sender, PositionChangedEventArgs e)
         {
             int pageNumber = e.CurrentPosition + 1;
+            if (pageNumber < 1 || pageNumber > TotalPages) return;
             _currentPageNumber = pageNumber;
             UpdatePageLabel(pageNumber);
             UpdateTitle(pageNumber);
@@ -127,7 +127,7 @@ namespace hadis
             PrefetchPages(pageNumber);
             
             // Load translation for the active page if panel is open
-            if (_isTranslationVisible)
+            if (_isPageVisible && _isTranslationVisible)
             {
                 _ = LoadPageTranslationAsync(pageNumber);
             }
@@ -198,7 +198,7 @@ namespace hadis
 
         private void UpdatePageLabel(int pageNumber)
         {
-            PageNumberLabel.Text = $"Sayfa {pageNumber}";
+            PageNumberLabel.Text = $"Sayfa {pageNumber - 1}";
         }
 
         private void UpdateTitle(int pageNumber)
@@ -217,24 +217,22 @@ namespace hadis
         private async void OnGoToPageClicked(object sender, EventArgs e)
         {
             string result = await DisplayPromptAsync("Sayfaya Git", 
-                "Gitmek istediğiniz sayfa numarasını girin (1 - 604):", 
+                "Gitmek istediğiniz sayfa numarasını girin (0 - 604):",
                 "Git", 
                 "İptal", 
-                placeholder: _currentPageNumber.ToString(), 
+                placeholder: (_currentPageNumber - 1).ToString(),
                 maxLength: 3, 
                 keyboard: Keyboard.Numeric);
 
             if (!string.IsNullOrWhiteSpace(result) && int.TryParse(result, out int targetPage))
             {
-                if (targetPage >= 1 && targetPage <= TotalPages)
+                if (targetPage >= 0 && targetPage < TotalPages)
                 {
-                    int targetIndex = targetPage - 1;
-                    _currentPageNumber = targetPage;
-                    PageCarousel.ScrollTo(targetIndex, position: ScrollToPosition.Center, animate: false);
+                    PageCarousel.ScrollTo(targetPage, position: ScrollToPosition.Center, animate: false);
                 }
                 else
                 {
-                    await DisplayAlert("Hata", "Lütfen 1 ile 604 arasında geçerli bir sayfa numarası girin.", "Tamam");
+                    await DisplayAlert("Hata", "Lütfen 0 ile 604 arasında geçerli bir sayfa numarası girin.", "Tamam");
                 }
             }
         }
@@ -247,7 +245,7 @@ namespace hadis
             _translationCts = new CancellationTokenSource();
             var token = _translationCts.Token;
 
-            _loadingPageNumber = pageNumber;
+            TranslationListContainer.Children.Clear();
             
             bool isCached = _quranApiService.IsPageTranslationCached(pageNumber);
 
@@ -256,7 +254,6 @@ namespace hadis
             {
                 TranslationLoadingIndicator.IsVisible = true;
                 TranslationLoadingIndicator.IsRunning = true;
-                TranslationListContainer.Children.Clear();
             }
             else
             {
@@ -269,7 +266,7 @@ namespace hadis
                 var verses = await _quranApiService.GetPageTranslationAsync(pageNumber, token);
                 
                 // If user swiped away while we were loading, discard results
-                if (token.IsCancellationRequested || _loadingPageNumber != pageNumber)
+                if (token.IsCancellationRequested || _currentPageNumber != pageNumber || !_isTranslationVisible)
                 {
                     return;
                 }
@@ -360,7 +357,7 @@ namespace hadis
             }
             finally
             {
-                if (_loadingPageNumber == pageNumber)
+                if (!token.IsCancellationRequested)
                 {
                     TranslationLoadingIndicator.IsRunning = false;
                     TranslationLoadingIndicator.IsVisible = false;
@@ -370,24 +367,16 @@ namespace hadis
 
         private async void OnBackClicked(object sender, EventArgs e)
         {
-            await Navigation.PopAsync(false);
+            await Navigation.PopAsync();
         }
 
         protected override void OnAppearing()
         {
             base.OnAppearing();
+            _isPageVisible = true;
+            if (_isTranslationVisible) _ = LoadPageTranslationAsync(_currentPageNumber);
             Shell.SetTabBarIsVisible(this, false);
 
-            if (MainGrid != null)
-            {
-                MainGrid.Opacity = 0;
-                MainGrid.TranslationY = 15;
-                _ = Task.WhenAll(
-                    MainGrid.FadeTo(1, 180, Easing.CubicOut),
-                    MainGrid.TranslateTo(0, 0, 180, Easing.CubicOut)
-                );
-            }
-            
             // Prevent screen from sleeping/locking while reading Quran
             try
             {
@@ -402,6 +391,7 @@ namespace hadis
         protected override void OnDisappearing()
         {
             base.OnDisappearing();
+            _isPageVisible = false;
             Shell.SetTabBarIsVisible(this, true);
 
             // Cancel any active background translation requests when navigating away

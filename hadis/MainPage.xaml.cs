@@ -20,21 +20,6 @@ namespace hadis
         private bool _isSwipeTransitionRunning;
         private DateTime _lastLoadedDate = DateTime.MinValue;
 
-        // Animasyon için frame array'i - her seferinde yeniden oluşturulmuyor (allocation optimize)
-        private Border[]? _allFrames;
-        private Border[]? _prayerFrames;
-
-        private Border[] AllFrames => _allFrames ??= new[]
-        {
-            MainCountdownFrame, ImsakFrame, GunesFrame, OgleFrame,
-            IkindiFrame, AksamFrame, YatsiFrame, AyetFrame
-        };
-
-        private Border[] PrayerFrames => _prayerFrames ??= new[]
-        {
-            ImsakFrame, GunesFrame, OgleFrame, IkindiFrame, AksamFrame, YatsiFrame
-        };
-
         public MainPage(MainPageViewModel viewModel, IServiceProvider serviceProvider)
         {
             InitializeComponent();
@@ -51,9 +36,85 @@ namespace hadis
 #endif
             // Konum hatasında şehir seçim sayfasına yönlendir
             _viewModel.NavigateToSehirSecim += OnNavigateToSehirSecim;
+            _viewModel.PropertyChanged += ViewModel_PropertyChanged;
             
             // Başlangıçta indicator kontrolü yapalım
             UpdatePageIndicator();
+        }
+
+        private int _lastHighlightedPrayerIndex = -2;
+
+        private void ViewModel_PropertyChanged(object? sender, System.ComponentModel.PropertyChangedEventArgs e)
+        {
+            if (e.PropertyName == nameof(MainPageViewModel.ActivePrayerIndex))
+            {
+                MainThread.BeginInvokeOnMainThread(() => UpdateActivePrayerCardHighlight());
+            }
+        }
+
+        private void UpdateActivePrayerCardHighlight(bool force = false)
+        {
+            int activeIndex = _viewModel.ActivePrayerIndex;
+            if (!force && activeIndex == _lastHighlightedPrayerIndex)
+                return;
+
+            _lastHighlightedPrayerIndex = activeIndex;
+
+            (Border Card, Label Title, Microsoft.Maui.Controls.Shapes.Ellipse Dot)[] cards =
+            [
+                (ImsakFrame, imsakyazı, ImsakDot),
+                (GunesFrame, gunesyazı, GunesDot),
+                (OgleFrame, ogleyazı, OgleDot),
+                (IkindiFrame, ikindiyazı, IkindiDot),
+                (AksamFrame, aksamyazı, AksamDot),
+                (YatsiFrame, yatsıyazı, YatsiDot)
+            ];
+
+            string savedTheme = Preferences.Default.Get(AppConstants.PREF_APP_THEME, AppConstants.THEME_SYSTEM);
+            bool isCustomTheme = savedTheme == AppConstants.THEME_CUSTOM;
+
+            for (int i = 0; i < cards.Length; i++)
+            {
+                bool isActive = i == activeIndex;
+                var (card, title, dot) = cards[i];
+
+                dot.IsVisible = isActive;
+                card.Scale = isActive ? 1.02 : 1.0;
+
+                if (isCustomTheme)
+                    continue;
+
+                if (isActive)
+                {
+                    card.Stroke = Color.FromArgb("#BF7DD3FC");
+                    card.Background = new LinearGradientBrush
+                    {
+                        StartPoint = new Point(0, 0),
+                        EndPoint = new Point(1, 1),
+                        GradientStops = new GradientStopCollection
+                        {
+                            new GradientStop(Color.FromArgb("#5938BDF8"), 0.0f),
+                            new GradientStop(Color.FromArgb("#660E7490"), 1.0f)
+                        }
+                    };
+                    title.TextColor = Color.FromArgb("#A5F3FC");
+                }
+                else
+                {
+                    card.Stroke = Color.FromArgb("#40FFFFFF");
+                    card.Background = new LinearGradientBrush
+                    {
+                        StartPoint = new Point(0, 0),
+                        EndPoint = new Point(1, 1),
+                        GradientStops = new GradientStopCollection
+                        {
+                            new GradientStop(Color.FromArgb("#1FFFFFFF"), 0.0f),
+                            new GradientStop(Color.FromArgb("#19FFFFFF"), 1.0f)
+                        }
+                    };
+                    title.TextColor = Colors.White;
+                }
+            }
         }
 
         private void OnNavigateToSehirSecim()
@@ -141,7 +202,6 @@ namespace hadis
                 {
                     System.Diagnostics.Debug.WriteLine("ℹ️ Konum ve gün değişmedi, veri yükleme atlandı.");
                     RefreshAdditionalCities();
-                    _ = AnimateFrames();
                     return;
                 }
 
@@ -168,7 +228,6 @@ namespace hadis
                 RefreshAdditionalCities();
 
                 // Animasyonları başlat
-                _ = AnimateFrames();
 
                 // Test süresince güncelleme uyarısını gösterme.
                 const bool updateCheckEnabled = false;
@@ -283,19 +342,6 @@ namespace hadis
         {
             base.OnDisappearing();
             Connectivity.ConnectivityChanged -= Connectivity_ConnectivityChanged;
-
-            try
-            {
-                // Tüm animasyonları iptal et (optimize edilmiş)
-                AnimationHelpers.CancelAllAnimations(AllFrames);
-
-                // Hızlı çıkış animasyonu (fire-and-forget, bloklama yok)
-                _ = AnimationHelpers.AnimateOutParallel(AllFrames);
-            }
-            catch (Exception ex)
-            {
-                System.Diagnostics.Debug.WriteLine($"OnDisappearing animasyon hatası: {ex.Message}");
-            }
         }
 
         private void Connectivity_ConnectivityChanged(object? sender, ConnectivityChangedEventArgs e)
@@ -341,6 +387,8 @@ namespace hadis
                     YatsiFrame, yatsıyazı, yatsıvakit,
                     AyetFrame, gununayeti);
             }
+
+            UpdateActivePrayerCardHighlight(force: true);
         }
 
         private void ApplyTheme()
@@ -358,6 +406,7 @@ namespace hadis
                     AksamFrame, aksamyazı, aksamvakit,
                     YatsiFrame, yatsıyazı, yatsıvakit,
                     AyetFrame, gununayeti);
+                UpdateActivePrayerCardHighlight(force: true);
                 return;
             }
 
@@ -387,38 +436,10 @@ namespace hadis
                     System.Diagnostics.Debug.WriteLine($"❌ Custom tema arkaplan hatası: {ex.Message}");
                 }
             }
+
+            UpdateActivePrayerCardHighlight(force: true);
         }
 
-        // ============================================================
-        // ANİMASYONLAR (UI element referansı gerektiren kod)
-        // ============================================================
-
-        private async Task AnimateFrames()
-        {
-            // Tüm animasyonları iptal et (optimize edilmiş)
-            AnimationHelpers.CancelAllAnimations(AllFrames);
-
-            // Başlangıç durumuna getir
-            AnimationHelpers.PrepareForAnimation(AllFrames);
-
-            // Ana countdown frame'i animasyonla göster
-            await MainCountdownFrame.AnimateIn(500, 600);
-
-            await Task.Delay(100);
-
-            // Namaz vakitlerini sırayla animasyonla göster
-            await AnimationHelpers.AnimateInSequential(80, PrayerFrames);
-
-            await Task.Delay(150);
-
-            // Ayet frame'i animasyonla göster
-            await AyetFrame.AnimateIn(500, 600);
-        }
-
-        private Task AnimateSingleFrame(Border border)
-        {
-            return border.AnimateIn();
-        }
 
         // ============================================================
         // EVENT HANDLERS (Navigation)

@@ -22,8 +22,6 @@ namespace hadis
         private Action? _onPermissionConfirm;
         
         // Animasyon i?in element array'i (allocation optimize)
-        private VisualElement[]? _kibleElements;
-        private VisualElement[] KibleElements => _kibleElements ??= new VisualElement[] { kibleoku, AciDegeri };
 
         public kible(StatusBarService statusBarService, TabBarService tabBarService, INativeCompassService nativeCompassService, IImageService imageService)
         {
@@ -223,42 +221,12 @@ namespace hadis
             });
         }
         
-        protected override async void OnNavigatedTo(NavigatedToEventArgs args)
-        {
-            base.OnNavigatedTo(args);
-            await AnimateKibleEntry();
-        }
-        
-        private async Task AnimateKibleEntry()
-        {
-            // Optimize edilmiş animasyon
-            AnimationHelpers.PrepareForAnimation(KibleElements);
-            
-            // Kıble oku önce
-            await kibleoku.AnimateIn(600, 800);
-            
-            // Açı değeri sonra
-            await AciDegeri.AnimateIn(400, 500);
-        }
-        
         protected override void OnDisappearing()
         {
             base.OnDisappearing();
             StopCompassLogic();
         }
         
-        protected override async void OnNavigatedFrom(NavigatedFromEventArgs args)
-        {
-            base.OnNavigatedFrom(args);
-            await AnimateKibleExit();
-        }
-        
-        private async Task AnimateKibleExit()
-        {
-            // Optimize edilmiş paralel çıkış animasyonu
-            await AnimationHelpers.AnimateOutParallel(KibleElements);
-        }
-
         public void KibleOkunuDondur(double gelenaci)
         {
             MainThread.BeginInvokeOnMainThread(() =>

@@ -8,7 +8,9 @@ namespace hadis
     public partial class AppShell : Shell
     {
         private readonly IServiceProvider _serviceProvider;
-        private bool _isTabTransitionRunning;
+        private int _lastTabIndex;
+        private VisualElement? _animatingContent;
+        private const string TabAnimation = "TabEntrance";
         
         public AppShell(IServiceProvider serviceProvider)
         {
@@ -26,14 +28,9 @@ namespace hadis
             _ = Task.Run(PrewarmServices);
         }
 
-        public async Task ChangeTabAsync(string targetTab)
+        public void ChangeTab(string targetTab)
         {
-            if (_isTabTransitionRunning || CurrentItem == null)
-            {
-                return;
-            }
-
-            var targetIndex = targetTab switch
+            int index = targetTab switch
             {
                 "Vakitler" => 0,
                 "Kutuphane" => 1,
@@ -43,65 +40,41 @@ namespace hadis
                 _ => -1
             };
 
-            if (targetIndex < 0 || targetIndex >= CurrentItem.Items.Count)
-            {
-                return;
-            }
-
-            var currentIndex = CurrentItem.Items.IndexOf(CurrentItem.CurrentItem);
-            if (currentIndex == targetIndex)
-            {
-                return;
-            }
-
-            _isTabTransitionRunning = true;
-
-            try
-            {
-                var direction = targetIndex > currentIndex ? 1 : -1;
-                var previousContent = (CurrentPage as ContentPage)?.Content as VisualElement;
-                var transitionWidth = GetTransitionWidth();
-
-                if (previousContent != null)
-                {
-                    previousContent.CancelAnimations();
-                    await Task.WhenAll(
-                        previousContent.FadeTo(0.92, 140, Easing.CubicIn),
-                        previousContent.TranslateTo(-direction * transitionWidth, 0, 180, Easing.CubicIn));
-                }
-
-                CurrentItem.CurrentItem = CurrentItem.Items[targetIndex];
-                await MainThread.InvokeOnMainThreadAsync(() => { });
-
-                var nextContent = (CurrentPage as ContentPage)?.Content as VisualElement;
-                if (nextContent == null)
-                {
-                    return;
-                }
-
-                nextContent.CancelAnimations();
-                nextContent.Opacity = 0.92;
-                nextContent.TranslationX = direction * transitionWidth;
-
-                await Task.WhenAll(
-                    nextContent.FadeTo(1, 240, Easing.CubicOut),
-                    nextContent.TranslateTo(0, 0, 280, Easing.CubicOut));
-            }
-            finally
-            {
-                _isTabTransitionRunning = false;
-            }
+            if (CurrentItem is { } tabs && index >= 0 && index < tabs.Items.Count)
+                tabs.CurrentItem = tabs.Items[index];
         }
 
-        private static double GetTransitionWidth()
+        protected override void OnNavigated(ShellNavigatedEventArgs args)
         {
-            var width = Shell.Current?.CurrentPage?.Width ?? 0;
-            if (width > 0)
-            {
-                return width;
-            }
+            base.OnNavigated(args);
+            if (CurrentItem is not { } tabs) return;
 
-            return DeviceDisplay.MainDisplayInfo.Width / DeviceDisplay.MainDisplayInfo.Density;
+            int index = tabs.Items.IndexOf(tabs.CurrentItem);
+            if (index < 0) return;
+            int direction = Math.Sign(index - _lastTabIndex);
+            _lastTabIndex = index;
+
+            _animatingContent?.AbortAnimation(TabAnimation);
+            _animatingContent = null;
+            if (direction == 0 || CurrentPage?.FindByName<VisualElement>("MainContentGrid") is not { } content)
+                return;
+
+            // Only the incoming content moves. Shell can accept another tap immediately.
+            double distance = direction * Math.Clamp(Width * 0.055, 16, 28);
+            _animatingContent = content;
+            content.TranslationX = distance;
+            content.Opacity = 0.82;
+            var entrance = new Animation(progress =>
+            {
+                content.TranslationX = distance * (1 - progress);
+                content.Opacity = 0.82 + 0.18 * progress;
+            });
+            entrance.Commit(content, TabAnimation, length: 200, easing: Easing.CubicOut,
+                finished: (_, _) =>
+                {
+                    content.TranslationX = 0;
+                    content.Opacity = 1;
+                });
         }
 
         protected override void OnHandlerChanged()

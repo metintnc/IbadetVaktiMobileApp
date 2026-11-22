@@ -63,12 +63,43 @@ namespace hadis.Tests
                 { "Yatsi", now.AddMinutes(-30) }
             };
 
-            // Act
+            var nextImsak = now.AddHours(8).AddMinutes(7);
+            times[PrayerTimeHelper.NextImsakKey] = nextImsak;
+
             var result = PrayerTimeHelper.GetNextPrayer(times);
 
-            // Assert
             Assert.Equal("İmsak Vaktine", result.DisplayName);
-            Assert.True(result.Remaining.TotalHours > 0);
+            Assert.InRange(result.Remaining, nextImsak - DateTime.Now, nextImsak - now);
+            Assert.Equal(now.AddHours(-14), times["Imsak"]);
+        }
+
+        [Fact]
+        public void AfterYatsiWithoutTomorrowDoesNotInventAnImsak()
+        {
+            var times = CreatePrayerTimes(DateTime.Today.AddDays(-1), 5, 7, 12, 15, 18, 20);
+            Assert.Equal(-1, PrayerTimeHelper.GetNextPrayer(times).Index);
+        }
+
+        [Theory]
+        [InlineData("03-11-2026", 3)]
+        [InlineData("19-11-2026", 19)]
+        public void CalendarParsesDayBeforeMonth(string raw, int day)
+        {
+            Assert.True(PrayerCalendarDate.TryParse(raw, 2026, 11, out var date));
+            Assert.Equal(new DateTime(2026, 11, day), date);
+        }
+
+        [Theory]
+        [InlineData("03-12-2026")]
+        [InlineData("31-11-2026")]
+        public void CalendarRejectsInvalidDatesForRequestedMonth(string raw) =>
+            Assert.False(PrayerCalendarDate.TryParse(raw, 2026, 11, out _));
+
+        [Fact]
+        public void LegacyReadableDateRecoversOriginalCalendarDay()
+        {
+            Assert.True(PrayerCalendarDate.TryReadOriginalDate("03 Nov 2026", out var date));
+            Assert.Equal(new DateTime(2026, 11, 3), date);
         }
 
         [Fact]

@@ -1,3 +1,4 @@
+using hadis.Helpers;
 using hadis.Models;
 using System.Globalization;
 using System.Net.Http.Json;
@@ -7,8 +8,7 @@ using System.Text.RegularExpressions;
 namespace hadis.Services
 {
     /// <summary>
-    /// Namaz vakitlerini Azure API'den çekip önbelekleyen servis.
-    /// Sadece Azure API kullanır - Aladhan fallback kaldırıldı.
+    /// Namaz vakitlerini konuma ve tarihe göre yükler ve çevrimdışı kullanım için saklar.
     /// </summary>
     public class PrayerTimesService
     {
@@ -75,6 +75,9 @@ namespace hadis.Services
                 System.Diagnostics.Debug.WriteLine($"✅ Cache hit: {date:yyyy-MM-dd}");
                 return cachedData;
             }
+
+            if (Connectivity.NetworkAccess == NetworkAccess.None)
+                return await TryOfflineFallbackAsync(sehir, ilce, date);
 
             // 2. Koordinatlar mevcutsa aylık takvim kaynağından çek
             if (HasValidCoordinates(lat, lon))
@@ -205,6 +208,24 @@ namespace hadis.Services
         // Cache I/O
         // ================================================================
 
+        private static bool MatchesDate(DailyNamazVakitleri day, DateTime date) =>
+            PrayerCalendarDate.TryReadOriginalDate(day.GregorianDateLong, out var original)
+                ? original == date.Date
+                : day.Tarih == date.ToString("yyyy-MM-dd", CultureInfo.InvariantCulture);
+
+        public async Task<Dictionary<string, DateTime>?> GetCountdownTimesAsync(
+            DateTime date, string ilce, string sehir, string ulke = "Türkiye", double? lat = null, double? lon = null)
+        {
+            var today = await GetPrayerTimesForDateAsync(date, ilce, sehir, ulke, lat, lon);
+            if (today == null) return null;
+
+            var tomorrow = await GetPrayerTimesForDateAsync(date.Date.AddDays(1), ilce, sehir, ulke, lat, lon);
+            if (tomorrow != null && tomorrow.TryGetValue("Imsak", out var imsak) && imsak.Date == date.Date.AddDays(1))
+                today[PrayerTimeHelper.NextImsakKey] = imsak;
+
+            return today;
+        }
+
         private string GetCacheFilePath(string sehir, string ilce, DateTime date)
         {
             var s = sehir?.Replace(" ", "").ToLowerInvariant() ?? "";
@@ -236,7 +257,7 @@ namespace hadis.Services
                 string json = await File.ReadAllTextAsync(filePath);
                 var cachedVakitler = JsonSerializer.Deserialize<DailyNamazVakitleri>(json);
                 
-                if (cachedVakitler != null && cachedVakitler.Tarih == date.ToString("yyyy-MM-dd"))
+                if (cachedVakitler != null && MatchesDate(cachedVakitler, date))
                 {
                     return ConvertToDateTimeDictionary(cachedVakitler, date);
                 }
@@ -330,17 +351,15 @@ namespace hadis.Services
 
                 var result = new List<(DateTime Date, DailyNamazVakitleri Vakitler)>();
 
-                for (int index = 0; index < monthData.Count; index++)
+                foreach (var day in monthData)
                 {
-                    var day = monthData[index];
                     if (day?.Timings == null)
                         continue;
 
-                    var dayDate = ResolveCalendarDate(day, date.Year, date.Month, index);
-                    if (dayDate == null)
+                    if (!PrayerCalendarDate.TryParse(day.Date?.Gregorian?.Date, date.Year, date.Month, out var dayDate))
                         continue;
 
-                    result.Add((dayDate.Value, new DailyNamazVakitleri
+                    result.Add((dayDate, new DailyNamazVakitleri
                     {
                         Imsak = NormalizeCalendarTime(day.Timings.Fajr),
                         Gunes = NormalizeCalendarTime(day.Timings.Sunrise),
@@ -348,9 +367,9 @@ namespace hadis.Services
                         Ikindi = NormalizeCalendarTime(day.Timings.Asr),
                         Aksam = NormalizeCalendarTime(day.Timings.Maghrib),
                         Yatsi = NormalizeCalendarTime(day.Timings.Isha),
-                        GregorianDateShort = ParseGregorianShortDate(day.Date?.Gregorian?.Date) ?? dayDate.Value.ToString("dd.MM.yyyy"),
-                        GregorianDateLong = day.Date?.Readable ?? dayDate.Value.ToString("dd.MM.yyyy"),
-                        GregorianDateIso = ParseGregorianIsoDate(day.Date?.Gregorian?.Date) ?? dayDate.Value.ToString("yyyy-MM-dd"),
+                        GregorianDateShort = dayDate.ToString("dd.MM.yyyy", CultureInfo.InvariantCulture),
+                        GregorianDateLong = day.Date?.Readable ?? dayDate.ToString("dd.MM.yyyy"),
+                        GregorianDateIso = dayDate.ToString("yyyy-MM-dd", CultureInfo.InvariantCulture),
                         HijriDateShort = string.Empty,
                         HijriDateLong = string.Empty,
                         QiblaTime = string.Empty,
@@ -369,22 +388,6 @@ namespace hadis.Services
             }
         }
 
-        private static DateTime? ResolveCalendarDate(CalendarData day, int year, int month, int index)
-        {
-            var rawDate = day?.Date?.Gregorian?.Date;
-            if (!string.IsNullOrWhiteSpace(rawDate) && DateTime.TryParse(rawDate, CultureInfo.InvariantCulture, DateTimeStyles.None, out var parsedDate))
-                return parsedDate.Date;
-
-            try
-            {
-                return new DateTime(year, month, index + 1);
-            }
-            catch
-            {
-                return null;
-            }
-        }
-
         private static string NormalizeCalendarTime(string? value)
         {
             if (string.IsNullOrWhiteSpace(value))
@@ -392,28 +395,6 @@ namespace hadis.Services
 
             var match = Regex.Match(value, @"\d{1,2}:\d{2}");
             return match.Success ? match.Value : value.Trim();
-        }
-
-        private static string? ParseGregorianIsoDate(string? value)
-        {
-            if (string.IsNullOrWhiteSpace(value))
-                return null;
-
-            if (DateTime.TryParse(value, CultureInfo.InvariantCulture, DateTimeStyles.None, out var parsed))
-                return parsed.ToString("yyyy-MM-dd");
-
-            return null;
-        }
-
-        private static string? ParseGregorianShortDate(string? value)
-        {
-            if (string.IsNullOrWhiteSpace(value))
-                return null;
-
-            if (DateTime.TryParse(value, CultureInfo.InvariantCulture, DateTimeStyles.None, out var parsed))
-                return parsed.ToString("dd.MM.yyyy");
-
-            return null;
         }
 
         // ================================================================
@@ -439,7 +420,7 @@ namespace hadis.Services
                         string json = await File.ReadAllTextAsync(file);
                         var vakitler = JsonSerializer.Deserialize<DailyNamazVakitleri>(json);
                         
-                        if (vakitler != null && vakitler.Tarih == date.ToString("yyyy-MM-dd"))
+                        if (vakitler != null && MatchesDate(vakitler, date))
                         {
                             System.Diagnostics.Debug.WriteLine($"✅ Offline cache'te tarih bulundu: {file}");
                             return ConvertToDateTimeDictionary(vakitler, date);

@@ -9,7 +9,7 @@
 
     <VerticalStackLayout HorizontalOptions="FillAndExpand"
                          VerticalOptions="End"
-                         Spacing="4">
+                         Spacing="0">
 
         <!-- TabBar Üstündeki İnce AdMob Reklam Banner'ı -->
         <admob:MTAdView x:Name="BannerAd"
@@ -19,31 +19,28 @@
                         HorizontalOptions="Center"
                         VerticalOptions="End" />
 
-        <!-- Yüzen Kapsül/Dock Tasarımı -->
-        <Border StrokeShape="RoundRectangle 26"
-                StrokeThickness="1"
-                Margin="16, 0, 16, 12"
-                HeightRequest="68"
+        <!-- Alt Navigasyon Çubuğu (glass-nav) -->
+        <Border StrokeShape="RoundRectangle 0"
+                StrokeThickness="0"
+                Margin="0"
+                HeightRequest="66"
                 HorizontalOptions="FillAndExpand"
-                VerticalOptions="Center">
-            
-            <Border.Stroke>
-                <Color>#25FFFFFF</Color>
-            </Border.Stroke>
-            
+                VerticalOptions="End">
+
             <Border.Background>
-                <Color>#E6151515</Color>
+                <Color>#D90B132B</Color>
             </Border.Background>
 
-            <Border.Shadow>
-                <Shadow Brush="Black"
-                        Offset="0,4"
-                        Radius="12"
-                        Opacity="0.25" />
-            </Border.Shadow>
+            <Grid RowDefinitions="1,*">
+                <!-- İnce üst ayırıcı çizgi -->
+                <BoxView Grid.Row="0"
+                         HeightRequest="1"
+                         Color="#1FFFFFFF"
+                         HorizontalOptions="FillAndExpand" />
 
-            <Grid ColumnDefinitions="*,*,*,*,*"
-                  Padding="10, 2">
+                <Grid Grid.Row="1"
+                      ColumnDefinitions="*,*,*,*,*"
+                      Padding="12,4,12,6">
 
                 <!-- 1. Vakitler Sekmesi -->
                 <Grid Grid.Column="0" x:Name="TabVakitler" BackgroundColor="Transparent" Padding="0, 4">
@@ -156,6 +153,7 @@
                     </VerticalStackLayout>
                 </Grid>
 
+            </Grid>
             </Grid>
         </Border>
     </VerticalStackLayout>

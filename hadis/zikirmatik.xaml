@@ -26,7 +26,7 @@
             </BoxView.Opacity>
         </BoxView>
 
-        <Grid RowDefinitions="Auto,*,Auto" Padding="20,20,20,85">
+        <Grid x:Name="MainContentGrid" RowDefinitions="Auto,*,Auto" Padding="20,20,20,85">
             
             <!-- Header -->
             <Border Grid.Row="0"

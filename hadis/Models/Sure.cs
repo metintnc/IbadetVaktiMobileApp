@@ -9,5 +9,10 @@ namespace hadis.Models
         public string Inis { get; set; }
         public int BaslangicSayfasi { get; set; }
         public bool IsFavorite { get; set; }
+
+        public string InisKisa => Inis == "Mekke" ? "Mekkî" : (Inis == "Medine" ? "Medenî" : Inis);
+        public string AltBaslik => $"{InisKisa} • {AyetSayisi} Ayet";
+        public bool IsFeatured => SureNo == 36;
+        public bool IsNotFeatured => SureNo != 36;
     }
 }

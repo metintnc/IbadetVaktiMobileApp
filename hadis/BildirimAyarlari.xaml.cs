@@ -115,7 +115,7 @@ namespace hadis
                 }
 
                 // BugÃ¼nÃ¼n vakitlerini al
-                var vakitler = await _prayerTimesService.GetPrayerTimesForDateAsync(DateTime.Now, ilce, sehir);
+                var vakitler = await _prayerTimesService.GetCountdownTimesAsync(DateTime.Today, ilce, sehir);
                 
                 if (vakitler != null)
                 {
@@ -171,7 +171,7 @@ namespace hadis
 
                     if (!string.IsNullOrEmpty(sehir) && !string.IsNullOrEmpty(ilce))
                     {
-                        var vakitler = await _prayerTimesService.GetPrayerTimesForDateAsync(DateTime.Now, ilce, sehir);
+                        var vakitler = await _prayerTimesService.GetCountdownTimesAsync(DateTime.Today, ilce, sehir);
                         
                         if (vakitler != null)
                         {

@@ -16,6 +16,9 @@ namespace hadis.ViewModels
         private readonly PrayerTimesService _prayerTimesService;
         private readonly IDispatcherTimer _timer;
         private Dictionary<string, DateTime>? _namazVakitleri;
+        private (string City, string District, string Country, double? Lat, double? Lon, bool Primary) _displayedLocation;
+        private DateTime _nextRefreshAttempt;
+        private bool _refreshingDay;
         private bool _prefetchDone;
         private bool _disposed;
 
@@ -94,6 +97,9 @@ namespace hadis.ViewModels
 
         [ObservableProperty]
         private Color _yatsiVakitColor = Colors.White;
+
+        [ObservableProperty]
+        private int _activePrayerIndex = -1;
 
         // DÄ±ÅŸ eriÅŸim: BackgroundService ve ThemeService
         public BackgroundService BackgroundService => _backgroundService;
@@ -705,10 +711,11 @@ namespace hadis.ViewModels
 
                 System.Diagnostics.Debug.WriteLine($"📞 GetPrayerTimesForDateAsync çağrılıyor: {sehir}/{ilce}");
                 string manuelUlke = Preferences.Default.Get("ManuelUlke", "Türkiye");
-                var vakitler = await _prayerTimesService.GetPrayerTimesForDateAsync(DateTime.Now, ilce, sehir, manuelUlke, latitude, longitude);
+                var vakitler = await _prayerTimesService.GetCountdownTimesAsync(DateTime.Today, ilce, sehir, manuelUlke, latitude, longitude);
 
                 if (vakitler != null)
                 {
+                    _displayedLocation = (sehir, ilce, manuelUlke, latitude, longitude, true);
                     _namazVakitleri = vakitler;
                     IsInternetErrorVisible = false;
                     IsLocationErrorVisible = false;
@@ -794,20 +801,46 @@ namespace hadis.ViewModels
 
                 var result = PrayerTimeHelper.GetNextPrayer(_namazVakitleri);
 
-                if (result.Key == "Imsak" && result.DisplayName == "İmsak Vaktine" &&
-                    _namazVakitleri["Imsak"] <= DateTime.Now)
-                {
-                    _namazVakitleri["Imsak"] = _namazVakitleri["Imsak"].AddDays(1);
-                }
+                if ((_namazVakitleri["Imsak"].Date != DateTime.Today || result.Index < 0)
+                    && !_refreshingDay && DateTime.Now >= _nextRefreshAttempt)
+                    _ = RefreshDisplayedDayAsync(_namazVakitleri);
 
                 NamazIsmi = result.DisplayName;
-                KalanSure = PrayerTimeHelper.FormatCountdown(result.Remaining);
+                KalanSure = result.Index < 0 ? "—" : PrayerTimeHelper.FormatCountdown(result.Remaining);
+                ActivePrayerIndex = result.Index;
 
                 UpdatePrayerTimeColors(result.Index);
             }
             catch (Exception ex)
             {
                 System.Diagnostics.Debug.WriteLine($"? Geri sayÄ±m gÃ¼ncelleme hatasÄ±: {ex.Message}");
+            }
+        }
+
+        private async Task RefreshDisplayedDayAsync(Dictionary<string, DateTime> previous)
+        {
+            _refreshingDay = true;
+            _nextRefreshAttempt = DateTime.Now.AddMinutes(1);
+            try
+            {
+                var place = _displayedLocation;
+                var times = await _prayerTimesService.GetCountdownTimesAsync(DateTime.Today,
+                    place.District, place.City, place.Country, place.Lat, place.Lon);
+                if (times == null || !ReferenceEquals(previous, _namazVakitleri)) return;
+
+                _namazVakitleri = times;
+                HicriTarih = PrayerTimeHelper.GetHicriTarih();
+                UpdateAllPrayerTimes();
+                UpdateCountdown();
+                if (place.Primary) PersistentNotificationUpdater.UpdatePrayerTimes(times);
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine($"Vakitler yenilenemedi: {ex.Message}");
+            }
+            finally
+            {
+                _refreshingDay = false;
             }
         }
 
@@ -837,6 +870,7 @@ namespace hadis.ViewModels
 
         private void ResetPrayerTimes()
         {
+            ActivePrayerIndex = -1;
             KalanSure = "- -";
             NamazIsmi = "";
             ImsakVakit = "- -";
@@ -908,6 +942,8 @@ namespace hadis.ViewModels
 
         public void ShowAddCityPlaceholder()
         {
+            _namazVakitleri = null;
+            ActivePrayerIndex = -1;
             NamazIsmi = "Şehir Ekle";
             KalanSure = "+";
             ImsakVakit = "+";
@@ -932,12 +968,13 @@ namespace hadis.ViewModels
         {
             try
             {
-                var vakitler = await _prayerTimesService.GetPrayerTimesForDateAsync(DateTime.Now, ilce, sehir, ulke, latitude, longitude);
+                var vakitler = await _prayerTimesService.GetCountdownTimesAsync(DateTime.Today, ilce, sehir, ulke, latitude, longitude);
                 if (vakitler == null)
                 {
                     return false;
                 }
 
+                _displayedLocation = (sehir, ilce, ulke, latitude, longitude, false);
                 _namazVakitleri = vakitler;
                 KonumText = string.IsNullOrWhiteSpace(ilce) || ilce.Equals(sehir, StringComparison.OrdinalIgnoreCase)
                     ? sehir

@@ -48,8 +48,6 @@ namespace hadis
                 RestorePersistedState();
             }
 
-            // Giriş animasyonunu başlat
-            _ = AnimateZikirEntry();
         }
 
         private void RestorePersistedState()
@@ -127,25 +125,6 @@ namespace hadis
             }
         }
         
-        private async Task AnimateZikirEntry()
-        {
-            zikirbutton.Opacity = 0;
-            zikirbutton.Scale = 0.5;
-            await Task.WhenAll(
-                zikirbutton.FadeTo(1, 500, Easing.CubicOut),
-                zikirbutton.ScaleTo(1.0, 600, Easing.SpringOut)
-            );
-        }
-        
-        protected override async void OnNavigatedFrom(NavigatedFromEventArgs args)
-        {
-            base.OnNavigatedFrom(args);
-            await Task.WhenAll(
-                zikirbutton.FadeTo(0, 300, Easing.CubicIn),
-                zikirbutton.ScaleTo(0.5, 400, Easing.CubicIn)
-            );
-        }
-
         private Dictionary<string, Dictionary<string, int>> LoadZikirHistory()
         {
             var json = Preferences.Default.Get(ZikirHistoryKey, string.Empty);

@@ -2,10 +2,13 @@
 <ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              xmlns:models="clr-namespace:hadis.Models"
+             xmlns:local="clr-namespace:hadis"
              x:Class="hadis.Kuran"
+             Shell.NavBarIsVisible="False"
              Title="Kur'an">
-    
+
     <Grid>
+        <!-- Arka Plan Görseli -->
         <Image x:Name="BackgroundImage"
                Aspect="AspectFill"
                HorizontalOptions="FillAndExpand"
@@ -14,306 +17,764 @@
                 <AppThemeBinding Light="kuran_light.webp" Dark="kuranarkaplan.webp" />
             </Image.Source>
         </Image>
-        
+
+        <!-- Atmosferik Sky -> Slate Gradient Overlay (Cam efektli kartlar için yüksek kontrast) -->
         <BoxView HorizontalOptions="FillAndExpand"
                  VerticalOptions="FillAndExpand">
-            <BoxView.Color>
-                <AppThemeBinding Light="White" Dark="Black" />
-            </BoxView.Color>
-            <BoxView.Opacity>
-                <AppThemeBinding Light="0" Dark="0.45" />
-            </BoxView.Opacity>
+            <BoxView.Background>
+                <LinearGradientBrush StartPoint="0,0" EndPoint="0,1">
+                    <GradientStop Color="#990369A1" Offset="0.0" />
+                    <GradientStop Color="#730C4A6E" Offset="0.45" />
+                    <GradientStop Color="#EB020617" Offset="1.0" />
+                </LinearGradientBrush>
+            </BoxView.Background>
         </BoxView>
-        
-        <Grid x:Name="MainContentGrid" RowDefinitions="Auto,Auto,Auto,*" Padding="20" RowSpacing="20">
-            
-            <!-- Header -->
-            <Grid Grid.Row="0" ColumnDefinitions="Auto,*,Auto" Margin="0,10,0,0">
-                <Label Grid.Column="0" WidthRequest="40" />
-                <Label Grid.Column="1"
-                       Text="Kur'an-ı Kerim"
-                       FontSize="36"
-                       FontAttributes="Bold"
-                       HorizontalOptions="Center"
-                       VerticalOptions="Center"
-                       TextColor="{AppThemeBinding Light=#00796B, Dark=#FFFFFF}"/>
-                <Label Grid.Column="2"
-                       Text="⚙️"
-                       FontSize="26"
-                       VerticalOptions="Center"
-                       HorizontalOptions="End"
-                       Margin="0,0,5,0">
-                    <Label.GestureRecognizers>
-                        <TapGestureRecognizer Tapped="MealAyarlar_Clicked"/>
-                    </Label.GestureRecognizers>
-                </Label>
-            </Grid>
 
-            <!-- Son Okunan - Sabit -->
+        <!-- Ana İçerik -->
+        <Grid x:Name="MainContentGrid"
+              RowDefinitions="Auto,Auto,Auto,Auto,*"
+              Padding="16,14,16,0"
+              RowSpacing="12">
+
+            <!-- 1. Üst Başlık ve Arama Çubuğu -->
+            <VerticalStackLayout Grid.Row="0" Spacing="12" Margin="0,6,0,0">
+                <Grid ColumnDefinitions="*,Auto,Auto" ColumnSpacing="8">
+                    <Label Grid.Column="0"
+                           Text="Kur'an-ı Kerim"
+                           FontSize="24"
+                           FontAttributes="Bold"
+                           TextColor="White"
+                           VerticalOptions="Center" />
+
+                    <!-- Kayıtlı Ayetler Butonu -->
+                    <Border Grid.Column="1"
+                            WidthRequest="38"
+                            HeightRequest="38"
+                            StrokeShape="RoundRectangle 19"
+                            BackgroundColor="#29FFFFFF"
+                            Stroke="#47FFFFFF"
+                            StrokeThickness="1">
+                        <Border.GestureRecognizers>
+                            <TapGestureRecognizer Tapped="KaydedilenlerButonu_Clicked" />
+                        </Border.GestureRecognizers>
+                        <Image Source="kaydet_white.svg"
+                               WidthRequest="17"
+                               HeightRequest="17"
+                               HorizontalOptions="Center"
+                               VerticalOptions="Center" />
+                    </Border>
+
+                    <!-- Meal Ayarları Butonu -->
+                    <Border Grid.Column="2"
+                            WidthRequest="38"
+                            HeightRequest="38"
+                            StrokeShape="RoundRectangle 19"
+                            BackgroundColor="#29FFFFFF"
+                            Stroke="#47FFFFFF"
+                            StrokeThickness="1">
+                        <Border.GestureRecognizers>
+                            <TapGestureRecognizer Tapped="MealAyarlar_Clicked" />
+                        </Border.GestureRecognizers>
+                        <Label Text="⚙"
+                               FontSize="18"
+                               TextColor="White"
+                               HorizontalOptions="Center"
+                               VerticalOptions="Center" />
+                    </Border>
+                </Grid>
+
+                <!-- Frosted Search Bar -->
+                <Border StrokeShape="RoundRectangle 14"
+                        BackgroundColor="#26FFFFFF"
+                        Stroke="#4DFFFFFF"
+                        StrokeThickness="1"
+                        Padding="12,0"
+                        HeightRequest="44">
+                    <Grid ColumnDefinitions="Auto,*,Auto" ColumnSpacing="10">
+                        <Path Grid.Column="0"
+                              Data="M15.5,14 H14.71 L14.43,13.73 A6.5,6.5 0 1 0 13.73,14.43 L14,14.71 V15.5 L19,20.49 L20.49,19 L15.5,14 Z M9.5,14 A4.5,4.5 0 1 1 14,9.5 A4.5,4.5 0 0 1 9.5,14 Z"
+                              Fill="#B3FFFFFF"
+                              WidthRequest="18"
+                              HeightRequest="18"
+                              Aspect="Uniform"
+                              VerticalOptions="Center" />
+
+                        <Entry Grid.Column="1"
+                               x:Name="SearchEntry"
+                               Placeholder="Sure, cüz veya iniş ara..."
+                               PlaceholderColor="#B3FFFFFF"
+                               TextColor="White"
+                               FontSize="14"
+                               BackgroundColor="Transparent"
+                               ClearButtonVisibility="WhileEditing"
+                               TextChanged="SearchEntry_TextChanged"
+                               VerticalOptions="Center" />
+                    </Grid>
+                </Border>
+            </VerticalStackLayout>
+
+            <!-- 2. Hero Card: Son Okunan (Kaldığım Yer) -->
             <Border Grid.Row="1"
-                   x:Name="SonOkunanFrame"
-                   StrokeShape="RoundRectangle 20"
-                   Padding="20"
-                   Stroke="{AppThemeBinding Light=#80009688, Dark=#80FFFFFF}"
-                   BackgroundColor="{AppThemeBinding Light=#22FFFFFF, Dark=#33000000}"
-                   IsVisible="False">
+                    x:Name="SonOkunanFrame"
+                    StrokeShape="RoundRectangle 18"
+                    Padding="14"
+                    Stroke="#4DFFFFFF"
+                    StrokeThickness="1"
+                    BackgroundColor="#26FFFFFF">
                 <Border.GestureRecognizers>
-                    <TapGestureRecognizer Tapped="OkumayaDevamEt_Clicked"/>
+                    <TapGestureRecognizer Tapped="OkumayaDevamEt_Clicked" />
                 </Border.GestureRecognizers>
-                <VerticalStackLayout Spacing="15">
-                    <Label Text="Son Okunan"
-                           FontSize="20"
-                           FontAttributes="Bold"
-                           HorizontalOptions="Center"
-                           TextColor="{AppThemeBinding Light=#00796B, Dark=#FFFFFF}"/>
-                    
-                    <Label x:Name="SonOkunanSureLabel"
-                           Text="Bakara Sûresi"
-                           FontSize="16"
-                           FontAttributes="Bold"
-                           TextColor="{AppThemeBinding Light=#212121, Dark=#FFFFFF}"/>
-                    
-                    <HorizontalStackLayout>
-                        <Label x:Name="SonOkunanAyetLabel"
-                               Text="Ayet 1"
-                               FontSize="14"
-                               TextColor="{AppThemeBinding Light=#757575, Dark=#BDBDBD}"
-                               HorizontalOptions="StartAndExpand"/>
-                        <BoxView WidthRequest="12" Opacity="0"/>
-                        <Label x:Name="SonOkunanAyetYuzdeLabel"
-                               Text="."
-                               FontSize="14"
-                               TextColor="{AppThemeBinding Light=#00796B, Dark=#81C784}"
-                               HorizontalOptions="End"/>
-                    </HorizontalStackLayout>
+                <VerticalStackLayout Spacing="12">
+                    <Grid ColumnDefinitions="*,Auto">
+                        <VerticalStackLayout Grid.Column="0" Spacing="4">
+                            <!-- SON OKUNAN Rozeti -->
+                            <Border StrokeShape="RoundRectangle 12"
+                                    BackgroundColor="#4D0EA5E9"
+                                    Stroke="#667DD3FC"
+                                    StrokeThickness="1"
+                                    Padding="9,3"
+                                    HorizontalOptions="Start">
+                                <HorizontalStackLayout Spacing="6" VerticalOptions="Center">
+                                    <Ellipse WidthRequest="6"
+                                             HeightRequest="6"
+                                             Fill="#67E8F9"
+                                             VerticalOptions="Center" />
+                                    <Label Text="SON OKUNAN"
+                                           FontSize="10"
+                                           FontAttributes="Bold"
+                                           CharacterSpacing="0.8"
+                                           TextColor="#CFFAFE"
+                                           VerticalOptions="Center" />
+                                </HorizontalStackLayout>
+                            </Border>
+
+                            <Label x:Name="SonOkunanSureLabel"
+                                   Text="Fâtiha Suresi"
+                                   FontSize="19"
+                                   FontAttributes="Bold"
+                                   TextColor="White" />
+
+                            <Label x:Name="SonOkunanAyetLabel"
+                                   Text="1. Ayet • 1. Cüz, Sayfa 1"
+                                   FontSize="12"
+                                   TextColor="#CCF8FAFC" />
+                        </VerticalStackLayout>
+
+                        <VerticalStackLayout Grid.Column="1"
+                                             HorizontalOptions="End"
+                                             VerticalOptions="Start"
+                                             Spacing="4">
+                            <Label x:Name="SonOkunanArapcaLabel"
+                                   Text="الفاتحة"
+                                   FontFamily="ArabicFontFamily"
+                                   FontSize="24"
+                                   FontAttributes="Bold"
+                                   TextColor="#E0F2FE"
+                                   HorizontalOptions="End" />
+                            <Border StrokeShape="RoundRectangle 6"
+                                    BackgroundColor="#38000000"
+                                    StrokeThickness="0"
+                                    Padding="8,2"
+                                    HorizontalOptions="End">
+                                <Label x:Name="SonOkunanInisLabel"
+                                       Text="Mekkî"
+                                       FontSize="10"
+                                       TextColor="#CCFFFFFF" />
+                            </Border>
+                        </VerticalStackLayout>
+                    </Grid>
+
+                    <BoxView HeightRequest="1" Color="#26FFFFFF" />
+
+                    <Grid ColumnDefinitions="*,Auto">
+                        <HorizontalStackLayout Grid.Column="0" Spacing="7" VerticalOptions="Center">
+                            <Label Text="📖" FontSize="14" VerticalOptions="Center" />
+                            <Label x:Name="SonOkunanYuzdeLabel"
+                                   Text="Kaldığın yerden devam et"
+                                   FontSize="12"
+                                   TextColor="#CCFFFFFF"
+                                   VerticalOptions="Center" />
+                        </HorizontalStackLayout>
+
+                        <Border Grid.Column="1"
+                                StrokeShape="RoundRectangle 12"
+                                BackgroundColor="#22D3EE"
+                                StrokeThickness="0"
+                                Padding="14,7">
+                            <Border.GestureRecognizers>
+                                <TapGestureRecognizer Tapped="OkumayaDevamEt_Clicked" />
+                            </Border.GestureRecognizers>
+                            <HorizontalStackLayout Spacing="4" VerticalOptions="Center">
+                                <Label Text="Devam Et"
+                                       FontSize="12"
+                                       FontAttributes="Bold"
+                                       TextColor="#082F49"
+                                       VerticalOptions="Center" />
+                                <Label Text="›"
+                                       FontSize="15"
+                                       FontAttributes="Bold"
+                                       TextColor="#082F49"
+                                       VerticalOptions="Center" />
+                            </HorizontalStackLayout>
+                        </Border>
+                    </Grid>
                 </VerticalStackLayout>
             </Border>
 
-            <!-- Kaydedilenler Butonu -->
-            <Border Grid.Row="2"
-                   StrokeShape="RoundRectangle 15"
-                   Padding="15"
-                   Margin="0,0,0,0"
-                   Stroke="{AppThemeBinding Light=#80009688, Dark=#80FFFFFF}"
-                   BackgroundColor="{AppThemeBinding Light=#22FFFFFF, Dark=#33000000}">
-                <Border.GestureRecognizers>
-                    <TapGestureRecognizer Tapped="KaydedilenlerButonu_Clicked"/>
-                </Border.GestureRecognizers>
-                <Grid ColumnDefinitions="*, Auto">
+            <!-- 3. Sık Okunan Sureler (Quick Pills) -->
+            <VerticalStackLayout Grid.Row="2" Spacing="6">
+                <Grid ColumnDefinitions="*,Auto" Padding="2,0">
                     <Label Grid.Column="0"
-                           Text="Kaydedilen Ayetlerim"
-                           FontSize="18"
+                           Text="Sık Okunan Sureler"
+                           FontSize="12"
                            FontAttributes="Bold"
-                           VerticalOptions="Center"
-                           TextColor="{AppThemeBinding Light=#00796B, Dark=#FFFFFF}"/>
-                    <Image Grid.Column="1"
-                           Source="gerigit.svg"
-                           Rotation="180"
-                           HeightRequest="24"
-                           WidthRequest="24"
-                           VerticalOptions="Center" />
-               </Grid>
+                           TextColor="#E6FFFFFF" />
+                    <Label Grid.Column="1"
+                           Text="Tümü"
+                           FontSize="11"
+                           TextColor="#A5F3FC">
+                        <Label.GestureRecognizers>
+                            <TapGestureRecognizer Tapped="QuickAll_Clicked" />
+                        </Label.GestureRecognizers>
+                    </Label>
+                </Grid>
+
+                <ScrollView Orientation="Horizontal" HorizontalScrollBarVisibility="Never">
+                    <HorizontalStackLayout Spacing="8">
+                        <Border StrokeShape="RoundRectangle 16" BackgroundColor="#33FFFFFF" Stroke="#4DFFFFFF" StrokeThickness="1" Padding="14,6">
+                            <Border.GestureRecognizers><TapGestureRecognizer Tapped="QuickSure_Clicked" CommandParameter="36" /></Border.GestureRecognizers>
+                            <Label Text="Yâsîn" FontSize="12" FontAttributes="Bold" TextColor="White" />
+                        </Border>
+                        <Border StrokeShape="RoundRectangle 16" BackgroundColor="#26FFFFFF" Stroke="#33FFFFFF" StrokeThickness="1" Padding="14,6">
+                            <Border.GestureRecognizers><TapGestureRecognizer Tapped="QuickSure_Clicked" CommandParameter="67" /></Border.GestureRecognizers>
+                            <Label Text="Mülk" FontSize="12" TextColor="#E6FFFFFF" />
+                        </Border>
+                        <Border StrokeShape="RoundRectangle 16" BackgroundColor="#26FFFFFF" Stroke="#33FFFFFF" StrokeThickness="1" Padding="14,6">
+                            <Border.GestureRecognizers><TapGestureRecognizer Tapped="QuickSure_Clicked" CommandParameter="78" /></Border.GestureRecognizers>
+                            <Label Text="Nebe" FontSize="12" TextColor="#E6FFFFFF" />
+                        </Border>
+                        <Border StrokeShape="RoundRectangle 16" BackgroundColor="#26FFFFFF" Stroke="#33FFFFFF" StrokeThickness="1" Padding="14,6">
+                            <Border.GestureRecognizers><TapGestureRecognizer Tapped="QuickSure_Clicked" CommandParameter="48" /></Border.GestureRecognizers>
+                            <Label Text="Fetih" FontSize="12" TextColor="#E6FFFFFF" />
+                        </Border>
+                        <Border StrokeShape="RoundRectangle 16" BackgroundColor="#26FFFFFF" Stroke="#33FFFFFF" StrokeThickness="1" Padding="14,6">
+                            <Border.GestureRecognizers><TapGestureRecognizer Tapped="QuickSure_Clicked" CommandParameter="55" /></Border.GestureRecognizers>
+                            <Label Text="Rahmân" FontSize="12" TextColor="#E6FFFFFF" />
+                        </Border>
+                        <Border StrokeShape="RoundRectangle 16" BackgroundColor="#26FFFFFF" Stroke="#33FFFFFF" StrokeThickness="1" Padding="14,6">
+                            <Border.GestureRecognizers><TapGestureRecognizer Tapped="QuickSure_Clicked" CommandParameter="56" /></Border.GestureRecognizers>
+                            <Label Text="Vâkıa" FontSize="12" TextColor="#E6FFFFFF" />
+                        </Border>
+                        <Border StrokeShape="RoundRectangle 16" BackgroundColor="#26FFFFFF" Stroke="#33FFFFFF" StrokeThickness="1" Padding="14,6">
+                            <Border.GestureRecognizers><TapGestureRecognizer Tapped="QuickSure_Clicked" CommandParameter="18" /></Border.GestureRecognizers>
+                            <Label Text="Kehf" FontSize="12" TextColor="#E6FFFFFF" />
+                        </Border>
+                        <Border StrokeShape="RoundRectangle 16" BackgroundColor="#26FFFFFF" Stroke="#33FFFFFF" StrokeThickness="1" Padding="14,6">
+                            <Border.GestureRecognizers><TapGestureRecognizer Tapped="QuickSure_Clicked" CommandParameter="97" /></Border.GestureRecognizers>
+                            <Label Text="Kadir" FontSize="12" TextColor="#E6FFFFFF" />
+                        </Border>
+                    </HorizontalStackLayout>
+                </ScrollView>
+            </VerticalStackLayout>
+
+            <!-- 4. Segmented Navigation Tabs (Sureler | Cüzler | Meal & Favori) -->
+            <Border Grid.Row="3"
+                    StrokeShape="RoundRectangle 13"
+                    BackgroundColor="#40000000"
+                    Stroke="#33FFFFFF"
+                    StrokeThickness="1"
+                    Padding="4">
+                <Grid ColumnDefinitions="*,*,*" ColumnSpacing="4">
+                    <Border x:Name="TabSureler"
+                            Grid.Column="0"
+                            StrokeShape="RoundRectangle 9"
+                            BackgroundColor="#4DFFFFFF"
+                            Stroke="#33FFFFFF"
+                            StrokeThickness="1"
+                            Padding="0,7">
+                        <Border.GestureRecognizers>
+                            <TapGestureRecognizer Tapped="SegmentTab_Clicked" CommandParameter="Sureler" />
+                        </Border.GestureRecognizers>
+                        <Label x:Name="LblTabSureler"
+                               Text="Sureler"
+                               FontSize="12"
+                               FontAttributes="Bold"
+                               TextColor="White"
+                               HorizontalOptions="Center"
+                               VerticalOptions="Center" />
+                    </Border>
+
+                    <Border x:Name="TabCuzler"
+                            Grid.Column="1"
+                            StrokeShape="RoundRectangle 9"
+                            BackgroundColor="Transparent"
+                            StrokeThickness="0"
+                            Padding="0,7">
+                        <Border.GestureRecognizers>
+                            <TapGestureRecognizer Tapped="SegmentTab_Clicked" CommandParameter="Cuzler" />
+                        </Border.GestureRecognizers>
+                        <Label x:Name="LblTabCuzler"
+                               Text="Cüzler"
+                               FontSize="12"
+                               TextColor="#B3FFFFFF"
+                               HorizontalOptions="Center"
+                               VerticalOptions="Center" />
+                    </Border>
+
+                    <Border x:Name="TabMealFavori"
+                            Grid.Column="2"
+                            StrokeShape="RoundRectangle 9"
+                            BackgroundColor="Transparent"
+                            StrokeThickness="0"
+                            Padding="0,7">
+                        <Border.GestureRecognizers>
+                            <TapGestureRecognizer Tapped="SegmentTab_Clicked" CommandParameter="MealFavori" />
+                        </Border.GestureRecognizers>
+                        <Label x:Name="LblTabMealFavori"
+                               Text="Meal &amp; Favori"
+                               FontSize="12"
+                               TextColor="#B3FFFFFF"
+                               HorizontalOptions="Center"
+                               VerticalOptions="Center" />
+                    </Border>
+                </Grid>
             </Border>
 
-            <!-- Sure Listesi - Frame sabit, sadece liste kayıyor -->
-            <Border Grid.Row="3"
-                   StrokeShape="RoundRectangle 20"
-                   Padding="20"
-                   Stroke="{AppThemeBinding Light=#80009688, Dark=#80FFFFFF}"
-                   BackgroundColor="{AppThemeBinding Light=#22FFFFFF, Dark=#33000000}">
-                <Grid RowDefinitions="Auto,Auto,*" RowSpacing="15">
-                    <Grid Grid.Row="0" ColumnDefinitions="*, Auto" Padding="10,0">
-                        <Label Grid.Column="0"
-                               Text="Sûre Listesi"
-                               FontSize="20"
-                               FontAttributes="Bold"
-                               TextColor="{AppThemeBinding Light=#00796B, Dark=#FFFFFF}"
-                               VerticalOptions="Center"
-                               HorizontalOptions="Center"/>
-                        
-                        <Label Grid.Column="1"
-                               x:Name="ScrollToBottomIcon"
-                               Text="📥"
-                               FontSize="24"
-                               TextColor="{AppThemeBinding Light=#00796B, Dark=#80CBC4}"
-                               VerticalOptions="Center"
-                               ToolTipProperties.Text="Aşağı Kaydır">
-                            <Label.GestureRecognizers>
-                                <TapGestureRecognizer Tapped="ScrollToBottom_Clicked"/>
-                            </Label.GestureRecognizers>
-                        </Label>
-                    </Grid>
-                    
-                    <SearchBar Grid.Row="1"
-                               x:Name="SearchBar"
-                               Placeholder="Sûre ara..."
-                               TextChanged="SearchBar_TextChanged"
-                               TextColor="{AppThemeBinding Light=#00796B, Dark=#FFFFFF}"
-                               PlaceholderColor="{AppThemeBinding Light=#757575, Dark=#BDBDBD}"
-                               BackgroundColor="Transparent"/>
-                    
-                    <CollectionView Grid.Row="2"
-                                    x:Name="SureListesi"
-                                    SelectionMode="None">
-                        <CollectionView.ItemTemplate>
-                            <DataTemplate x:DataType="models:Sure">
-                                <Border StrokeShape="RoundRectangle 15"
-                                       Padding="15"
-                                       Margin="0,5"
-                                       Stroke="{AppThemeBinding Light=#80009688, Dark=#80FFFFFF}"
-                                       BackgroundColor="{AppThemeBinding Light=#22FFFFFF, Dark=#33000000}">
+            <!-- 5. Sekme İçerikleri -->
+            <Grid Grid.Row="4">
+
+                <!-- 5A. Sureler Listesi -->
+                <CollectionView x:Name="SureListesi"
+                                SelectionMode="None"
+                                VerticalScrollBarVisibility="Never">
+                    <CollectionView.ItemTemplate>
+                        <DataTemplate x:DataType="models:Sure">
+                            <Grid Padding="0,4">
+                                <!-- Normal Sure Kartı -->
+                                <Border IsVisible="{Binding IsNotFeatured}"
+                                        StrokeShape="RoundRectangle 16"
+                                        Padding="12"
+                                        Stroke="#40FFFFFF"
+                                        StrokeThickness="1"
+                                        BackgroundColor="#26FFFFFF">
                                     <Border.GestureRecognizers>
                                         <TapGestureRecognizer Tapped="SureItem_Tapped"
-                                                             CommandParameter="{Binding SureNo}"/>
+                                                              CommandParameter="{Binding SureNo}" />
                                     </Border.GestureRecognizers>
-                                    <Grid ColumnDefinitions="Auto,*">
-                                        <Label Grid.Column="0"
-                                               Text="{Binding SureNo}"
-                                               FontSize="18"
-                                               FontAttributes="Bold"
-                                               TextColor="{AppThemeBinding Light=#00796B, Dark=#FFFFFF}"
-                                               VerticalTextAlignment="Center"
-                                               WidthRequest="40"/>
-                                        
-                                        <VerticalStackLayout Grid.Column="1" Spacing="3" VerticalOptions="Center">
-                                            <Label Text="{Binding Ad}"
-                                                   FontSize="16"
+                                    <Grid ColumnDefinitions="Auto,*,Auto" ColumnSpacing="12">
+                                        <!-- 8-Köşeli İslami Yıldız Rozet -->
+                                        <Grid Grid.Column="0" WidthRequest="36" HeightRequest="36" VerticalOptions="Center">
+                                            <Border WidthRequest="28" HeightRequest="28" StrokeShape="RoundRectangle 5"
+                                                    BackgroundColor="#38FFFFFF" Stroke="#66FFFFFF" StrokeThickness="1"
+                                                    HorizontalOptions="Center" VerticalOptions="Center" />
+                                            <Border WidthRequest="28" HeightRequest="28" StrokeShape="RoundRectangle 5"
+                                                    BackgroundColor="#38FFFFFF" Stroke="#66FFFFFF" StrokeThickness="1"
+                                                    Rotation="45" HorizontalOptions="Center" VerticalOptions="Center" />
+                                            <Label Text="{Binding SureNo}"
+                                                   FontSize="12"
                                                    FontAttributes="Bold"
-                                                   TextColor="{AppThemeBinding Light=#212121, Dark=#FFFFFF}"/>
-                                            <Label FontSize="12"
-                                                   TextColor="{AppThemeBinding Light=#757575, Dark=#BDBDBD}">
-                                                <Label.FormattedText>
-                                                    <FormattedString>
-                                                        <Span Text="{Binding AyetSayisi}"/>
-                                                        <Span Text=" Ayet - "/>
-                                                        <Span Text="{Binding Inis}"/>
-                                                    </FormattedString>
-                                                </Label.FormattedText>
-                                            </Label>
+                                                   TextColor="White"
+                                                   HorizontalOptions="Center"
+                                                   VerticalOptions="Center" />
+                                        </Grid>
+
+                                        <VerticalStackLayout Grid.Column="1" Spacing="2" VerticalOptions="Center">
+                                            <Label Text="{Binding Ad}"
+                                                   FontSize="14"
+                                                   FontAttributes="Bold"
+                                                   TextColor="White" />
+                                            <Label Text="{Binding AltBaslik}"
+                                                   FontSize="11"
+                                                   TextColor="#B3FFFFFF" />
                                         </VerticalStackLayout>
+
+                                        <Label Grid.Column="2"
+                                               Text="{Binding AdArapca}"
+                                               FontFamily="ArabicFontFamily"
+                                               FontSize="20"
+                                               FontAttributes="Bold"
+                                               TextColor="#E0F2FE"
+                                               VerticalOptions="Center" />
                                     </Grid>
                                 </Border>
-                            </DataTemplate>
-                        </CollectionView.ItemTemplate>
-                        <CollectionView.Footer>
-                            <VerticalStackLayout Padding="0,20,0,80" Spacing="10">
+
+                                <!-- Öne Çıkan Sure Kartı (Yâsîn - 36) -->
+                                <Border IsVisible="{Binding IsFeatured}"
+                                        StrokeShape="RoundRectangle 16"
+                                        Padding="12"
+                                        Stroke="#6622D3EE"
+                                        StrokeThickness="1"
+                                        BackgroundColor="#4D0C4A6E">
+                                    <Border.GestureRecognizers>
+                                        <TapGestureRecognizer Tapped="SureItem_Tapped"
+                                                              CommandParameter="{Binding SureNo}" />
+                                    </Border.GestureRecognizers>
+                                    <Grid ColumnDefinitions="Auto,*,Auto" ColumnSpacing="12">
+                                        <Grid Grid.Column="0" WidthRequest="36" HeightRequest="36" VerticalOptions="Center">
+                                            <Border WidthRequest="28" HeightRequest="28" StrokeShape="RoundRectangle 5"
+                                                    BackgroundColor="#22D3EE" StrokeThickness="0"
+                                                    HorizontalOptions="Center" VerticalOptions="Center" />
+                                            <Border WidthRequest="28" HeightRequest="28" StrokeShape="RoundRectangle 5"
+                                                    BackgroundColor="#22D3EE" StrokeThickness="0"
+                                                    Rotation="45" HorizontalOptions="Center" VerticalOptions="Center" />
+                                            <Label Text="{Binding SureNo}"
+                                                   FontSize="12"
+                                                   FontAttributes="Bold"
+                                                   TextColor="#082F49"
+                                                   HorizontalOptions="Center"
+                                                   VerticalOptions="Center" />
+                                        </Grid>
+
+                                        <VerticalStackLayout Grid.Column="1" Spacing="2" VerticalOptions="Center">
+                                            <HorizontalStackLayout Spacing="6" VerticalOptions="Center">
+                                                <Label Text="{Binding Ad}"
+                                                       FontSize="14"
+                                                       FontAttributes="Bold"
+                                                       TextColor="White"
+                                                       VerticalOptions="Center" />
+                                                <Border StrokeShape="RoundRectangle 5"
+                                                        BackgroundColor="#4D22D3EE"
+                                                        StrokeThickness="0"
+                                                        Padding="6,1"
+                                                        VerticalOptions="Center">
+                                                    <Label Text="Faziletli"
+                                                           FontSize="9"
+                                                           FontAttributes="Bold"
+                                                           TextColor="#A5F3FC" />
+                                                </Border>
+                                            </HorizontalStackLayout>
+                                            <Label Text="{Binding AltBaslik}"
+                                                   FontSize="11"
+                                                   TextColor="#B3CFFAFE" />
+                                        </VerticalStackLayout>
+
+                                        <Label Grid.Column="2"
+                                               Text="{Binding AdArapca}"
+                                               FontFamily="ArabicFontFamily"
+                                               FontSize="20"
+                                               FontAttributes="Bold"
+                                               TextColor="#A5F3FC"
+                                               VerticalOptions="Center" />
+                                    </Grid>
+                                </Border>
+                            </Grid>
+                        </DataTemplate>
+                    </CollectionView.ItemTemplate>
+
+                    <CollectionView.Footer>
+                        <Border StrokeShape="RoundRectangle 16"
+                                BackgroundColor="#26FFFFFF"
+                                Stroke="#40FFFFFF"
+                                StrokeThickness="1"
+                                Padding="16"
+                                Margin="0,12,0,28">
+                            <VerticalStackLayout Spacing="10">
                                 <Button x:Name="DownloadButton"
                                         SemanticProperties.Description="Kur'an verilerini çevrimdışı kullanım için indir"
                                         Text="İnternetsiz Kullanım İçin İndir 📥"
                                         Clicked="DownloadButton_Clicked"
-                                        BackgroundColor="{AppThemeBinding Light=#00796B, Dark=#009688}"
-                                        TextColor="White"
+                                        BackgroundColor="#22D3EE"
+                                        TextColor="#082F49"
                                         FontAttributes="Bold"
-                                        CornerRadius="10"
-                                        HeightRequest="50"
-                                        Margin="0,10"/>
-                                
+                                        CornerRadius="12"
+                                        HeightRequest="46" />
+
                                 <Label x:Name="DownloadStatusLabel"
                                        Text="Kur'anı indirerek internetsiz okuyabilirsiniz (~10MB)"
                                        HorizontalOptions="Center"
-                                       TextColor="{AppThemeBinding Light=#757575, Dark=#BDBDBD}"
+                                       TextColor="#B3FFFFFF"
                                        FontSize="12"
-                                       HorizontalTextAlignment="Center"/>
+                                       HorizontalTextAlignment="Center" />
 
                                 <ActivityIndicator x:Name="DownloadIndicator"
                                                    IsRunning="False"
                                                    IsVisible="False"
-                                                   Color="{AppThemeBinding Light=#00796B, Dark=#009688}"
-                                                   HorizontalOptions="Center"/>
+                                                   Color="#22D3EE"
+                                                   HorizontalOptions="Center" />
                             </VerticalStackLayout>
-                        </CollectionView.Footer>
-                    </CollectionView>
-                </Grid>
-            </Border>
-            
+                        </Border>
+                    </CollectionView.Footer>
+                </CollectionView>
+
+                <!-- 5B. Cüzler Listesi -->
+                <CollectionView x:Name="CuzListesi"
+                                IsVisible="False"
+                                SelectionMode="None"
+                                VerticalScrollBarVisibility="Never">
+                    <CollectionView.ItemTemplate>
+                        <DataTemplate x:DataType="local:CuzItem">
+                            <Grid Padding="0,4">
+                                <Border StrokeShape="RoundRectangle 16"
+                                        Padding="12"
+                                        Stroke="#40FFFFFF"
+                                        StrokeThickness="1"
+                                        BackgroundColor="#26FFFFFF">
+                                    <Border.GestureRecognizers>
+                                        <TapGestureRecognizer Tapped="CuzItem_Tapped"
+                                                              CommandParameter="{Binding BaslangicSayfasi}" />
+                                    </Border.GestureRecognizers>
+                                    <Grid ColumnDefinitions="Auto,*,Auto" ColumnSpacing="12">
+                                        <Grid Grid.Column="0" WidthRequest="36" HeightRequest="36" VerticalOptions="Center">
+                                            <Border WidthRequest="28" HeightRequest="28" StrokeShape="RoundRectangle 5"
+                                                    BackgroundColor="#38FFFFFF" Stroke="#66FFFFFF" StrokeThickness="1"
+                                                    HorizontalOptions="Center" VerticalOptions="Center" />
+                                            <Border WidthRequest="28" HeightRequest="28" StrokeShape="RoundRectangle 5"
+                                                    BackgroundColor="#38FFFFFF" Stroke="#66FFFFFF" StrokeThickness="1"
+                                                    Rotation="45" HorizontalOptions="Center" VerticalOptions="Center" />
+                                            <Label Text="{Binding CuzNo}"
+                                                   FontSize="12"
+                                                   FontAttributes="Bold"
+                                                   TextColor="White"
+                                                   HorizontalOptions="Center"
+                                                   VerticalOptions="Center" />
+                                        </Grid>
+
+                                        <VerticalStackLayout Grid.Column="1" Spacing="2" VerticalOptions="Center">
+                                            <Label Text="{Binding Baslik}"
+                                                   FontSize="14"
+                                                   FontAttributes="Bold"
+                                                   TextColor="White" />
+                                            <Label Text="{Binding Aciklama}"
+                                                   FontSize="11"
+                                                   TextColor="#B3FFFFFF" />
+                                        </VerticalStackLayout>
+
+                                        <Border Grid.Column="2"
+                                                StrokeShape="RoundRectangle 8"
+                                                BackgroundColor="#3322D3EE"
+                                                StrokeThickness="0"
+                                                Padding="10,4"
+                                                VerticalOptions="Center">
+                                            <Label Text="Mushaf ›"
+                                                   FontSize="11"
+                                                   FontAttributes="Bold"
+                                                   TextColor="#A5F3FC" />
+                                        </Border>
+                                    </Grid>
+                                </Border>
+                            </Grid>
+                        </DataTemplate>
+                    </CollectionView.ItemTemplate>
+                    <CollectionView.Footer>
+                        <BoxView HeightRequest="24" Opacity="0" />
+                    </CollectionView.Footer>
+                </CollectionView>
+
+                <!-- 5C. Meal & Favori Sekmesi -->
+                <ScrollView x:Name="MealFavoriView"
+                            IsVisible="False"
+                            VerticalScrollBarVisibility="Never">
+                    <VerticalStackLayout Spacing="12" Padding="0,4,0,28">
+                        <!-- Kaydedilen Ayetlerim Kartı -->
+                        <Border StrokeShape="RoundRectangle 16"
+                                Padding="16"
+                                Stroke="#4DFFFFFF"
+                                StrokeThickness="1"
+                                BackgroundColor="#26FFFFFF">
+                            <Border.GestureRecognizers>
+                                <TapGestureRecognizer Tapped="KaydedilenlerButonu_Clicked" />
+                            </Border.GestureRecognizers>
+                            <Grid ColumnDefinitions="Auto,*,Auto" ColumnSpacing="12">
+                                <Border Grid.Column="0"
+                                        WidthRequest="42"
+                                        HeightRequest="42"
+                                        StrokeShape="RoundRectangle 12"
+                                        BackgroundColor="#3322D3EE"
+                                        StrokeThickness="0">
+                                    <Image Source="kaydet_white.svg"
+                                           WidthRequest="20"
+                                           HeightRequest="20"
+                                           HorizontalOptions="Center"
+                                           VerticalOptions="Center" />
+                                </Border>
+                                <VerticalStackLayout Grid.Column="1" Spacing="2" VerticalOptions="Center">
+                                    <Label Text="Kaydedilen Ayetlerim"
+                                           FontSize="15"
+                                           FontAttributes="Bold"
+                                           TextColor="White" />
+                                    <Label Text="Favori ayetlerinizi ve notlarınızı görüntüleyin"
+                                           FontSize="12"
+                                           TextColor="#B3FFFFFF" />
+                                </VerticalStackLayout>
+                                <Label Grid.Column="2"
+                                       Text="›"
+                                       FontSize="22"
+                                       TextColor="#A5F3FC"
+                                       VerticalOptions="Center" />
+                            </Grid>
+                        </Border>
+
+                        <!-- Aktif Meal Seçimi Kartı -->
+                        <Border StrokeShape="RoundRectangle 16"
+                                Padding="16"
+                                Stroke="#4DFFFFFF"
+                                StrokeThickness="1"
+                                BackgroundColor="#26FFFFFF">
+                            <VerticalStackLayout Spacing="10">
+                                <Grid ColumnDefinitions="*,Auto">
+                                    <Label Grid.Column="0"
+                                           Text="Aktif Meal"
+                                           FontSize="15"
+                                           FontAttributes="Bold"
+                                           TextColor="White"
+                                           VerticalOptions="Center" />
+                                    <Label Grid.Column="1"
+                                           x:Name="AktifMealTabLabel"
+                                           Text="Diyanet İşleri"
+                                           FontSize="12"
+                                           FontAttributes="Bold"
+                                           TextColor="#67E8F9"
+                                           VerticalOptions="Center" />
+                                </Grid>
+                                <Label Text="Sureleri okurken görüntülenecek Türkçe meali seçebilirsiniz."
+                                       FontSize="12"
+                                       TextColor="#B3FFFFFF" />
+                                <Button Text="Meal Değiştir"
+                                        Clicked="MealAyarlar_Clicked"
+                                        BackgroundColor="#3322D3EE"
+                                        BorderColor="#6622D3EE"
+                                        BorderWidth="1"
+                                        TextColor="#A5F3FC"
+                                        FontAttributes="Bold"
+                                        CornerRadius="12"
+                                        HeightRequest="42" />
+                            </VerticalStackLayout>
+                        </Border>
+
+                        <!-- Mushaf Okuma Modu Kartı -->
+                        <Border StrokeShape="RoundRectangle 16"
+                                Padding="16"
+                                Stroke="#4DFFFFFF"
+                                StrokeThickness="1"
+                                BackgroundColor="#26FFFFFF">
+                            <Border.GestureRecognizers>
+                                <TapGestureRecognizer Tapped="MushafAc_Clicked" />
+                            </Border.GestureRecognizers>
+                            <Grid ColumnDefinitions="*,Auto" ColumnSpacing="12">
+                                <VerticalStackLayout Grid.Column="0" Spacing="2" VerticalOptions="Center">
+                                    <Label Text="Arapça Mushaf Görünümü"
+                                           FontSize="15"
+                                           FontAttributes="Bold"
+                                           TextColor="White" />
+                                    <Label Text="Sayfa düzeninde Kur'an-ı Kerim okuyun"
+                                           FontSize="12"
+                                           TextColor="#B3FFFFFF" />
+                                </VerticalStackLayout>
+                                <Border Grid.Column="1"
+                                        StrokeShape="RoundRectangle 10"
+                                        BackgroundColor="#22D3EE"
+                                        StrokeThickness="0"
+                                        Padding="12,6"
+                                        VerticalOptions="Center">
+                                    <Label Text="Aç ›"
+                                           FontSize="12"
+                                           FontAttributes="Bold"
+                                           TextColor="#082F49" />
+                                </Border>
+                            </Grid>
+                        </Border>
+                    </VerticalStackLayout>
+                </ScrollView>
+
+            </Grid>
         </Grid>
 
         <!-- Meal Seçimi Overlay -->
         <Grid x:Name="MealSelectionOverlay"
               IsVisible="False"
-              BackgroundColor="#AA000000"
+              BackgroundColor="#B3020617"
               ZIndex="999"
               HorizontalOptions="FillAndExpand"
               VerticalOptions="FillAndExpand">
             <Border StrokeShape="RoundRectangle 20"
-                    Padding="25"
-                    Margin="30"
+                    Padding="22"
+                    Margin="26"
                     VerticalOptions="Center"
                     HorizontalOptions="FillAndExpand"
-                    BackgroundColor="{AppThemeBinding Light=#FAFAFA, Dark=#1E1E1E}"
-                    Stroke="{AppThemeBinding Light=#80009688, Dark=#80FFFFFF}">
-                <VerticalStackLayout Spacing="15">
+                    BackgroundColor="#F20F172A"
+                    Stroke="#4D38BDF8"
+                    StrokeThickness="1">
+                <VerticalStackLayout Spacing="12">
                     <Label Text="Meal Seçimi"
-                           FontSize="22"
+                           FontSize="20"
                            FontAttributes="Bold"
                            HorizontalOptions="Center"
-                           TextColor="{AppThemeBinding Light=#00796B, Dark=#FFFFFF}"/>
+                           TextColor="White" />
 
                     <Label x:Name="AktifMealLabel"
                            Text="Aktif: Diyanet İşleri"
                            FontSize="13"
                            HorizontalOptions="Center"
-                           TextColor="{AppThemeBinding Light=#757575, Dark=#BDBDBD}"/>
+                           TextColor="#67E8F9" />
 
-                    <BoxView HeightRequest="1" Color="{AppThemeBinding Light=#E0E0E0, Dark=#424242}" Margin="0,5"/>
+                    <BoxView HeightRequest="1" Color="#26FFFFFF" Margin="0,4" />
 
                     <Button Text="Diyanet İşleri Meali"
                             Clicked="OnSelectMeal_Clicked"
                             CommandParameter="11"
-                            BackgroundColor="{AppThemeBinding Light=#00796B, Dark=#009688}"
+                            BackgroundColor="#2638BDF8"
+                            BorderColor="#4D38BDF8"
+                            BorderWidth="1"
                             TextColor="White"
                             FontAttributes="Bold"
-                            CornerRadius="10"/>
+                            CornerRadius="12" />
 
                     <Button Text="Elmalılı Hamdi Yazır (Orijinal)"
                             Clicked="OnSelectMeal_Clicked"
                             CommandParameter="14"
-                            BackgroundColor="{AppThemeBinding Light=#00796B, Dark=#009688}"
+                            BackgroundColor="#2638BDF8"
+                            BorderColor="#4D38BDF8"
+                            BorderWidth="1"
                             TextColor="White"
                             FontAttributes="Bold"
-                            CornerRadius="10"/>
+                            CornerRadius="12" />
 
                     <Button Text="Elmalılı Hamdi Yazır (Sadeleştirilmiş)"
                             Clicked="OnSelectMeal_Clicked"
                             CommandParameter="15"
-                            BackgroundColor="{AppThemeBinding Light=#00796B, Dark=#009688}"
+                            BackgroundColor="#2638BDF8"
+                            BorderColor="#4D38BDF8"
+                            BorderWidth="1"
                             TextColor="White"
                             FontAttributes="Bold"
-                            CornerRadius="10"/>
+                            CornerRadius="12" />
 
                     <Button Text="Süleyman Ateş"
                             Clicked="OnSelectMeal_Clicked"
                             CommandParameter="27"
-                            BackgroundColor="{AppThemeBinding Light=#00796B, Dark=#009688}"
+                            BackgroundColor="#2638BDF8"
+                            BorderColor="#4D38BDF8"
+                            BorderWidth="1"
                             TextColor="White"
                             FontAttributes="Bold"
-                            CornerRadius="10"/>
+                            CornerRadius="12" />
 
                     <Button Text="Bayraktar Bayraklı"
                             Clicked="OnSelectMeal_Clicked"
                             CommandParameter="8"
-                            BackgroundColor="{AppThemeBinding Light=#00796B, Dark=#009688}"
+                            BackgroundColor="#2638BDF8"
+                            BorderColor="#4D38BDF8"
+                            BorderWidth="1"
                             TextColor="White"
                             FontAttributes="Bold"
-                            CornerRadius="10"/>
+                            CornerRadius="12" />
 
-                    <BoxView HeightRequest="1" Color="{AppThemeBinding Light=#E0E0E0, Dark=#424242}" Margin="0,5"/>
+                    <BoxView HeightRequest="1" Color="#26FFFFFF" Margin="0,4" />
 
-                    <Label Text="⚠️ Meal değiştirince önbellek temizlenir, sureler yeniden indirilir."
+                    <Label Text="⚠ Meal değiştirince önbellek temizlenir, sureler yeniden indirilir."
                            FontSize="11"
                            HorizontalOptions="Center"
                            HorizontalTextAlignment="Center"
-                           TextColor="{AppThemeBinding Light=#9E9E9E, Dark=#757575}"/>
+                           TextColor="#94A3B8" />
 
                     <Button Text="İptal"
                             Clicked="OnCancelMealSelection_Clicked"
                             BackgroundColor="Transparent"
-                            TextColor="{AppThemeBinding Light=#00796B, Dark=#80CBC4}"
+                            TextColor="#67E8F9"
                             FontAttributes="Bold"
-                            CornerRadius="10"/>
+                            CornerRadius="12" />
                 </VerticalStackLayout>
             </Border>
         </Grid>
     </Grid>
 </ContentPage>
-

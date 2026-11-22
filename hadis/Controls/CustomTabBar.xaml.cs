@@ -73,25 +73,27 @@ namespace hadis.Controls
         {
             if (img == null || lbl == null || dot == null) return;
             img.Scale = 1.0;
-            img.Opacity = 0.55;
-            lbl.TextColor = Colors.White;
+            img.Opacity = 0.8;
+            lbl.TextColor = Color.FromArgb("#F1F5F9");
             lbl.FontAttributes = FontAttributes.None;
             dot.Opacity = 0;
-            ApplyTint(img, Colors.White);
+            ApplyTint(img, Color.FromArgb("#F1F5F9"));
         }
 
         private void SetActiveTab(Image img, Label lbl, Microsoft.Maui.Controls.Shapes.Shape dot)
         {
             if (img == null || lbl == null || dot == null) return;
-            img.Scale = 1.12;
+            img.Scale = 1.08;
             img.Opacity = 1.0;
-            lbl.TextColor = Color.FromArgb("#00BCD4"); // Cyan Accent
+            var cyanAccent = Color.FromArgb("#67E8F9");
+            lbl.TextColor = cyanAccent;
             lbl.FontAttributes = FontAttributes.Bold;
+            dot.Fill = cyanAccent;
             dot.Opacity = 1;
-            ApplyTint(img, Color.FromArgb("#00BCD4"));
+            ApplyTint(img, cyanAccent);
         }
 
-        private async void OnTabTapped(object sender, TappedEventArgs e)
+        private void OnTabTapped(object sender, TappedEventArgs e)
         {
             if (e.Parameter is string targetTab)
             {
@@ -99,7 +101,7 @@ namespace hadis.Controls
 
                 if (Shell.Current is AppShell appShell)
                 {
-                    await appShell.ChangeTabAsync(targetTab);
+                    appShell.ChangeTab(targetTab);
                 }
             }
         }

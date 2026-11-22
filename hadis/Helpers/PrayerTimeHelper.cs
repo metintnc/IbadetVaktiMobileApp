@@ -7,6 +7,8 @@ namespace hadis.Helpers
     /// </summary>
     public static class PrayerTimeHelper
     {
+        public const string NextImsakKey = "NextDayImsak";
+
         // Vakitlerin sıralı listesi (dictionary key'leri)
         private static readonly (string Key, string DisplayName, string ShortName)[] PrayerOrder = new[]
         {
@@ -52,9 +54,10 @@ namespace hadis.Helpers
                 }
             }
 
-            // Tüm vakitler geçmiş → ertesi gün İmsak
-            var imsakTime = times["Imsak"].AddDays(1);
-            return ("Imsak", "İmsak Vaktine", "İmsak", imsakTime - now, 0);
+            if (times.TryGetValue(NextImsakKey, out var nextImsak) && nextImsak > now)
+                return ("Imsak", "İmsak Vaktine", "İmsak", nextImsak - now, 0);
+
+            return ("", "Vakit bilgisi bekleniyor", "", TimeSpan.Zero, -1);
         }
 
         /// <summary>
@@ -64,7 +67,7 @@ namespace hadis.Helpers
         {
             var (shortName, remaining) = GetNextPrayerShort(times);
 
-            string title = $"{shortName} vaktine {remaining.Hours:D2}:{remaining.Minutes:D2} kaldı";
+            string title = string.IsNullOrEmpty(shortName) ? "Vakit bilgisi bekleniyor" : $"{shortName} vaktine {remaining.Hours:D2}:{remaining.Minutes:D2} kaldı";
             string message = $"İmsak {times["Imsak"]:HH:mm} | " +
                             $"Güneş {times["gunes"]:HH:mm} | " +
                             $"Öğle {times["Ogle"]:HH:mm} | " +
