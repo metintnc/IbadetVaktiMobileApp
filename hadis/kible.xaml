@@ -2,186 +2,362 @@
 <ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              xmlns:controls="clr-namespace:hadis.Controls"
-             x:Class="hadis.kible">
-    <Grid>
+             x:Class="hadis.kible"
+             Shell.NavBarIsVisible="False"
+             BackgroundColor="Black">
+    <Grid Padding="0" Margin="0">
+        <!-- Dinamik Saat Bazlı Arkaplan (Ana sayfa ile senkronize, blurlu) -->
         <Image x:Name="BackgroundImage"
                Aspect="AspectFill"
+               Scale="1.08"
                HorizontalOptions="FillAndExpand"
-               VerticalOptions="FillAndExpand">
+               VerticalOptions="FillAndExpand"
+               HandlerChanged="OnBackgroundImageHandlerChanged">
             <Image.Source>
                 <AppThemeBinding Light="z_light.webp" Dark="z.webp" />
             </Image.Source>
         </Image>
-        <BoxView HorizontalOptions="FillAndExpand"
-          VerticalOptions="FillAndExpand">
-            <BoxView.Color>
-                <AppThemeBinding Light="White" Dark="Black" />
-            </BoxView.Color>
-            <BoxView.Opacity>
-                <AppThemeBinding Light="0" Dark="0.3" />
-            </BoxView.Opacity>
-        </BoxView>
-        <Grid x:Name="MainContentGrid" RowDefinitions="Auto,*"  Style="{StaticResource Background}" Margin="0,0,0,85">
-        <!-- Header - Kuran Page Style -->
-        <Label Grid.Row="0"
-               Text="Kıble Pusulası"
-               FontSize="36"
-               FontAttributes="Bold"
-               HorizontalOptions="Center"
-               VerticalOptions="Center"
-               Margin="0,50,0,10"
-               TextColor="{AppThemeBinding Light=#00796B, Dark=#FFFFFF}"/>
 
-        <!-- Main Content Group - Row 1 (Centered vertically in available space) -->
-        <VerticalStackLayout Grid.Row="1"
-                             VerticalOptions="Center"
-                             HorizontalOptions="Fill"
-                             Spacing="0">
-            
-            <!-- Açı ve Tik Wrapper -->
-            <VerticalStackLayout Spacing="0"
-                                 HorizontalOptions="Center"
-                                 ZIndex="50">
-                <Label Text="0°" 
-                       x:Name="AciDegeri" 
-                       SemanticProperties.Description="Kıble yönü açısı"
-                       HorizontalOptions="Center"
-                       FontSize="35" 
-                       Style="{StaticResource AnaLabel}"/>
-                
-                <Label x:Name="QiblaCheckmark"
-                       Text="✅"
-                       FontSize="24"
-                       HorizontalOptions="Center"
-                       Opacity="0"
-                       TextColor="{AppThemeBinding Light=#00796B, Dark=#80CBC4}"/>
+        <!-- Tema Arkaplan Overlay (BackgroundService tarafından yönetilir) -->
+        <Grid x:Name="BackgroundOverlay"
+              HorizontalOptions="FillAndExpand"
+              VerticalOptions="FillAndExpand"
+              IsVisible="False" />
+
+        <!-- Koyu Vignette Overlay (Okunabilirlik ve cam efekti derinliği için) -->
+        <BoxView HorizontalOptions="FillAndExpand"
+                 VerticalOptions="FillAndExpand"
+                 InputTransparent="True">
+            <BoxView.Background>
+                <LinearGradientBrush StartPoint="0,0" EndPoint="0,1">
+                    <GradientStop Color="#B3020617" Offset="0.0" />
+                    <GradientStop Color="#66000000" Offset="0.45" />
+                    <GradientStop Color="#D9020617" Offset="1.0" />
+                </LinearGradientBrush>
+            </BoxView.Background>
+        </BoxView>
+
+        <!-- Ana İçerik -->
+        <Grid x:Name="MainContentGrid"
+              RowDefinitions="Auto,*,Auto"
+              RowSpacing="10"
+              Padding="20,24,20,124"
+              BackgroundColor="Transparent">
+
+            <!-- Üst Başlık ve Doğruluk Rozeti -->
+            <Grid Grid.Row="0" ColumnDefinitions="*,Auto" ColumnSpacing="10">
+                <VerticalStackLayout Grid.Column="0" Spacing="3" VerticalOptions="Center">
+                    <Label Text="Kıble Pusulası"
+                           FontSize="26"
+                           FontAttributes="Bold"
+                           TextColor="White">
+                        <Label.Shadow>
+                            <Shadow Brush="Black" Offset="0,2" Radius="6" Opacity="0.45" />
+                        </Label.Shadow>
+                    </Label>
+                    <HorizontalStackLayout Spacing="6" VerticalOptions="Center">
+                        <Ellipse WidthRequest="8"
+                                 HeightRequest="8"
+                                 Fill="#34D399"
+                                 VerticalOptions="Center" />
+                        <Label x:Name="LocationBearingLabel"
+                               Text="Konum hesaplanıyor..."
+                               FontSize="12"
+                               TextColor="#CCFFFFFF"
+                               VerticalOptions="Center"
+                               LineBreakMode="TailTruncation" />
+                    </HorizontalStackLayout>
+                </VerticalStackLayout>
+
+                <!-- Doğruluk Rozeti (Glass Pill) -->
+                <Border x:Name="AccuracyBadge"
+                        Grid.Column="1"
+                        VerticalOptions="Center"
+                        StrokeShape="RoundRectangle 20"
+                        StrokeThickness="1"
+                        Stroke="#38FFFFFF"
+                        BackgroundColor="#26FFFFFF"
+                        Padding="12,6">
+                    <HorizontalStackLayout Spacing="6" VerticalOptions="Center">
+                        <Label x:Name="AccuracyIconLabel"
+                               Text="✓"
+                               FontSize="12"
+                               FontAttributes="Bold"
+                               TextColor="#34D399"
+                               VerticalOptions="Center" />
+                        <Label x:Name="AccuracyTextLabel"
+                               Text="Yüksek Doğruluk"
+                               FontSize="11"
+                               FontAttributes="Bold"
+                               TextColor="#6EE7B7"
+                               VerticalOptions="Center" />
+                    </HorizontalStackLayout>
+                </Border>
+            </Grid>
+
+            <!-- Orta Bölüm: Derece Göstergesi + Mevcut Kıble Pusulası -->
+            <VerticalStackLayout Grid.Row="1"
+                                 VerticalOptions="Center"
+                                 HorizontalOptions="Fill"
+                                 Spacing="6">
+
+                <!-- Derece ve Onay İkonu -->
+                <HorizontalStackLayout Spacing="10"
+                                       HorizontalOptions="Center"
+                                       VerticalOptions="Center"
+                                       ZIndex="50">
+                    <Label Text="0°"
+                           x:Name="AciDegeri"
+                           SemanticProperties.Description="Kıble yönü açısı"
+                           HorizontalOptions="Center"
+                           VerticalOptions="Center"
+                           FontSize="44"
+                           FontAttributes="Bold"
+                           TextColor="White">
+                        <Label.Shadow>
+                            <Shadow Brush="Black" Offset="0,2" Radius="8" Opacity="0.5" />
+                        </Label.Shadow>
+                    </Label>
+
+                    <Border x:Name="QiblaCheckmark"
+                            WidthRequest="28"
+                            HeightRequest="28"
+                            StrokeShape="RoundRectangle 8"
+                            StrokeThickness="0"
+                            BackgroundColor="#10B981"
+                            Opacity="0"
+                            VerticalOptions="Center">
+                        <Border.Shadow>
+                            <Shadow Brush="#10B981" Offset="0,2" Radius="10" Opacity="0.5" />
+                        </Border.Shadow>
+                        <Label Text="✓"
+                               FontSize="15"
+                               FontAttributes="Bold"
+                               TextColor="White"
+                               HorizontalOptions="Center"
+                               VerticalOptions="Center" />
+                    </Border>
+                </HorizontalStackLayout>
+
+                <!-- Yönlendirme Etiketi -->
+                <Border x:Name="DirectionHintBorder"
+                        HorizontalOptions="Center"
+                        StrokeShape="RoundRectangle 14"
+                        StrokeThickness="1"
+                        Stroke="#4DF59E0B"
+                        BackgroundColor="#99451A03"
+                        Padding="12,4"
+                        Margin="0,0,0,4">
+                    <Label x:Name="DirectionHintLabel"
+                           Text="PUSULAYI ÇEVİRİN"
+                           FontSize="11"
+                           FontAttributes="Bold"
+                           CharacterSpacing="0.8"
+                           TextColor="#FDE68A"
+                           HorizontalOptions="Center" />
+                </Border>
+
+                <!-- Mevcut Kıble Oku (Değiştirilmedi) -->
+                <Image x:Name="kibleoku"
+                       SemanticProperties.Description="Kıble yönünü gösteren pusula oku"
+                       AutomationProperties.IsInAccessibleTree="True"
+                       Style="{StaticResource KibleOk}"
+                       Aspect="AspectFit"
+                       VerticalOptions="Center"
+                       HorizontalOptions="Fill"
+                       MaximumHeightRequest="270"
+                       Margin="20,4,20,0" />
             </VerticalStackLayout>
 
-            <!-- Kıble Oku -->
-            <Image x:Name="kibleoku" 
-                   SemanticProperties.Description="Kıble yönünü gösteren pusula oku"
-                   AutomationProperties.IsInAccessibleTree="True"
-                   Style="{StaticResource KibleOk}" 
-                   Aspect="AspectFit" 
-                   VerticalOptions="Start"
-                   HorizontalOptions="Fill"
-                   Margin="20,0,20,0"/>
-        </VerticalStackLayout>
+            <!-- Alt Bilgi Kartları -->
+            <VerticalStackLayout Grid.Row="2" Spacing="8">
+                <!-- Mekke Mesafe ve Açı Farkı Kartı (Glass Card) -->
+                <Border StrokeShape="RoundRectangle 18"
+                        StrokeThickness="1"
+                        Stroke="#2EFFFFFF"
+                        BackgroundColor="#73121826"
+                        Padding="14,12">
+                    <Border.Shadow>
+                        <Shadow Brush="Black" Offset="0,6" Radius="18" Opacity="0.35" />
+                    </Border.Shadow>
+                    <Grid ColumnDefinitions="Auto,*,Auto" ColumnSpacing="12">
+                        <Border Grid.Column="0"
+                                WidthRequest="38"
+                                HeightRequest="38"
+                                StrokeShape="RoundRectangle 12"
+                                StrokeThickness="1"
+                                Stroke="#66FBBF24"
+                                BackgroundColor="#33FBBF24"
+                                VerticalOptions="Center">
+                            <Label Text="📍"
+                                   FontSize="17"
+                                   HorizontalOptions="Center"
+                                   VerticalOptions="Center" />
+                        </Border>
 
-        <!-- Kalibrasyon Uyarısı - Row 1 Overlay Bottom -->
-        <Border Grid.Row="1"
-               x:Name="CalibrationWarningFrame"
-               BackgroundColor="#CCFF5252"
-               Padding="15,10"
-               StrokeShape="RoundRectangle 15"
-               HorizontalOptions="Center"
-               VerticalOptions="End"
-               Margin="20,10,20,50"
-               IsVisible="False"
-               ZIndex="99">
-            <HorizontalStackLayout Spacing="10" VerticalOptions="Center">
-                <Label Text="⚠️" 
-                       FontSize="24" 
-                       VerticalOptions="Center"/>
-                <VerticalStackLayout Spacing="2">
-                    <Label Text="Pusula Kalibrasyonu" 
+                        <VerticalStackLayout Grid.Column="1" VerticalOptions="Center" Spacing="1">
+                            <Label Text="Mekke-i Mükerreme"
+                                   FontSize="12"
+                                   TextColor="#B3FFFFFF" />
+                            <Label x:Name="DistanceLabel"
+                                   Text="-- km Mesafe"
+                                   FontSize="14"
+                                   FontAttributes="Bold"
+                                   TextColor="White" />
+                        </VerticalStackLayout>
+
+                        <VerticalStackLayout Grid.Column="2" VerticalOptions="Center" HorizontalOptions="End" Spacing="1">
+                            <Label Text="Açı Farkı"
+                                   FontSize="12"
+                                   TextColor="#99FFFFFF"
+                                   HorizontalTextAlignment="End" />
+                            <Label x:Name="DiffAngleLabel"
+                                   Text="0° Tam İsabet"
+                                   FontSize="14"
+                                   FontAttributes="Bold"
+                                   TextColor="#34D399"
+                                   HorizontalTextAlignment="End" />
+                        </VerticalStackLayout>
+                    </Grid>
+                </Border>
+
+                <!-- Kalibrasyon İpucu (Glass Pill) -->
+                <Border StrokeShape="RoundRectangle 14"
+                        StrokeThickness="1"
+                        Stroke="#38FFFFFF"
+                        BackgroundColor="#26FFFFFF"
+                        Padding="12,9">
+                    <HorizontalStackLayout Spacing="8" VerticalOptions="Center">
+                        <Label Text="ⓘ"
+                               FontSize="14"
+                               FontAttributes="Bold"
+                               TextColor="#FCD34D"
+                               VerticalOptions="Center" />
+                        <Label Text="Hassasiyet için telefonunuzu havada 8 çizerek çeviriniz."
+                               FontSize="11"
+                               TextColor="#CCFFFFFF"
+                               VerticalOptions="Center"
+                               LineBreakMode="WordWrap" />
+                    </HorizontalStackLayout>
+                </Border>
+            </VerticalStackLayout>
+
+            <!-- Kalibrasyon Uyarısı - Overlay -->
+            <Border Grid.Row="1"
+                    x:Name="CalibrationWarningFrame"
+                    BackgroundColor="#D9DC2626"
+                    Stroke="#66FCA5A5"
+                    StrokeThickness="1"
+                    Padding="15,10"
+                    StrokeShape="RoundRectangle 16"
+                    HorizontalOptions="Center"
+                    VerticalOptions="End"
+                    Margin="10,10,10,12"
+                    IsVisible="False"
+                    ZIndex="99">
+                <HorizontalStackLayout Spacing="10" VerticalOptions="Center">
+                    <Label Text="⚠️"
+                           FontSize="22"
+                           VerticalOptions="Center" />
+                    <VerticalStackLayout Spacing="2">
+                        <Label Text="Pusula Kalibrasyonu"
+                               FontAttributes="Bold"
+                               TextColor="White"
+                               FontSize="15" />
+                        <Label Text="Doğru sonuç için telefonunuzu 8 rakamı çizecek şekilde hareket ettirin."
+                               TextColor="#F1F5F9"
+                               FontSize="12"
+                               LineBreakMode="WordWrap"
+                               MaximumWidthRequest="240" />
+                    </VerticalStackLayout>
+                </HorizontalStackLayout>
+            </Border>
+
+            <!-- Konum İzni Uyarısı - Overlay -->
+            <Border Grid.Row="1"
+                    x:Name="LocationWarningFrame"
+                    BackgroundColor="#E60F172A"
+                    Padding="22"
+                    StrokeShape="RoundRectangle 22"
+                    HorizontalOptions="Center"
+                    VerticalOptions="Center"
+                    Margin="20"
+                    IsVisible="False"
+                    ZIndex="100"
+                    Stroke="#38FFFFFF">
+                <VerticalStackLayout Spacing="14" VerticalOptions="Center">
+                    <Label Text="📍"
+                           FontSize="40"
+                           HorizontalOptions="Center" />
+
+                    <Label Text="Konum İzni Gerekli"
                            FontAttributes="Bold"
                            TextColor="White"
-                           FontSize="16"/>
-                    <Label Text="Doğru sonuç için telefonunuzu 8 rakamı çizecek şekilde hareket ettirin." 
-                           TextColor="White"
-                           FontSize="12"
-                           LineBreakMode="WordWrap"
-                           MaximumWidthRequest="250"/>
-                </VerticalStackLayout>
-            </HorizontalStackLayout>
-        </Border>
+                           FontSize="20"
+                           HorizontalOptions="Center" />
 
-        <!-- Konum İzni Uyarısı - Overlay -->
-        <Border Grid.Row="1"
-               x:Name="LocationWarningFrame"
-               BackgroundColor="{AppThemeBinding Light=#FFFFFF, Dark=#1F1F1F}"
-               Padding="20"
-               StrokeShape="RoundRectangle 20"
-               HorizontalOptions="Center"
-               VerticalOptions="Center"
-               Margin="30"
-               IsVisible="False"
-               ZIndex="100"
-               Stroke="{AppThemeBinding Light=#E0E0E0, Dark=#333333}">
-            <VerticalStackLayout Spacing="15" VerticalOptions="Center">
-                <Label Text="📍" 
-                       FontSize="40" 
-                       HorizontalOptions="Center"/>
-                
-                <Label Text="Konum İzni Gerekli" 
-                       FontAttributes="Bold"
-                       TextColor="{AppThemeBinding Light=#00796B, Dark=#FFFFFF}"
-                       FontSize="20"
-                       HorizontalOptions="Center"/>
-                
-                <Label Text="Kıble yönünü hesaplayabilmek için konumunuza ihtiyacımız var." 
-                       TextColor="{AppThemeBinding Light=#757575, Dark=#BDBDBD}"
-                       FontSize="14"
-                       HorizontalTextAlignment="Center"
-                       LineBreakMode="WordWrap"/>
-                
-                <Button Text="İzin Ver"
-                        BackgroundColor="{AppThemeBinding Light=#00796B, Dark=#80CBC4}"
-                        TextColor="{AppThemeBinding Light=White, Dark=Black}"
-                        FontAttributes="Bold"
-                        CornerRadius="10"
-                        Clicked="OnRequestLocationPermission_Clicked"/>
-            </VerticalStackLayout>
-        </Border>
+                    <Label Text="Kıble yönünü hesaplayabilmek için konumunuza ihtiyacımız var."
+                           TextColor="#CBD5E1"
+                           FontSize="14"
+                           HorizontalTextAlignment="Center"
+                           LineBreakMode="WordWrap" />
+
+                    <Button Text="İzin Ver"
+                            BackgroundColor="#10B981"
+                            TextColor="White"
+                            FontAttributes="Bold"
+                            CornerRadius="12"
+                            Clicked="OnRequestLocationPermission_Clicked" />
+                </VerticalStackLayout>
+            </Border>
         </Grid>
 
         <!-- Genel İzin/Ayarlar Uyarısı - Overlay (DisplayAlert yerine) -->
         <Grid x:Name="PermissionOverlay"
-              BackgroundColor="{AppThemeBinding Light=#DDFFFFFF, Dark=#DD000000}"
+              BackgroundColor="#CC000000"
               IsVisible="False"
               ZIndex="101"
               HorizontalOptions="FillAndExpand"
               VerticalOptions="FillAndExpand">
-            <Border BackgroundColor="{AppThemeBinding Light=#FFFFFF, Dark=#1F1F1F}"
-                   Padding="20"
-                   StrokeShape="RoundRectangle 20"
-                   HorizontalOptions="Center"
-                   VerticalOptions="Center"
-                   Margin="30"
-                   Stroke="{AppThemeBinding Light=#E0E0E0, Dark=#333333}"
-                   WidthRequest="300">
+            <Border BackgroundColor="#F20F172A"
+                    Padding="22"
+                    StrokeShape="RoundRectangle 22"
+                    HorizontalOptions="Center"
+                    VerticalOptions="Center"
+                    Margin="30"
+                    Stroke="#38FFFFFF"
+                    WidthRequest="300">
                 <VerticalStackLayout Spacing="15">
                     <Label x:Name="PermissionOverlayTitle"
                            Text="İzin Gerekli"
                            FontAttributes="Bold"
                            FontSize="20"
-                           TextColor="{AppThemeBinding Light=#00796B, Dark=#80CBC4}"
-                           HorizontalOptions="Center"/>
+                           TextColor="#34D399"
+                           HorizontalOptions="Center" />
 
                     <Label x:Name="PermissionOverlayMessage"
                            Text="Kıble yönünü hesaplayabilmek için ayarlardan konum izni vermeniz gerekmektedir."
                            FontSize="15"
-                           TextColor="{AppThemeBinding Light=#424242, Dark=#EEEEEE}"
+                           TextColor="#E2E8F0"
                            HorizontalTextAlignment="Center"
-                           LineBreakMode="WordWrap"/>
+                           LineBreakMode="WordWrap" />
 
                     <HorizontalStackLayout Spacing="15" HorizontalOptions="Center" Margin="0,10,0,0">
                         <Button x:Name="PermissionOverlayCancelButton"
                                 Text="İptal"
                                 BackgroundColor="Transparent"
-                                TextColor="{AppThemeBinding Light=#757575, Dark=#BDBDBD}"
+                                TextColor="#94A3B8"
                                 FontAttributes="Bold"
-                                Clicked="OnPermissionOverlayCancel_Clicked"/>
+                                Clicked="OnPermissionOverlayCancel_Clicked" />
 
                         <Button x:Name="PermissionOverlayConfirmButton"
                                 Text="Ayarlara Git"
-                                BackgroundColor="{AppThemeBinding Light=#00796B, Dark=#009688}"
+                                BackgroundColor="#10B981"
                                 TextColor="White"
                                 FontAttributes="Bold"
                                 CornerRadius="10"
                                 Padding="20,0"
-                                Clicked="OnPermissionOverlayConfirm_Clicked"/>
+                                Clicked="OnPermissionOverlayConfirm_Clicked" />
                     </HorizontalStackLayout>
                 </VerticalStackLayout>
             </Border>

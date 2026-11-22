@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using Microsoft.Maui.Devices.Sensors;
 
 namespace hadis
@@ -9,7 +9,14 @@ namespace hadis
         const double kabeenlem = 21.4225;
         const double kabeboylam = 39.8262;
         private bool _pusulaAktifMi;
+
+        public double Enlem => enlem;
+        public double Boylam => boylam;
+        public double HedefKibleAcisi => hedefKibleAcisi;
+        public double MesafeKm { get; private set; }
+
         public event Action<double>? AciDegisti;
+        public event Action? KonumBilgisiGuncellendi;
         public async Task<bool> KontrolEt()
         {
             try
@@ -45,6 +52,17 @@ namespace hadis
             double X = Math.Cos(_enlemRad) * Math.Sin(_kabeenlemRad) - Math.Sin(_enlemRad) * Math.Cos(_kabeenlemRad) * Math.Cos(boylamfark);
             double aci = Math.Atan2(Y, X) * 180/Math.PI;
             hedefKibleAcisi = (aci + 360) % 360;
+
+            // Kabe'ye olan mesafe (Haversine)
+            double dLat = _kabeenlemRad - _enlemRad;
+            double dLon = boylamfark;
+            double a = Math.Sin(dLat / 2) * Math.Sin(dLat / 2) +
+                       Math.Cos(_enlemRad) * Math.Cos(_kabeenlemRad) *
+                       Math.Sin(dLon / 2) * Math.Sin(dLon / 2);
+            double c = 2 * Math.Atan2(Math.Sqrt(a), Math.Sqrt(1 - a));
+            MesafeKm = 6371.0 * c;
+
+            KonumBilgisiGuncellendi?.Invoke();
         }
         public void PusulaBaslat()
         {
