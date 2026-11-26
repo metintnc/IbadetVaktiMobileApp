@@ -48,7 +48,7 @@ namespace hadis.Services
         public const string PackageName = "com.metintnc.namazvakti";
 
         // Yedek / Zorunlu Durum Kontrolü için GitHub URL
-        public static string DefaultConfigUrl = "https://raw.githubusercontent.com/metintnc/namazvakti/main/version.json";
+        public static string DefaultConfigUrl = "https://raw.githubusercontent.com/metintnc/IbadetVaktiMobileApp/main/version.json";
 
         public UpdateCheckerService(HttpClient httpClient)
         {

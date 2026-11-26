@@ -19,6 +19,7 @@ namespace hadis
         private int _activeAdditionalCityIndex = -1; // -1: ana şehir
         private bool _isSwipeTransitionRunning;
         private DateTime _lastLoadedDate = DateTime.MinValue;
+        private bool _updateCheckTriggered;
 
         public MainPage(MainPageViewModel viewModel, IServiceProvider serviceProvider)
         {
@@ -229,10 +230,9 @@ namespace hadis
 
                 // Animasyonları başlat
 
-                // Test süresince güncelleme uyarısını gösterme.
-                const bool updateCheckEnabled = false;
-                if (updateCheckEnabled)
+                if (!_updateCheckTriggered)
                 {
+                    _updateCheckTriggered = true;
                     _ = Task.Run(async () =>
                     {
                         await Task.Delay(2000);

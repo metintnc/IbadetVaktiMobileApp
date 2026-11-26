@@ -53,6 +53,11 @@ namespace hadis
             UpdateOffsetLabels();
             UpdateUIState();
             _isInitialized = true;
+
+            if (MasterSwitch.IsToggled)
+            {
+                await PromptExactAlarmPermissionIfNeededAsync(forcePrompt: false);
+            }
         }
 
         private string FormatOffset(int offset)
@@ -151,7 +156,57 @@ namespace hadis
             else
             {
                 await RescheduleNotificationsAsync();
+                await PromptExactAlarmPermissionIfNeededAsync(forcePrompt: false);
             }
+        }
+
+        private async Task PromptExactAlarmPermissionIfNeededAsync(bool forcePrompt = false)
+        {
+#if ANDROID
+            try
+            {
+                if (!OperatingSystem.IsAndroidVersionAtLeast(31))
+                    return;
+
+                var context = Android.App.Application.Context;
+                var alarmManager = (Android.App.AlarmManager?)context.GetSystemService(Android.Content.Context.AlarmService);
+                if (alarmManager == null || alarmManager.CanScheduleExactAlarms())
+                    return;
+
+                if (!forcePrompt && Preferences.Default.Get("ExactAlarmPromptShown", false))
+                    return;
+
+                Preferences.Default.Set("ExactAlarmPromptShown", true);
+
+                bool openSettings = await DisplayAlert(
+                    "Tam Vaktinde Ezan Bildirimi",
+                    "Ezan bildirimlerinin dakika şaşmadan tam vaktinde gelmesi için 'Alarmlar ve hatırlatıcılar' iznine ihtiyaç vardır. İzin ayarlarını açmak ister misiniz?",
+                    "Ayarları Aç",
+                    "Daha Sonra");
+
+                if (openSettings)
+                {
+                    var intent = new Android.Content.Intent(Android.Provider.Settings.ActionRequestScheduleExactAlarm);
+                    intent.SetData(Android.Net.Uri.Parse($"package:{context.PackageName}"));
+                    var activity = Microsoft.Maui.ApplicationModel.Platform.CurrentActivity;
+                    if (activity != null)
+                    {
+                        activity.StartActivity(intent);
+                    }
+                    else
+                    {
+                        intent.AddFlags(Android.Content.ActivityFlags.NewTask);
+                        context.StartActivity(intent);
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine($"⚠️ Exact alarm izin istemi hatası: {ex.Message}");
+            }
+#else
+            await Task.CompletedTask;
+#endif
         }
 
         private async void PersistentSwitch_Toggled(object sender, ToggledEventArgs e)

@@ -406,13 +406,21 @@ namespace hadis.ViewModels
             {
                 var context = Android.App.Application.Context;
                 var appWidgetManager = Android.Appwidget.AppWidgetManager.GetInstance(context);
-                // Note: referencing specific types might require using statements.
-                // Assuming namespace 'hadis.Platforms.Android' is available or qualified.
-                // Since this is in ViewModels, it might not have visibility to Platforms folder types easily unless using partials or interface.
-                // Safest to send MessagingCenter message.
-                MessagingCenter.Send(this, "UpdateWidget");
+                var componentName = new Android.Content.ComponentName(context, Java.Lang.Class.FromType(typeof(hadis.Platforms.Android.ClockWeatherWidget)));
+                var appWidgetIds = appWidgetManager?.GetAppWidgetIds(componentName);
+
+                if (appWidgetIds != null && appWidgetIds.Length > 0)
+                {
+                    var intent = new Android.Content.Intent(context, typeof(hadis.Platforms.Android.ClockWeatherWidget));
+                    intent.SetAction(Android.Appwidget.AppWidgetManager.ActionAppwidgetUpdate);
+                    intent.PutExtra(Android.Appwidget.AppWidgetManager.ExtraAppwidgetIds, appWidgetIds);
+                    context.SendBroadcast(intent);
+                }
             }
-            catch { }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine($"Widget update trigger error: {ex.Message}");
+            }
         }
 #endif
 
@@ -544,7 +552,7 @@ namespace hadis.ViewModels
             _prayerTimesService.ClearCache();
             
 #if ANDROID
-             MessagingCenter.Send(this, "UpdateWidget");
+            UpdateAndroidWidget();
 #endif
             await Shell.Current.GoToAsync("..");
         }

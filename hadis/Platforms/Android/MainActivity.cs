@@ -1,4 +1,4 @@
-﻿using Android.App;
+using Android.App;
 using Android.Content.PM;
 using Android.OS;
 using Android.Views;
@@ -23,9 +23,6 @@ namespace hadis
 
             // Edge-to-edge desteğini etkinleştir (Android 15+ için zorunlu)
             ConfigureEdgeToEdge();
-
-            // Android 12+ için exact alarm izni kontrol et
-            RequestExactAlarmPermission();
 
             // Günlük bildirim yenileme alarmını kur (gece 03:00)
             try
@@ -162,34 +159,6 @@ namespace hadis
             catch (Exception ex)
             {
                 System.Diagnostics.Debug.WriteLine($"⚠️ Edge-to-edge yapılandırma hatası: {ex.Message}");
-            }
-        }
-
-        private void RequestExactAlarmPermission()
-        {
-            if (Build.VERSION.SdkInt >= BuildVersionCodes.S)
-            {
-                try
-                {
-                    var alarmManager = (AlarmManager?)GetSystemService(AlarmService);
-                    if (alarmManager != null && !alarmManager.CanScheduleExactAlarms())
-                    {
-                        System.Diagnostics.Debug.WriteLine("⚠️ SCHEDULE_EXACT_ALARM izni yok, izin sayfasına yönlendiriliyor...");
-                        
-                        // Kullanıcıyı ayarlar sayfasına yönlendir
-                        var intent = new Intent(Android.Provider.Settings.ActionRequestScheduleExactAlarm);
-                        intent.SetData(Android.Net.Uri.Parse($"package:{PackageName}"));
-                        StartActivity(intent);
-                    }
-                    else
-                    {
-                        System.Diagnostics.Debug.WriteLine("✅ SCHEDULE_EXACT_ALARM izni mevcut");
-                    }
-                }
-                catch (Exception ex)
-                {
-                    System.Diagnostics.Debug.WriteLine($"⚠️ Exact alarm izin kontrolü hatası: {ex.Message}");
-                }
             }
         }
 

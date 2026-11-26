@@ -1,8 +1,8 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
 	<PropertyGroup>
-		<TargetFrameworks>net9.0-android;net9.0-ios;net9.0-maccatalyst</TargetFrameworks>
-		<TargetFrameworks Condition="$([MSBuild]::IsOSPlatform('windows'))">$(TargetFrameworks);net9.0-windows10.0.19041.0</TargetFrameworks>
+		<TargetFrameworks>net10.0-android;net10.0-ios;net10.0-maccatalyst</TargetFrameworks>
+		<TargetFrameworks Condition="$([MSBuild]::IsOSPlatform('windows'))">$(TargetFrameworks);net10.0-windows10.0.19041.0</TargetFrameworks>
 		<AndroidPackageFormat>aab</AndroidPackageFormat>
 
 		<OutputType>Exe</OutputType>
@@ -43,13 +43,13 @@
 		<NoWarn>$(NoWarn);CA1422</NoWarn>
 	</PropertyGroup>
 
-	<PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Debug|net9.0-android|AnyCPU'">
+	<PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Debug|net10.0-android|AnyCPU'">
 	  <AndroidKeyStore>False</AndroidKeyStore>
 	  <EmbedAssembliesIntoApk>False</EmbedAssembliesIntoApk>
 
 	</PropertyGroup>
 
-	<PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Debug|net9.0-android|ARM64'">
+	<PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Debug|net10.0-android|ARM64'">
 	  <AndroidKeyStore>False</AndroidKeyStore>
 	  <EmbedAssembliesIntoApk>False</EmbedAssembliesIntoApk>
 	</PropertyGroup>
@@ -57,7 +57,7 @@
 	<!-- Yerel imzalama ayarları (varsa signing.local.props dosyasından okunur, bu dosya .gitignore'dadır ve GitHub'a yüklenmez) -->
 	<Import Project="signing.local.props" Condition="Exists('signing.local.props')" />
 
-	<PropertyGroup Condition="'$(Configuration)|$(TargetFramework)'=='Release|net9.0-android'">
+	<PropertyGroup Condition="'$(Configuration)|$(TargetFramework)'=='Release|net10.0-android'">
 	  <!-- R8 Code Shrinking ve Obfuscation (Kod Karartma) yapılandırması -->
 	  <AndroidLinkTool>r8</AndroidLinkTool>
 	  <AndroidEnableCodeShrinking>true</AndroidEnableCodeShrinking>
@@ -151,9 +151,9 @@
 	<ItemGroup>
 		<PackageReference Include="CommunityToolkit.Mvvm" Version="8.4.0" />
 		<PackageReference Include="Microsoft.Extensions.Http" Version="10.0.3" />
-		<PackageReference Include="Microsoft.Maui.Controls" Version="9.0.120" />
-		<PackageReference Include="Microsoft.Extensions.Logging.Debug" Version="9.0.10" />
-		<PackageReference Include="Microsoft.Maui.Essentials" Version="9.0.120" />
+		<PackageReference Include="Microsoft.Maui.Controls" Version="10.0.20" />
+		<PackageReference Include="Microsoft.Extensions.Logging.Debug" Version="10.0.3" />
+		<PackageReference Include="Microsoft.Maui.Essentials" Version="10.0.20" />
 		<PackageReference Include="Plugin.LocalNotification" Version="10.1.8" />
 		<PackageReference Include="Plugin.MauiMTAdmob" Version="2.3.0" />
 	</ItemGroup>
@@ -173,15 +173,14 @@
 	<Target Name="RemoveDuplicateKtxJars" BeforeTargets="_CategorizeAndroidLibraries;_CompileToDalvikWithD8;_CompileToDalvikWithR8;_CreateFullReportWithD8">
 		<ItemGroup>
 			<AndroidLibrary Remove="@(AndroidLibrary)" Condition="$([System.String]::Copy('%(Identity)').Contains('compose.runtime.annotation.jvm')) Or $([System.String]::Copy('%(Identity)').Contains('runtime-annotation-jvm')) Or $([System.String]::Copy('%(Identity)').Contains('savedstate.savedstate.ktx')) Or $([System.String]::Copy('%(Identity)').Contains('savedstate-ktx'))" />
-			<ExtractedJarImports Remove="@(ExtractedJarImports)" Condition="$([System.String]::Copy('%(FullPath)').Contains('compose.runtime.annotation.jvm')) Or $([System.String]::Copy('%(FullPath)').Contains('runtime-annotation-jvm')) Or $([System.String]::Copy('%(FullPath)').Contains('lp\187')) Or $([System.String]::Copy('%(FullPath)').Contains('lp/187'))" />
-			<_JavaLibrariesToCompileForApp Remove="@(_JavaLibrariesToCompileForApp)" Condition="$([System.String]::Copy('%(FullPath)').Contains('compose.runtime.annotation.jvm')) Or $([System.String]::Copy('%(FullPath)').Contains('runtime-annotation-jvm')) Or $([System.String]::Copy('%(FullPath)').Contains('lp\187')) Or $([System.String]::Copy('%(FullPath)').Contains('lp/187'))" />
-			<_JavaLibrariesToCompile Remove="@(_JavaLibrariesToCompile)" Condition="$([System.String]::Copy('%(FullPath)').Contains('compose.runtime.annotation.jvm')) Or $([System.String]::Copy('%(FullPath)').Contains('runtime-annotation-jvm')) Or $([System.String]::Copy('%(FullPath)').Contains('lp\187')) Or $([System.String]::Copy('%(FullPath)').Contains('lp/187'))" />
-			<_AndroidLibraryImports Remove="@(_AndroidLibraryImports)" Condition="$([System.String]::Copy('%(FullPath)').Contains('compose.runtime.annotation.jvm')) Or $([System.String]::Copy('%(FullPath)').Contains('runtime-annotation-jvm')) Or $([System.String]::Copy('%(FullPath)').Contains('lp\187')) Or $([System.String]::Copy('%(FullPath)').Contains('lp/187'))" />
+			<ExtractedJarImports Remove="@(ExtractedJarImports)" Condition="$([System.String]::Copy('%(FullPath)').Contains('compose.runtime.annotation.jvm')) Or $([System.String]::Copy('%(FullPath)').Contains('runtime-annotation-jvm'))" />
+			<_JavaLibrariesToCompileForApp Remove="@(_JavaLibrariesToCompileForApp)" Condition="$([System.String]::Copy('%(FullPath)').Contains('compose.runtime.annotation.jvm')) Or $([System.String]::Copy('%(FullPath)').Contains('runtime-annotation-jvm'))" />
+			<_JavaLibrariesToCompile Remove="@(_JavaLibrariesToCompile)" Condition="$([System.String]::Copy('%(FullPath)').Contains('compose.runtime.annotation.jvm')) Or $([System.String]::Copy('%(FullPath)').Contains('runtime-annotation-jvm'))" />
+			<_AndroidLibraryImports Remove="@(_AndroidLibraryImports)" Condition="$([System.String]::Copy('%(FullPath)').Contains('compose.runtime.annotation.jvm')) Or $([System.String]::Copy('%(FullPath)').Contains('runtime-annotation-jvm'))" />
 			<AndroidJavaLibrary Remove="@(AndroidJavaLibrary)" Condition="$([System.String]::Copy('%(Identity)').Contains('compose.runtime.annotation.jvm')) Or $([System.String]::Copy('%(Identity)').Contains('runtime-annotation-jvm'))" />
 			<_AndroidJavaLibraries Remove="@(_AndroidJavaLibraries)" Condition="$([System.String]::Copy('%(Identity)').Contains('compose.runtime.annotation.jvm')) Or $([System.String]::Copy('%(Identity)').Contains('runtime-annotation-jvm'))" />
 			<AndroidAarLibrary Remove="@(AndroidAarLibrary)" Condition="$([System.String]::Copy('%(Identity)').Contains('savedstate.savedstate.ktx')) Or $([System.String]::Copy('%(Identity)').Contains('savedstate-ktx'))" />
 		</ItemGroup>
-		<Delete Files="$(MSBuildProjectDirectory)\obj\Debug\net9.0-android\lp\187\jl\classes.jar" Condition="Exists('$(MSBuildProjectDirectory)\obj\Debug\net9.0-android\lp\187\jl\classes.jar')" />
 	</Target>
 
 

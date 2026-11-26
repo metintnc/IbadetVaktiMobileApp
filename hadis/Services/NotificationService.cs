@@ -276,20 +276,55 @@ namespace hadis.Services
             {
 #if ANDROID
                 var context = global::Android.App.Application.Context;
-                var intent = new global::Android.Content.Intent(context, typeof(Platforms.Android.Services.PersistentNotificationService));
-                intent.PutExtra("title", title);
-                intent.PutExtra("message", message);
-                
-                if (global::Android.OS.Build.VERSION.SdkInt >= global::Android.OS.BuildVersionCodes.O)
+                if (OperatingSystem.IsAndroidVersionAtLeast(26))
                 {
-                    context.StartForegroundService(intent);
+                    var channel = new global::Android.App.NotificationChannel(
+                        "persistent_channel",
+                        "Sürekli Bildirim",
+                        global::Android.App.NotificationImportance.Low)
+                    {
+                        Description = "Vakitleri gösteren sürekli bildirim",
+                        LockscreenVisibility = global::Android.App.NotificationVisibility.Public
+                    };
+                    channel.EnableVibration(false);
+                    channel.SetSound(null, null);
+                    channel.SetShowBadge(false);
+
+                    var systemManager = (global::Android.App.NotificationManager?)context.GetSystemService(global::Android.Content.Context.NotificationService);
+                    systemManager?.CreateNotificationChannel(channel);
                 }
-                else
+
+                var notificationManager = AndroidX.Core.App.NotificationManagerCompat.From(context);
+                if (!notificationManager.AreNotificationsEnabled())
                 {
-                    context.StartService(intent);
+                    System.Diagnostics.Debug.WriteLine("⚠️ Bildirim izni kapalı, sürekli bildirim gösterilemedi");
+                    return;
                 }
-                
-                System.Diagnostics.Debug.WriteLine($"📌 Foreground service başlatıldı: {title}");
+
+                var intent = new global::Android.Content.Intent(context, typeof(MainActivity));
+                intent.SetFlags(global::Android.Content.ActivityFlags.NewTask | global::Android.Content.ActivityFlags.ClearTop);
+                var pendingIntent = global::Android.App.PendingIntent.GetActivity(
+                    context,
+                    0,
+                    intent,
+                    global::Android.App.PendingIntentFlags.Immutable | global::Android.App.PendingIntentFlags.UpdateCurrent);
+
+                var builder = new AndroidX.Core.App.NotificationCompat.Builder(context, "persistent_channel")
+                    .SetContentTitle(title)
+                    .SetContentText(message)
+                    .SetStyle(new AndroidX.Core.App.NotificationCompat.BigTextStyle().BigText(message))
+                    .SetSmallIcon(global::hadis.Resource.Mipmap.appicon)
+                    .SetContentIntent(pendingIntent)
+                    .SetOngoing(true)
+                    .SetAutoCancel(false)
+                    .SetOnlyAlertOnce(true)
+                    .SetPriority(AndroidX.Core.App.NotificationCompat.PriorityLow)
+                    .SetCategory(AndroidX.Core.App.NotificationCompat.CategoryStatus)
+                    .SetVisibility(AndroidX.Core.App.NotificationCompat.VisibilityPublic);
+
+                notificationManager.Notify(ID_PERSISTENT, builder.Build());
+                System.Diagnostics.Debug.WriteLine($"📌 Sürekli bildirim güncellendi: {title}");
+                await Task.CompletedTask;
 #elif IOS
                 if (await LocalNotificationCenter.Current.AreNotificationsEnabled() == false)
                 {
@@ -321,15 +356,12 @@ namespace hadis.Services
 #if ANDROID
             try
             {
-                var context = global::Android.App.Application.Context;
-                var intent = new global::Android.Content.Intent(context, typeof(Platforms.Android.Services.PersistentNotificationService));
-                intent.SetAction("STOP_SERVICE");
-                context.StartService(intent);
-                System.Diagnostics.Debug.WriteLine("🗑️ Foreground service durduruldu");
+                AndroidX.Core.App.NotificationManagerCompat.From(global::Android.App.Application.Context).Cancel(ID_PERSISTENT);
+                System.Diagnostics.Debug.WriteLine("🗑️ Sürekli bildirim iptal edildi");
             }
             catch (Exception ex)
             {
-                System.Diagnostics.Debug.WriteLine($"⚠️ Service durdurma hatası: {ex.Message}");
+                System.Diagnostics.Debug.WriteLine($"⚠️ Sürekli bildirim iptal hatası: {ex.Message}");
             }
 #else
             LocalNotificationCenter.Current.Cancel(ID_PERSISTENT);
